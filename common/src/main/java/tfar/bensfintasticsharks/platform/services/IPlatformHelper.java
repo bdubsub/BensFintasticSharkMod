@@ -47,6 +47,7 @@ public interface IPlatformHelper {
     EntityType<HarborSealEntity> registerHarborSeal();
     EntityType<CommonStingrayEntity> registerStingray();
     EntityType<CommonThresherSharkEntity> registerThresherShark();
+    EntityType<ShortfinMakoSharkEntity> registerShortfinMakoShark();
 
     ArmorItem createPrismarineArmor(ArmorMaterial prismarine, ArmorItem.Type helmet, Item.Properties properties);
 

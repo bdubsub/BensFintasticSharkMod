@@ -97,6 +97,7 @@ public class BensFintasticSharksForge {
         event.put(ModEntityTypes.COMMON_THRESHER_SHARK, CommonThresherSharkEntity.createAttributes().build());
         event.put(ModEntityTypes.HARBOR_SEAL, HarborSealEntity.createAttributes().build());
         event.put(ModEntityTypes.COMMON_STINGRAY, CommonStingrayEntityForge.createAttributes().build());
+        event.put(ModEntityTypes.SHORTFIN_MAKO_SHARK, ShortfinMakoSharkEntityForge.createAttributes().build());
     }
 
     public static Map<Registry<?>, List<Pair<ResourceLocation, Supplier<?>>>> registerLater = new HashMap<>();

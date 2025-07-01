@@ -13,12 +13,12 @@
 			"bones": [
 				{
 					"name": "bipedHead",
-					"pivot": [0, 25, 0]
+					"pivot": [0, 24, 0]
 				},
 				{
 					"name": "armorHead",
 					"parent": "bipedHead",
-					"pivot": [0, 26, 0],
+					"pivot": [0, 24, 0],
 					"cubes": [
 						{"origin": [-4, 25, -4], "size": [8, 8, 8], "inflate": 0.75, "uv": [0, 16]},
 						{"origin": [-5.75, 33.5, -4], "size": [0, 3, 8], "pivot": [-5.75, 35.25, 0], "rotation": [0, 0, -32.5], "uv": [4, 48]},

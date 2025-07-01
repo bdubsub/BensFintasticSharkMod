@@ -15,6 +15,7 @@ public class ModItems {
     public static final Item COMMON_THRESHER_SHARK_SPAWN_EGG = new SpawnEggItem(ModEntityTypes.COMMON_THRESHER_SHARK,CLEAR,CLEAR,new Item.Properties());
     public static final Item HARBOR_SEAL_SPAWN_EGG = new SpawnEggItem(ModEntityTypes.HARBOR_SEAL,CLEAR,CLEAR,new Item.Properties());
     public static final Item COMMON_STINGRAY_SPAWN_EGG = new SpawnEggItem(ModEntityTypes.COMMON_STINGRAY,CLEAR,CLEAR,new Item.Properties());
+    public static final Item SHORTFIN_MAKO_SHARK_SPAWN_EGG = new SpawnEggItem(ModEntityTypes.SHORTFIN_MAKO_SHARK,CLEAR,CLEAR,new Item.Properties());
 
     public static final Item GREAT_WHITE_SHARK_SKIN = new Item(new Item.Properties());
     public static final Item GREAT_HAMMERHEAD_SHARK_SKIN = new Item(new Item.Properties());

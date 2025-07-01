@@ -86,6 +86,11 @@ public class ForgePlatformHelper implements IPlatformHelper {
     }
 
     @Override
+    public EntityType<ShortfinMakoSharkEntity> registerShortfinMakoShark() {
+        return EntityType.Builder.of(ShortfinMakoSharkEntityForge::new, MobCategory.WATER_CREATURE).sized(1.5f, 0.75f).build("");
+    }
+
+    @Override
     public ArmorItem createPrismarineArmor(ArmorMaterial prismarine, ArmorItem.Type helmet, Item.Properties properties) {
         return new PrismarineArmorItem(prismarine, helmet,properties);
     }

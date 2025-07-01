@@ -29,6 +29,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         makeOneLayerItem(ModItems.COMMON_THRESHER_SHARK_SPAWN_EGG);
         makeOneLayerItem(ModItems.HARBOR_SEAL_SPAWN_EGG);
         makeOneLayerItem(ModItems.COMMON_STINGRAY_SPAWN_EGG);
+        makeOneLayerItem(ModItems.SHORTFIN_MAKO_SHARK_SPAWN_EGG);
 
         makeOneLayerItem(ModItems.GREAT_WHITE_SHARK_SKIN);
         makeOneLayerItem(ModItems.GREAT_HAMMERHEAD_SHARK_SKIN);

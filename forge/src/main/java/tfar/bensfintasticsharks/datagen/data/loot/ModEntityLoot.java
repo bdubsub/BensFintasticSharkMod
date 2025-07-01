@@ -17,6 +17,7 @@ public class ModEntityLoot extends VanillaEntityLoot {
         nothing(ModEntityTypes.COMMON_STINGRAY);
         nothing(ModEntityTypes.COMMON_THRESHER_SHARK);
         nothing(ModEntityTypes.HARBOR_SEAL);
+        nothing(ModEntityTypes.SHORTFIN_MAKO_SHARK);
     }
 
     protected void nothing(EntityType<?> type) {

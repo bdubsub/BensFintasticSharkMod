@@ -26,6 +26,7 @@ public class ModClientForge {
         EntityRenderers.register((EntityType<CommonThresherSharkEntityForge>) ModEntityTypes.COMMON_THRESHER_SHARK, CommonThresherRenderer::new);
         EntityRenderers.register((EntityType<HarborSealEntityForge>) ModEntityTypes.HARBOR_SEAL, HarborSealRenderer::new);
         EntityRenderers.register((EntityType<CommonStingrayEntityForge>) ModEntityTypes.COMMON_STINGRAY, CommonStingrayRenderer::new);
+        EntityRenderers.register((EntityType<ShortfinMakoSharkEntityForge>) ModEntityTypes.SHORTFIN_MAKO_SHARK, ShortfinMakoRenderer::new);
         EntityRenderers.register(ModEntityTypes.SHARK_TRIDENT,ThrownSharkTridentRenderer::new);
     }
 

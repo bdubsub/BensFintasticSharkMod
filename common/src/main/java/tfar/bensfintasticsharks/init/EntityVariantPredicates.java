@@ -16,6 +16,7 @@ public class EntityVariantPredicates {
     public static final EntityVariantPredicate<CommonThresherSharkEntity.Variant> COMMON_THRESHER_SHARK = EntityVariantPredicate.create(CommonThresherSharkEntity.Variant.CODEC, entity -> entity instanceof CommonThresherSharkEntity greatWhiteShark ? Optional.of(greatWhiteShark.getVariant()) : Optional.empty());
     public static final EntityVariantPredicate<HarborSealEntity.Variant> HARBOR_SEAL = EntityVariantPredicate.create(HarborSealEntity.Variant.CODEC, entity -> entity instanceof HarborSealEntity greatWhiteShark ? Optional.of(greatWhiteShark.getVariant()) : Optional.empty());
     public static final EntityVariantPredicate<CommonStingrayEntity.Variant> COMMON_STINGRAY = EntityVariantPredicate.create(CommonStingrayEntity.Variant.CODEC, entity -> entity instanceof CommonStingrayEntity greatWhiteShark ? Optional.of(greatWhiteShark.getVariant()) : Optional.empty());
+    public static final EntityVariantPredicate<ShortfinMakoSharkEntity.Variant> SHORTFIN_MAKO_SHARK = EntityVariantPredicate.create(ShortfinMakoSharkEntity.Variant.CODEC, entity -> entity instanceof ShortfinMakoSharkEntity greatWhiteShark ? Optional.of(greatWhiteShark.getVariant()) : Optional.empty());
 
     static {
         EntitySubPredicate.Types.TYPES = HashBiMap.create(EntitySubPredicate.Types.TYPES);
@@ -24,6 +25,7 @@ public class EntityVariantPredicates {
         EntitySubPredicate.Types.TYPES.put(BensFintasticSharks.id("common_thresher_shark").toString(),COMMON_THRESHER_SHARK.type());
         EntitySubPredicate.Types.TYPES.put(BensFintasticSharks.id("harbor_seal").toString(),HARBOR_SEAL.type());
         EntitySubPredicate.Types.TYPES.put(BensFintasticSharks.id("common_stingray").toString(),COMMON_STINGRAY.type());
+        EntitySubPredicate.Types.TYPES.put(BensFintasticSharks.id("shortfin_mako_shark").toString(),SHORTFIN_MAKO_SHARK.type());
     }
 
     public static void poke(){}
