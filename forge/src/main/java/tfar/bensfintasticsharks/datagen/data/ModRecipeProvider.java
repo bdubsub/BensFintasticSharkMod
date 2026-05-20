@@ -83,7 +83,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('d', Items.DIAMOND)
                 .define('p',Items.PRISMARINE_SHARD)
                 .define('s', ModTags.Items.SHARK_TEETH)
-                .pattern("dpd")
+                .pattern("ppp")
+                .pattern("d d")
                 .pattern("s s")
                 .unlockedBy("has_shark_teeth",has(ModTags.Items.SHARK_TEETH))
                 .save(consumer);

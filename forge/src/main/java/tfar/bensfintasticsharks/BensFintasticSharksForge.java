@@ -266,6 +266,7 @@ public class BensFintasticSharksForge {
             }
         }
         e.register(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, BensFintasticSharks.id("add_item_chance"),() -> LootModifiers.ADD_ITEM_CHANCE);
+        e.register(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, BensFintasticSharks.id("add_once_per_world"),() -> LootModifiers.ADD_ONCE_PER_WORLD);
     }
 
 }

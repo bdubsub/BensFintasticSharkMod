@@ -31,6 +31,18 @@ public class CaptainBenHatItem extends ArmorItem implements GeoItem {
         super(material, type, properties);
     }
 
+    /** Collector's piece — never lose durability. */
+    @Override
+    public boolean isDamageable(ItemStack stack) {
+        return false;
+    }
+
+    /** Defense in depth — if something still tries to damage it, no-op. */
+    @Override
+    public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, T entity, java.util.function.Consumer<T> onBroken) {
+        return 0;
+    }
+
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(new IClientItemExtensions() {

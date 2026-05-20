@@ -65,8 +65,9 @@ public class ModItems {
     public static final Item CODEX_VOLUME = new Item(new Item.Properties());
 
     // Legacy 1.0 — Captain Ben's Hat (cosmetic helmet, leather-tier stats, GeckoLib worn rendering).
+    // Cosmetic / collector's item: infinite durability so it can't be destroyed by damage.
     public static final Item CAPTAIN_BEN_HAT = Services.PLATFORM.createCaptainBenHat(ArmorMaterials.LEATHER,
-            new Item.Properties().rarity(Rarity.RARE));
+            new Item.Properties().rarity(Rarity.RARE).fireResistant().stacksTo(1));
 
     // Legacy 1.0 — Lobster meat (raw + cooked).
     public static final FoodProperties RAW_LOBSTER_MEAT = new FoodProperties.Builder().nutrition(2).saturationMod(0.2F).build();

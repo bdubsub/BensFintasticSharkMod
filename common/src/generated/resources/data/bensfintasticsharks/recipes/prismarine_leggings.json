@@ -13,7 +13,8 @@
     }
   },
   "pattern": [
-    "dpd",
+    "ppp",
+    "d d",
     "s s"
   ],
   "result": {
