@@ -39,7 +39,7 @@ public class AddOncePerWorldLootModifier extends LootModifier {
 
     @Override
     protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
-        if (!(context.getLevel() instanceof ServerLevel sl)) return generatedLoot;
+        ServerLevel sl = context.getLevel();
         BfsWorldData data = BfsWorldData.get(sl);
         if (data.isCaptainBenHatClaimed()) return generatedLoot;
         if (context.getRandom().nextFloat() <= chance) {
