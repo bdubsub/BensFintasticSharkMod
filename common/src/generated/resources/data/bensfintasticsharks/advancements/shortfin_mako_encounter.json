@@ -1,0 +1,40 @@
+{
+  "parent": "bensfintasticsharks:root",
+  "criteria": {
+    "player_found_entity": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:shortfin_mako_shark"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.shortfin_mako_encounter.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:shortfin_mako_shark_spawn_egg"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.shortfin_mako_encounter.title"
+    }
+  },
+  "requirements": [
+    [
+      "player_found_entity"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

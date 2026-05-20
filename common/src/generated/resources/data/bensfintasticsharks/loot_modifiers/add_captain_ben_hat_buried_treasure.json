@@ -1,0 +1,13 @@
+{
+  "type": "bensfintasticsharks:add_item_chance",
+  "chance": 0.05,
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:chests/buried_treasure"
+    }
+  ],
+  "item": "bensfintasticsharks:captain_ben_hat",
+  "max": 1,
+  "min": 1
+}

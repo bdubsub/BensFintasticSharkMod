@@ -1,0 +1,37 @@
+package tfar.bensfintasticsharks.client.renderer;
+
+import com.google.common.collect.Maps;
+import net.minecraft.Util;
+import java.util.Locale;
+import java.util.Map;
+import tfar.bensfintasticsharks.entity.OceanicWhitetipSharkEntity;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+import software.bernie.geckolib.model.DefaultedEntityGeoModel;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import tfar.bensfintasticsharks.BensFintasticSharks;
+import tfar.bensfintasticsharks.entity.OceanicWhitetipSharkEntityForge;
+
+public class OceanicWhitetipSharkRenderer extends GeoEntityRenderer<OceanicWhitetipSharkEntityForge> {
+
+    private static final Map<OceanicWhitetipSharkEntity.Variant, ResourceLocation> TEXTURE_BY_VARIANT = Util.make(Maps.newHashMap(), m -> {
+        for (OceanicWhitetipSharkEntity.Variant v : OceanicWhitetipSharkEntity.Variant.values()) {
+            m.put(v, BensFintasticSharks.id(String.format(Locale.ROOT, "textures/entity/oceanic_whitetip_shark/%s.png", v.getName())));
+        }
+    });
+
+        public OceanicWhitetipSharkRenderer(EntityRendererProvider.Context ctx) {
+        super(ctx, new DefaultedEntityGeoModel<>(BensFintasticSharks.id("oceanic_whitetip_shark")));
+    }
+
+    @Override
+    public @NotNull ResourceLocation getTextureLocation(OceanicWhitetipSharkEntityForge entity) {
+        return TEXTURE_BY_VARIANT.get(entity.getVariant());
+    }
+
+    @Override
+    protected float getDeathMaxRotation(OceanicWhitetipSharkEntityForge e) {
+        return 0;
+    }
+}

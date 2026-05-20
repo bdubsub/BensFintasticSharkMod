@@ -44,9 +44,28 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.IntFunction;
 
-public class CommonThresherSharkEntity extends SmartWaterAnimal<CommonThresherSharkEntity> implements ConditionalGlowing {
+public class CommonThresherSharkEntity extends AbstractSharkEntity<CommonThresherSharkEntity>
+        implements ConditionalGlowing, BfsVariantHolder {
+
+    @Override public int bfsVariantCount() { return Variant.values().length; }
+    @Override public void setBfsVariantId(int id) {
+        int n = bfsVariantCount();
+        setVariant(Variant.byId(((id % n) + n) % n));
+    }
+
+    private static final SharkParams THRESHER_PARAMS = new SharkParams(
+            /* detectionRadius      */ 22.0f,
+            /* bloodDetectionRadius */ 32.0f,
+            /* aggressionLevel      */ 55,
+            /* aggroSpeedMult       */ 1.1f,
+            /* disengageDistance    */ 64.0f,
+            /* disengageTimeoutTicks*/ 300,
+            /* biteCooldownTicks    */ 30,
+            /* biteDamage           */ 4.0f
+    );
+
     protected CommonThresherSharkEntity(EntityType<CommonThresherSharkEntity> $$0, Level $$1) {
-        super($$0, $$1);
+        super($$0, $$1, THRESHER_PARAMS);
 
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1/10f, 0, false);
         this.lookControl = new SmoothSwimmingLookControl(this, 10);
@@ -78,8 +97,8 @@ public class CommonThresherSharkEntity extends SmartWaterAnimal<CommonThresherSh
 
     @Override
     public double getMeleeAttackRangeSqr(LivingEntity pEntity) {
-        float v = this.getBbWidth() * this.getBbWidth() + pEntity.getBbWidth();
-        return v;//cuts default range in half
+        float reach = this.getBbWidth() + pEntity.getBbWidth();
+        return (reach * reach) / 4f;
     }
 
     @Override

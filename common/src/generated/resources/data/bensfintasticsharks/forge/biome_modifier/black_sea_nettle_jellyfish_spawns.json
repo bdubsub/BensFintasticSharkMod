@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#bensfintasticsharks:black_sea_nettle_jellyfish_spawns",
+  "spawners": {
+    "type": "bensfintasticsharks:black_sea_nettle_jellyfish",
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 3
+  }
+}

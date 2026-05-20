@@ -47,11 +47,29 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.IntFunction;
 
-public class ShortfinMakoSharkEntity extends SmartWaterAnimal<ShortfinMakoSharkEntity> {
+public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSharkEntity>
+        implements BfsVariantHolder {
 
+    @Override public int bfsVariantCount() { return Variant.values().length; }
+    @Override public void setBfsVariantId(int id) {
+        int n = bfsVariantCount();
+        setVariant(Variant.byId(((id % n) + n) % n));
+    }
+
+
+    private static final SharkParams MAKO_PARAMS = new SharkParams(
+            /* detectionRadius      */ 28.0f,
+            /* bloodDetectionRadius */ 42.0f,
+            /* aggressionLevel      */ 85,
+            /* aggroSpeedMult       */ 1.6f,
+            /* disengageDistance    */ 80.0f,
+            /* disengageTimeoutTicks*/ 400,
+            /* biteCooldownTicks    */ 14,
+            /* biteDamage           */ 4.0f
+    );
 
     protected ShortfinMakoSharkEntity(EntityType<ShortfinMakoSharkEntity> $$0, Level $$1) {
-        super($$0, $$1);
+        super($$0, $$1, MAKO_PARAMS);
 
 
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1 / 8f, 0, false);
@@ -99,7 +117,7 @@ public class ShortfinMakoSharkEntity extends SmartWaterAnimal<ShortfinMakoSharkE
         double offsetX = dist * rotatedx;
         double offsetZ = dist * rotatedz;
 
-        double thisHeight = getDimensions(entity.getPose()).height;
+        double thisHeight = getDimensions(getPose()).height;
         double height = entity.getDimensions(entity.getPose()).height;
 
         function.accept(entity, getX() + offsetX, getY() + thisHeight / 2 - height / 2, getZ() + offsetZ);
@@ -124,7 +142,7 @@ public class ShortfinMakoSharkEntity extends SmartWaterAnimal<ShortfinMakoSharkE
     float computeGrabAngle() {
         int grabTimer = BensFintasticSharks.GRAB_TIMER - getGrabTimer();
 
-        int mod = grabTimer;//(grabTimer + 3) % 40;
+        int mod = (grabTimer + 3) % 40;
 
         float degrees = mod * 24;
         float angle = 35 * Mth.sin((float) (degrees * Math.PI / 180));
@@ -139,8 +157,9 @@ public class ShortfinMakoSharkEntity extends SmartWaterAnimal<ShortfinMakoSharkE
         super.customServerAiStep();
         int grabCountdown = getGrabTimer();
         if (grabCountdown > 0) {
-            setGrabTimer(--grabCountdown);
-            if (grabCountdown == 0) {
+            int next = grabCountdown - 1;
+            setGrabTimer(next);
+            if (next == 0) {
                 ejectPassengers();
             }
         }
@@ -156,7 +175,8 @@ public class ShortfinMakoSharkEntity extends SmartWaterAnimal<ShortfinMakoSharkE
 
     @Override
     public double getMeleeAttackRangeSqr(LivingEntity pEntity) {
-        return this.getBbWidth() * this.getBbWidth() + pEntity.getBbWidth(); //cuts default range in half
+        float reach = this.getBbWidth() + pEntity.getBbWidth();
+        return (reach * reach) / 4f;
     }
 
     @Override
@@ -212,7 +232,7 @@ public class ShortfinMakoSharkEntity extends SmartWaterAnimal<ShortfinMakoSharkE
         if (target.isDeadOrDying()) return false;
         if (target.getVehicle() == this) return false;
 
-        if (target.getType().is(ModTags.EntityTypes.GREAT_WHITE_SHARK_ALWAYS_ATTACKS)) return true;
+        if (target.getType().is(ModTags.EntityTypes.SHORTFIN_MAKO_SHARK_ALWAYS_ATTACKS)) return true;
 
         if (target.getHealth() / target.getMaxHealth() <= .5) return true;
 

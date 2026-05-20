@@ -4,13 +4,16 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.LogicalSide;
@@ -22,9 +25,11 @@ import net.minecraftforge.registries.RegisterEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import tfar.bensfintasticsharks.client.ModClientForge;
 import tfar.bensfintasticsharks.datagen.ModDatagen;
+import tfar.bensfintasticsharks.disturbance.WaterDisturbanceListeners;
 import tfar.bensfintasticsharks.entity.*;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 import tfar.bensfintasticsharks.init.ModItems;
+import tfar.bensfintasticsharks.init.ModMobEffects;
 import tfar.bensfintasticsharks.init.ModTags;
 
 import java.util.HashMap;
@@ -44,9 +49,18 @@ public class BensFintasticSharksForge {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addListener(this::register);
         bus.addListener(this::attributes);
+        bus.addListener(tfar.bensfintasticsharks.spawn.BfsSpawnPlacements::onSpawnPlacementRegister);
         bus.addListener(ModDatagen::start);
         MinecraftForge.EVENT_BUS.addListener(this::playerTick);
         MinecraftForge.EVENT_BUS.addListener(this::trading);
+        MinecraftForge.EVENT_BUS.addListener(this::onLivingDeath);
+        MinecraftForge.EVENT_BUS.addListener(this::onRegisterCommands);
+        MinecraftForge.EVENT_BUS.addListener(this::onEntityJoin);
+        MinecraftForge.EVENT_BUS.register(new tfar.bensfintasticsharks.spawn.MobCapManager());
+        WaterDisturbanceListeners.register(MinecraftForge.EVENT_BUS);
+        bus.addListener(this::onCommonSetup);
+        tfar.bensfintasticsharks.config.BfsConfig.register();
+        tfar.bensfintasticsharks.worldgen.ModFeatures.register(bus);
 
         if (FMLEnvironment.dist.isClient()) {
             ModClientForge.init(bus);
@@ -71,6 +85,132 @@ public class BensFintasticSharksForge {
 
             BensFintasticSharks.playerTick(event.player);
         }
+    }
+
+    private void onRegisterCommands(net.minecraftforge.event.RegisterCommandsEvent event) {
+        tfar.bensfintasticsharks.command.BfsCommands.register(event.getDispatcher());
+    }
+
+    private void onEntityJoin(net.minecraftforge.event.entity.EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide) return;
+        if (!(event.getEntity() instanceof net.minecraft.world.entity.LivingEntity le)) return;
+        var id = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(le.getType());
+        if (id == null || !BensFintasticSharks.MOD_ID.equals(id.getNamespace())) return;
+        String speciesPath = id.getPath();
+        var cfg = tfar.bensfintasticsharks.config.BfsConfig.COMMON;
+        boolean isShark = le.getType().is(ModTags.EntityTypes.SHARKS);
+
+        // Per-species HP. Folds in the global shark_hp_mult for sharks so users can scale
+        // every shark with one knob.
+        var hpCfg = cfg.speciesHpMult.get(speciesPath);
+        if (hpCfg != null) {
+            double mult = hpCfg.get();
+            if (isShark) mult *= cfg.sharkHpMult.get();
+            if (Math.abs(mult - 1.0) > 1e-6) {
+                var hp = le.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+                if (hp != null) {
+                    double newMax = hp.getBaseValue() * mult;
+                    hp.setBaseValue(newMax);
+                    le.setHealth((float) newMax);
+                }
+            }
+        }
+
+        // Per-species damage. Same shark-rollup.
+        var dmgCfg = cfg.speciesDamageMult.get(speciesPath);
+        if (dmgCfg != null) {
+            double mult = dmgCfg.get();
+            if (isShark) mult *= cfg.sharkDamageMult.get();
+            if (Math.abs(mult - 1.0) > 1e-6) {
+                var dmg = le.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+                if (dmg != null) dmg.setBaseValue(dmg.getBaseValue() * mult);
+            }
+        }
+
+        // Per-species knockback resistance. -1 sentinel = leave default attribute alone,
+        // except for orca where the legacy single-value config still applies.
+        var kbCfg = cfg.speciesKnockbackResistance.get(speciesPath);
+        if (kbCfg != null) {
+            double v = kbCfg.get();
+            if (v >= 0) {
+                var kb = le.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE);
+                if (kb != null) kb.setBaseValue(v);
+            } else if (le.getType() == ModEntityTypes.ORCA) {
+                var kb = le.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE);
+                if (kb != null) kb.setBaseValue(cfg.orcaKnockbackResistance.get());
+            }
+        }
+    }
+
+    private void onLivingDeath(LivingDeathEvent event) {
+        if (event.getEntity().level().isClientSide) return;
+        if (!event.getEntity().getType().is(ModTags.EntityTypes.CONSERVATION_PROTECTED)) return;
+        if (!tfar.bensfintasticsharks.config.BfsConfig.COMMON.conservationDebuffEnabled.get()) return;
+        if (event.getSource().getEntity() instanceof Player player && !player.isCreative() && !player.isSpectator()) {
+            player.addEffect(new MobEffectInstance(
+                    ModMobEffects.RESPECT_THE_OCEAN,
+                    2400, // 2 minutes
+                    0,
+                    false, // ambient
+                    false, // visible particles
+                    true   // show icon
+            ));
+        }
+    }
+
+    private void onCommonSetup(net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            applyCategoryCapsFromConfig();
+            syncSharkMultsFromConfig();
+        });
+    }
+
+    private void syncSharkMultsFromConfig() {
+        var cfg = tfar.bensfintasticsharks.config.BfsConfig.COMMON;
+        tfar.bensfintasticsharks.entity.AbstractSharkEntity.globalDetectionMult = cfg.sharkDetectionRadiusMult.get().floatValue();
+        tfar.bensfintasticsharks.entity.AbstractSharkEntity.globalDisengageDistanceMult = cfg.sharkDisengageDistanceMult.get().floatValue();
+        tfar.bensfintasticsharks.entity.BfsAquaticEntity.globalJellyfishDamageMult = cfg.jellyfishDamageMult.get().floatValue();
+    }
+
+    private void applyCategoryCapsFromConfig() {
+        try {
+            java.lang.reflect.Field f = findMobCategoryMaxField();
+            if (f == null) {
+                BensFintasticSharks.LOG.warn("Could not locate MobCategory#max via any mapping; BFS category caps will use creation-time defaults (5/15/25). Per-species caps still apply via MobCapManager.");
+                return;
+            }
+            f.setAccessible(true);
+            f.setInt(tfar.bensfintasticsharks.init.ModMobCategories.APEX_PREDATOR,
+                    tfar.bensfintasticsharks.config.BfsConfig.COMMON.apexPredatorCap.get());
+            f.setInt(tfar.bensfintasticsharks.init.ModMobCategories.BFS_WATER_CREATURE,
+                    tfar.bensfintasticsharks.config.BfsConfig.COMMON.bfsWaterCreatureCap.get());
+            f.setInt(tfar.bensfintasticsharks.init.ModMobCategories.BFS_WATER_AMBIENT,
+                    tfar.bensfintasticsharks.config.BfsConfig.COMMON.bfsWaterAmbientCap.get());
+        } catch (Throwable t) {
+            BensFintasticSharks.LOG.warn("Could not apply config caps to BFS mob categories", t);
+        }
+    }
+
+    /**
+     * Resolves the {@link net.minecraft.world.entity.MobCategory} max-count field across
+     * mapping configurations. In dev/parchment the field is {@code max}; in production
+     * the runtime jar exposes it under its SRG name {@code f_21422_}. As a last resort
+     * we walk declared int fields and pick the first one (it's the first int declared
+     * on the enum), so the lookup keeps working even if SRG names shift in the future.
+     */
+    private static java.lang.reflect.Field findMobCategoryMaxField() {
+        Class<?> cls = net.minecraft.world.entity.MobCategory.class;
+        // Try mojmap / parchment name first.
+        try { return cls.getDeclaredField("max"); } catch (NoSuchFieldException ignored) {}
+        // Forge's runtime uses SRG names for vanilla classes.
+        try { return cls.getDeclaredField("f_21422_"); } catch (NoSuchFieldException ignored) {}
+        // Last resort: the max field is the first declared int on the enum.
+        for (java.lang.reflect.Field candidate : cls.getDeclaredFields()) {
+            if (candidate.getType() == int.class && !java.lang.reflect.Modifier.isStatic(candidate.getModifiers())) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     private void trading(VillagerTradesEvent event) {
@@ -98,6 +238,22 @@ public class BensFintasticSharksForge {
         event.put(ModEntityTypes.HARBOR_SEAL, HarborSealEntity.createAttributes().build());
         event.put(ModEntityTypes.COMMON_STINGRAY, CommonStingrayEntityForge.createAttributes().build());
         event.put(ModEntityTypes.SHORTFIN_MAKO_SHARK, ShortfinMakoSharkEntityForge.createAttributes().build());
+
+        // Legacy 1.0 new mobs
+        event.put(ModEntityTypes.TIGER_SHARK, TigerSharkEntity.createAttributes().build());
+        event.put(ModEntityTypes.OCEANIC_WHITETIP_SHARK, OceanicWhitetipSharkEntity.createAttributes().build());
+        event.put(ModEntityTypes.SANDTIGER_SHARK, SandtigerSharkEntity.createAttributes().build());
+        event.put(ModEntityTypes.BLACKTIP_REEF_SHARK, BlacktipReefSharkEntity.createAttributes().build());
+        event.put(ModEntityTypes.BOTTLENOSE_DOLPHIN, BottlenoseDolphinEntity.createAttributes().build());
+        event.put(ModEntityTypes.ORCA, OrcaEntity.createAttributes().build());
+        event.put(ModEntityTypes.COMMON_OCTOPUS, CommonOctopusEntity.createAttributes().build());
+        event.put(ModEntityTypes.CARIBBEAN_REEF_OCTOPUS, CaribbeanReefOctopusEntity.createAttributes().build());
+        event.put(ModEntityTypes.NAUTILUS, NautilusEntity.createAttributes().build());
+        event.put(ModEntityTypes.GIANT_MORAY_EEL, GiantMorayEelEntity.createAttributes().build());
+        event.put(ModEntityTypes.GREEN_SEA_TURTLE, GreenSeaTurtleEntity.createAttributes().build());
+        event.put(ModEntityTypes.AMERICAN_LOBSTER, AmericanLobsterEntity.createAttributes().build());
+        event.put(ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH, BlackSeaNettleJellyfishEntity.createAttributes().build());
+        event.put(ModEntityTypes.CANNONBALL_JELLYFISH, CannonballJellyfishEntity.createAttributes().build());
     }
 
     public static Map<Registry<?>, List<Pair<ResourceLocation, Supplier<?>>>> registerLater = new HashMap<>();

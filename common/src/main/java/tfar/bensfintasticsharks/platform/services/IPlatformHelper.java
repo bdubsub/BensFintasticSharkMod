@@ -42,6 +42,9 @@ public interface IPlatformHelper {
 
     <F> void registerAll(Class<?> clazz, Registry<? extends F> registry, Class<F> filter);
 
+    /** Platform-specific custom mob category registration, called before any entity types are built. */
+    default void initCustomCategories() {}
+
     EntityType<GreatHammerheadSharkEntity> registerGreatHammerheadShark();
     EntityType<GreatWhiteSharkEntity> registerGreatWhite();
     EntityType<HarborSealEntity> registerHarborSeal();
@@ -49,6 +52,25 @@ public interface IPlatformHelper {
     EntityType<CommonThresherSharkEntity> registerThresherShark();
     EntityType<ShortfinMakoSharkEntity> registerShortfinMakoShark();
 
+    // New Legacy 1.0 mobs.
+    EntityType<TigerSharkEntity> registerTigerShark();
+    EntityType<OceanicWhitetipSharkEntity> registerOceanicWhitetipShark();
+    EntityType<SandtigerSharkEntity> registerSandtigerShark();
+    EntityType<BlacktipReefSharkEntity> registerBlacktipReefShark();
+    EntityType<BottlenoseDolphinEntity> registerBottlenoseDolphin();
+    EntityType<OrcaEntity> registerOrca();
+    EntityType<CommonOctopusEntity> registerCommonOctopus();
+    EntityType<CaribbeanReefOctopusEntity> registerCaribbeanReefOctopus();
+    EntityType<NautilusEntity> registerNautilus();
+    EntityType<GiantMorayEelEntity> registerGiantMorayEel();
+    EntityType<GreenSeaTurtleEntity> registerGreenSeaTurtle();
+    EntityType<AmericanLobsterEntity> registerAmericanLobster();
+    EntityType<BlackSeaNettleJellyfishEntity> registerBlackSeaNettleJellyfish();
+    EntityType<CannonballJellyfishEntity> registerCannonballJellyfish();
+
     ArmorItem createPrismarineArmor(ArmorMaterial prismarine, ArmorItem.Type helmet, Item.Properties properties);
+
+    /** Platform helper for the GeckoLib-rendered captain's hat. */
+    ArmorItem createCaptainBenHat(ArmorMaterial material, Item.Properties properties);
 
 }

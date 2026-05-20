@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#bensfintasticsharks:tiger_shark_spawns",
+  "spawners": {
+    "type": "bensfintasticsharks:tiger_shark",
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 25
+  }
+}

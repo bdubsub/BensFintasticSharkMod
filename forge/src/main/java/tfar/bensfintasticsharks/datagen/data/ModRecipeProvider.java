@@ -119,5 +119,26 @@ public class ModRecipeProvider extends RecipeProvider {
                 .requires(Items.BLUE_DYE).requires(Items.TROPICAL_FISH_BUCKET)
                 .unlockedBy("has_shark_teeth",has(ModTags.Items.SHARK_TEETH))
                 .save(consumer);
+
+        // Lobster meat smelting (Legacy 1.0)
+        SimpleCookingRecipeBuilder.smelting(net.minecraft.world.item.crafting.Ingredient.of(ModItems.RAW_LOBSTER_CLAW),
+                        RecipeCategory.FOOD, ModItems.COOKED_LOBSTER_CLAW, 0.35F, 200)
+                .unlockedBy("has_raw_lobster_claw", has(ModItems.RAW_LOBSTER_CLAW))
+                .save(consumer, "cooked_lobster_claw_from_smelting");
+
+        SimpleCookingRecipeBuilder.smelting(net.minecraft.world.item.crafting.Ingredient.of(ModItems.RAW_LOBSTER_TAIL),
+                        RecipeCategory.FOOD, ModItems.COOKED_LOBSTER_TAIL, 0.35F, 200)
+                .unlockedBy("has_raw_lobster_tail", has(ModItems.RAW_LOBSTER_TAIL))
+                .save(consumer, "cooked_lobster_tail_from_smelting");
+
+        SimpleCookingRecipeBuilder.campfireCooking(net.minecraft.world.item.crafting.Ingredient.of(ModItems.RAW_LOBSTER_CLAW),
+                        RecipeCategory.FOOD, ModItems.COOKED_LOBSTER_CLAW, 0.35F, 600)
+                .unlockedBy("has_raw_lobster_claw", has(ModItems.RAW_LOBSTER_CLAW))
+                .save(consumer, "cooked_lobster_claw_from_campfire");
+
+        SimpleCookingRecipeBuilder.campfireCooking(net.minecraft.world.item.crafting.Ingredient.of(ModItems.RAW_LOBSTER_TAIL),
+                        RecipeCategory.FOOD, ModItems.COOKED_LOBSTER_TAIL, 0.35F, 600)
+                .unlockedBy("has_raw_lobster_tail", has(ModItems.RAW_LOBSTER_TAIL))
+                .save(consumer, "cooked_lobster_tail_from_campfire");
     }
 }

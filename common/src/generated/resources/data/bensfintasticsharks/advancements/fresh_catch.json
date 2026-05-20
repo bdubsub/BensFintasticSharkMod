@@ -1,0 +1,51 @@
+{
+  "parent": "bensfintasticsharks:marine_curious",
+  "criteria": {
+    "cooked_lobster_claw": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "bensfintasticsharks:cooked_lobster_claw"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "cooked_lobster_tail": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "bensfintasticsharks:cooked_lobster_tail"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.fresh_catch.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:cooked_lobster_claw"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.fresh_catch.title"
+    }
+  },
+  "requirements": [
+    [
+      "cooked_lobster_claw",
+      "cooked_lobster_tail"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

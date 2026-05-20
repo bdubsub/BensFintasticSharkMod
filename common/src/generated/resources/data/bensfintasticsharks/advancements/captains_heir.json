@@ -1,0 +1,42 @@
+{
+  "parent": "bensfintasticsharks:hidden_trove",
+  "criteria": {
+    "got_hat": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "bensfintasticsharks:captain_ben_hat"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.captains_heir.description"
+    },
+    "frame": "goal",
+    "hidden": true,
+    "icon": {
+      "item": "bensfintasticsharks:captain_ben_hat",
+      "nbt": "{Damage:0}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.captains_heir.title"
+    }
+  },
+  "requirements": [
+    [
+      "got_hat"
+    ]
+  ],
+  "rewards": {
+    "experience": 50
+  },
+  "sends_telemetry_event": true
+}

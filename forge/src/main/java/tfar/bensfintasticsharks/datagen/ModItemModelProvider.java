@@ -24,12 +24,33 @@ public class ModItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
 
-        makeOneLayerItem(ModItems.GREAT_WHITE_SHARK_SPAWN_EGG);
-        makeOneLayerItem(ModItems.GREAT_HAMMERHEAD_SHARK_SPAWN_EGG);
-        makeOneLayerItem(ModItems.COMMON_THRESHER_SHARK_SPAWN_EGG);
-        makeOneLayerItem(ModItems.HARBOR_SEAL_SPAWN_EGG);
-        makeOneLayerItem(ModItems.COMMON_STINGRAY_SPAWN_EGG);
-        makeOneLayerItem(ModItems.SHORTFIN_MAKO_SHARK_SPAWN_EGG);
+        spawnEgg(ModItems.GREAT_WHITE_SHARK_SPAWN_EGG);
+        spawnEgg(ModItems.GREAT_HAMMERHEAD_SHARK_SPAWN_EGG);
+        spawnEgg(ModItems.COMMON_THRESHER_SHARK_SPAWN_EGG);
+        spawnEgg(ModItems.HARBOR_SEAL_SPAWN_EGG);
+        spawnEgg(ModItems.COMMON_STINGRAY_SPAWN_EGG);
+        spawnEgg(ModItems.SHORTFIN_MAKO_SHARK_SPAWN_EGG);
+
+        spawnEgg(ModItems.TIGER_SHARK_SPAWN_EGG);
+        spawnEgg(ModItems.OCEANIC_WHITETIP_SHARK_SPAWN_EGG);
+        spawnEgg(ModItems.SANDTIGER_SHARK_SPAWN_EGG);
+        spawnEgg(ModItems.BLACKTIP_REEF_SHARK_SPAWN_EGG);
+        spawnEgg(ModItems.BOTTLENOSE_DOLPHIN_SPAWN_EGG);
+        spawnEgg(ModItems.ORCA_SPAWN_EGG);
+        spawnEgg(ModItems.COMMON_OCTOPUS_SPAWN_EGG);
+        spawnEgg(ModItems.CARIBBEAN_REEF_OCTOPUS_SPAWN_EGG);
+        spawnEgg(ModItems.NAUTILUS_SPAWN_EGG);
+        spawnEgg(ModItems.GIANT_MORAY_EEL_SPAWN_EGG);
+        spawnEgg(ModItems.GREEN_SEA_TURTLE_SPAWN_EGG);
+        spawnEgg(ModItems.AMERICAN_LOBSTER_SPAWN_EGG);
+        spawnEgg(ModItems.BLACK_SEA_NETTLE_JELLYFISH_SPAWN_EGG);
+        spawnEgg(ModItems.CANNONBALL_JELLYFISH_SPAWN_EGG);
+
+        makeOneLayerItem(ModItems.CAPTAIN_BEN_HAT);
+        makeOneLayerItem(ModItems.RAW_LOBSTER_CLAW);
+        makeOneLayerItem(ModItems.COOKED_LOBSTER_CLAW);
+        makeOneLayerItem(ModItems.RAW_LOBSTER_TAIL);
+        makeOneLayerItem(ModItems.COOKED_LOBSTER_TAIL);
 
         makeOneLayerItem(ModItems.GREAT_WHITE_SHARK_SKIN);
         makeOneLayerItem(ModItems.GREAT_HAMMERHEAD_SHARK_SKIN);

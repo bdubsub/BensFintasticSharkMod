@@ -1,0 +1,55 @@
+package tfar.bensfintasticsharks.disturbance;
+
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
+
+import java.util.List;
+
+public class SharkAlertHandler {
+
+    /** Rate-limit per source position to avoid event spam. Key = source long hash. */
+    private static final java.util.concurrent.ConcurrentMap<Long, Long> LAST_FIRED = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Public API for shark entities to fire a convergence/alert. */
+    public static void fire(ServerLevel level, AbstractSharkEntity<?> source, SharkAlertEvent.Type type,
+                            Class<?> alertedSpecies, double radius, net.minecraft.world.entity.LivingEntity target) {
+        long key = source.blockPosition().asLong();
+        long now = level.getGameTime();
+        Long last = LAST_FIRED.get(key);
+        if (last != null && now - last < 100) return;
+        LAST_FIRED.put(key, now);
+        MinecraftForge.EVENT_BUS.post(new SharkAlertEvent(level, source.blockPosition(), target,
+                alertedSpecies, radius, type));
+    }
+
+    @SubscribeEvent
+    public void onAlert(SharkAlertEvent event) {
+        if (event.getLevel().isClientSide) return;
+        ServerLevel level = (ServerLevel) event.getLevel();
+        AABB area = new AABB(event.getSource()).inflate(event.getRadius());
+        List<AbstractSharkEntity> sharks = level.getEntitiesOfClass(AbstractSharkEntity.class, area,
+                shark -> event.getAlertedSpecies().isInstance(shark));
+        for (AbstractSharkEntity shark : sharks) {
+            if (shark.getSharkState() != AbstractSharkEntity.SharkState.IDLE
+                    && shark.getSharkState() != AbstractSharkEntity.SharkState.CURIOUS) continue;
+            switch (event.getType()) {
+                case BLOOD_CONVERGENCE -> {
+                    if (event.getTarget() != null) {
+                        shark.setTarget(event.getTarget());
+                        shark.reactToDisturbance(event.getSource(),
+                                tfar.bensfintasticsharks.disturbance.DisturbanceType.BLOOD, event.getTarget());
+                    }
+                }
+                case PACK_ALERT -> {
+                    if (shark.getRandom().nextFloat() < 0.60f) {
+                        shark.reactToDisturbance(event.getSource(),
+                                tfar.bensfintasticsharks.disturbance.DisturbanceType.HEAVY, null);
+                    }
+                }
+            }
+        }
+    }
+}

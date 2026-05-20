@@ -1,0 +1,38 @@
+{
+  "parent": "bensfintasticsharks:root",
+  "criteria": {
+    "found_manuscript": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "bensfintasticsharks:lost_manuscript"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.hidden_trove.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:lost_manuscript"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.hidden_trove.title"
+    }
+  },
+  "requirements": [
+    [
+      "found_manuscript"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

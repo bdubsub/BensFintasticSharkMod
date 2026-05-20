@@ -19,43 +19,55 @@ public class ModBiomeTagsProvider extends BiomeTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
-        // Will spawn in the following biomes
-        // 1.Ocean
-        // 2. DeepOcean
+        // Existing 1.0 mobs preserved
         tag(ModTags.Biomes.GREAT_WHITE_SHARK_SPAWNS).add(Biomes.OCEAN,Biomes.DEEP_OCEAN);
 
-        //Will spawn in the following biomes
-        // 1. Ocean
-        // 2. DeepOcean
-        // 3. WarmOcean
-        // 4. Lukewarm Ocean
-        // 5. DeepLukewarm Ocean
         tag(ModTags.Biomes.GREAT_HAMMERHEAD_SHARK_SPAWNS).add(Biomes.OCEAN,Biomes.DEEP_OCEAN,Biomes.WARM_OCEAN,Biomes.LUKEWARM_OCEAN,Biomes.DEEP_LUKEWARM_OCEAN);
 
-        // Will spawn in the following biomes
-        // 1.Ocean
-        // 2. DeepOcean
         tag(ModTags.Biomes.COMMON_THRESHER_SHARK_SPAWNS).add(Biomes.OCEAN,Biomes.DEEP_OCEAN);
 
-
-        // Will spawn in the following biomes
-        // 1. Ocean
-        // 2. Lukewarm Ocean
-        // 3. WarmOcean
-        // 4. Swamp
-        // 5. Mangrove
         tag(ModTags.Biomes.COMMON_STINGRAY_SPAWNS).add(Biomes.OCEAN,Biomes.LUKEWARM_OCEAN,Biomes.WARM_OCEAN,Biomes.SWAMP,Biomes.MANGROVE_SWAMP);
 
-        //Will spawn in the following biomes
-        // 1.
-        // Beach
-        // 2. Ocean
-        // 3. DeepOcean
-        // 4. Lukewarm Ocean
-        // 5. WarmOcean
-        // 6. Cold Ocean (Will use Arctic Skin for any cold biomes)
         tag(ModTags.Biomes.HARBOR_SEAL_SPAWNS).add(Biomes.OCEAN,Biomes.DEEP_OCEAN,Biomes.WARM_OCEAN,
                 Biomes.LUKEWARM_OCEAN,Biomes.WARM_OCEAN,Biomes.COLD_OCEAN);
 
+        tag(ModTags.Biomes.SHORTFIN_MAKO_SHARK_SPAWNS).add(Biomes.OCEAN,Biomes.DEEP_OCEAN,Biomes.LUKEWARM_OCEAN,
+                Biomes.DEEP_LUKEWARM_OCEAN,Biomes.WARM_OCEAN);
+
+        // Legacy 1.0 new sharks
+        tag(ModTags.Biomes.TIGER_SHARK_SPAWNS).add(Biomes.OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.WARM_OCEAN,
+                Biomes.DEEP_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN);
+
+        tag(ModTags.Biomes.OCEANIC_WHITETIP_SHARK_SPAWNS).add(Biomes.DEEP_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN, Biomes.DEEP_COLD_OCEAN);
+
+        tag(ModTags.Biomes.SANDTIGER_SHARK_SPAWNS).add(Biomes.OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.WARM_OCEAN);
+
+        tag(ModTags.Biomes.BLACKTIP_REEF_SHARK_SPAWNS).add(Biomes.LUKEWARM_OCEAN, Biomes.WARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN);
+
+        // Marine mammals
+        tag(ModTags.Biomes.BOTTLENOSE_DOLPHIN_SPAWNS).add(Biomes.OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.WARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN);
+
+        tag(ModTags.Biomes.ORCA_SPAWNS).add(Biomes.COLD_OCEAN, Biomes.DEEP_COLD_OCEAN);
+
+        // Cephalopods
+        tag(ModTags.Biomes.COMMON_OCTOPUS_SPAWNS).add(Biomes.LUKEWARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN,
+                Biomes.COLD_OCEAN, Biomes.DEEP_COLD_OCEAN);
+
+        tag(ModTags.Biomes.CARIBBEAN_REEF_OCTOPUS_SPAWNS).add(Biomes.WARM_OCEAN);
+
+        tag(ModTags.Biomes.NAUTILUS_SPAWNS).add(Biomes.DEEP_OCEAN, Biomes.DEEP_COLD_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN);
+
+        // Other fauna
+        tag(ModTags.Biomes.GIANT_MORAY_EEL_SPAWNS).add(Biomes.WARM_OCEAN);
+
+        tag(ModTags.Biomes.GREEN_SEA_TURTLE_SPAWNS).add(Biomes.WARM_OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN);
+
+        tag(ModTags.Biomes.AMERICAN_LOBSTER_SPAWNS).add(Biomes.OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.DEEP_OCEAN,
+                Biomes.DEEP_LUKEWARM_OCEAN, Biomes.WARM_OCEAN);
+
+        // Jellyfish
+        tag(ModTags.Biomes.BLACK_SEA_NETTLE_JELLYFISH_SPAWNS).add(Biomes.DEEP_OCEAN, Biomes.DEEP_COLD_OCEAN);
+
+        tag(ModTags.Biomes.CANNONBALL_JELLYFISH_SPAWNS).add(Biomes.LUKEWARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN, Biomes.WARM_OCEAN);
     }
 }

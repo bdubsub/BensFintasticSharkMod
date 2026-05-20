@@ -1,0 +1,40 @@
+{
+  "parent": "bensfintasticsharks:shark_whisperer",
+  "criteria": {
+    "found_orca": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:orca"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.apex_of_apex.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:orca_spawn_egg"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.apex_of_apex.title"
+    }
+  },
+  "requirements": [
+    [
+      "found_orca"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

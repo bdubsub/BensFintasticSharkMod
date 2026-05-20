@@ -1,0 +1,129 @@
+{
+  "parent": "bensfintasticsharks:marine_curious",
+  "criteria": {
+    "blacktip_reef_shark": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "direct_entity": {
+              "type": "bensfintasticsharks:blacktip_reef_shark"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:entity_hurt_player"
+    },
+    "common_thresher_shark": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "direct_entity": {
+              "type": "bensfintasticsharks:common_thresher_shark"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:entity_hurt_player"
+    },
+    "great_hammerhead_shark": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "direct_entity": {
+              "type": "bensfintasticsharks:great_hammerhead_shark"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:entity_hurt_player"
+    },
+    "great_white_shark": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "direct_entity": {
+              "type": "bensfintasticsharks:great_white_shark"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:entity_hurt_player"
+    },
+    "oceanic_whitetip_shark": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "direct_entity": {
+              "type": "bensfintasticsharks:oceanic_whitetip_shark"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:entity_hurt_player"
+    },
+    "sandtiger_shark": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "direct_entity": {
+              "type": "bensfintasticsharks:sandtiger_shark"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:entity_hurt_player"
+    },
+    "shortfin_mako_shark": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "direct_entity": {
+              "type": "bensfintasticsharks:shortfin_mako_shark"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:entity_hurt_player"
+    },
+    "tiger_shark": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "direct_entity": {
+              "type": "bensfintasticsharks:tiger_shark"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:entity_hurt_player"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.wrong_place_wrong_time.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:great_hammerhead_shark_tooth"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.wrong_place_wrong_time.title"
+    }
+  },
+  "requirements": [
+    [
+      "great_white_shark",
+      "great_hammerhead_shark",
+      "common_thresher_shark",
+      "shortfin_mako_shark",
+      "tiger_shark",
+      "oceanic_whitetip_shark",
+      "sandtiger_shark",
+      "blacktip_reef_shark"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

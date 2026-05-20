@@ -33,6 +33,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Panic;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomSwimTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
@@ -43,7 +44,14 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.IntFunction;
 
-public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> {
+public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> implements BfsVariantHolder {
+
+    @Override public int bfsVariantCount() { return Variant.values().length; }
+    @Override public void setBfsVariantId(int id) {
+        int n = bfsVariantCount();
+        setVariant(Variant.byId(((id % n) + n) % n));
+    }
+
     protected HarborSealEntity(EntityType<HarborSealEntity> $$0, Level $$1) {
         super($$0, $$1);
 
@@ -160,7 +168,7 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> {
 
         private static Variant getSpawnVariant(RandomSource pRandom, Holder<Biome> biome) {
 
-            if (biome == Biomes.COLD_OCEAN || biome == Biomes.DEEP_COLD_OCEAN || biome == Biomes.FROZEN_OCEAN || biome == Biomes.DEEP_FROZEN_OCEAN) {
+            if (biome.is(Biomes.COLD_OCEAN) || biome.is(Biomes.DEEP_COLD_OCEAN) || biome.is(Biomes.FROZEN_OCEAN) || biome.is(Biomes.DEEP_FROZEN_OCEAN)) {
                 return ARCTIC_VARIANTS.getRandomValue(pRandom).orElseThrow();
             }
 
@@ -182,14 +190,17 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> {
 
     @Override
     public BrainActivityGroup<? extends HarborSealEntity> getIdleTasks() {
-        // These are the tasks that run when the mob isn't doing anything else (usually)
+        // Seals swim around in water, walk on land. Use SetRandomSwimTarget so they actually
+        // pick reachable underwater destinations — the previous SetRandomWalkTarget was a
+        // land-only pathfinder and they'd stop moving as soon as they hit water.
         return BrainActivityGroup.idleTasks(
-                new FirstApplicableBehaviour<>(      // Run only one of the below behaviours, trying each one in order. Include the generic type because JavaC is silly
-                        new SetPlayerLookTarget<>(),          // Set the look target for the nearest player
-                        new SetRandomLookTarget<>()),         // Set a random look target
-                new OneRandomBehaviour<>(                 // Run a random task from the below options
-                        new SetRandomWalkTarget<>(),          // Set a random walk target to a nearby position
-                        new Idle<>().runFor(entity -> entity.getRandom().nextInt(60, 120)))); // Do nothing for 1.5->3 seconds
+                new FirstApplicableBehaviour<>(
+                        new SetPlayerLookTarget<>(),
+                        new SetRandomLookTarget<>()),
+                new OneRandomBehaviour<>(
+                        com.mojang.datafixers.util.Pair.of(new SetRandomSwimTarget<HarborSealEntity>().setRadius(20, 6), 6),
+                        com.mojang.datafixers.util.Pair.of(new SetRandomWalkTarget<HarborSealEntity>().setRadius(8), 2),
+                        com.mojang.datafixers.util.Pair.of(new Idle<HarborSealEntity>().runFor(entity -> entity.getRandom().nextInt(40, 80)), 2)));
     }
 
     @Override

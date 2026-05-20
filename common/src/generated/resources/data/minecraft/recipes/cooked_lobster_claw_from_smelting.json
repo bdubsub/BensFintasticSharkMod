@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "food",
+  "cookingtime": 200,
+  "experience": 0.35,
+  "ingredient": {
+    "item": "bensfintasticsharks:raw_lobster_claw"
+  },
+  "result": "bensfintasticsharks:cooked_lobster_claw"
+}

@@ -1,0 +1,40 @@
+{
+  "parent": "bensfintasticsharks:marine_curious",
+  "criteria": {
+    "found_dolphin": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:bottlenose_dolphin"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.dolphin_friend.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:bottlenose_dolphin_spawn_egg"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.dolphin_friend.title"
+    }
+  },
+  "requirements": [
+    [
+      "found_dolphin"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -46,9 +46,28 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.IntFunction;
 
-public class GreatHammerheadSharkEntity extends SmartWaterAnimal<GreatHammerheadSharkEntity> {
+public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerheadSharkEntity>
+        implements BfsVariantHolder {
+
+    @Override public int bfsVariantCount() { return Variant.values().length; }
+    @Override public void setBfsVariantId(int id) {
+        int n = bfsVariantCount();
+        setVariant(Variant.byId(((id % n) + n) % n));
+    }
+
+    private static final SharkParams HAMMERHEAD_PARAMS = new SharkParams(
+            /* detectionRadius      */ 20.0f,
+            /* bloodDetectionRadius */ 32.0f,
+            /* aggressionLevel      */ 40,
+            /* aggroSpeedMult       */ 1.0f,
+            /* disengageDistance    */ 64.0f,
+            /* disengageTimeoutTicks*/ 400,
+            /* biteCooldownTicks    */ 22,
+            /* biteDamage           */ 3.5f
+    );
+
     protected GreatHammerheadSharkEntity(EntityType<GreatHammerheadSharkEntity> $$0, Level $$1) {
-        super($$0, $$1);
+        super($$0, $$1, HAMMERHEAD_PARAMS);
 
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1/10f, 0, false);
         this.lookControl = new SmoothSwimmingLookControl(this, 10);
@@ -118,8 +137,8 @@ public class GreatHammerheadSharkEntity extends SmartWaterAnimal<GreatHammerhead
 
     @Override
     public double getMeleeAttackRangeSqr(LivingEntity pEntity) {
-        float v = this.getBbWidth() * this.getBbWidth() + pEntity.getBbWidth();
-        return v;//cuts default range in half
+        float reach = this.getBbWidth() + pEntity.getBbWidth();
+        return (reach * reach) / 4f;
     }
 
     @Override
@@ -200,7 +219,7 @@ public class GreatHammerheadSharkEntity extends SmartWaterAnimal<GreatHammerhead
         double offsetX = dist * rotatedx;
         double offsetZ = dist * rotatedz;
 
-        double thisHeight = getDimensions(entity.getPose()).height;
+        double thisHeight = getDimensions(getPose()).height;
         double height = entity.getDimensions(entity.getPose()).height;
 
         function.accept(entity, getX() + offsetX, getY() +thisHeight/2- height/2, getZ() + offsetZ);
@@ -209,7 +228,7 @@ public class GreatHammerheadSharkEntity extends SmartWaterAnimal<GreatHammerhead
      float computeGrabAngle() {
         int grabTimer = BensFintasticSharks.GRAB_TIMER - getGrabTimer();
 
-        int mod = grabTimer;//(grabTimer + 3) % 40;
+        int mod = (grabTimer + 3) % 40;
 
             float degrees = mod * 18;
             float angle =  35 * Mth.sin((float) (degrees * Math.PI /180));
@@ -232,8 +251,9 @@ public class GreatHammerheadSharkEntity extends SmartWaterAnimal<GreatHammerhead
         super.customServerAiStep();
         int grabCountdown = getGrabTimer();
         if (grabCountdown > 0) {
-            setGrabTimer(--grabCountdown);
-            if (grabCountdown == 0) {
+            int next = grabCountdown - 1;
+            setGrabTimer(next);
+            if (next == 0) {
                 ejectPassengers();
             }
         }

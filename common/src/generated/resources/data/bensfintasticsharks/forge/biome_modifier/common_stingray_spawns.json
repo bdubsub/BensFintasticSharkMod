@@ -3,8 +3,8 @@
   "biomes": "#bensfintasticsharks:common_stingray_spawns",
   "spawners": {
     "type": "bensfintasticsharks:common_stingray",
-    "maxCount": 4,
+    "maxCount": 3,
     "minCount": 1,
-    "weight": 100
+    "weight": 50
   }
 }

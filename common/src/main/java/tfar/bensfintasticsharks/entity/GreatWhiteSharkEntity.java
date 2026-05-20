@@ -50,9 +50,28 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.IntFunction;
 
-public class GreatWhiteSharkEntity extends SmartWaterAnimal<GreatWhiteSharkEntity> implements ConditionalGlowing {
+public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEntity>
+        implements ConditionalGlowing, BfsVariantHolder {
+
+    @Override public int bfsVariantCount() { return Variant.values().length; }
+    @Override public void setBfsVariantId(int id) {
+        int n = bfsVariantCount();
+        setVariant(Variant.byId(((id % n) + n) % n));
+    }
+
+    private static final SharkParams GREAT_WHITE_PARAMS = new SharkParams(
+            /* detectionRadius      */ 28.0f,
+            /* bloodDetectionRadius */ 56.0f,
+            /* aggressionLevel      */ 65,
+            /* aggroSpeedMult       */ 1.1f,
+            /* disengageDistance    */ 64.0f,
+            /* disengageTimeoutTicks*/ 300,
+            /* biteCooldownTicks    */ 25,
+            /* biteDamage           */ 6.0f
+    );
+
     protected GreatWhiteSharkEntity(EntityType<GreatWhiteSharkEntity> $$0, Level $$1) {
-        super($$0, $$1);
+        super($$0, $$1, GREAT_WHITE_PARAMS);
 
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1/10f, 0, false);
         this.lookControl = new SmoothSwimmingLookControl(this, 10);
@@ -114,7 +133,7 @@ public class GreatWhiteSharkEntity extends SmartWaterAnimal<GreatWhiteSharkEntit
         double offsetX = dist * rotatedx;
         double offsetZ = dist * rotatedz;
 
-        double thisHeight = getDimensions(entity.getPose()).height;
+        double thisHeight = getDimensions(getPose()).height;
         double height = entity.getDimensions(entity.getPose()).height;
 
         function.accept(entity, getX() + offsetX, getY() +thisHeight/2- height/2, getZ() + offsetZ);
@@ -138,7 +157,7 @@ public class GreatWhiteSharkEntity extends SmartWaterAnimal<GreatWhiteSharkEntit
     float computeGrabAngle() {
         int grabTimer = BensFintasticSharks.GRAB_TIMER - getGrabTimer();
 
-        int mod = grabTimer;//(grabTimer + 3) % 40;
+        int mod = (grabTimer + 3) % 40;
 
         float degrees = mod * 24;
         float angle =  35 * Mth.sin((float) (degrees * Math.PI /180));
@@ -153,8 +172,9 @@ public class GreatWhiteSharkEntity extends SmartWaterAnimal<GreatWhiteSharkEntit
         super.customServerAiStep();
         int grabCountdown = getGrabTimer();
         if (grabCountdown > 0) {
-            setGrabTimer(--grabCountdown);
-            if (grabCountdown == 0) {
+            int next = grabCountdown - 1;
+            setGrabTimer(next);
+            if (next == 0) {
                 ejectPassengers();
             }
         }}
@@ -169,8 +189,8 @@ public class GreatWhiteSharkEntity extends SmartWaterAnimal<GreatWhiteSharkEntit
 
     @Override
     public double getMeleeAttackRangeSqr(LivingEntity pEntity) {
-        float v = this.getBbWidth() * this.getBbWidth() + pEntity.getBbWidth();
-        return v;//cuts default range in half
+        float reach = this.getBbWidth() + pEntity.getBbWidth();
+        return (reach * reach) / 4f;
     }
 
     @Override

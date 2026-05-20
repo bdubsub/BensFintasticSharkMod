@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#bensfintasticsharks:green_sea_turtle_spawns",
+  "spawners": {
+    "type": "bensfintasticsharks:green_sea_turtle",
+    "maxCount": 2,
+    "minCount": 1,
+    "weight": 25
+  }
+}

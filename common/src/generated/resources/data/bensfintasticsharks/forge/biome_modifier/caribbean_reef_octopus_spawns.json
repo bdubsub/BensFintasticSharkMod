@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#bensfintasticsharks:caribbean_reef_octopus_spawns",
+  "spawners": {
+    "type": "bensfintasticsharks:caribbean_reef_octopus",
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 20
+  }
+}

@@ -1,6 +1,8 @@
-# MultiLoader Template
+# Ben's Fintastic Sharks
 
-This project provides a Gradle project template that can compile mods for both Forge and Fabric using a common sourceset. This project does not require any third party libraries or dependencies. If you have any questions or want to discuss the project join our [Discord](https://discord.myceliummod.network).
+> **Forge sided only.** This mod ships and runs on Minecraft Forge 47.2.0 for 1.20.1 only. The `fabric/` subproject in this repo is a non-functional template stub — it is intentionally not built or maintained, and the mod is not playable on Fabric. All gameplay, datagen, biome modifiers, and entity registration go through the Forge side.
+
+Built on a MultiLoader template, but only the `common/` (vanilla-MC code) and `forge/` (Forge loader code) subprojects are wired up. If you need a Fabric build, you'll need to implement `FabricPlatformHelper` and the rest of the Fabric port from scratch.
 
 ## Getting Started
 

@@ -1,5 +1,9 @@
-// 1.20.1	2024-11-19T22:26:37.0125353	Tags for minecraft:entity_type mod id bensfintasticsharks
+// 1.20.1	2026-05-18T22:18:45.0181687	Tags for minecraft:entity_type mod id bensfintasticsharks
+eeaa2476895331da087a4124501463e6cfa95392 data/bensfintasticsharks/tags/entity_types/apex_predator.json
 15a52117d1a6f0eccaca4551f9733e6405cad265 data/bensfintasticsharks/tags/entity_types/common_thresher_shark/always_attacks.json
+b4a07dd57d2fdf22af7ecf145d25424e3e61f30c data/bensfintasticsharks/tags/entity_types/conservation_protected.json
 fd5ff3f3e2dd644ef218716bb295eca8c2e611b6 data/bensfintasticsharks/tags/entity_types/great_hammerhead_shark/always_attacks.json
 fd5ff3f3e2dd644ef218716bb295eca8c2e611b6 data/bensfintasticsharks/tags/entity_types/great_white_shark/always_attacks.json
-faa8b373bd278c18916f21745bf98cbb0474bd8c data/bensfintasticsharks/tags/entity_types/sharks.json
+58831df70b76ca32350c2146d6cda5db78008a40 data/bensfintasticsharks/tags/entity_types/sharks.json
+9839bb2c30eb3f60c8671c1515d0e91c73ff6b4d data/bensfintasticsharks/tags/entity_types/shark_prey.json
+fd5ff3f3e2dd644ef218716bb295eca8c2e611b6 data/bensfintasticsharks/tags/entity_types/shortfin_mako_shark/always_attacks.json

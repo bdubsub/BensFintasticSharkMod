@@ -2,6 +2,11 @@
   "values": [
     "bensfintasticsharks:common_thresher_shark",
     "bensfintasticsharks:great_hammerhead_shark",
-    "bensfintasticsharks:great_white_shark"
+    "bensfintasticsharks:great_white_shark",
+    "bensfintasticsharks:shortfin_mako_shark",
+    "bensfintasticsharks:tiger_shark",
+    "bensfintasticsharks:oceanic_whitetip_shark",
+    "bensfintasticsharks:sandtiger_shark",
+    "bensfintasticsharks:blacktip_reef_shark"
   ]
 }

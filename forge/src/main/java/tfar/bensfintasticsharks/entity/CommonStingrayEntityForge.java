@@ -19,10 +19,10 @@ public class CommonStingrayEntityForge extends CommonStingrayEntity implements G
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        boolean isAttacking = this.swinging;
-        boolean isDead = this.dead || this.getHealth() < 0.01 || this.isDeadOrDying();
-        boolean isBeached = onGround() && !isInWaterOrBubble();
         controllers.add(new AnimationController<>(this, "idle_controller", 0, event -> {
+            boolean isAttacking = this.swinging;
+            boolean isDead = this.dead || this.getHealth() < 0.01 || this.isDeadOrDying();
+            boolean isBeached = onGround() && !isInWaterOrBubble();
             if (isBeached) {
                 return event.setAndContinue(ModAnimations.BEACHED);
             }

@@ -1,0 +1,476 @@
+# Ben's Fintastic Sharks
+
+A 1.20.1 Forge mod that adds twenty sea creatures, a buried treasure structure, a captain's hat, a shark codex book, and a system that makes sharks pay attention to what you're doing in the water.
+
+This document is the reference for everything the mod ships with. If you just installed it and you're trying to figure out where to find an Orca, skip to section 3.
+
+## 1. What's in the mod
+
+The roster covers four loose groups.
+
+The sharks are Great White, Great Hammerhead, Common Thresher, Shortfin Mako, Tiger, Oceanic Whitetip, Sandtiger, and Blacktip Reef. Two marine mammals, the Bottlenose Dolphin and the Orca. Three cephalopods, the Common Octopus, the Caribbean Reef Octopus, and the Nautilus. Five other fauna, the Common Stingray, the Harbor Seal, the American Lobster, the Giant Moray Eel, and the Green Sea Turtle. Two jellyfish, the Black Sea Nettle and the Cannonball.
+
+Most of these species ship with multiple skin variants that get rolled randomly on spawn and can also be cycled on the spawn egg. See section 9 for the variant tables.
+
+There is one cosmetic item, Captain Ben's Hat, which is a head slot armor with leather tier stats and a 3D worn model. You find it in chest loot rather than crafting it.
+
+There is one readable item chain that ends in the Shark Codex. You assemble it from Lost Manuscripts you find in dungeon, shipwreck, buried treasure, and ocean ruin loot. See section 11.
+
+There is one structure, the Sunken Trove. It generates on the ocean floor in non frozen ocean biomes and contains a chest with our loot table.
+
+## 2. How spawning works
+
+Vanilla Minecraft caps water mobs at five per player. Cod, salmon, tropical fish, pufferfish, dolphins, and squid all share that single cap of five. If your loaded chunks already have five cod swimming around, no new dolphin can spawn. This is why most ocean mods feel empty.
+
+This mod runs on its own categories so it doesn't compete with vanilla water mobs for slots. There are three categories. The apex predator category holds all eight sharks plus the Orca and has a default cap of five. The water creature category holds dolphins, octopuses, stingrays, seals, lobsters, eels, turtles, and nautiluses with a cap of fifteen. The water ambient category holds the two jellyfish species with a cap of twenty five.
+
+On top of the category caps, every individual species has its own cap. When a natural spawn fires, we count how many of that species already exist inside a 64 block radius of the spawn position, which is about four chunks. If the count is at or above the species cap, the spawn is cancelled. Setting a species cap to zero disables natural spawning entirely.
+
+Caps only gate natural and chunk generation spawns. Spawn eggs work normally. `/summon` works normally. Structure placements work normally. If you are testing in creative, you can spawn as many sharks as you want with an egg.
+
+There is also a second knob called spawn chance which is a probability multiplier on each natural spawn attempt. A value of 1.0 leaves the biome modifier weight untouched. A value of 0.5 makes them spawn half as often. A value of 2.0 makes them spawn roughly twice as often, still bounded by the category cap. A value of 0.0 disables natural spawning the same as setting cap to zero. Use this when you want a species to be rarer without removing it entirely.
+
+Spawn placement rules differ between species. Sharks, the Orca, jellyfish, dolphins, turtles, eels, seals, and stingrays use the standard near surface water rule. The Common Octopus, Caribbean Reef Octopus, American Lobster, and Nautilus use a custom seafloor predicate that requires water at the spawn position, a solid block below it, and at least four blocks of depth below sea level. That's why you no longer see lobsters spawning at the water surface. The Nautilus on top of that needs to be at least twenty blocks below sea level (so it ends up in ravines and deep crevices) and there's an 80% rejection on natural spawns during daytime, so they come out mostly at night.
+
+## 3. Where each species spawns
+
+The tables below are the source of truth for biomes, weights, group sizes, and caps. Weight is the biome modifier's spawn weight, which is how strongly the game prefers this species when picking from the category. Group is the size range that gets spawned together. Cap is the default per species cap that you can edit in config or with `/bfs cap`.
+
+### Sharks
+
+Every shark in this list is in the apex predator category. The category cap is five. The shallow water slowdown is on at depths under three blocks, which gives swimmers a fighting chance to escape near shore.
+
+| Species | Biomes | Weight | Group | Cap | Notes |
+|---|---|---|---|---|---|
+| Great White Shark | Ocean, Deep Ocean | 100 | 1 | 2 | Refuses to spawn within 8 blocks of a beach |
+| Great Hammerhead | Ocean, Deep Ocean, Warm Ocean, Lukewarm Ocean, Deep Lukewarm Ocean | 100 | 1 | 2 | Patient, long disengage timeout |
+| Common Thresher | Ocean, Deep Ocean | 100 | 1 | 2 | |
+| Shortfin Mako | Ocean, Deep Ocean, Lukewarm Ocean, Deep Lukewarm Ocean, Warm Ocean | 100 | 1 | 2 | Fastest aggro speed, calls reinforcements on hit |
+| Tiger Shark | Ocean, Lukewarm Ocean, Warm Ocean, Deep Ocean, Deep Lukewarm Ocean | 50 | 1 | 2 | Investigates dropped items in water |
+| Oceanic Whitetip | Deep Ocean, Deep Lukewarm Ocean, Deep Cold Ocean | 30 | 1 | 2 | Deep ocean only, alerts other whitetips on blood |
+| Sandtiger | Ocean, Lukewarm Ocean, Warm Ocean | 50 | 1 | 2 | Coastal, sometimes hovers in place |
+| Blacktip Reef | Lukewarm Ocean, Warm Ocean, Deep Lukewarm Ocean | 60 | 3 to 5 | 5 | Pack shark, spawns in groups |
+
+### Marine mammals
+
+| Species | Category | Biomes | Weight | Group | Cap | Notes |
+|---|---|---|---|---|---|---|
+| Bottlenose Dolphin | water creature | Ocean, Lukewarm Ocean, Warm Ocean, Deep Lukewarm Ocean | 80 | 2 to 4 | 4 | Surfaces to breathe, plays with items, follows moving boats |
+| Orca | apex predator | Cold Ocean, Deep Cold Ocean | 20 | 1 to 2 | 1 | Cold ocean exclusive, peaceful presence, surfaces with blowhole spout |
+
+### Cephalopods
+
+| Species | Biomes | Weight | Group | Cap | Notes |
+|---|---|---|---|---|---|
+| Common Octopus | Lukewarm Ocean, Deep Lukewarm Ocean, Cold Ocean, Deep Cold Ocean | 60 | 1 | 3 | Seafloor spawn, hides in place, emits ink when threatened |
+| Caribbean Reef Octopus | Warm Ocean | 40 | 1 | 2 | Seafloor spawn, warm water only |
+| Nautilus | Deep Ocean, Deep Cold Ocean, Deep Lukewarm Ocean | 20 | 1 to 2 | 1 | Deep ravines, mostly at night, sinks when attacked rather than fleeing |
+
+### Other fauna
+
+| Species | Biomes | Weight | Group | Cap | Notes |
+|---|---|---|---|---|---|
+| Common Stingray | Ocean, Lukewarm Ocean, Warm Ocean, Swamp, Mangrove Swamp | 100 | 1 to 4 | 3 | Sinks to the seafloor and stays there. Poison sting on contact |
+| Harbor Seal | Ocean, Deep Ocean, Warm Ocean, Lukewarm Ocean, Cold Ocean | 100 | 1 to 4 | 5 | Swims in water, basks on beach. Arctic skin in cold biomes |
+| American Lobster | Ocean, Lukewarm Ocean, Deep Ocean, Deep Lukewarm Ocean, Warm Ocean | 220 | 2 to 4 | 10 | Seafloor spawn, food source, snip attack, drops raw meat |
+| Giant Moray Eel | Warm Ocean | 90 | 1 to 2 | 4 | Anchors and hides in coral, lunges at players within 2 blocks |
+| Green Sea Turtle | Warm Ocean, Lukewarm Ocean, Deep Lukewarm Ocean | 50 | 1 to 3 | 3 | Wild encounter only, does not lay eggs |
+
+### Jellyfish
+
+These are the rarest spawns in the mod. The defaults give you one or two per area at most.
+
+| Species | Biomes | Weight | Group | Cap | Notes |
+|---|---|---|---|---|---|
+| Black Sea Nettle | Deep Ocean, Deep Cold Ocean | 5 | 1 | 1 | Drifts toward the surface, contact poison |
+| Cannonball Jellyfish | Lukewarm Ocean, Deep Lukewarm Ocean, Warm Ocean | 8 | 1 to 2 | 2 | Smaller bell, contact weakness |
+
+### Conditions every spawn passes through
+
+A natural spawn has to pass several checks before the mob actually appears.
+
+The position has to be a water block. Sharks, Orca, jellyfish, dolphins, turtles, eels, seals, and stingrays use the standard near surface rule. Common Octopus, Caribbean Reef Octopus, American Lobster, and Nautilus need a solid block below them and at least four blocks of depth. The Nautilus also wants twenty plus blocks of depth and a night clock most of the time.
+
+Sharks and Orcas refuse to spawn within 8 blocks of a beach biome. We sample biomes every 4 blocks horizontally for performance.
+
+If the species has a configured group size minimum and the spawn finalizes as the first of a group, we spawn additional siblings nearby to reach the minimum. This currently affects Blacktip Reef Shark, Harbor Seal, Bottlenose Dolphin, and Cannonball Jellyfish.
+
+Finally, the per species cap check counts existing mobs of that species inside a 64 block radius of the spawn position. If the count is at or above the cap, the spawn is cancelled.
+
+## 4. Configuration file
+
+The config lives at `config/bensfintasticsharks-common.toml`. Most edits take effect immediately because the values are read live during spawning and per tick AI.
+
+The sections are organized roughly by what they affect.
+
+`[spawning]` holds the three category caps. `apex_predator_cap` defaults to 5, `bfs_water_creature_cap` defaults to 15, `bfs_water_ambient_cap` defaults to 25.
+
+`[spawning.caps]` holds twenty individual species caps. The defaults are listed in the tables above.
+
+`[spawning.spawn_chance]` holds the probability multipliers. Default 1.0 for everything.
+
+`[spawning.hp_mult]`, `[spawning.damage_mult]`, and `[spawning.knockback_resistance]` hold per species attribute scalers. Default 1.0 for the first two and `-1` for knockback resistance, where `-1` means leave the default attribute alone.
+
+`[spawning.group_size_min]` lets you bump the minimum group size for the few species that spawn in groups.
+
+`[disturbance]` holds three sensitivity multipliers (light, heavy, blood) plus toggles for particles and audio.
+
+`[visuals]` holds toggles for the Respect the Ocean debuff and octopus ink particles.
+
+`[ai]` holds two shark behavior multipliers. `shark_detection_radius_mult` scales how far sharks notice things. `shark_disengage_distance_mult` scales when they give up chasing.
+
+`[combat]` holds global shark and jellyfish damage multipliers and the Orca's knockback resistance. Note that shark HP and damage stack with per species mults. If you set the global shark_hp_mult to 1.5 and the per species great_white_shark hp_mult to 2.0, Great Whites will have 3x base HP.
+
+`[structures]` holds the Captain Ben's Hat chest weight, which is the out of 100 chance to appear in buried treasure and shipwreck loot.
+
+## 5. Admin commands
+
+Every `/bfs` command needs op permission (level 2). Species names and disturbance types autocomplete.
+
+| Command | What it does |
+|---|---|
+| `/bfs help` | Top level help with a list of subcommands |
+| `/bfs list` | Lists every species with category and current cap |
+| `/bfs find <species>` | Tells you the coordinates of the nearest one within 512 blocks |
+| `/bfs info <species>` | Shows the species category, cap, and display name |
+| `/bfs count <species>` | Counts instances within 64 blocks of you. Useful for cap debugging |
+| `/bfs cap help` | Explains the cap system in chat |
+| `/bfs cap list` | Lists every cap with runtime override indicator |
+| `/bfs cap get <species>` | Shows one species cap |
+| `/bfs cap set <species> <value>` | Runtime override, value 0 to 64. Not saved to config |
+| `/bfs cap reset <species>` | Clears that species runtime override |
+| `/bfs cap reset` | Clears every runtime override |
+| `/bfs disturbance <type>` | Fires a test light, heavy, or blood disturbance at your position. Reports how many sharks are in range to react |
+| `/bfs reload` | Re reads config values without restart |
+
+`/bfs cap set` is runtime only. Restart the server and your edits are gone. To make changes permanent, edit the config file.
+
+When a runtime override is active, `/bfs cap list` shows it in gold and tells you what the config default is.
+
+`/bfs disturbance` will also tell you, after firing, how many sharks were inside the relevant radius. If you see "Sharks in 32-block radius: 0", the system is fine, you just don't have any sharks nearby to respond. Spawn or find some first.
+
+## 6. Water disturbance system
+
+The mod's main mechanic. Sharks notice what you're doing in the water and react.
+
+There are three disturbance types. Light disturbances come from sprint swimming, arrows hitting water, fishing bobbers, and projectile impacts. Heavy disturbances come from attacking something underwater, breaking blocks near water, or falling into water from three or more blocks up. Blood disturbances come from any living entity taking damage while in water.
+
+A shark's response depends on which state it's currently in.
+
+When a shark is idle and a light disturbance fires, there's a 15% chance it turns curious and swims toward the source. A heavy disturbance has a 60% chance. A blood disturbance always switches the shark to hostile and targets the bleeding entity.
+
+When a shark is already curious and a heavy disturbance fires, it definitely moves toward the new source. Light disturbances are ignored. Blood still escalates to hostile.
+
+There are some safety rules. Sharks never target players in creative or spectator mode. If a target has been out of water for 60 ticks (three seconds), the shark drops it and returns to idle. Sharks in shallow water (less than 3 blocks deep) move at 60% speed. Sharks check for beach biomes every 40 ticks and walk back toward deeper water if they're near shore. If a target dies mid chase the shark drops it and returns to idle, so no more frozen poses after a successful kill.
+
+You can scale how sensitive sharks are to each disturbance type with the three multipliers in `[disturbance]`. Setting any of them to 0.0 disables that type entirely. Particle and audio feedback also have their own toggles.
+
+## 7. Predators and prey
+
+Sharks aren't just reactive. They actively hunt.
+
+The list of valid prey lives in the tag `bensfintasticsharks:shark_prey`. It includes vanilla cod, salmon, tropical fish, pufferfish, squid, glow squid, dolphin, and turtle, plus our own peaceful species like harbor seal, common stingray, american lobster, both octopuses, nautilus, giant moray eel, green sea turtle, and bottlenose dolphin. Other mods can opt their water mobs into this tag via datapack.
+
+Players are deliberately not in the prey tag. The only way a shark targets a player is through the disturbance system or as retaliation for being hit.
+
+Sharks do not orbit or circle their target. They lock on, swim straight at the prey at aggro speed, and bite when they're in melee range. There used to be a circle attack behavior in earlier builds. It was removed because it looked artificial. The current chase is a direct approach.
+
+The bite is two phase. When the shark enters bite range, it swings its body and plays the bite animation. Damage lands five ticks later, on the visual impact frame of the animation. This way the hit syncs with the snap of the model instead of feeling like the damage came out of nowhere.
+
+When a shark is hurt by a living attacker, it locks the attacker as its target and recruits up to four same species sharks within 32 blocks to do the same. It doesn't spawn new sharks; it just rallies the ones that are already there.
+
+On the prey side, every peaceful BFS species checks for nearby apex predators every twenty ticks. If a predator is within 12 blocks, the prey sets a walk target 8 blocks in the opposite direction at 1.4x speed. Sharks are faster than prey at their base speeds, so the chase still resolves in the shark's favor most of the time, but the prey gets a real escape attempt.
+
+The pacing of the whole thing is deliberately slower than vanilla water mobs. Minecraft is a slow paced game and the mod tries to fit. Sharks cruise with a 0.16 multiplier on their attribute speed and a hard horizontal velocity cap at 0.40 blocks per tick (0.55 while chasing). Non shark aquatic mobs cap at 0.45 blocks per tick by default, and the seafloor species (octopus, lobster, nautilus) cap tighter at 0.12 to 0.18 blocks per tick.
+
+## 8. Individual species behaviors
+
+### Sharks
+
+Every shark inherits the same base behavior from `AbstractSharkEntity`. They share the wander brain, the disturbance reactions, the direct chase, the shallow water slowdown, the beach avoidance, the bite impact delay, the reinforcement call, and the target left water disengage rule.
+
+What varies between species is the tuning. Each one has its own detection radius, aggression level, aggro speed, disengage timeout, bite cooldown, and bite damage.
+
+Some species have extra behaviors on top. The Tiger Shark scans for dropped items in water every 200 ticks. If it finds one, it swims toward it and snaps a cosmetic bite (the item isn't consumed). The Oceanic Whitetip broadcasts a blood convergence event when it reacts to blood, alerting other whitetips within 48 blocks to converge on the same target. It also has a longer disengage timeout than other sharks (600 ticks instead of 300). The Blacktip Reef Shark broadcasts a pack alert event when it goes hostile, telling other blacktips within 24 blocks. It spawns in groups of three to five from the biome modifier. The Sandtiger has a 10% chance every minute while idle to hover motionless for 5 to 10 seconds, and plays a tail whip warning animation when first turning curious.
+
+### Marine mammals
+
+The Bottlenose Dolphin surfaces to breathe every 30 to 60 seconds, swimming up to the world surface, splashing at the top, and playing the dolphin splash sound. While in shallow water it has a 5% chance per check to breach into a leap with the dolphin jump sound. It detects floating items every two seconds, walks toward them, and nudges them with an upward and horizontal velocity push. Items aren't consumed. It detects moving boats with a player driver every second, follows about 4 blocks behind at 1.3x speed, and stays in that mode for up to 30 seconds. Nearby sprint swimming players within 9 blocks get Dolphin's Grace for five seconds, refreshed while they stay in range.
+
+The Orca is peaceful by design in Legacy 1.0. The plan for BFS 2.0 is for orcas to hunt sharks, but this build keeps them as imposing peaceful presences. They surface for a blowhole spout that's a taller bubble column and a lower pitched splash sound than the dolphin's. They wander wide territory and do not approach or orbit players.
+
+### Cephalopods
+
+The Common Octopus has a 35% chance every 30 seconds to enter hide mode for 10 to 25 seconds. While hiding it switches to a ground idle animation and slows to a near stop. If a player gets within 5 blocks or the octopus is hurt, it emits squid ink particles, plays the squid squirt sound, and pushes itself away from the player. Both octopuses swim level (their visual pitch is locked at zero) so they don't tip nose down or nose up when ascending or descending.
+
+The Caribbean Reef Octopus is the same logic with a slightly smaller size, scoped to warm ocean biomes only.
+
+The Nautilus is the slowest mob in the mod. It drifts in tiny radii, rests in place 20% of the time for 5 to 10 seconds at a stretch, and has no flee behavior at all. If attacked, it sinks downward and keeps going about its business. The hide animation now triggers only from the rest state rather than re firing every render frame, so it no longer spazzes.
+
+### Other fauna
+
+The Common Stingray hugs the seafloor. It has a persistent downward gravity bias of 0.04 blocks per tick. Its wander radius is 8 horizontal by 1 vertical, and it idles 70% of the time. It rarely leaves the bottom. Contact with the stingray applies Poison I for 5 seconds.
+
+The Harbor Seal swims and walks. Its idle brain picks a swim target with weight 6, a walk target with weight 2, or idle with weight 2. It's a pack mammal so spawns come in groups of 1 to 4. In cold biomes (Cold Ocean, Frozen Ocean) it uses the arctic texture variant.
+
+The American Lobster is the food source. It has the highest spawn weight in the mod (220) and the largest default cap (10). It rests 50% of the time, pausing for 5 to 20 seconds at a stretch. If a player makes contact, it snips for 1.0 damage with a 1.5 second cooldown. Killing one drops 1 or 2 raw lobster claws and 1 raw lobster tail. Both can be cooked into food.
+
+The Giant Moray Eel is anchored in place 70% of the time, motionless for 20 to 40 seconds at a stretch. Players within 2 blocks trigger a lunge attack for 2.0 damage. It spawns only in warm oceans and is one of the boosted species (weight 90, cap 4), so coral reefs feel inhabited.
+
+The Green Sea Turtle is a wild encounter species only. It swims slowly and rests occasionally. It does not lay eggs in this build. Use vanilla turtles for breeding.
+
+### Jellyfish
+
+Both jellyfish use a custom travel method instead of brain pathfinding. They drift with a sinusoidal vertical bob and a slow horizontal current of 0.025 blocks per tick. Every 30 seconds they pick a new drift direction so blooms eventually move around.
+
+There's a surface seeking bias built in. The drift direction tries to stay around 4 blocks below the world surface. If they're deeper than that they rise. If they're shallower they sink. This means jellyfish slowly migrate to the upper water column instead of staying at the spawn depth.
+
+Contact with the Black Sea Nettle does 1.0 damage and applies Poison for 8 seconds. The sting box extends 0.6 blocks horizontally around the bell and 3 blocks down so the tentacles also sting. The Cannonball does 0.5 damage and applies Weakness for 6 seconds. Both check every 10 ticks so swimming through a jellyfish is now a real hazard.
+
+The Black Sea Nettle no longer renders glow squid particles. The tendril cubes also got a tiny inflate to stop the Z fighting that was visible at the bottom of the bell.
+
+When a jellyfish ends up on land it plays a sad squished beached animation. The Black Sea Nettle still stings while beached.
+
+## 9. Variants
+
+Most species ship multiple skin variants. On natural spawn, the variant is chosen randomly from a weighted list. You can also pick a specific variant with the spawn egg.
+
+Shift plus right click the spawn egg in air to cycle through that species's variants. The current variant shows in a small action bar message and appears as a tooltip line on the egg. Right clicking on a block then spawns the entity with that variant applied. Spawn eggs for species that have only one texture (Caribbean Reef Octopus, Orca, both jellyfish) don't cycle and don't show the variant tooltip line.
+
+`/summon bensfintasticsharks:american_lobster ~ ~ ~ {Variant:4}` also works for any species. The variant id is the table index below.
+
+### Variant tables
+
+| Species | Count | Variants (id : name) | Notes |
+|---|---|---|---|
+| Great White Shark | 7 | 0 default_1, 1 default_2, 2 default_3, 3 default_4, 4 default_5, 5 default_6, 6 albino | Weighted |
+| Great Hammerhead | 6 | 0 default_1 through 5 default_6 | Weighted |
+| Common Thresher | 4 | 0 default_1, 1 default_2, 2 default_3, 3 zippy | Zippy is rare |
+| Shortfin Mako | 5 | 0 default_1, 1 default_2, 2 default_3, 3 melanistic, 4 albino | Melanistic and albino are rare |
+| Tiger Shark | 4 | 0 default_1, 1 default_2, 2 default_3, 3 sandy | Sandy is rare |
+| Oceanic Whitetip | 6 | 0 default_1 through 5 default_6 | Equal |
+| Sandtiger | 3 | 0 default_1, 1 default_2, 2 default_3 | Equal |
+| Blacktip Reef | 4 | 0 default_1, 1 default_2, 2 default_3, 3 default_4 | Equal |
+| Bottlenose Dolphin | 5 | 0 default_1, 1 vanilla, 2 whitebelly, 3 blacktip, 4 blacktip_whitebelly | Equal |
+| Common Octopus | 4 | 0 default_1, 1 default_2, 2 default_3, 3 default_4 | Equal |
+| Caribbean Reef Octopus | 1 | 0 default_1 | Single texture |
+| Nautilus | 2 | 0 default_1, 1 default_2 | Equal |
+| Common Stingray | 4 | 0 default_1, 1 default_2, 2 default_3, 3 specimen_8 | Specimen 8 is rare |
+| Harbor Seal | 4 | 0 default_1, 1 default_2, 2 default_3, 3 arctic | Arctic forced in cold biomes |
+| American Lobster | 5 | 0 default_1, 1 default_2, 2 default_3, 3 blue, 4 red | Blue at about 1%, red at about 3% |
+| Giant Moray Eel | 3 | 0 default_1, 1 default_2, 2 default_3 | Equal |
+| Green Sea Turtle | 3 | 0 default_1, 1 default_2, 2 default_3 | Equal |
+| Orca | 1 | 0 default_1 | Single texture |
+| Black Sea Nettle | 1 | 0 default_1 | Single texture |
+| Cannonball Jellyfish | 1 | 0 default_1 | Single texture |
+
+Variants persist in NBT under the `Variant` integer tag, so they survive saves and loads, and they sync to the client.
+
+## 10. Sunken Trove
+
+A small underwater dig site that contains a chest with our loot table. It generates in non frozen ocean biomes: Ocean, Deep Ocean, Lukewarm, Deep Lukewarm, Warm, Cold, Deep Cold. Frozen oceans are excluded because trove locations would teleport players onto the surface ice rather than to the underwater feature.
+
+The placement uses the jigsaw structure system with the underground decoration step and `OCEAN_FLOOR_WG` heightmap projection. The actual feature scans downward from the jigsaw origin through water until it hits a solid block, then builds there. This is what stops the trove from ending up above the water surface, which was happening in earlier builds.
+
+The layout is roughly 5 by 3 by 5. There's a sand, gravel, and sandstone ring around the perimeter at seafloor level. A waterlogged chest sits in the center. One or two sandstone blocks beside the chest represent the spoil pile from the dig. Four to six seagrass clumps decorate the area, and there's a 50% chance for a 2 to 4 block kelp stalk for atmosphere.
+
+The placement settings are `random_spread` with spacing 24 chunks and separation 12. That's pretty dense so you can find them easily for testing. You can find one with `/locate structure bensfintasticsharks:sunken_trove` or via the tag `#bensfintasticsharks:trove`, and force place one with `/place structure bensfintasticsharks:sunken_trove`.
+
+The chest rolls 2 to 4 items from a pool of paper (weight 30), iron ingot (20), gold ingot (15), book (15), lost manuscript (15), emerald (10), Captain Ben's Hat (5), and diamond (5). Captain Ben's Hat also drops from vanilla buried treasure at 5% and shipwreck map chests at 3% via separate global loot modifiers, so there are multiple paths to find one.
+
+## 11. Lost Manuscript, Codex Page, Codex Volume, and the Shark Codex
+
+These four items form a chain. You start with the Lost Manuscript, which is a loose page of someone's old notes. You find it in Sunken Trove chests and in vanilla dungeon, shipwreck, buried treasure, and ocean ruin chests at 5% per roll (a global loot modifier handles the vanilla side, so the chance applies to each roll the table makes, not the chest as a whole).
+
+Nine Lost Manuscripts in a square crafts one Codex Page. Nine Codex Pages crafts one Codex Volume. A Codex Volume plus a Book, a Shark Tooth, and a Tropical Fish Bucket shapeless crafts the Shark Codex.
+
+The Shark Codex is the readable artifact. Right click it in hand and a written book reader opens with fifteen pages of in world prose about the sharks, their behavior, the disturbance system, how prey targeting works, conservation, and the spawn rules. The codex item is single stack and stays in your hand after closing the reader. There is no save state. Closing the book just dismisses the screen. You can craft as many as you want.
+
+The intended progression is exploration heavy. Drop into the ocean, raid a few troves and shipwrecks, accumulate manuscripts, work up to a codex. None of the recipes are gated by an advancement, so you can also just stack up manuscripts and skip ahead if you've got them.
+
+## 12. Captain Ben's Hat
+
+A cosmetic head slot armor with leather tier stats (3 armor) and the Rare rarity glow.
+
+When worn, it renders as a 3D GeckoLib model attached to the player's head bone. The cubes sit above the head top so it actually looks like a hat instead of clipping the face. In the inventory it shows up as a 2D pixel sprite.
+
+The tooltip says "Once worn by a captain who respected the sea." in italic gray.
+
+You can find one in Sunken Trove chests, vanilla buried treasure chests, or vanilla shipwreck map chests. Admins can also `/give @s bensfintasticsharks:captain_ben_hat`.
+
+## 13. Shark Trident
+
+A trident reskin that exists in the alpha build. Latest pass fixed two bugs.
+
+The in flight orientation now rotates with yaw and pitch so the point follows velocity, matching vanilla `TridentRenderer`. Previously the model floated through the air pointing in whatever fixed direction the static item model defined.
+
+The throwing animation now uses vanilla display transforms. While drawing back, the trident is held in the same pose as a vanilla trident instead of the original weird sideways tilt.
+
+It's riptide enabled (works in water or rain), throws like a vanilla trident, and has the tooltip "Best used for show. Sharks are friends." in italic gray.
+
+## 14. Spawn placement and movement rules summary
+
+Sharks have several rules that keep them where they belong.
+
+Beach safety is enforced both at spawn time and during play. At spawn time, sharks won't pick a position within 8 blocks of a beach biome. We sample biomes every 4 blocks to keep the check cheap. At runtime, sharks check their surroundings every 40 ticks and walk toward deeper water if they're near a beach or in shallow water.
+
+Shallow water slowdown applies to every shark. In water less than 3 blocks deep, they move at 60% of their normal speed. This gives you a window to swim to shore if one's chasing you.
+
+Sharks can't actually leave water. The pathfinding uses the water bound path navigator which rejects land tiles. If their target leaves water for more than 60 ticks, they give up and return to idle.
+
+Stingrays apply persistent downward gravity (0.04 blocks per tick). They essentially rest on the seafloor unless their AI walks them somewhere specifically.
+
+Octopuses, lobsters, and the nautilus lock their visual pitch to horizontal so they don't tilt nose up or nose down when ascending or descending. They still move on the Y axis, they just don't pitch the model with it.
+
+All BFS aquatic mobs now drown when beached. They follow the vanilla water animal pattern: when out of water their air supply ticks down by one per tick, and when it hits negative twenty they take two drown damage and reset the counter. This means a beached shark or stingray won't just live forever on the sand. Mammals with their own air systems (the dolphin) override this so they can still surface to breathe.
+
+## 15. Crafting and food
+
+Killing an American Lobster drops 1 or 2 raw lobster claws plus 1 raw lobster tail.
+
+You can cook either one in a furnace (200 ticks) or on a campfire (600 ticks) to get the cooked variants. Raw lobster gives you 2 nutrition and 0.2 saturation. Cooked gives you 6 nutrition and 0.8 saturation and counts as meat for vanilla effects.
+
+The Codex chain takes Lost Manuscripts and refines them into a Shark Codex. See section 11.
+
+No other crafting recipes exist in this build. The Shark Trident and Captain Ben's Hat are find only.
+
+## 16. Advancements
+
+The advancement tree starts at `Marine Curious`, which fires when you encounter any conservation tagged BFS species. From there it branches into encounter chains and themed milestones.
+
+Encounter advancements exist for every species the mod ships. The major ones are Shark Spotter (any shark species), Shark Whisperer (all eight sharks), Marine Biologist (every species), Apex of Apex (Orca), Dolphin Friend (Bottlenose Dolphin), Inked (either octopus), and Stung (either jellyfish). Per species encounter advancements exist for Tiger Shark, Oceanic Whitetip, Sandtiger, Blacktip Reef, Common Octopus, Caribbean Reef Octopus, Nautilus, Giant Moray Eel, Green Sea Turtle, American Lobster, Black Sea Nettle, and Cannonball.
+
+The themed ones cover progression. Apex Awareness fires when any shark damages you. Wrong Place, Wrong Time is the survivor variant. Sleeping with the Fishes fires when a shark kills you. Fresh Catch fires when you have any cooked lobster meat in your inventory. Hidden Trove fires when you pick up a Lost Manuscript. Captain's Heir fires when you obtain Captain Ben's Hat. Conservationist is the gentle path: encounter the first three sharks without violence required.
+
+Run `/advancement grant @s only bensfintasticsharks:marine_biologist` if you want to test the capstone.
+
+## 17. Conservation
+
+The mod gently discourages killing protected sea creatures.
+
+When a non creative player kills any entity tagged `bensfintasticsharks:conservation_protected`, they receive a custom effect called Respect the Ocean for two minutes. It has no mechanical impact at all. The icon shows up in your effects list with the description "The ocean is watching..."
+
+Nineteen of the twenty species are in the conservation tag. The exception is American Lobster, which is the explicit food source in the design.
+
+Disable the effect entirely with `[visuals] conservation_debuff_enabled = false`.
+
+## 18. Configuration cheat sheet
+
+A few common scenarios.
+
+Empty ocean (no BFS spawns at all):
+```toml
+[spawning]
+  apex_predator_cap = 0
+  bfs_water_creature_cap = 0
+  bfs_water_ambient_cap = 0
+```
+
+Disable specific species:
+```toml
+[spawning.caps]
+  orca = 0
+  great_white_shark = 0
+```
+
+Half density without changing the biome modifier:
+```toml
+[spawning.spawn_chance]
+  great_white_shark = 0.5
+  shortfin_mako_shark = 0.5
+```
+
+Hard mode sharks:
+```toml
+[combat]
+  shark_hp_mult = 2.0
+  shark_damage_mult = 1.5
+```
+
+Tiger Sharks specifically hardcore:
+```toml
+[spawning.hp_mult]
+  tiger_shark = 3.0
+[spawning.damage_mult]
+  tiger_shark = 2.0
+```
+
+Make Orcas tanky and unkillable:
+```toml
+[spawning.hp_mult]
+  orca = 5.0
+[spawning.knockback_resistance]
+  orca = 1.0
+```
+
+Quieter ocean for low end servers:
+```toml
+[spawning]
+  apex_predator_cap = 2
+  bfs_water_creature_cap = 6
+  bfs_water_ambient_cap = 8
+```
+
+Lobster farm setup (bigger cap, larger groups):
+```toml
+[spawning.caps]
+  american_lobster = 20
+[spawning.group_size_min]
+  american_lobster = 4
+```
+
+## 19. Compatibility
+
+Existing 1.20.1 worlds load cleanly. The four alpha build sharks (Great White, Hammerhead, Thresher, Mako) and the two alpha fauna (Stingray, Harbor Seal) kept their registry IDs, NBT structures, and biome modifier references.
+
+BFS mob categories are completely independent of vanilla categories. Cod, salmon, tropical fish don't share cap slots with BFS species.
+
+Dolphin boat follow uses a vanilla `Boat.class` instance check. Modded boats that don't extend `Boat` won't trigger the follow behavior.
+
+Other mods can opt their water mobs into our targeting system by adding their species to the `bensfintasticsharks:shark_prey` tag via datapack. The same applies to `bensfintasticsharks:apex_predator` if a mod adds its own sharks and wants the BFS prey to flee from them, or `bensfintasticsharks:conservation_protected` if they want the Respect the Ocean effect to fire on kills.
+
+## 20. Troubleshooting
+
+If no mobs are spawning:
+
+First run `/bfs list` to see all the current caps. If everything's at zero you've disabled the mod. If the category caps in `[spawning]` are zero, that overrides the per species caps.
+
+Then run `/bfs count <species>` near where you're testing to see how many of that species are already in your area. If the count matches the cap, no new ones will spawn until some leave.
+
+Check that the biome you're in is in the species's spawn list (section 3). Orca only spawns in cold ocean. Whitetip only spawns in deep ocean variants. Caribbean Reef Octopus and Giant Moray Eel are warm ocean exclusive. Nautilus needs deep water and prefers night.
+
+Make sure `[spawning.spawn_chance].<species>` isn't 0.
+
+If sharks aren't reacting to you:
+
+Try `/bfs disturbance heavy` to fire a test disturbance at your position. The command will report how many sharks are in the radius. If it says zero, you need to spawn some sharks first. If it says a positive number and they still don't react, check `[disturbance].heavy_sensitivity_mult` isn't 0.
+
+Sharks ignore disturbances on land. Be in water.
+
+Sharks ignore creative and spectator players entirely. Switch to survival.
+
+If a shark's animation looks frozen after a kill:
+
+That was a Mako specific bug in an earlier build. The Mako's controller previously referenced an idle animation that didn't exist in its geo file, which froze the model on the last bite frame after the target died. Latest build fixes that by removing the missing idle reference. Targets that die mid chase also clear the shark's target now, so the shark resumes wandering.
+
+If a spawned mob always looks the same:
+
+Variant rolls happen in `finalizeSpawn`, which only runs when the entity is initially spawned. Mobs from `/summon` without an explicit `{Variant:X}` get whatever the default is (variant 0). Spawn eggs with a cycled variant apply it after the egg's normal spawn flow. `/summon bensfintasticsharks:<species> ~ ~ ~ {Variant:N}` is the deterministic way to test specific variants.
+
+If the Sunken Trove isn't appearing:
+
+Run `/locate structure bensfintasticsharks:sunken_trove` to see if there's one within search range. If yes, swim to it. If no, you might not be in an ocean biome. The structure does not generate in frozen oceans by design.
+
+`/place structure bensfintasticsharks:sunken_trove ~ ~ ~` will force place one at your current location. Try that for sanity checking.
+
+If sharks feel too fast, drop `[ai].shark_detection_radius_mult` to 0.5 so they're less aware of you, or edit the base movement speed attribute via a datapack attribute modifier if you want them genuinely slower.
+
+If a dolphin or octopus moves at unreasonable speed, that's a bug worth reporting. The mod caps horizontal velocity at 0.45 blocks per tick for non shark aquatics (tighter for octopus, lobster, nautilus) so the mach 10 visual from earlier builds is fixed.
+
+If stingrays are stuck on a ledge floating, they'll drift off the side within a few ticks because of the downward gravity bias.
+
+## 21. Mod metadata
+
+The mod ID is `bensfintasticsharks`. It targets Minecraft 1.20.1 and Forge 47.2.0 or later. Required dependencies are GeckoLib 4.4.7 or later and SmartBrainLib 1.14.2 or later. The license is CC0-1.0. Authors are Tfarcenim and BenLikesSharks.
+
+For development information, see `CLAUDE.md` in the project root.

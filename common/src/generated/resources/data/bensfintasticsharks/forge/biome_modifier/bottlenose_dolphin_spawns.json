@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#bensfintasticsharks:bottlenose_dolphin_spawns",
+  "spawners": {
+    "type": "bensfintasticsharks:bottlenose_dolphin",
+    "maxCount": 2,
+    "minCount": 1,
+    "weight": 40
+  }
+}

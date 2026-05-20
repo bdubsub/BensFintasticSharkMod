@@ -45,8 +45,14 @@ import java.util.List;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
-public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity> {
+public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
+        implements BfsVariantHolder {
 
+    @Override public int bfsVariantCount() { return Variant.values().length; }
+    @Override public void setBfsVariantId(int id) {
+        int n = bfsVariantCount();
+        setVariant(Variant.byId(((id % n) + n) % n));
+    }
 
     private static final Predicate<LivingEntity> DANGEROUS = living -> {
         if (living instanceof Player player && player.isCreative()) {
@@ -113,14 +119,33 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
 
     @Override
     public BrainActivityGroup<CommonStingrayEntity> getIdleTasks() {
-        // These are the tasks that run when the mob isn't doing anything else (usually)
+        // Stingrays hug the seafloor — small horizontal wander, tiny vertical range,
+        // and lots of idling so they basically rest on the bottom.
         return BrainActivityGroup.idleTasks(
-                new FirstApplicableBehaviour<>(      // Run only one of the below behaviours, trying each one in order. Include the generic type because JavaC is silly
-                        new SetPlayerLookTarget<>(),          // Set the look target for the nearest player
-                        new SetRandomLookTarget<>()),         // Set a random look target
-                new OneRandomBehaviour<>(                 // Run a random task from the below options
-                        new SetRandomSwimTarget<>(),          // Set a random walk target to a nearby position
-                        new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))); // Do nothing for 1.5->3 seconds
+                new FirstApplicableBehaviour<>(
+                        new SetPlayerLookTarget<>(),
+                        new SetRandomLookTarget<>()),
+                new OneRandomBehaviour<>(
+                        com.mojang.datafixers.util.Pair.of(new SetRandomSwimTarget<CommonStingrayEntity>().setRadius(8, 1), 3),
+                        com.mojang.datafixers.util.Pair.of(new Idle<CommonStingrayEntity>().runFor(entity -> entity.getRandom().nextInt(120, 240)), 7)));
+    }
+
+    /**
+     * Stingrays sink to the seafloor. Heavy downward bias counteracts the buoyancy
+     * other water mobs have. They effectively settle on the ocean floor unless
+     * actively walking to a target via brain.
+     */
+    @Override
+    public void travel(@org.jetbrains.annotations.NotNull net.minecraft.world.phys.Vec3 movementInput) {
+        if (this.isEffectiveAi() && this.isInWater()) {
+            this.moveRelative(this.getSpeed() * 0.5f, movementInput);
+            this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
+            this.setDeltaMovement(this.getDeltaMovement().scale(0.6));
+            // Persistent sink toward the seafloor.
+            this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
+        } else {
+            super.travel(movementInput);
+        }
     }
 
 
@@ -207,25 +232,27 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
         };
     }
 
-    /**
-     * Called every tick so the entity can update its state as required. For example, zombies and skeletons use this to
-     * react to sunlight and start to burn.
-     */
+    private static final int STING_DURATION_TICKS = 40;
+
     public void aiStep() {
         super.aiStep();
-        stinging = getLastAttacker() != null;
-        if (this.isAlive() && isStinging()) {
-            this.level().getEntitiesOfClass(Mob.class, this.getBoundingBox().inflate(0.3D), mob -> targetingConditions.test(this, mob)).stream().filter(LivingEntity::isAlive).forEach(this::touch);
+        // Real stingrays don't need provocation — anything that steps on them gets stung.
+        // The old gate (only sting while still wounded by a recent attacker) called a
+        // method that returns null on this entity, so stings effectively never fired.
+        // Now we sting any mob/player that physically intersects our hitbox.
+        stinging = true;
+        if (this.isAlive() && !level().isClientSide) {
+            this.level().getEntitiesOfClass(Mob.class, this.getBoundingBox().inflate(0.2D),
+                    mob -> targetingConditions.test(this, mob))
+                    .stream().filter(LivingEntity::isAlive).forEach(this::touch);
         }
     }
 
     private void touch(Mob pMob) {
-        if (isStinging()) {
-            int i = 2;
-            if (pMob.hurt(this.damageSources().mobAttack(this), (float) (1 + i))) {
-                pMob.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this);
-                this.playSound(SoundEvents.PUFFER_FISH_STING, 1.0F, 1.0F);
-            }
+        int i = 2;
+        if (pMob.hurt(this.damageSources().mobAttack(this), (float) (1 + i))) {
+            pMob.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this);
+            this.playSound(SoundEvents.PUFFER_FISH_STING, 1.0F, 1.0F);
         }
     }
 
@@ -233,15 +260,13 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
      * Called by a player entity when they collide with an entity
      */
     public void playerTouch(Player pEntity) {
-        if (isStinging()) {
-            int i = 2;
-            if (pEntity instanceof ServerPlayer && pEntity.hurt(this.damageSources().mobAttack(this), 1 + i)) {
-                if (!this.isSilent()) {
-                    ((ServerPlayer) pEntity).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PUFFER_FISH_STING, 0.0F));
-                }
-
-                pEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this);
+        if (pEntity.isCreative() || pEntity.isSpectator()) return;
+        int i = 2;
+        if (pEntity instanceof ServerPlayer && pEntity.hurt(this.damageSources().mobAttack(this), 1 + i)) {
+            if (!this.isSilent()) {
+                ((ServerPlayer) pEntity).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PUFFER_FISH_STING, 0.0F));
             }
+            pEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this);
         }
     }
 }

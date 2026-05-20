@@ -42,6 +42,20 @@
         ]
       },
       "trigger": "bensfintasticsharks:player_found_entity"
+    },
+    "bensfintasticsharks:shortfin_mako_shark": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:shortfin_mako_shark"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
     }
   },
   "display": {
@@ -68,6 +82,9 @@
     ],
     [
       "bensfintasticsharks:common_thresher_shark"
+    ],
+    [
+      "bensfintasticsharks:shortfin_mako_shark"
     ]
   ],
   "sends_telemetry_event": true

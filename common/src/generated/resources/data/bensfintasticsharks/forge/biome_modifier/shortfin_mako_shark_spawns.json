@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#bensfintasticsharks:shortfin_mako_shark_spawns",
+  "spawners": {
+    "type": "bensfintasticsharks:shortfin_mako_shark",
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 50
+  }
+}

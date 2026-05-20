@@ -1,0 +1,21 @@
+{
+  "values": [
+    "minecraft:cod",
+    "minecraft:salmon",
+    "minecraft:tropical_fish",
+    "minecraft:pufferfish",
+    "minecraft:squid",
+    "minecraft:glow_squid",
+    "minecraft:dolphin",
+    "minecraft:turtle",
+    "bensfintasticsharks:harbor_seal",
+    "bensfintasticsharks:common_stingray",
+    "bensfintasticsharks:american_lobster",
+    "bensfintasticsharks:common_octopus",
+    "bensfintasticsharks:caribbean_reef_octopus",
+    "bensfintasticsharks:nautilus",
+    "bensfintasticsharks:giant_moray_eel",
+    "bensfintasticsharks:green_sea_turtle",
+    "bensfintasticsharks:bottlenose_dolphin"
+  ]
+}

@@ -17,6 +17,9 @@ public class TextComponents {
     public static final MutableComponent COMMON_THRESHER_ENCOUNTER = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".common_thresher_encounter.title");
     public static final MutableComponent COMMON_THRESHER_ENCOUNTER_DESC = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".common_thresher_encounter.description");
 
+    public static final MutableComponent SHORTFIN_MAKO_ENCOUNTER = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".shortfin_mako_encounter.title");
+    public static final MutableComponent SHORTFIN_MAKO_ENCOUNTER_DESC = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".shortfin_mako_encounter.description");
+
     public static final MutableComponent SLEEPING_WITH_THE_FISHES = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".sleeping_with_the_fishes.title");
     public static final MutableComponent SLEEPING_WITH_THE_FISHES_DESC = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".sleeping_with_the_fishes.description");
 

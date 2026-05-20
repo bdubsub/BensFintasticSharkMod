@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#bensfintasticsharks:giant_moray_eel_spawns",
+  "spawners": {
+    "type": "bensfintasticsharks:giant_moray_eel",
+    "maxCount": 2,
+    "minCount": 1,
+    "weight": 40
+  }
+}

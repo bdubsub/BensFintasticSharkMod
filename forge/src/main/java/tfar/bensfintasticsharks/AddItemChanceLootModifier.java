@@ -29,6 +29,9 @@ public class AddItemChanceLootModifier extends LootModifier {
 
     public AddItemChanceLootModifier(LootItemCondition[] conditionsIn, Item item, int min, int max, float chance) {
         super(conditionsIn);
+        if (max < min) {
+            throw new IllegalArgumentException("AddItemChanceLootModifier: max (" + max + ") must be >= min (" + min + ")");
+        }
         this.item = item;
         this.min = min;
         this.max = max;

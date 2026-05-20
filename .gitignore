@@ -22,3 +22,9 @@ build
 eclipse
 run
 misc
+
+# claude
+.claude/
+CLAUDE.md
+audit.md
+/Finished Forge Mod/

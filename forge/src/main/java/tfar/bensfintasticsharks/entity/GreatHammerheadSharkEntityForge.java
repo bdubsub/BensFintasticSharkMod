@@ -1,19 +1,8 @@
 package tfar.bensfintasticsharks.entity;
 
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
-import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.target.InvalidateAttackTarget;
-import net.tslat.smartbrainlib.util.BrainUtils;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -35,18 +24,11 @@ public class GreatHammerheadSharkEntityForge extends GreatHammerheadSharkEntity 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 
-        controllers.add(new AnimationController<>(this, "idle_controller", 0, event -> {
-            boolean isAttacking = this.swinging;
-            boolean isDead = this.dead || this.getHealth() < 0.01 || this.isDeadOrDying();
-            boolean isFastMoving = getDeltaMovement().lengthSqr() > .01;
-            boolean isBeached = onGround() && !isInWaterOrBubble();
-            if (isBeached) {
+        controllers.add(new AnimationController<>(this, "idle_controller", 5, event -> {
+            if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(ModAnimations.BEACHED2);
             }
-            if (event.isMoving() && !isDead && !isAttacking) {
-                return event.setAndContinue(isFastMoving ? ModAnimations.FAST_SWIM : DefaultAnimations.SWIM);
-            }
-            return event.setAndContinue(DefaultAnimations.IDLE);
+            return event.setAndContinue(this.getTarget() != null ? ModAnimations.FAST_SWIM : DefaultAnimations.SWIM);
         })
                 .triggerableAnim("bite_right", RawAnimation.begin().then("attack.bite_right", Animation.LoopType.PLAY_ONCE))
                 .triggerableAnim("bite_left", RawAnimation.begin().then("attack.bite_left", Animation.LoopType.PLAY_ONCE))
@@ -66,42 +48,31 @@ public class GreatHammerheadSharkEntityForge extends GreatHammerheadSharkEntity 
     }
 
 
+    // Old SBL fight tasks removed. Persistent-pursuer chase lives in
+    // AbstractSharkEntity.onSharkTick. The hammerhead's flavor is two-sided
+    // biting plus an occasional grab.
+
+    private boolean nextBiteIsLeft = false;
+
     @Override
-    public BrainActivityGroup<GreatHammerheadSharkEntity> getFightTasks() { // These are the tasks that handle fighting
-        return BrainActivityGroup.fightTasks(
-                new InvalidateAttackTarget<>()
-                        .invalidateIf((entity, target) -> !isInWaterOrBubble() || target instanceof Player pl && (pl.isCreative() || pl.isSpectator())), // Cancel fighting if the target is no longer valid, // Cancel fighting if the target is no longer valid
-                new SetWalkTargetToAttackTarget<>().speedMod((owner, target) -> 1.75f),      // Set the walk target to the attack target
+    protected void onBiteAttack(net.minecraft.world.entity.LivingEntity target) {
+        if (level().isClientSide) return;
+        // Alternate left and right bite swings each strike.
+        triggerAnim("idle_controller", nextBiteIsLeft ? "bite_left" : "bite_right");
+        nextBiteIsLeft = !nextBiteIsLeft;
+    }
 
-
-                new OneRandomBehaviour<>(
-                        Pair.of(new AnimatableMeleeAttack<>(4) {
-                            @Override
-                            protected void start(Mob entity) {
-                                BehaviorUtils.lookAtEntity(entity, this.target);
-                                triggerAnim("idle_controller", "bite_right");
-
-                            }
-                        }, 9),
-                        Pair.of(new AnimatableMeleeAttack<>(4) {
-                            @Override
-                            protected void start(Mob entity) {
-                                BehaviorUtils.lookAtEntity(entity, target);
-                                triggerAnim("idle_controller", "bite_left");
-                            }
-
-                            @Override
-                            protected void doDelayedAction(Mob entity) {
-                                super.doDelayedAction(entity);
-                                if (!target.isDeadOrDying()) {
-                                    grabMob(target);
-                                } else {
-                                    target.stopRiding();
-                                    BrainUtils.clearMemory(getBrain(), MemoryModuleType.LOOK_TARGET);
-                                }
-                            }
-                        }, 1))
-        ); // Melee attack the target if close enough
+    @Override
+    protected void onBiteLanded(net.minecraft.world.entity.LivingEntity target) {
+        if (level().isClientSide) return;
+        if (target.isDeadOrDying()) {
+            target.stopRiding();
+            return;
+        }
+        // Small chance to grab on the left-swing bite (the "head-pin").
+        if (!nextBiteIsLeft && getRandom().nextFloat() < 0.08f) {
+            grabMob(target);
+        }
     }
 
     @Override

@@ -8,6 +8,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import tfar.bensfintasticsharks.client.renderer.*;
 import tfar.bensfintasticsharks.entity.*;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
+import tfar.bensfintasticsharks.item.SharkCodexItem;
 
 public class ModClientForge {
 
@@ -18,6 +19,10 @@ public class ModClientForge {
 
     static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(ModClient::registerRenderers);
+        // Wire the Shark Codex book-reader opener. The common SharkCodexItem keeps a
+        // no-op Consumer by default so the dedicated server can load that class
+        // without touching client-only GUI types.
+        SharkCodexItem.CLIENT_OPENER = SharkCodexClient::openReader;
     }
 
     static void renderers(final EntityRenderersEvent.RegisterRenderers event) {
@@ -28,6 +33,22 @@ public class ModClientForge {
         EntityRenderers.register((EntityType<CommonStingrayEntityForge>) ModEntityTypes.COMMON_STINGRAY, CommonStingrayRenderer::new);
         EntityRenderers.register((EntityType<ShortfinMakoSharkEntityForge>) ModEntityTypes.SHORTFIN_MAKO_SHARK, ShortfinMakoRenderer::new);
         EntityRenderers.register(ModEntityTypes.SHARK_TRIDENT,ThrownSharkTridentRenderer::new);
+
+        // Legacy 1.0 new mob renderers
+        EntityRenderers.register((EntityType<TigerSharkEntityForge>) ModEntityTypes.TIGER_SHARK, TigerSharkRenderer::new);
+        EntityRenderers.register((EntityType<OceanicWhitetipSharkEntityForge>) ModEntityTypes.OCEANIC_WHITETIP_SHARK, OceanicWhitetipSharkRenderer::new);
+        EntityRenderers.register((EntityType<SandtigerSharkEntityForge>) ModEntityTypes.SANDTIGER_SHARK, SandtigerSharkRenderer::new);
+        EntityRenderers.register((EntityType<BlacktipReefSharkEntityForge>) ModEntityTypes.BLACKTIP_REEF_SHARK, BlacktipReefSharkRenderer::new);
+        EntityRenderers.register((EntityType<BottlenoseDolphinEntityForge>) ModEntityTypes.BOTTLENOSE_DOLPHIN, BottlenoseDolphinRenderer::new);
+        EntityRenderers.register((EntityType<OrcaEntityForge>) ModEntityTypes.ORCA, OrcaRenderer::new);
+        EntityRenderers.register((EntityType<CommonOctopusEntityForge>) ModEntityTypes.COMMON_OCTOPUS, CommonOctopusRenderer::new);
+        EntityRenderers.register((EntityType<CaribbeanReefOctopusEntityForge>) ModEntityTypes.CARIBBEAN_REEF_OCTOPUS, CaribbeanReefOctopusRenderer::new);
+        EntityRenderers.register((EntityType<NautilusEntityForge>) ModEntityTypes.NAUTILUS, NautilusRenderer::new);
+        EntityRenderers.register((EntityType<GiantMorayEelEntityForge>) ModEntityTypes.GIANT_MORAY_EEL, GiantMorayEelRenderer::new);
+        EntityRenderers.register((EntityType<GreenSeaTurtleEntityForge>) ModEntityTypes.GREEN_SEA_TURTLE, GreenSeaTurtleRenderer::new);
+        EntityRenderers.register((EntityType<AmericanLobsterEntityForge>) ModEntityTypes.AMERICAN_LOBSTER, AmericanLobsterRenderer::new);
+        EntityRenderers.register((EntityType<BlackSeaNettleJellyfishEntityForge>) ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH, BlackSeaNettleJellyfishRenderer::new);
+        EntityRenderers.register((EntityType<CannonballJellyfishEntityForge>) ModEntityTypes.CANNONBALL_JELLYFISH, CannonballJellyfishRenderer::new);
     }
 
 }

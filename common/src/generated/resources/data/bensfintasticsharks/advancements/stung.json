@@ -1,0 +1,51 @@
+{
+  "parent": "bensfintasticsharks:marine_curious",
+  "criteria": {
+    "black_sea_nettle": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "direct_entity": {
+              "type": "bensfintasticsharks:black_sea_nettle_jellyfish"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:entity_hurt_player"
+    },
+    "cannonball": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "direct_entity": {
+              "type": "bensfintasticsharks:cannonball_jellyfish"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:entity_hurt_player"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.stung.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:black_sea_nettle_jellyfish_spawn_egg"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.stung.title"
+    }
+  },
+  "requirements": [
+    [
+      "black_sea_nettle",
+      "cannonball"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

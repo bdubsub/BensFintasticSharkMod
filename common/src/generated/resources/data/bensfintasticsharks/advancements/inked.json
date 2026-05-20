@@ -1,0 +1,55 @@
+{
+  "parent": "bensfintasticsharks:marine_curious",
+  "criteria": {
+    "caribbean_reef_octopus": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:caribbean_reef_octopus"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    },
+    "common_octopus": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:common_octopus"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.inked.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:common_octopus_spawn_egg"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.inked.title"
+    }
+  },
+  "requirements": [
+    [
+      "common_octopus",
+      "caribbean_reef_octopus"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#bensfintasticsharks:american_lobster_spawns",
+  "spawners": {
+    "type": "bensfintasticsharks:american_lobster",
+    "maxCount": 3,
+    "minCount": 1,
+    "weight": 100
+  }
+}

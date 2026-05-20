@@ -1,0 +1,120 @@
+{
+    "format_version": "1.8.0",
+    "animations": {
+        "animation.small_jellyfish.move": {
+            "loop": true,
+            "animation_length": 1.5,
+            "bones": {
+                "body": {
+                    "scale": {
+                        "0.0": {
+                            "vector": [
+                                1,
+                                1,
+                                1
+                            ]
+                        },
+                        "0.875": {
+                            "vector": [
+                                1.1,
+                                0.8,
+                                1.1
+                            ]
+                        },
+                        "1.0": {
+                            "vector": [
+                                0.8,
+                                1.2,
+                                0.8
+                            ]
+                        },
+                        "1.375": {
+                            "vector": [
+                                1,
+                                1,
+                                1
+                            ]
+                        }
+                    }
+                },
+                "tentacles": {
+                    "scale": {
+                        "0.0": {
+                            "vector": [
+                                1,
+                                1,
+                                1
+                            ]
+                        },
+                        "0.2917": {
+                            "vector": [
+                                1.2,
+                                0.7,
+                                1.2
+                            ]
+                        },
+                        "0.75": {
+                            "vector": [
+                                1.2,
+                                0.7,
+                                1.2
+                            ]
+                        },
+                        "0.9583": {
+                            "vector": [
+                                0.8,
+                                1.4,
+                                0.8
+                            ]
+                        },
+                        "1.5": {
+                            "vector": [
+                                1,
+                                1,
+                                1
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "animation.small_jellyfish.beached": {
+            "loop": true,
+            "animation_length": 2,
+            "bones": {
+                "body": {
+                    "scale": {
+                        "0.0": {
+                            "vector": [
+                                1.1,
+                                0.55,
+                                1.1
+                            ]
+                        },
+                        "1.0": {
+                            "vector": [
+                                1.15,
+                                0.5,
+                                1.15
+                            ]
+                        },
+                        "2.0": {
+                            "vector": [
+                                1.1,
+                                0.55,
+                                1.1
+                            ]
+                        }
+                    },
+                    "position": {
+                        "vector": [
+                            0,
+                            -1.5,
+                            0
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

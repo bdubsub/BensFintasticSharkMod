@@ -34,6 +34,15 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         for (ResourceLocation table : tables) {
             addModifier(table);
         }
+
+        // Captain Ben's Hat appears in buried-treasure and shipwreck loot at ~5%.
+        // Functions as the "Sunken Trove" loot path until a dedicated structure ships.
+        add("add_captain_ben_hat_buried_treasure", new AddItemChanceLootModifier(
+                new LootItemCondition[]{ LootTableIdCondition.builder(BuiltInLootTables.BURIED_TREASURE).build() },
+                ModItems.CAPTAIN_BEN_HAT, 1, 1, 0.05f));
+        add("add_captain_ben_hat_shipwreck_map", new AddItemChanceLootModifier(
+                new LootItemCondition[]{ LootTableIdCondition.builder(BuiltInLootTables.SHIPWRECK_MAP).build() },
+                ModItems.CAPTAIN_BEN_HAT, 1, 1, 0.03f));
     }
 
     void addModifier(ResourceLocation table) {

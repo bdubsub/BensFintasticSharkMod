@@ -1,0 +1,80 @@
+package tfar.bensfintasticsharks.entity;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
+import tfar.bensfintasticsharks.disturbance.DisturbanceType;
+import tfar.bensfintasticsharks.disturbance.SharkAlertEvent;
+import tfar.bensfintasticsharks.disturbance.SharkAlertHandler;
+
+public class BlacktipReefSharkEntityForge extends BlacktipReefSharkEntity implements GeoEntity {
+
+    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+    private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("swim");
+    private static final RawAnimation BEACHED = RawAnimation.begin().thenLoop("beached2");
+    private static final RawAnimation BITE = RawAnimation.begin().then("bite", Animation.LoopType.PLAY_ONCE);
+    private static final RawAnimation DEATH = RawAnimation.begin().thenPlayAndHold("death");
+
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private boolean wasHostile;
+
+    public BlacktipReefSharkEntityForge(EntityType<BlacktipReefSharkEntity> type, Level level) {
+        super(type, level);
+    }
+
+    @Override
+    protected void onPostDisturbance(BlockPos source, DisturbanceType type, @Nullable LivingEntity sourceEntity) {
+        super.onPostDisturbance(source, type, sourceEntity);
+        // When a blacktip enters HOSTILE (which happens on BLOOD if a target is in range,
+        // or via being attacked), alert other blacktips in 24 blocks.
+        boolean hostileNow = getSharkState() == SharkState.HOSTILE;
+        if (hostileNow && !wasHostile && level() instanceof ServerLevel sl) {
+            SharkAlertHandler.fire(sl, this, SharkAlertEvent.Type.PACK_ALERT,
+                    BlacktipReefSharkEntity.class, 24.0, sourceEntity);
+        }
+        wasHostile = hostileNow;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "controller", 5, event -> {
+            if (!this.isInWaterOrBubble()) {
+                return event.setAndContinue(this.onGround() ? BEACHED : IDLE);
+            }
+            return event.setAndContinue(SWIM);
+        })
+                .triggerableAnim("bite", BITE)
+                .triggerableAnim("death", DEATH));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
+
+    @Override
+    protected void onBiteAttack(net.minecraft.world.entity.LivingEntity target) {
+        if (!level().isClientSide) triggerAnim("controller", "bite");
+    }
+
+    @Override
+    protected void tickDeath() {
+        ++this.deathTime;
+        this.triggerAnim("controller", "death");
+        if (this.deathTime == 30) {
+            this.remove(Entity.RemovalReason.KILLED);
+            this.dropExperience();
+        }
+    }
+}

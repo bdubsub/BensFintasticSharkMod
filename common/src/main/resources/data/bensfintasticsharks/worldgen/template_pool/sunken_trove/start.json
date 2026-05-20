@@ -1,0 +1,14 @@
+{
+  "name": "bensfintasticsharks:sunken_trove/start",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:feature_pool_element",
+        "feature": "bensfintasticsharks:sunken_trove",
+        "projection": "rigid"
+      }
+    }
+  ]
+}
