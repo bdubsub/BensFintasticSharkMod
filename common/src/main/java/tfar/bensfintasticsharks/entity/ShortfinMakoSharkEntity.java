@@ -61,7 +61,9 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
             /* detectionRadius      */ 28.0f,
             /* bloodDetectionRadius */ 42.0f,
             /* aggressionLevel      */ 85,
-            /* aggroSpeedMult       */ 1.6f,
+            // Aggro speed multiplier dialled back so a mako doesn't laser-track the player.
+            // Still the fastest shark in the mod via the lower MOVEMENT_SPEED base + chase mult.
+            /* aggroSpeedMult       */ 1.3f,
             /* disengageDistance    */ 80.0f,
             /* disengageTimeoutTicks*/ 400,
             /* biteCooldownTicks    */ 14,
@@ -82,7 +84,7 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
 
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 110).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 6);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 110).add(Attributes.MOVEMENT_SPEED, 0.95F).add(Attributes.ATTACK_DAMAGE, 6);
     }
 
     public void grabMob(LivingEntity entity) {
@@ -106,7 +108,9 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
     @Override
     protected void positionRider(Entity entity, MoveFunction function) {
         Vec3 look = getLookAngle();
-        float dist = 3f;
+        // Pull the held victim right up against the front of the shark's bounding box so
+        // it looks like it's actually being chomped, not floating two blocks away.
+        float dist = 1.1f;
 
 
         double angle = computeGrabAngle();
@@ -159,6 +163,15 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
         if (grabCountdown > 0) {
             int next = grabCountdown - 1;
             setGrabTimer(next);
+            // Thrash damage: while a victim is being held, deal a tick of damage every 10t.
+            // Without this the grab is purely visual and the prey just hitches a ride home.
+            if (!getPassengers().isEmpty() && (next % 10 == 0)) {
+                for (net.minecraft.world.entity.Entity p : getPassengers()) {
+                    if (p instanceof net.minecraft.world.entity.LivingEntity le && le.isAlive()) {
+                        le.hurt(this.damageSources().mobAttack(this), 2.0f);
+                    }
+                }
+            }
             if (next == 0) {
                 ejectPassengers();
             }
@@ -227,6 +240,10 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
 
     public boolean canTarget(LivingEntity target) {
         if (target instanceof ShortfinMakoSharkEntity) return false;
+        // Never attack other sharks of any species, even if they're low-health from a
+        // jellyfish sting or stingray strike. Same-species attacks were one of the
+        // biggest immersion breakers reported in the 0.10/0.11 round.
+        if (target instanceof AbstractSharkEntity<?>) return false;
         if (target instanceof Player player && player.isCreative()) return false;
         if (!isInWater()) return false;
         if (target.isDeadOrDying()) return false;
@@ -234,6 +251,9 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
 
         if (target.getType().is(ModTags.EntityTypes.SHORTFIN_MAKO_SHARK_ALWAYS_ATTACKS)) return true;
 
+        // Restrict opportunistic kills to actual prey species so the mako doesn't
+        // hoover up villagers, friendly mobs, or unrelated low-health entities.
+        if (!target.getType().is(ModTags.EntityTypes.SHARK_PREY)) return false;
         if (target.getHealth() / target.getMaxHealth() <= .5) return true;
 
         return false;
@@ -334,5 +354,8 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
             return NATURAL_VARIANTS.getRandomValue(pRandom).orElseThrow();
         }
     }
+
+    @Override public float bfsScaleMin() { return 0.9f; }
+    @Override public float bfsScaleMax() { return 1.05f; }
 }
 

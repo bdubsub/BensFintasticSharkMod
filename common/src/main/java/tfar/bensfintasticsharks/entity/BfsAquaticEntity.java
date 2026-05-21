@@ -37,6 +37,11 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
     /** Platform-set jellyfish contact damage multiplier (Forge reads from config). */
     public static volatile float globalJellyfishDamageMult = 1.0f;
 
+    /** Per-entity scale (synced). 1.0 = baseline; species pick a min/max range at spawn time. */
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Float> DATA_BFS_SCALE =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(BfsAquaticEntity.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.FLOAT);
+
     private int fleeCheckCooldown;
 
     protected BfsAquaticEntity(EntityType<T> type, Level level) {
@@ -173,5 +178,58 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
         } else {
             this.setAirSupply(300);
         }
+    }
+
+    // ===== Per-entity scale (size variety) =====================================
+
+    /** Override in subclass: min/max scale multiplier rolled at finalizeSpawn. Default = no variety. */
+    public float bfsScaleMin() { return 1.0f; }
+    public float bfsScaleMax() { return 1.0f; }
+
+    public float getBfsScale() { return this.entityData.get(DATA_BFS_SCALE); }
+    public void setBfsScale(float v) { this.entityData.set(DATA_BFS_SCALE, Math.max(0.1f, v)); }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_BFS_SCALE, 1.0f);
+    }
+
+    @Override
+    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(
+            @NotNull net.minecraft.world.level.ServerLevelAccessor level,
+            @NotNull net.minecraft.world.DifficultyInstance diff,
+            @NotNull net.minecraft.world.entity.MobSpawnType reason,
+            @org.jetbrains.annotations.Nullable net.minecraft.world.entity.SpawnGroupData data,
+            @org.jetbrains.annotations.Nullable net.minecraft.nbt.CompoundTag tag) {
+        float min = bfsScaleMin();
+        float max = bfsScaleMax();
+        if (max > min) {
+            float r = getRandom().nextFloat();
+            setBfsScale(min + r * (max - min));
+        } else {
+            setBfsScale(min);
+        }
+        return super.finalizeSpawn(level, diff, reason, data, tag);
+    }
+
+    @Override
+    public void addAdditionalSaveData(@NotNull net.minecraft.nbt.CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putFloat("BfsScale", getBfsScale());
+    }
+
+    @Override
+    public void readAdditionalSaveData(@NotNull net.minecraft.nbt.CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("BfsScale")) setBfsScale(tag.getFloat("BfsScale"));
+    }
+
+    @Override
+    public @NotNull net.minecraft.world.entity.EntityDimensions getDimensions(@NotNull net.minecraft.world.entity.Pose pose) {
+        net.minecraft.world.entity.EntityDimensions d = super.getDimensions(pose);
+        float s = getBfsScale();
+        if (Math.abs(s - 1.0f) < 0.001f) return d;
+        return d.scale(s);
     }
 }

@@ -86,12 +86,35 @@ public class GreenSeaTurtleEntity extends BfsAquaticEntity<GreenSeaTurtleEntity>
     @Override
     public void travel(@NotNull Vec3 movementInput) {
         if (this.isControlledByLocalInstance() && this.isInWater()) {
-            this.moveRelative(this.getSpeed(), movementInput);
+            // Slower than the previous tuning — turtles are leisurely swimmers, not torpedoes.
+            // moveRelative scaled by 0.35x of base speed; friction at 0.82 so velocity bleeds
+            // off naturally instead of accumulating into a runaway sprint.
+            this.moveRelative(this.getSpeed() * 0.35f, movementInput);
             this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.7));
+            this.setDeltaMovement(this.getDeltaMovement().scale(0.82));
+            // Hard horizontal cap so stacked impulses can't break the slowdown.
+            Vec3 dm = this.getDeltaMovement();
+            double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
+            double cap = 0.18;
+            if (horiz > cap) {
+                double scl = cap / horiz;
+                this.setDeltaMovement(dm.x * scl, dm.y, dm.z * scl);
+            }
         } else {
             super.travel(movementInput);
         }
+    }
+
+    /** Turtles breathe air. They never drown — on land or in water. */
+    @Override
+    protected void handleAirSupply(int air) {
+        this.setAirSupply(300);
+    }
+
+    /** Sea turtles can walk on land (and crawl animation drives it via SBL move target). */
+    @Override
+    public boolean canBreatheUnderwater() {
+        return true;
     }
 
     @Override
@@ -114,6 +137,24 @@ public class GreenSeaTurtleEntity extends BfsAquaticEntity<GreenSeaTurtleEntity>
         // Egg-laying behaviour intentionally disabled — feedback was that a beached
         // turtle dropping eggs felt unintentional. Use vanilla turtles for breeding;
         // BFS turtles are a wild encounter species only.
+
+        // Land wander: when out of water and grounded, occasionally pick a random
+        // nearby block to crawl to so the crawl animation has something to drive it.
+        if (level().isClientSide) return;
+        if (this.isInWater()) return;
+        if (!this.onGround()) return;
+        if (this.tickCount % 100 != ((this.getId() & 0x1F) % 100)) return;
+        if (net.tslat.smartbrainlib.util.BrainUtils.hasMemory(getBrain(),
+                net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET)) return;
+        // Pick a land target 4-10 blocks away.
+        double angle = getRandom().nextFloat() * Math.PI * 2;
+        double dist = 4 + getRandom().nextFloat() * 6;
+        double tx = getX() + Math.cos(angle) * dist;
+        double tz = getZ() + Math.sin(angle) * dist;
+        Vec3 target = new Vec3(tx, getY(), tz);
+        net.tslat.smartbrainlib.util.BrainUtils.setMemory(getBrain(),
+                net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET,
+                new net.minecraft.world.entity.ai.memory.WalkTarget(target, 0.6f, 1));
     }
 
     private boolean isOnBeachSand(ServerLevel sl) {
@@ -169,4 +210,7 @@ public class GreenSeaTurtleEntity extends BfsAquaticEntity<GreenSeaTurtleEntity>
         public static Variant byId(int id) { return BY_ID.apply(id); }
         public static Variant getSpawnVariant(net.minecraft.util.RandomSource random) { return NATURAL_VARIANTS.getRandomValue(random).orElseThrow(); }
     }
+
+    @Override public float bfsScaleMin() { return 0.85f; }
+    @Override public float bfsScaleMax() { return 1.15f; }
 }

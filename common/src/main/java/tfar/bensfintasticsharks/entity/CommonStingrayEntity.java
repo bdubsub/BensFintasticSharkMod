@@ -269,4 +269,5 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
             pEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this);
         }
     }
+
 }

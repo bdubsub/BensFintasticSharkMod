@@ -398,4 +398,7 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
             return NATURAL_VARIANTS.getRandomValue(pRandom).orElseThrow();
         }
     }
+
+    @Override public float bfsScaleMin() { return 0.9f; }
+    @Override public float bfsScaleMax() { return 1.1f; }
 }

@@ -184,4 +184,7 @@ public class AmericanLobsterEntity extends BfsAquaticEntity<AmericanLobsterEntit
         public static Variant byId(int id) { return BY_ID.apply(id); }
         public static Variant getSpawnVariant(RandomSource random) { return NATURAL_VARIANTS.getRandomValue(random).orElseThrow(); }
     }
+
+    @Override public float bfsScaleMin() { return 0.5f; }
+    @Override public float bfsScaleMax() { return 1.0f; }
 }

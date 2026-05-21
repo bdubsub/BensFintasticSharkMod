@@ -44,7 +44,15 @@ public class SharkAlertHandler {
                     }
                 }
                 case PACK_ALERT -> {
-                    if (shark.getRandom().nextFloat() < 0.60f) {
+                    // Pack alert: 80% of blacktips in radius immediately go HOSTILE on the
+                    // attacker. Without this the alerted pack would just swim toward the
+                    // disturbance source and idle — the user saw "only the provoked shark
+                    // attacks, the rest sit there". Make them join the fight.
+                    if (shark.getRandom().nextFloat() < 0.80f && event.getTarget() != null) {
+                        shark.setTarget(event.getTarget());
+                        shark.setSharkState(AbstractSharkEntity.SharkState.HOSTILE);
+                        shark.setStateTimer(400);
+                    } else {
                         shark.reactToDisturbance(event.getSource(),
                                 tfar.bensfintasticsharks.disturbance.DisturbanceType.HEAVY, null);
                     }

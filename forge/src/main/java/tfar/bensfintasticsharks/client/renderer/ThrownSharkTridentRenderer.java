@@ -57,24 +57,13 @@ public class ThrownSharkTridentRenderer extends EntityRenderer<ThrownSharkTriden
 
         pose.pushPose();
 
-        // Vanilla rotation chain. -90/yaw makes the model point in the direction of flight,
-        // +90/pitch tilts to follow the velocity's vertical component.
+        // Match vanilla TridentRenderer's rotation chain exactly. The model already
+        // ships with the tip oriented along +Y, so the standard yaw/pitch chain
+        // aligns the tip with the flight direction with no extra Z flip needed.
         pose.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90.0F));
         pose.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot()) + 90.0F));
 
-        // Our 3D model points +Y while vanilla's TridentModel points -Y. Flip so the
-        // rotation chain above places the tip in the direction of motion.
-        pose.mulPose(Axis.ZP.rotationDegrees(180));
-
-        // Our model has the handle base at the origin and the tip 32 pixels above it
-        // (two blocks). Shift down two blocks so the tip ends up at the entity position
-        // and the trident sticks point-first into whatever it hits.
-        pose.translate(0, -2, 0);
-
-        // Render the 3D model directly. Going through itemRenderer.renderStatic with
-        // ItemDisplayContext.NONE used to fall back to the 2D GUI sprite (the base model
-        // in the SeparateTransforms setup). Fetching the 3D BakedModel by name and
-        // rendering it explicitly bypasses that fallback.
+        // Render the 3D model directly so we don't fall back to the 2D GUI sprite.
         ItemStack stack = new ItemStack(ModItems.SHARK_TRIDENT);
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(THREE_D_MODEL);
         this.itemRenderer.render(stack, ItemDisplayContext.NONE, false,

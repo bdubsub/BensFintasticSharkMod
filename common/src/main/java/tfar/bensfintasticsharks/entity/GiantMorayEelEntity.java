@@ -144,4 +144,7 @@ public class GiantMorayEelEntity extends BfsAquaticEntity<GiantMorayEelEntity> i
         public static Variant byId(int id) { return BY_ID.apply(id); }
         public static Variant getSpawnVariant(net.minecraft.util.RandomSource random) { return NATURAL_VARIANTS.getRandomValue(random).orElseThrow(); }
     }
+
+    @Override public float bfsScaleMin() { return 0.55f; }
+    @Override public float bfsScaleMax() { return 1.0f; }
 }

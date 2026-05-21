@@ -61,4 +61,7 @@ public class OrcaEntity extends BfsAquaticEntity<OrcaEntity> {
             airTicks = 600 + getRandom().nextInt(601);
         }
     }
+
+    @Override public float bfsScaleMin() { return 0.9f; }
+    @Override public float bfsScaleMax() { return 1.05f; }
 }

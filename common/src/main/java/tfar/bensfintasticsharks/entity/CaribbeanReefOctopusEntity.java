@@ -97,4 +97,7 @@ public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOc
         }
         level.playSound(null, blockPosition(), SoundEvents.SQUID_SQUIRT, SoundSource.NEUTRAL, 1.0F, 1.1F);
     }
+
+    @Override public float bfsScaleMin() { return 0.4f; }
+    @Override public float bfsScaleMax() { return 0.85f; }
 }

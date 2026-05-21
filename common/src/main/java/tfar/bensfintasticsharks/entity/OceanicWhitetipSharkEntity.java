@@ -112,4 +112,7 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
         public static Variant byId(int id) { return BY_ID.apply(id); }
         public static Variant getSpawnVariant(RandomSource random) { return NATURAL_VARIANTS.getRandomValue(random).orElseThrow(); }
     }
+
+    @Override public float bfsScaleMin() { return 0.9f; }
+    @Override public float bfsScaleMax() { return 1.05f; }
 }

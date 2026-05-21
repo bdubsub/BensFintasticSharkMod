@@ -20,4 +20,10 @@ public class BlackSeaNettleJellyfishRenderer extends GeoEntityRenderer<BlackSeaN
     public @NotNull ResourceLocation getTextureLocation(BlackSeaNettleJellyfishEntityForge entity) {
         return TEXTURE;
     }
+    @Override
+    public void preRender(com.mojang.blaze3d.vertex.PoseStack poseStack, BlackSeaNettleJellyfishEntityForge animatable, software.bernie.geckolib.cache.object.BakedGeoModel model, net.minecraft.client.renderer.MultiBufferSource bufferSource, com.mojang.blaze3d.vertex.VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        float s = animatable.getBfsScale();
+        if (Math.abs(s - 1.0f) > 0.001f) poseStack.scale(s, s, s);
+        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+    }
 }

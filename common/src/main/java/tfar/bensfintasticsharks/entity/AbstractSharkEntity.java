@@ -76,7 +76,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         return SharkState.values()[this.entityData.get(STATE) % SharkState.values().length];
     }
 
-    protected void setSharkState(SharkState s) {
+    public void setSharkState(SharkState s) {
         this.entityData.set(STATE, s.ordinal());
     }
 
@@ -184,6 +184,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             var preyArea = this.getBoundingBox().inflate(radius);
             java.util.List<LivingEntity> prey = level().getEntitiesOfClass(LivingEntity.class, preyArea,
                     e -> e.isAlive() && e.isInWater() && e != this
+                            && !(e instanceof AbstractSharkEntity<?>)
                             && e.getType().is(tfar.bensfintasticsharks.init.ModTags.EntityTypes.SHARK_PREY));
             if (!prey.isEmpty()) {
                 LivingEntity closest = prey.stream()
@@ -399,11 +400,12 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     }
 
     @Override
-    protected float swimSpeedMultiplier() { return 0.16f; }
+    protected float swimSpeedMultiplier() { return 0.22f; }
     @Override
     protected float maxHorizontalSpeed() {
-        // Sharks chasing prey are allowed a slightly higher ceiling than ambient swimmers.
-        return this.getTarget() != null ? 0.55f : 0.40f;
+        // Sharks chasing prey go meaningfully faster than the player's swim (0.13 b/t baseline).
+        // Wandering sharks stay slow so they don't blow past the player on idle pathing.
+        return this.getTarget() != null ? 0.75f : 0.40f;
     }
 
     @Override

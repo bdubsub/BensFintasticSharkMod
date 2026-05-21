@@ -340,4 +340,7 @@ public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerh
     }
 
 
+
+    @Override public float bfsScaleMin() { return 0.9f; }
+    @Override public float bfsScaleMax() { return 1.05f; }
 }

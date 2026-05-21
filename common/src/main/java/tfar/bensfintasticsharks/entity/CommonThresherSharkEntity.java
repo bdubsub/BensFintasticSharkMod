@@ -272,4 +272,7 @@ public class CommonThresherSharkEntity extends AbstractSharkEntity<CommonThreshe
             return NATURAL_VARIANTS.getRandomValue(pRandom).orElseThrow();
         }
     }
+
+    @Override public float bfsScaleMin() { return 0.9f; }
+    @Override public float bfsScaleMax() { return 1.05f; }
 }

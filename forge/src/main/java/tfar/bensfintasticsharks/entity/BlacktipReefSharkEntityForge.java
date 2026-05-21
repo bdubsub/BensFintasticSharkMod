@@ -34,6 +34,22 @@ public class BlacktipReefSharkEntityForge extends BlacktipReefSharkEntity implem
     }
 
     @Override
+    public boolean hurt(@org.jetbrains.annotations.NotNull net.minecraft.world.damagesource.DamageSource source, float amount) {
+        boolean took = super.hurt(source, amount);
+        // Pack-alert when ANY blacktip is hurt by a living attacker, not just on
+        // disturbance ticks. AbstractSharkEntity.hurt already sets HOSTILE on this
+        // shark; we mirror that to the pack so the entire group joins the fight.
+        if (took && !level().isClientSide
+                && source.getEntity() instanceof net.minecraft.world.entity.LivingEntity attacker
+                && !(attacker instanceof BlacktipReefSharkEntity)
+                && level() instanceof ServerLevel sl) {
+            SharkAlertHandler.fire(sl, this, SharkAlertEvent.Type.PACK_ALERT,
+                    BlacktipReefSharkEntity.class, 32.0, attacker);
+        }
+        return took;
+    }
+
+    @Override
     protected void onPostDisturbance(BlockPos source, DisturbanceType type, @Nullable LivingEntity sourceEntity) {
         super.onPostDisturbance(source, type, sourceEntity);
         // When a blacktip enters HOSTILE (which happens on BLOOD if a target is in range,

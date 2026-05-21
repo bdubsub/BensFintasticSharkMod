@@ -101,6 +101,20 @@ public class BfsSpawnEggItem extends SpawnEggItem {
                                 @NotNull List<Component> tooltip,
                                 @NotNull net.minecraft.world.item.TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
+        // Scientific name (italicized) right under the item name. Translation key is
+        // item.bensfintasticsharks.<id>_spawn_egg.scientific — silently skipped if absent.
+        net.minecraft.resources.ResourceLocation rl =
+                net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(this);
+        if (rl != null) {
+            String sciKey = "item." + rl.getNamespace() + "." + rl.getPath() + ".scientific";
+            net.minecraft.network.chat.MutableComponent sciLine =
+                    Component.translatable(sciKey);
+            // Only show when the key actually resolves to something different from itself
+            // (i.e. lang has it). getString() returns the key verbatim when missing.
+            if (!sciLine.getString().equals(sciKey)) {
+                tooltip.add(sciLine.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+            }
+        }
         if (!hasVariants()) return;
         int variant = getVariantId(stack);
         tooltip.add(Component.literal("Variant " + variant + " / " + (variantCount - 1))

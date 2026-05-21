@@ -109,7 +109,7 @@ public class ForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public EntityType<TigerSharkEntity> registerTigerShark() {
-        return EntityType.Builder.of(TigerSharkEntityForge::new, ModMobCategories.APEX_PREDATOR).sized(2.25f, 1.0f).build("");
+        return EntityType.Builder.of(TigerSharkEntityForge::new, ModMobCategories.APEX_PREDATOR).sized(2.0f, 0.9f).build("");
     }
 
     @Override
@@ -139,12 +139,12 @@ public class ForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public EntityType<CommonOctopusEntity> registerCommonOctopus() {
-        return EntityType.Builder.of(CommonOctopusEntityForge::new, ModMobCategories.BFS_WATER_CREATURE).sized(0.9f, 0.5f).build("");
+        return EntityType.Builder.of(CommonOctopusEntityForge::new, ModMobCategories.BFS_WATER_CREATURE).sized(0.6f, 0.4f).build("");
     }
 
     @Override
     public EntityType<CaribbeanReefOctopusEntity> registerCaribbeanReefOctopus() {
-        return EntityType.Builder.of(CaribbeanReefOctopusEntityForge::new, ModMobCategories.BFS_WATER_CREATURE).sized(0.7f, 0.4f).build("");
+        return EntityType.Builder.of(CaribbeanReefOctopusEntityForge::new, ModMobCategories.BFS_WATER_CREATURE).sized(0.5f, 0.3f).build("");
     }
 
     @Override
@@ -164,7 +164,7 @@ public class ForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public EntityType<AmericanLobsterEntity> registerAmericanLobster() {
-        return EntityType.Builder.of(AmericanLobsterEntityForge::new, ModMobCategories.BFS_WATER_CREATURE).sized(0.7f, 0.4f).build("");
+        return EntityType.Builder.of(AmericanLobsterEntityForge::new, ModMobCategories.BFS_WATER_CREATURE).sized(0.55f, 0.3f).build("");
     }
 
     @Override
@@ -174,7 +174,7 @@ public class ForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public EntityType<CannonballJellyfishEntity> registerCannonballJellyfish() {
-        return EntityType.Builder.of(CannonballJellyfishEntityForge::new, ModMobCategories.BFS_WATER_AMBIENT).sized(0.6f, 0.6f).build("");
+        return EntityType.Builder.of(CannonballJellyfishEntityForge::new, ModMobCategories.BFS_WATER_AMBIENT).sized(0.5f, 0.5f).build("");
     }
 
     @Override

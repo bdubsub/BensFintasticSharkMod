@@ -87,4 +87,7 @@ public class CannonballJellyfishEntity extends BfsAquaticEntity<CannonballJellyf
             }
         }
     }
+
+    @Override public float bfsScaleMin() { return 0.6f; }
+    @Override public float bfsScaleMax() { return 0.85f; }
 }

@@ -23,11 +23,15 @@ public class CaribbeanReefOctopusEntityForge extends CaribbeanReefOctopusEntity 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
-            // In water → always SWIM (so idle floating doesn't fall back to the on-ground pose).
-            // Out of water or hiding → IDLE_GROUND.
+            // Hiding or beached → ground pose.
             if (this.isHiding() || !this.isInWaterOrBubble()) {
                 return event.setAndContinue(IDLE_GROUND);
             }
+            // Sitting on the sea floor → ground pose too (matches the Common Octopus behaviour).
+            net.minecraft.core.BlockPos below = this.blockPosition().below();
+            boolean nearFloor = !this.level().getBlockState(below).isAir()
+                    && this.getDeltaMovement().horizontalDistanceSqr() < 0.0025;
+            if (nearFloor) return event.setAndContinue(IDLE_GROUND);
             return event.setAndContinue(SWIM);
         }));
     }
