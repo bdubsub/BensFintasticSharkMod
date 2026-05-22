@@ -24,21 +24,14 @@ public class CommonOctopusEntityForge extends CommonOctopusEntity implements Geo
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
-            // Ground idle when:
-            //  - explicitly hiding,
-            //  - sitting on a solid block in water (sea floor),
-            //  - or beached / out of water.
-            if (this.isHiding() || (this.onGround() && !this.isInWaterOrBubble())) {
+            // Out of water OR explicitly hiding → ground pose. Otherwise SWIM.
+            // The old "near floor" predicate fired almost any time underwater
+            // (block-below is rarely air) which locked the octopus into the
+            // ground_idle while it was actually swimming.
+            if (this.isHiding() || !this.isInWaterOrBubble()) {
                 return event.setAndContinue(IDLE_GROUND);
             }
-            if (this.isInWaterOrBubble()) {
-                net.minecraft.core.BlockPos below = this.blockPosition().below();
-                boolean nearFloor = !this.level().getBlockState(below).isAir()
-                        && this.getDeltaMovement().horizontalDistanceSqr() < 0.0025;
-                if (nearFloor) return event.setAndContinue(IDLE_GROUND);
-                return event.setAndContinue(SWIM);
-            }
-            return event.setAndContinue(IDLE);
+            return event.setAndContinue(SWIM);
         }));
     }
 

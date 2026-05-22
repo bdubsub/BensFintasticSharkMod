@@ -36,13 +36,12 @@ public class GiantMorayEelEntityForge extends GiantMorayEelEntity implements Geo
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        // The eel's horizontal speed sits right around 0.04 lengthSqr at normal swim,
-        // so a single threshold flips SWIM/SWIM_FAST every other tick and stalls both.
-        // SWIM is the safe default; SWIM_FAST kicks in only when clearly above cruise.
-        controllers.add(new AnimationController<>(this, "controller", 5, event -> {
-            double sq = this.getDeltaMovement().lengthSqr();
-            return event.setAndContinue(sq > 0.12 ? SWIM_FAST : SWIM);
-        }).triggerableAnim("bite", BITE));
+        // SWIM-only; the SWIM/SWIM_FAST threshold-toggle flickered near the
+        // cruise speed boundary and locked both animations on frame 0. BITE
+        // remains a one-shot triggerable.
+        controllers.add(new AnimationController<>(this, "controller", 5, event ->
+                event.setAndContinue(SWIM)
+        ).triggerableAnim("bite", BITE));
     }
 
     @Override

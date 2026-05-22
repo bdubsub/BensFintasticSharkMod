@@ -74,11 +74,16 @@ public class BfsSpawnEggItem extends SpawnEggItem {
         if (!hasVariants()) return result;
         if (!(result.consumesAction()) || !(ctx.getLevel() instanceof ServerLevel sl)) return result;
         ItemStack stack = ctx.getItemInHand();
-        if (!stack.hasTag() || !stack.getTag().contains(TAG_VARIANT)) return result;
+        // Always apply the egg's variant id (defaults to 0 when no tag is present).
+        // Previously a fresh-from-creative egg with no NBT skipped this override and
+        // the entity kept whatever finalizeSpawn rolled, so the tooltip's "Variant 0"
+        // never matched the spawned skin.
         int variant = getVariantId(stack);
 
         EntityType<?> spawnType = super.getType(stack.getTag());
-        AABB searchArea = new AABB(ctx.getClickedPos()).inflate(4.0);
+        // Inflate search radius generously - big sharks have wide bounding boxes,
+        // and the spawn lands at clickedPos+face-offset which can be 1-2 blocks away.
+        AABB searchArea = new AABB(ctx.getClickedPos()).inflate(8.0);
         List<Entity> candidates = sl.getEntitiesOfClass(Entity.class, searchArea,
                 e -> e.getType() == spawnType && e instanceof BfsVariantHolder);
         candidates.stream()

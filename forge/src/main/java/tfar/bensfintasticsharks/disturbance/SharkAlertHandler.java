@@ -35,6 +35,9 @@ public class SharkAlertHandler {
         for (AbstractSharkEntity shark : sharks) {
             if (shark.getSharkState() != AbstractSharkEntity.SharkState.IDLE
                     && shark.getSharkState() != AbstractSharkEntity.SharkState.CURIOUS) continue;
+            // Satiated sharks ignore pack alerts and blood convergence — one
+            // prey per cycle. They still react to disturbances cosmetically.
+            if (shark.isOnHuntCooldown()) continue;
             switch (event.getType()) {
                 case BLOOD_CONVERGENCE -> {
                     if (event.getTarget() != null) {
@@ -44,11 +47,14 @@ public class SharkAlertHandler {
                     }
                 }
                 case PACK_ALERT -> {
-                    // Pack alert: 80% of blacktips in radius immediately go HOSTILE on the
-                    // attacker. Without this the alerted pack would just swim toward the
-                    // disturbance source and idle — the user saw "only the provoked shark
-                    // attacks, the rest sit there". Make them join the fight.
-                    if (shark.getRandom().nextFloat() < 0.80f && event.getTarget() != null) {
+                    // Pack alert: only ~30% of same-species sharks in radius go
+                    // HOSTILE on the attacker, and only if they aren't already
+                    // tracking something. Dropped from 80% after playtests showed
+                    // entire packs piling onto a single trigger; the rest now
+                    // become CURIOUS via the disturbance fallback, which looks
+                    // alert without dogpiling.
+                    if (shark.getRandom().nextFloat() < 0.30f && event.getTarget() != null
+                            && shark.getTarget() == null) {
                         shark.setTarget(event.getTarget());
                         shark.setSharkState(AbstractSharkEntity.SharkState.HOSTILE);
                         shark.setStateTimer(400);

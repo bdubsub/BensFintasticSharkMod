@@ -22,15 +22,32 @@ public class GreenSeaTurtleEntityForge extends GreenSeaTurtleEntity implements G
         super(type, level);
     }
 
+    // Latched "moving" state with hysteresis so the predicate doesn't flicker
+    // between SWIM/IDLE_SWIM (or CRAWL/CRAWL_IDLE) every other tick. The turtle's
+    // horizontal speed sits right around the old 0.008 threshold so even small
+    // accelerations could re-trigger GeckoLib and stall the animation.
+    private boolean latchedMoving = false;
+    private int movingStreak = 0;
+    private static final int STREAK_TICKS = 12;
+
+    @Override
+    public void tick() {
+        super.tick();
+        double sq = this.getDeltaMovement().horizontalDistanceSqr();
+        boolean inst = sq > 0.004;
+        if (inst == latchedMoving) {
+            movingStreak = 0;
+        } else if (++movingStreak >= STREAK_TICKS) {
+            latchedMoving = inst;
+            movingStreak = 0;
+        }
+    }
+
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 8, event -> {
             boolean inWater = this.isInWaterOrBubble();
-            // Higher threshold so idle_swim and crawl_idle actually get a chance to play.
-            // The old 0.001 fired immediately even when the entity was effectively still.
-            double sq = this.getDeltaMovement().horizontalDistanceSqr();
-            boolean moving = sq > 0.008;
-            if (moving) {
+            if (latchedMoving) {
                 return event.setAndContinue(inWater ? SWIM : CRAWL);
             }
             return event.setAndContinue(inWater ? IDLE_SWIM : CRAWL_IDLE);

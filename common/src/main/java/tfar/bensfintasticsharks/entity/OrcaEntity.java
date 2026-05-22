@@ -64,4 +64,22 @@ public class OrcaEntity extends BfsAquaticEntity<OrcaEntity> {
 
     @Override public float bfsScaleMin() { return 0.9f; }
     @Override public float bfsScaleMax() { return 1.05f; }
+
+    /**
+     * Marine-mammal land-survival window: ~20s longer than the BfsAquaticEntity default.
+     * Parent refills to 300 (≈16s before drown damage); we refill to 700 (≈36s) so a beached
+     * orca has time to thrash back into water.
+     */
+    @Override
+    protected void handleAirSupply(int air) {
+        if (this.isAlive() && !this.isInWaterOrBubble()) {
+            this.setAirSupply(air - 1);
+            if (this.getAirSupply() == -20) {
+                this.setAirSupply(0);
+                this.hurt(this.damageSources().drown(), 2.0F);
+            }
+        } else {
+            this.setAirSupply(700);
+        }
+    }
 }

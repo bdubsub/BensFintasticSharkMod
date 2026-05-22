@@ -128,7 +128,7 @@
 						"vector": [
 							0,
 							0,
-							"NaN-math.sin(query.anim_time*180)*5"
+							"-math.sin(query.anim_time*180)*5"
 						],
 						"easing": "linear"
 					}

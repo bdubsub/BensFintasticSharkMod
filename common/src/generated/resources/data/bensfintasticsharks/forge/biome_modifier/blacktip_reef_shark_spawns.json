@@ -3,8 +3,8 @@
   "biomes": "#bensfintasticsharks:blacktip_reef_shark_spawns",
   "spawners": {
     "type": "bensfintasticsharks:blacktip_reef_shark",
-    "maxCount": 3,
-    "minCount": 2,
-    "weight": 30
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 18
   }
 }

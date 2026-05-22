@@ -37,18 +37,14 @@ public class BottlenoseDolphinEntityForge extends BottlenoseDolphinEntity implem
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        // Single SWIM in water; SWIM_FAST has been observed to flip-flop with SWIM at
-        // the threshold (lengthSqr ~ 0.04) which restarted both animations every other
-        // tick and made the model freeze on frame 0. BREACH is still a one-shot trigger
-        // for the jump moment.
+        // SWIM-only in water; SWIM_FAST removed entirely. With even a hysteresis
+        // threshold the dolphin would oscillate near the boundary and lock both
+        // animations on frame 0. BREACH remains a one-shot triggerable.
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
             if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(BEACHED);
             }
-            // Use SWIM_FAST only when clearly above cruise speed, with hysteresis so
-            // we don't flicker between the two near the threshold.
-            double sq = this.getDeltaMovement().lengthSqr();
-            return event.setAndContinue(sq > 0.10 ? SWIM_FAST : SWIM);
+            return event.setAndContinue(SWIM);
         }).triggerableAnim("breach", BREACH));
     }
 

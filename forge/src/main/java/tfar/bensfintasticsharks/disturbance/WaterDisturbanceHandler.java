@@ -38,9 +38,15 @@ public class WaterDisturbanceHandler {
         }
 
         double radius = switch (event.getType()) {
-            case BLOOD -> 56.0;
-            case HEAVY -> 32.0;
-            case LIGHT -> 24.0;
+            // Tightened from 56/32/24. The old 56-block BLOOD radius pulled in
+            // every shark of every species in chunk-load range and turned a
+            // single hurt mob into a cross-species feeding frenzy. Players
+            // reported "they all form a pack and target everything together"
+            // — caused by every nearby shark calling reactToDisturbance(BLOOD,
+            // sourceEntity) and locking onto the same victim.
+            case BLOOD -> 24.0;
+            case HEAVY -> 16.0;
+            case LIGHT -> 12.0;
         };
 
         DisturbanceType ct = switch (event.getType()) {

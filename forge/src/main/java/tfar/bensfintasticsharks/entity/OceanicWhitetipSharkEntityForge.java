@@ -32,12 +32,15 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     @Override
     protected void onPostDisturbance(BlockPos source, DisturbanceType type, @Nullable LivingEntity sourceEntity) {
         super.onPostDisturbance(source, type, sourceEntity);
-        // Convergent feeding: a whitetip that smells blood broadcasts to nearby whitetips
-        // and silky-like sharks. We restrict to OceanicWhitetip species to keep emergent;
-        // any nearby shark already reacts via the base WaterDisturbance handler radius.
+        // Convergent feeding: a whitetip that smells blood alerts nearby
+        // whitetips and pulls them onto the same target. Radius tightened from
+        // 48 to 20 — at 48 every whitetip in the same chunk-load batch would
+        // converge on the same prey and create a pack-hunting effect across
+        // species (the same blood event also feeds reactToDisturbance on every
+        // other shark in range).
         if (type == DisturbanceType.BLOOD && sourceEntity != null && level() instanceof ServerLevel sl) {
             SharkAlertHandler.fire(sl, this, SharkAlertEvent.Type.BLOOD_CONVERGENCE,
-                    OceanicWhitetipSharkEntity.class, 48.0, sourceEntity);
+                    OceanicWhitetipSharkEntity.class, 20.0, sourceEntity);
         }
     }
 

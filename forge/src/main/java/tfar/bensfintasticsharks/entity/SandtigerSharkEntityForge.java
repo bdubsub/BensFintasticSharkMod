@@ -37,6 +37,10 @@ public class SandtigerSharkEntityForge extends SandtigerSharkEntity implements G
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        // SWIM-only main controller (no FAST_SWIM flip). Toggling between SWIM
+        // and FAST_SWIM based on chase state retriggers GeckoLib every prey
+        // scan and stalls both anims on frame 0. BITE remains a triggerable
+        // one-shot.
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
             if (!this.isInWaterOrBubble()) {
                 return event.setAndContinue(IDLE);
@@ -44,7 +48,7 @@ public class SandtigerSharkEntityForge extends SandtigerSharkEntity implements G
             if (isHovering()) {
                 return event.setAndContinue(IDLE);
             }
-            return event.setAndContinue(this.getTarget() != null ? FAST_SWIM : SWIM);
+            return event.setAndContinue(SWIM);
         })
                 .triggerableAnim("bite", BITE)
                 .triggerableAnim("tail_whip", BITE));

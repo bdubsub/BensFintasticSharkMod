@@ -42,14 +42,13 @@ public class TigerSharkEntityForge extends TigerSharkEntity implements GeoEntity
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        // Chase = FAST_SWIM, otherwise SWIM. Speed-thresholded switching causes the
-        // controller to flicker between the two animations near the boundary and
-        // both stall on frame 0.
+        // SWIM-only in water (no FAST_SWIM flip on chase). The toggle retriggers
+        // the controller every prey scan and stalls both anims on frame 0.
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
             if (!this.isInWaterOrBubble()) {
                 return event.setAndContinue(IDLE);
             }
-            return event.setAndContinue(this.getTarget() != null ? FAST_SWIM : SWIM);
+            return event.setAndContinue(SWIM);
         }).triggerableAnim("bite", BITE));
     }
 

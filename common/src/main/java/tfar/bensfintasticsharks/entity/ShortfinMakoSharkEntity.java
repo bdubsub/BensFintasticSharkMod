@@ -84,7 +84,7 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
 
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 110).add(Attributes.MOVEMENT_SPEED, 0.95F).add(Attributes.ATTACK_DAMAGE, 6);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 110).add(Attributes.MOVEMENT_SPEED, 0.80F).add(Attributes.ATTACK_DAMAGE, 6);
     }
 
     public void grabMob(LivingEntity entity) {
@@ -248,6 +248,9 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
         if (!isInWater()) return false;
         if (target.isDeadOrDying()) return false;
         if (target.getVehicle() == this) return false;
+        // Satiated mako — one prey per cycle. Players in survival can still
+        // provoke us via the hurt() retaliation path.
+        if (isOnHuntCooldown()) return false;
 
         if (target.getType().is(ModTags.EntityTypes.SHORTFIN_MAKO_SHARK_ALWAYS_ATTACKS)) return true;
 

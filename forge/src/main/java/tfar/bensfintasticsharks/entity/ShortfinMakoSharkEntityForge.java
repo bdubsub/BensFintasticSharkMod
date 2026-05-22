@@ -29,6 +29,10 @@ public class ShortfinMakoSharkEntityForge  extends ShortfinMakoSharkEntity imple
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        // FAST_SWIM only while hunting (target acquired). With the 10-minute
+        // post-kill cooldown in AbstractSharkEntity, the target lock no longer
+        // toggles every prey scan, so this no longer flickers. Outside of a
+        // hunt the mako cruises with the normal SWIM loop.
         controllers.add(new AnimationController<>(this, "idle_controller", 5, event -> {
             if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(BEACHED);

@@ -38,6 +38,21 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     private int stateTimer; // ticks remaining in the current non-idle state
     private int ticksTargetOutOfWater;
     private int biteCooldown;
+    /**
+     * Hunt cooldown countdown. While > 0, the shark will not scan for prey,
+     * will not retaliate against attackers (except players, who are always
+     * fair game in self-defense), and stays in IDLE/CURIOUS. Decremented every
+     * server tick. Set to {@link #HUNT_COOLDOWN_TICKS} the moment a hunt ends
+     * (target dies or escapes). Persisted in NBT so it survives saves.
+     *
+     * <p>This is the "one prey per hunting cycle" rule — a satiated shark
+     * cruises lazily and doesn't murder everything in sight.</p>
+     */
+    private int huntCooldown;
+    /** 10 real-time minutes = 12000 ticks at 20 t/s. */
+    public static final int HUNT_COOLDOWN_TICKS = 12_000;
+    /** Last target we were locked onto. Used to detect "target just died this tick" so we can start the cooldown. */
+    private LivingEntity lastHuntTarget;
     /** Scheduled hit: damage lands a few ticks after the bite animation triggers so the visual matches the hit. */
     private LivingEntity pendingBiteTarget;
     private int pendingBiteTicks;
@@ -115,6 +130,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     protected void customServerAiStep() {
         super.customServerAiStep();
         if (biteCooldown > 0) biteCooldown--;
+        if (huntCooldown > 0) huntCooldown--;
         // Land the scheduled bite at the visual peak of the animation.
         if (pendingBiteTicks > 0) {
             pendingBiteTicks--;
@@ -142,6 +158,20 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         }
         // Target-left-water disengage. Spec 2.1: 60+ ticks out of water → drop target.
         LivingEntity tgt = this.getTarget();
+        // Track the active hunt target so we can detect a successful kill.
+        if (tgt != null && tgt != lastHuntTarget) {
+            lastHuntTarget = tgt;
+        }
+        // If our last hunt target just died (or was killed by our bite landing
+        // this tick), that counts as a successful hunt — start the cooldown.
+        if (lastHuntTarget != null && !lastHuntTarget.isAlive()) {
+            huntCooldown = HUNT_COOLDOWN_TICKS;
+            lastHuntTarget = null;
+            this.setTarget(null);
+            setSharkState(SharkState.IDLE);
+            ticksTargetOutOfWater = 0;
+            tgt = null;
+        }
         if (tgt != null) {
             if (!tgt.isAlive() || tgt.isDeadOrDying()) {
                 this.setTarget(null);
@@ -179,7 +209,8 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         // Prey scan: every 20 ticks (staggered by entity id so they don't all scan
         // the same tick), look for SHARK_PREY-tagged living entities in water and
         // lock onto the closest. Replaces the SBL TargetOrRetaliate behaviour.
-        if (this.getTarget() == null && (tickCount % 20) == (this.getId() & 0xF) % 20) {
+        // Skipped while the hunt cooldown is active — one prey per cycle.
+        if (huntCooldown <= 0 && this.getTarget() == null && (tickCount % 20) == (this.getId() & 0xF) % 20) {
             float radius = effectiveDetectionRadius();
             var preyArea = this.getBoundingBox().inflate(radius);
             java.util.List<LivingEntity> prey = level().getEntitiesOfClass(LivingEntity.class, preyArea,
@@ -260,14 +291,23 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             return wasHurt;
         }
 
+        // During the hunt cooldown, only retaliate against players (self-defense
+        // — a satiated shark still defends itself if a player attacks it). Other
+        // attackers are ignored so the shark doesn't start a fresh hunt mid-cooldown.
+        if (huntCooldown > 0 && !(attacker instanceof Player)) {
+            return wasHurt;
+        }
+
         this.setTarget(attacker);
         setSharkState(SharkState.HOSTILE);
         stateTimer = effectiveDisengageTimeoutTicks();
 
         // Throttle the help-call. Big hits always call; small hits only sometimes
         // so a piranha-style bunch of small ticks doesn't drag every shark in.
-        if (amount > 4f || getRandom().nextFloat() < 0.35f) {
-            float helpRadius = 32f;
+        // Tightened from 4 helpers / 32-block radius to 2 helpers / 16 blocks so
+        // a single shark attack doesn't pull the entire local population.
+        if (amount > 4f || getRandom().nextFloat() < 0.20f) {
+            float helpRadius = 16f;
             var helpers = level().getEntitiesOfClass(AbstractSharkEntity.class,
                     this.getBoundingBox().inflate(helpRadius),
                     s -> s != this && s.isAlive() && s.isInWater()
@@ -275,7 +315,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                             && s.getType() == this.getType());
             int called = 0;
             for (AbstractSharkEntity<?> helper : helpers) {
-                if (called >= 4) break;
+                if (called >= 2) break;
                 helper.setTarget(attacker);
                 helper.setSharkState(SharkState.HOSTILE);
                 helper.setStateTimer(effectiveDisengageTimeoutTicks());
@@ -372,7 +412,15 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             case BLOOD -> {
                 if (sourceEntity != null
                         && !(sourceEntity instanceof Player p && (p.isCreative() || p.isSpectator()))
-                        && sourceEntity != this) {
+                        && sourceEntity != this
+                        // Don't pack-target other sharks just because they're
+                        // bleeding. Same-species was already blocked elsewhere,
+                        // but cross-species (e.g. great white bleeding from a
+                        // jellyfish sting) used to drag every other shark in
+                        // the 56-block radius into the fight.
+                        && !(sourceEntity instanceof AbstractSharkEntity<?>)
+                        // Satiated sharks ignore blood — one prey per cycle.
+                        && huntCooldown <= 0) {
                     setSharkState(SharkState.HOSTILE);
                     this.setTarget(sourceEntity);
                     stateTimer = params.disengageTimeoutTicks();
@@ -459,6 +507,27 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     private void walkToward(BlockPos pos) {
         BrainUtils.setMemory(this.getBrain(), MemoryModuleType.WALK_TARGET,
                 new WalkTarget(Vec3.atCenterOf(pos), params.aggroSpeedMult(), 2));
+    }
+
+    /** Ticks remaining until this shark will hunt again. 0 means ready to hunt. */
+    public int getHuntCooldown() { return huntCooldown; }
+    /** True when the shark is satiated and won't actively hunt new prey. */
+    public boolean isOnHuntCooldown() { return huntCooldown > 0; }
+    /** Force-set the hunt cooldown. Mostly useful for debug / commands. */
+    public void setHuntCooldown(int ticks) { this.huntCooldown = Math.max(0, ticks); }
+
+    @Override
+    public void addAdditionalSaveData(@NotNull net.minecraft.nbt.CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putInt("HuntCooldown", huntCooldown);
+    }
+
+    @Override
+    public void readAdditionalSaveData(@NotNull net.minecraft.nbt.CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("HuntCooldown")) {
+            huntCooldown = tag.getInt("HuntCooldown");
+        }
     }
 
     // NOTE: getIdleTasks, getFightTasks, and getSensors are intentionally NOT overridden
