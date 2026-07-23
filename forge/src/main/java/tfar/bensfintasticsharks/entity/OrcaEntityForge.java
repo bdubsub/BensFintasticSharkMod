@@ -14,13 +14,28 @@ public class OrcaEntityForge extends OrcaEntity implements GeoEntity {
 
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("swim");
-    private static final RawAnimation SWIM_FAST = RawAnimation.begin().thenLoop("swim_fast");
     private static final RawAnimation BREACH = RawAnimation.begin().then("breach", Animation.LoopType.PLAY_ONCE);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private boolean breachQueued;
+    private int visuallyStillTicks;
 
     public OrcaEntityForge(EntityType<OrcaEntity> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        visuallyStillTicks = getDeltaMovement().lengthSqr() < 4.0e-4
+                ? Math.min(visuallyStillTicks + 1, 40)
+                : 0;
+        if (!level().isClientSide && isBreaching() && !breachQueued) {
+            triggerAnim("controller", "breach");
+            breachQueued = true;
+        } else if (!isBreaching()) {
+            breachQueued = false;
+        }
     }
 
     @Override
@@ -29,7 +44,7 @@ public class OrcaEntityForge extends OrcaEntity implements GeoEntity {
             if (!this.isInWaterOrBubble()) {
                 return event.setAndContinue(IDLE);
             }
-            return event.setAndContinue(SWIM);
+            return event.setAndContinue(visuallyStillTicks >= 20 ? IDLE : SWIM);
         }).triggerableAnim("breach", BREACH));
     }
 

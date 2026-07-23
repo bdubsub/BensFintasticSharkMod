@@ -43,7 +43,7 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return createSharkAttributes(40, 1.1, 2.5);
+        return createSharkAttributes(60, 1.1, 2.5);
     }
 
     @Override
@@ -88,6 +88,23 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
     @Override
     protected float wanderRadiusY() { return 10f; }
 
+    @Override
+    public boolean canJoinPlayerFeedingFrenzy() { return true; }
+
+    @Override
+    protected boolean alertsPackmatesWhenAttacked() { return true; }
+
+    // Feedback singled blacktips out as visually too fast once a school enters a frenzy.
+    // Keep their normal cruise untouched, but trim the chase burst/floor and terminal cap.
+    @Override
+    protected float chaseAccelBoost() { return 1.55f; }
+    @Override
+    protected float chaseSpeedFloor() { return 0.27f; }
+    @Override
+    protected float maxHorizontalSpeed() {
+        return getTarget() != null ? 0.52f : super.maxHorizontalSpeed();
+    }
+
     public enum Variant implements StringRepresentable {
         DEFAULT_1(0, "default_1"),
         DEFAULT_2(1, "default_2"),
@@ -112,4 +129,32 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
 
     @Override public float bfsScaleMin() { return 0.9f; }
     @Override public float bfsScaleMax() { return 1.05f; }
+
+    // 0.18 — Ben: the bite animation seemed to lag ~1s behind the damage. The 1.125s
+    // bite clip snaps shut around 0.5-0.65s in (plus the controller's 0.25s blend-in),
+    // but the default 5-tick impact delay landed the damage at 0.25s — well before the
+    // visible chomp. 12 ticks (0.6s) puts the hit on the animation's impact frame.
+    @Override protected int biteImpactDelayTicks() { return 12; }
+
+    @Override
+    protected double biteRangeAgainst(net.minecraft.world.entity.LivingEntity target) {
+        return Math.min(super.biteRangeAgainst(target), 1.75);
+    }
+
+    @Override
+    protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {
+        return tfar.bensfintasticsharks.init.ModTags.EntityTypes.BLACKTIP_REEF_SHARK_PREY;
+    }
+
+    /**
+     * Blacktips are skittish. A lone one that gets hit bolts instead of fighting back;
+     * with a group of its own kind nearby it gets bold and retaliates (and the base
+     * hurt() help-call then drags the rest of the school into the fight).
+     */
+    @Override
+    protected boolean retaliatesAgainst(net.minecraft.world.entity.LivingEntity attacker) {
+        int buddies = level().getEntitiesOfClass(BlacktipReefSharkEntity.class,
+                getBoundingBox().inflate(16.0), s -> s != this && s.isAlive() && s.isInWater()).size();
+        return buddies >= 1;
+    }
 }

@@ -10,8 +10,16 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import tfar.bensfintasticsharks.config.BfsConfig;
+import tfar.bensfintasticsharks.entity.BfsVariantHolder;
+import tfar.bensfintasticsharks.init.ModTags;
 import tfar.bensfintasticsharks.spawn.MobCapManager;
+
+import java.util.Locale;
 
 /**
  * {@code /bfs} command tree. Currently exposes the per-species cap controls
@@ -34,6 +42,8 @@ public class BfsCommands {
                         // /bfs help — top-level help
                         .executes(BfsCommands::topHelp)
                         .then(Commands.literal("help").executes(BfsCommands::topHelp))
+                        // /bfs summon villager [trade] — creative showcase fisherman
+                        .then(BfsVillagerCommand.createNode())
                         // /bfs cap …
                         .then(Commands.literal("cap")
                                 .then(Commands.literal("help").executes(BfsCommands::capHelp))
@@ -61,6 +71,7 @@ public class BfsCommands {
                                         .executes(BfsCommands::find)))
                         // /bfs info <species> — show details
                         .then(Commands.literal("info")
+                                .requires(BfsCommands::canUseCreativeInfo)
                                 .then(Commands.argument("species", StringArgumentType.word())
                                         .suggests(SPECIES_SUGGESTIONS)
                                         .executes(BfsCommands::info)))
@@ -84,6 +95,7 @@ public class BfsCommands {
         src.sendSuccess(() -> Component.literal("Ben's Fintastic Sharks — admin commands")
                 .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
         line(src, "/bfs list", "list every BFS species and its current cap");
+        line(src, "/bfs summon villager [trade]", "spawn a master fisherman with a guaranteed BFS trade");
         line(src, "/bfs find <species>", "find nearest of that species and TP-tell you its coords");
         line(src, "/bfs info <species>", "show category, cap, biology blurb");
         line(src, "/bfs count <species>", "count instances within 64 blocks of you");
@@ -155,21 +167,62 @@ public class BfsCommands {
             src.sendFailure(Component.literal("Unknown BFS species: " + species));
             return 0;
         }
+        BfsSpeciesInfo.Entry details = BfsSpeciesInfo.get(species);
+        if (details == null) {
+            src.sendFailure(Component.literal("No species information is available for: " + species));
+            return 0;
+        }
+
         int cap = MobCapManager.getCap(type);
         int configCap = MobCapManager.getConfigCap(type);
         String cat = type.getCategory().getName();
-        src.sendSuccess(() -> Component.literal(species).withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
-        src.sendSuccess(() -> Component.literal("  Category: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(cat).withStyle(ChatFormatting.WHITE)), false);
-        src.sendSuccess(() -> Component.literal("  Cap: ").withStyle(ChatFormatting.GRAY)
+        Entity entity = type.create(src.getLevel());
+        double health = Double.NaN;
+        int variants = 1;
+        if (entity instanceof LivingEntity living) {
+            health = living.getMaxHealth();
+            var hpMult = BfsConfig.COMMON.speciesHpMult.get(species);
+            if (hpMult != null) {
+                health *= hpMult.get();
+            }
+            if (type.is(ModTags.EntityTypes.SHARKS)) {
+                health *= BfsConfig.COMMON.sharkHpMult.get();
+            }
+        }
+        if (entity instanceof BfsVariantHolder holder) {
+            variants = holder.bfsVariantCount();
+        }
+        if (entity != null) {
+            entity.discard();
+        }
+
+        src.sendSuccess(() -> type.getDescription().copy().withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
+        infoLine(src, "Scientific name", details.scientificName());
+        infoLine(src, "Habitats", BfsSpeciesInfo.habitats(src, details));
+        infoLine(src, "Behavior", details.behavior());
+        infoLine(src, "Diet", BfsSpeciesInfo.diet(details));
+        if (!Double.isNaN(health)) {
+            infoLine(src, "Health", String.format(Locale.ROOT, "%.1f H.P.", health));
+        }
+        infoLine(src, "Variants", String.valueOf(variants));
+        infoLine(src, "Registry ID", BuiltInRegistries.ENTITY_TYPE.getKey(type).toString());
+        infoLine(src, "Spawn category", cat);
+        src.sendSuccess(() -> Component.literal("  Natural cap: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal((cap == 0 ? "DISABLED" : String.valueOf(cap)))
                         .withStyle(cap != configCap ? ChatFormatting.GOLD : ChatFormatting.WHITE)), false);
         if (cap != configCap) {
             src.sendSuccess(() -> Component.literal("  Default cap: " + configCap).withStyle(ChatFormatting.DARK_GRAY), false);
         }
-        var translation = type.getDescription();
-        src.sendSuccess(() -> Component.literal("  Display name: ").withStyle(ChatFormatting.GRAY).append(translation), false);
         return 1;
+    }
+
+    private static boolean canUseCreativeInfo(CommandSourceStack source) {
+        return !(source.getEntity() instanceof Player player) || player.isCreative();
+    }
+
+    private static void infoLine(CommandSourceStack source, String label, String value) {
+        source.sendSuccess(() -> Component.literal("  " + label + ": ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(value).withStyle(ChatFormatting.WHITE)), false);
     }
 
     private static int count(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
@@ -226,9 +279,9 @@ public class BfsCommands {
         // Count nearby sharks so the player can tell whether nothing happened because
         // the system is broken or because there's nothing in range to react.
         double radius = switch (type) {
-            case BLOOD -> 56.0;
-            case HEAVY -> 32.0;
-            case LIGHT -> 24.0;
+            case BLOOD -> 24.0;
+            case HEAVY -> 16.0;
+            case LIGHT -> 12.0;
         };
         var area = new net.minecraft.world.phys.AABB(pos).inflate(radius);
         long sharkCount = src.getLevel().getEntitiesOfClass(

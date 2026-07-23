@@ -34,6 +34,7 @@ public class WaterDisturbanceListeners {
         bus.register(new WaterDisturbanceListeners());
         bus.register(new WaterDisturbanceHandler());
         bus.register(new SharkAlertHandler());
+        bus.register(new PreyFleeHandler());
     }
 
     @net.minecraftforge.eventbus.api.SubscribeEvent

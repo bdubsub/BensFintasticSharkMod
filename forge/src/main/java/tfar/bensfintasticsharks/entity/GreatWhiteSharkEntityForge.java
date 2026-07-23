@@ -26,8 +26,12 @@ public class GreatWhiteSharkEntityForge extends GreatWhiteSharkEntity implements
             if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(ModAnimations.BEACHED2);
             }
-            return event.setAndContinue(this.getTarget() != null ? ModAnimations.FAST_SWIM : DefaultAnimations.SWIM);
+            // getTarget() is server-only (Mob targets aren't synced to the client), so the old
+            // predicate always saw null and FAST_SWIM never played. getSharkState() IS synced
+            // and flips to HOSTILE exactly when a hunt is on — same pattern as the mako/tiger.
+            return event.setAndContinue(this.getSharkState() == SharkState.HOSTILE ? ModAnimations.FAST_SWIM : DefaultAnimations.SWIM);
         })
+                .setAnimationSpeedHandler(e -> ModAnimations.swimClipSpeed(this))
                 .triggerableAnim("bite", RawAnimation.begin().then("attack.bite", Animation.LoopType.PLAY_ONCE))
                 .triggerableAnim("death", ModAnimations.DEATH));
 

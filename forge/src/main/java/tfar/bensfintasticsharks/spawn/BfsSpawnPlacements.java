@@ -12,9 +12,12 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
+import tfar.bensfintasticsharks.config.BfsConfig;
 import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
+import tfar.bensfintasticsharks.init.ModTags;
 
 /**
  * Spawn placement registrations for Legacy 1.0 mobs.
@@ -41,8 +44,14 @@ public class BfsSpawnPlacements {
         registerWater(event, ModEntityTypes.HARBOR_SEAL);
         registerWater(event, ModEntityTypes.COMMON_STINGRAY);
         registerWater(event, ModEntityTypes.BOTTLENOSE_DOLPHIN);
-        registerWater(event, ModEntityTypes.GIANT_MORAY_EEL);
         registerWater(event, ModEntityTypes.GREEN_SEA_TURTLE);
+
+        // Giant Moray: soft bias toward shipwrecks — always allowed on/at a wreck, rarer in
+        // open water, so morays cluster around shipwrecks without vanishing elsewhere.
+        event.register((EntityType) ModEntityTypes.GIANT_MORAY_EEL, SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.OCEAN_FLOOR,
+                BfsSpawnPlacements::checkMorayShipwreckBias,
+                SpawnPlacementRegisterEvent.Operation.OR);
         registerWater(event, ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH);
         registerWater(event, ModEntityTypes.CANNONBALL_JELLYFISH);
 
@@ -101,11 +110,42 @@ public class BfsSpawnPlacements {
                                               BlockPos pos,
                                               RandomSource random) {
         if (!checkSimpleWaterSpawn(type, level, reason, pos, random)) return false;
-        // Beach exclusion (sampled). Check biomes within 8 blocks horizontally every 4 blocks.
-        for (int dx = -8; dx <= 8; dx += 4) {
-            for (int dz = -8; dz <= 8; dz += 4) {
+        // 0.19 — Ben: "whenever I go near a beach my chat fills with encounter advancements".
+        // Two shore guards: (1) predators need real water under them — at least 5 blocks —
+        // so they can't spawn in waist-deep shore shallows just past the beach line;
+        for (int i = 1; i <= 5; i++) {
+            if (!level.getFluidState(pos.below(i)).is(net.minecraft.tags.FluidTags.WATER)) return false;
+        }
+        // (2) beach exclusion widened 8 -> 24 blocks (sampled every 8). The old 8-block ring
+        // left sharks spawning 9 blocks offshore — inside the 16-block encounter radius of
+        // anyone walking the sand.
+        for (int dx = -24; dx <= 24; dx += 8) {
+            for (int dz = -24; dz <= 24; dz += 8) {
                 Holder<Biome> biome = level.getBiome(pos.offset(dx, 0, dz));
                 if (biome.is(Biomes.BEACH) || biome.is(Biomes.SNOWY_BEACH)) return false;
+            }
+        }
+        // Explicit mixed-species density gate. The custom MobCategory cap is applied via
+        // reflection and can be overridden by an old config, so it was possible to see a
+        // great white, tiger, hammerhead and thresher all fill separate nearby attempts.
+        // Keep one local species at a time: non-blacktips may form a rare pair; blacktips
+        // retain their real school spawn, but neither kind stacks beside another species.
+        if ((reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION)
+                && type.is(ModTags.EntityTypes.SHARKS)) {
+            var cfg = BfsConfig.COMMON;
+            int radius = cfg.sharkSpacingRadius.get();
+            AABB area = new AABB(pos).inflate(radius, radius / 2.0, radius);
+            java.util.List<AbstractSharkEntity> nearby = level.getLevel().getEntitiesOfClass(
+                    AbstractSharkEntity.class, area, shark -> shark.isAlive() && !shark.isRemoved());
+            boolean spawningBlacktip = type == ModEntityTypes.BLACKTIP_REEF_SHARK;
+            int localCap = spawningBlacktip
+                    ? cfg.nearbyBlacktipSharkCap.get()
+                    : cfg.nearbyNonBlacktipSharkCap.get();
+            if (nearby.size() >= localCap) return false;
+            for (AbstractSharkEntity<?> shark : nearby) {
+                boolean nearbyBlacktip = shark.getType() == ModEntityTypes.BLACKTIP_REEF_SHARK;
+                if (spawningBlacktip != nearbyBlacktip) return false;
+                if (!spawningBlacktip && shark.getType() != type) return false;
             }
         }
         return true;
@@ -124,6 +164,11 @@ public class BfsSpawnPlacements {
      * blocks below sea level (so it ends up in ravines and deep crevices), and 80% of
      * attempts are night-only. Natural spawns only — spawn eggs bypass via the
      * MobSpawnType check inside the seafloor predicate.
+     *
+     * <p>0.18 — Ben: more nautiluses when players go past negative Y. Below y=0 the
+     * night-only gate is waived (it's pitch black in flooded caves regardless of the
+     * surface clock), so deep aquifer attempts succeed 5× as often as daytime ocean
+     * ones. Cave-biome spawn entries live in ModDataPackProvider (nautilus_cave_spawns).</p>
      */
     public static boolean checkNautilusSpawn(EntityType<? extends WaterAnimal> type,
                                              ServerLevelAccessor level,
@@ -132,11 +177,32 @@ public class BfsSpawnPlacements {
                                              RandomSource random) {
         if (!checkSeafloorSpawn(type, level, reason, pos, random)) return false;
         if (pos.getY() > level.getSeaLevel() - 20) return false;
+        if (pos.getY() < 0) return true; // deep flooded caves: always fair game
         if (reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) {
             boolean isNight = !level.getLevel().isDay();
             if (!isNight && random.nextFloat() < 0.8f) return false;
         }
         return true;
+    }
+
+    /**
+     * Giant Moray spawn predicate: basic water rule, then a soft shipwreck bias. Natural spawns
+     * right on a shipwreck piece always pass; elsewhere only ~35% pass, so morays concentrate
+     * near wrecks. Spawn eggs / spawners bypass the bias.
+     */
+    public static boolean checkMorayShipwreckBias(EntityType<? extends WaterAnimal> type,
+                                                  ServerLevelAccessor level,
+                                                  MobSpawnType reason,
+                                                  BlockPos pos,
+                                                  RandomSource random) {
+        if (!checkSimpleWaterSpawn(type, level, reason, pos, random)) return false;
+        if (reason != MobSpawnType.NATURAL && reason != MobSpawnType.CHUNK_GENERATION) return true;
+        net.minecraft.server.level.ServerLevel sl = level.getLevel();
+        boolean onWreck = sl.structureManager()
+                .getStructureWithPieceAt(pos, net.minecraft.world.level.levelgen.structure.BuiltinStructures.SHIPWRECK).isValid()
+                || sl.structureManager()
+                .getStructureWithPieceAt(pos, net.minecraft.world.level.levelgen.structure.BuiltinStructures.SHIPWRECK_BEACHED).isValid();
+        return onWreck || random.nextFloat() < 0.35f;
     }
 
     /** Optional helper for sharks themselves to slow down in shallow water, used from travel(). */

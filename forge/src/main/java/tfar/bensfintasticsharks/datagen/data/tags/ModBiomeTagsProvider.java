@@ -29,10 +29,10 @@ public class ModBiomeTagsProvider extends BiomeTagsProvider {
         tag(ModTags.Biomes.COMMON_STINGRAY_SPAWNS).add(Biomes.OCEAN,Biomes.LUKEWARM_OCEAN,Biomes.WARM_OCEAN,Biomes.SWAMP,Biomes.MANGROVE_SWAMP);
 
         tag(ModTags.Biomes.HARBOR_SEAL_SPAWNS).add(Biomes.OCEAN,Biomes.DEEP_OCEAN,Biomes.WARM_OCEAN,
-                Biomes.LUKEWARM_OCEAN,Biomes.WARM_OCEAN,Biomes.COLD_OCEAN);
+                Biomes.LUKEWARM_OCEAN,Biomes.COLD_OCEAN);
 
-        tag(ModTags.Biomes.SHORTFIN_MAKO_SHARK_SPAWNS).add(Biomes.OCEAN,Biomes.DEEP_OCEAN,Biomes.LUKEWARM_OCEAN,
-                Biomes.DEEP_LUKEWARM_OCEAN,Biomes.WARM_OCEAN);
+        tag(ModTags.Biomes.SHORTFIN_MAKO_SHARK_SPAWNS).add(Biomes.LUKEWARM_OCEAN,
+                Biomes.DEEP_LUKEWARM_OCEAN);
 
         // Legacy 1.0 new sharks
         tag(ModTags.Biomes.TIGER_SHARK_SPAWNS).add(Biomes.OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.WARM_OCEAN,
@@ -56,6 +56,9 @@ public class ModBiomeTagsProvider extends BiomeTagsProvider {
         tag(ModTags.Biomes.CARIBBEAN_REEF_OCTOPUS_SPAWNS).add(Biomes.WARM_OCEAN);
 
         tag(ModTags.Biomes.NAUTILUS_SPAWNS).add(Biomes.DEEP_OCEAN, Biomes.DEEP_COLD_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN);
+        // 0.18 — Ben: more nautiluses past negative Y in underwater caves. These are the
+        // underground biomes whose aquifers host the extra deep-cave spawn entry.
+        tag(ModTags.Biomes.NAUTILUS_CAVE_SPAWNS).add(Biomes.DRIPSTONE_CAVES, Biomes.LUSH_CAVES, Biomes.DEEP_DARK);
 
         // Other fauna
         tag(ModTags.Biomes.GIANT_MORAY_EEL_SPAWNS).add(Biomes.WARM_OCEAN);

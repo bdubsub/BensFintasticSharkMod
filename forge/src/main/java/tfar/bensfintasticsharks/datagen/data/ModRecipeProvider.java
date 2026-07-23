@@ -121,6 +121,25 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_shark_teeth",has(ModTags.Items.SHARK_TEETH))
                 .save(consumer);
 
+        // Shark Trident (Ben's corrected recipe): a vanilla Trident centered, with the three
+        // shark teeth around it — Common Thresher + Great White on the top row, Great Hammerhead
+        // to its right — Cartilage on the left/bottom, and a Prismarine Shard bottom-left.
+        //   row 1:  _  thresher  white
+        //   row 2:  cartilage  trident  hammerhead
+        //   row 3:  prismarine  cartilage  _
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.SHARK_TRIDENT)
+                .define('T', Items.TRIDENT)
+                .define('C', ModItems.COMMON_THRESHER_SHARK_TOOTH)
+                .define('W', ModItems.GREAT_WHITE_SHARK_TOOTH)
+                .define('H', ModItems.GREAT_HAMMERHEAD_SHARK_TOOTH)
+                .define('R', ModItems.CARTILAGE)
+                .define('P', Items.PRISMARINE_SHARD)
+                .pattern(" CW")
+                .pattern("RTH")
+                .pattern("PR ")
+                .unlockedBy("has_shark_teeth", has(ModTags.Items.SHARK_TEETH))
+                .save(consumer);
+
         // Lobster meat smelting (Legacy 1.0)
         SimpleCookingRecipeBuilder.smelting(net.minecraft.world.item.crafting.Ingredient.of(ModItems.RAW_LOBSTER_CLAW),
                         RecipeCategory.FOOD, ModItems.COOKED_LOBSTER_CLAW, 0.35F, 200)

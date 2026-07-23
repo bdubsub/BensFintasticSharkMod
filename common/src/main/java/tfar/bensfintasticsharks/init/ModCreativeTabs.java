@@ -12,6 +12,6 @@ public class ModCreativeTabs {
             .displayItems((itemDisplayParameters, output) -> {
                 BensFintasticSharks.getKnownItems().filter(item -> !(item instanceof HiddenItem)).forEach(output::accept);
             })
-            .icon(ModItems.GREAT_HAMMERHEAD_SHARK_SPAWN_EGG::getDefaultInstance).build();
+            .icon(ModItems.BFS_LOGO::getDefaultInstance).build();
 
 }

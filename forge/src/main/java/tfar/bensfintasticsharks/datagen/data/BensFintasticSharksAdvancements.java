@@ -14,6 +14,7 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeAdvancementProvider;
 import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.TextComponents;
+import tfar.bensfintasticsharks.advancmenets.OctopusInkedTrigger;
 import tfar.bensfintasticsharks.advancmenets.PlayerFoundEntityTrigger;
 import tfar.bensfintasticsharks.entity.CommonThresherSharkEntity;
 import tfar.bensfintasticsharks.entity.GreatHammerheadSharkEntity;
@@ -27,14 +28,18 @@ import java.util.function.Consumer;
 
 public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider.AdvancementGenerator {
 
-    private static final EntityType<?>[] MOBS_TO_DISCOVER = new EntityType[]{ModEntityTypes.GREAT_WHITE_SHARK,ModEntityTypes.GREAT_HAMMERHEAD_SHARK
-    ,ModEntityTypes.COMMON_THRESHER_SHARK,ModEntityTypes.SHORTFIN_MAKO_SHARK};
+    private static final EntityType<?>[] MOBS_TO_DISCOVER = new EntityType[]{
+            ModEntityTypes.GREAT_WHITE_SHARK, ModEntityTypes.GREAT_HAMMERHEAD_SHARK,
+            ModEntityTypes.COMMON_THRESHER_SHARK, ModEntityTypes.SHORTFIN_MAKO_SHARK,
+            ModEntityTypes.TIGER_SHARK, ModEntityTypes.OCEANIC_WHITETIP_SHARK,
+            ModEntityTypes.SANDTIGER_SHARK, ModEntityTypes.BLACKTIP_REEF_SHARK
+    };
 
 
     @Override
     public void generate(HolderLookup.Provider registries, Consumer<Advancement> saver, ExistingFileHelper existingFileHelper) {
         Advancement root = Advancement.Builder.advancement()
-                .display(ModItems.SHARK_TRIDENT, TextComponents.ROOT, TextComponents.ROOT_DESC,
+                .display(ModItems.BFS_LOGO, TextComponents.ROOT, TextComponents.ROOT_DESC,
                         new ResourceLocation("textures/gui/advancements/backgrounds/adventure.png"),
                         FrameType.TASK, true, true, false)
                 .requirements(RequirementsStrategy.OR)
@@ -44,28 +49,28 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
         EntityPredicate greatWhiteSharkPredicate = EntityPredicate.Builder.entity().of(ModEntityTypes.GREAT_WHITE_SHARK).build();
 
         Advancement greatWhiteAdvancement = Advancement.Builder.advancement().parent(root)
-                .display(ModItems.GREAT_WHITE_SHARK_PIXEL_ART,TextComponents.GREAT_WHITE_ENCOUNTER,TextComponents.GREAT_WHITE_ENCOUNTER_DESC, null, FrameType.TASK, true, true, false)
+                .display(ModItems.GREAT_WHITE_SHARK_ADVANCEMENT_ICON,TextComponents.GREAT_WHITE_ENCOUNTER,TextComponents.GREAT_WHITE_ENCOUNTER_DESC, null, FrameType.TASK, true, true, false)
                 .addCriterion("player_found_entity", PlayerFoundEntityTrigger.TriggerInstance.located(greatWhiteSharkPredicate))
                 .save(saver, BensFintasticSharks.id("great_white_encounter").toString());
 
         EntityPredicate greatHammerheadSharkPredicate = EntityPredicate.Builder.entity().of(ModEntityTypes.GREAT_HAMMERHEAD_SHARK).build();
 
         Advancement greatHammerHeadAdvancement = Advancement.Builder.advancement().parent(root)
-                .display(ModItems.GREAT_HAMMERHEAD_SHARK_PIXEL_ART,TextComponents.GREAT_HAMMERHEAD_ENCOUNTER,TextComponents.GREAT_HAMMERHEAD_ENCOUNTER_DESC, null, FrameType.TASK, true, true, false)
+                .display(ModItems.GREAT_HAMMERHEAD_SHARK_ADVANCEMENT_ICON,TextComponents.GREAT_HAMMERHEAD_ENCOUNTER,TextComponents.GREAT_HAMMERHEAD_ENCOUNTER_DESC, null, FrameType.TASK, true, true, false)
                 .addCriterion("player_found_entity", PlayerFoundEntityTrigger.TriggerInstance.located(greatHammerheadSharkPredicate))
                 .save(saver, BensFintasticSharks.id("great_hammerhead_encounter").toString());
 
         EntityPredicate commonThresherPredicate = EntityPredicate.Builder.entity().of(ModEntityTypes.COMMON_THRESHER_SHARK).build();
 
         Advancement commonThresherAdvancement = Advancement.Builder.advancement().parent(root)
-                .display(ModItems.COMMON_THRESHER_SHARK_PIXEL_ART,TextComponents.COMMON_THRESHER_ENCOUNTER,TextComponents.COMMON_THRESHER_ENCOUNTER_DESC, null, FrameType.TASK, true, true, false)
+                .display(ModItems.COMMON_THRESHER_SHARK_ADVANCEMENT_ICON,TextComponents.COMMON_THRESHER_ENCOUNTER,TextComponents.COMMON_THRESHER_ENCOUNTER_DESC, null, FrameType.TASK, true, true, false)
                 .addCriterion("player_found_entity", PlayerFoundEntityTrigger.TriggerInstance.located(commonThresherPredicate))
                 .save(saver, BensFintasticSharks.id("common_thresher_encounter").toString());
 
         EntityPredicate shortfinMakoPredicate = EntityPredicate.Builder.entity().of(ModEntityTypes.SHORTFIN_MAKO_SHARK).build();
 
         Advancement shortfinMakoAdvancement = Advancement.Builder.advancement().parent(root)
-                .display(ModItems.SHORTFIN_MAKO_SHARK_SPAWN_EGG,TextComponents.SHORTFIN_MAKO_ENCOUNTER,TextComponents.SHORTFIN_MAKO_ENCOUNTER_DESC, null, FrameType.TASK, true, true, false)
+                .display(ModItems.SHORTFIN_MAKO_SHARK_ADVANCEMENT_ICON,TextComponents.SHORTFIN_MAKO_ENCOUNTER,TextComponents.SHORTFIN_MAKO_ENCOUNTER_DESC, null, FrameType.TASK, true, true, false)
                 .addCriterion("player_found_entity", PlayerFoundEntityTrigger.TriggerInstance.located(shortfinMakoPredicate))
                 .save(saver, BensFintasticSharks.id("shortfin_mako_encounter").toString());
 
@@ -81,15 +86,6 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
                 .display(ModItems.HARBOR_SEAL_BLOCK,TextComponents.HARBOR_SEAL_ENCOUNTER,TextComponents.HARBOR_SEAL_ENCOUNTER_DESC, null, FrameType.TASK, true, true, false)
                 .addCriterion("player_found_entity", PlayerFoundEntityTrigger.TriggerInstance.located(harborSealPredicate))
                 .save(saver, BensFintasticSharks.id("harbor_seal_encounter").toString());
-
-        Advancement stingrayAttacksPlayer = Advancement.Builder.advancement().parent(root)
-                .display(ModItems.STINGRAY_PIXEL_ART, TextComponents.STINGRAY_ATTACKS_PLAYER, TextComponents.STINGRAY_ATTACKS_PLAYER_DESC, null, FrameType.TASK, true, true, false)
-                .addCriterion("entity_hurt_player",
-                        EntityHurtPlayerTrigger.TriggerInstance.entityHurtPlayer(
-                                DamagePredicate.Builder.damageInstance()
-                                        .type(DamageSourcePredicate.Builder.damageType()
-                                                .direct(EntityPredicate.Builder.entity().of(ModEntityTypes.COMMON_STINGRAY)))))
-                .save(saver, BensFintasticSharks.id("stingray_attacks_player").toString());
 
         EntityPredicate albinoGreatWhitePredicate = EntityPredicate.Builder.entity().of(ModEntityTypes.GREAT_WHITE_SHARK)
                 .subPredicate(EntityVariantPredicates.GREAT_WHITE_SHARK.createPredicate(GreatWhiteSharkEntity.Variant.ALBINO)).build();
@@ -114,16 +110,15 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
                         KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(ModTags.EntityTypes.SHARKS)))
                 .save(saver, BensFintasticSharks.id("illegal_poaching").toString());
 
-        Advancement unethical = Advancement.Builder.advancement().parent(harborSealAdvancement)
-                .display(ModItems.UNETHICAL, TextComponents.UNETHICAL, TextComponents.UNETHICAL_DESC, null, FrameType.TASK, true, true, false)
-                .addCriterion("player_killed_entity",
-                        KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(ModEntityTypes.HARBOR_SEAL)))
-                .save(saver, BensFintasticSharks.id("unethical").toString());
-
+        // "Crikey! Respect the wildlife!" — get stung by a stingray (was a kill trigger;
+        // repurposed per Ben's 0.16 feedback, replacing the old "Crankey!" advancement).
         Advancement justiceForSteve = Advancement.Builder.advancement().parent(root)
                 .display(ModItems.JUSTICE_FOR_STEVE, TextComponents.JUSTICE_FOR_STEVE, TextComponents.JUSTICE_FOR_STEVE_DESC, null, FrameType.TASK, true, true, false)
-                .addCriterion("player_killed_entity",
-                        KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(ModEntityTypes.COMMON_STINGRAY)))
+                .addCriterion("entity_hurt_player",
+                        EntityHurtPlayerTrigger.TriggerInstance.entityHurtPlayer(
+                                DamagePredicate.Builder.damageInstance()
+                                        .type(DamageSourcePredicate.Builder.damageType()
+                                                .direct(EntityPredicate.Builder.entity().of(ModEntityTypes.COMMON_STINGRAY)))))
                 .save(saver, BensFintasticSharks.id("justice_for_steve").toString());
 
         Advancement.Builder.advancement().parent(root)
@@ -188,13 +183,15 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
                         EntityPredicate.Builder.entity().of(ModTags.EntityTypes.CONSERVATION_PROTECTED).build()))
                 .save(saver, BensFintasticSharks.id("marine_curious").toString());
 
-        // Shark Spotter — encounter any 3 shark species (OR criteria, 4 of any 8)
+        // Shark Spotter — encounter any three of all eight shark species. The previous
+        // implementation only registered criteria for the first three entries, so the four
+        // newer sharks reported in the 0.20 test log could never contribute progress.
         Advancement.Builder sharkSpotterBuilder = Advancement.Builder.advancement().parent(marineCurious)
                 .display(ModItems.SHARKS_GALORE,
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.shark_spotter.title"),
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.shark_spotter.description"),
                         null, FrameType.TASK, true, true, false)
-                .requirements(RequirementsStrategy.OR);
+                .requirements(criteria -> atLeast(criteria, 3));
         for (EntityType<?> shark : ALL_SHARKS) {
             sharkSpotterBuilder.addCriterion(BuiltInRegistries.ENTITY_TYPE.getKey(shark).getPath(),
                     PlayerFoundEntityTrigger.TriggerInstance.located(
@@ -233,8 +230,9 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
         apexAwarenessBuilder.save(saver, BensFintasticSharks.id("apex_awareness").toString());
 
         // Conservationist — same triggers as Shark Spotter, framed as the gentle path.
+        // Icon: non-bloody Shark Jaws sprite (Ben's "Shark Skeleton Jaws").
         Advancement.Builder conservationistBuilder = Advancement.Builder.advancement().parent(sharkSpotter)
-                .display(ModItems.LOST_MANUSCRIPT,
+                .display(ModItems.SHARK_JAWS,
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.conservationist.title"),
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.conservationist.description"),
                         null, FrameType.GOAL, true, true, false)
@@ -296,16 +294,18 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
                                 .direct(EntityPredicate.Builder.entity().of(ModEntityTypes.CANNONBALL_JELLYFISH)))));
         stungBuilder.save(saver, BensFintasticSharks.id("stung").toString());
 
-        // Inked — encounter an octopus (in lieu of an actual ink-damage trigger)
+        // Inked — provoke an octopus into inking by hurting it. The old version used
+        // PlayerFoundEntityTrigger as a placeholder and popped on a mere encounter; the
+        // custom trigger fires from the octopus hurt() path for the attacking player only.
         Advancement.Builder inkedBuilder = Advancement.Builder.advancement().parent(marineCurious)
                 .display(ModItems.COMMON_OCTOPUS_SPAWN_EGG,
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.inked.title"),
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.inked.description"),
                         null, FrameType.TASK, true, true, false)
                 .requirements(RequirementsStrategy.OR);
-        inkedBuilder.addCriterion("common_octopus", PlayerFoundEntityTrigger.TriggerInstance.located(
+        inkedBuilder.addCriterion("common_octopus", OctopusInkedTrigger.TriggerInstance.inked(
                 EntityPredicate.Builder.entity().of(ModEntityTypes.COMMON_OCTOPUS).build()));
-        inkedBuilder.addCriterion("caribbean_reef_octopus", PlayerFoundEntityTrigger.TriggerInstance.located(
+        inkedBuilder.addCriterion("caribbean_reef_octopus", OctopusInkedTrigger.TriggerInstance.inked(
                 EntityPredicate.Builder.entity().of(ModEntityTypes.CARIBBEAN_REEF_OCTOPUS).build()));
         inkedBuilder.save(saver, BensFintasticSharks.id("inked").toString());
 
@@ -342,7 +342,7 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
 
         // Hidden Trove — have lost manuscript (proxy for finding the trove)
         Advancement hiddenTrove = Advancement.Builder.advancement().parent(root)
-                .display(ModItems.LOST_MANUSCRIPT,
+                .display(Items.CHEST,
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.hidden_trove.title"),
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.hidden_trove.description"),
                         null, FrameType.TASK, true, true, false)
@@ -359,18 +359,37 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
                 .addCriterion("got_hat", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.CAPTAIN_BEN_HAT))
                 .save(saver, BensFintasticSharks.id("captains_heir").toString());
 
+        // Fancy Fork — obtain a Shark Trident.
+        Advancement.Builder.advancement().parent(root)
+                .display(ModItems.SHARK_TRIDENT,
+                        net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.fancy_fork.title"),
+                        net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.fancy_fork.description"),
+                        null, FrameType.GOAL, true, true, false)
+                .addCriterion("got_shark_trident", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.SHARK_TRIDENT))
+                .save(saver, BensFintasticSharks.id("fancy_fork").toString());
+
+        // 0.18 — "Source: trust me bro" — buy Ben's totally-legit carved-netherite Megalodon
+        // Tooth from a master fisherman. Challenge frame: it costs a fortune.
+        Advancement.Builder.advancement().parent(root)
+                .display(ModItems.MEGALODON_TOOTH,
+                        net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.source_trust_me_bro.title"),
+                        net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.source_trust_me_bro.description"),
+                        null, FrameType.CHALLENGE, true, true, false)
+                .addCriterion("got_megalodon_tooth", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.MEGALODON_TOOTH))
+                .save(saver, BensFintasticSharks.id("source_trust_me_bro").toString());
+
         // Per-species encounter advancements for the Legacy 1.0 species. Each one is a
         // simple "you were within range of this entity" tick-time trigger, displayed as
         // its spawn egg under marine_curious. Names match the translation keys in
         // ModLangProvider.
         addEncounterAdvancement(saver, marineCurious, ModEntityTypes.TIGER_SHARK,
-                ModItems.TIGER_SHARK_SPAWN_EGG, "tiger_shark_encounter");
+                ModItems.TIGER_SHARK_ADVANCEMENT_ICON, "tiger_shark_encounter");
         addEncounterAdvancement(saver, marineCurious, ModEntityTypes.OCEANIC_WHITETIP_SHARK,
-                ModItems.OCEANIC_WHITETIP_SHARK_SPAWN_EGG, "oceanic_whitetip_encounter");
+                ModItems.OCEANIC_WHITETIP_SHARK_ADVANCEMENT_ICON, "oceanic_whitetip_encounter");
         addEncounterAdvancement(saver, marineCurious, ModEntityTypes.SANDTIGER_SHARK,
-                ModItems.SANDTIGER_SHARK_SPAWN_EGG, "sandtiger_encounter");
+                ModItems.SANDTIGER_SHARK_ADVANCEMENT_ICON, "sandtiger_encounter");
         addEncounterAdvancement(saver, marineCurious, ModEntityTypes.BLACKTIP_REEF_SHARK,
-                ModItems.BLACKTIP_REEF_SHARK_SPAWN_EGG, "blacktip_reef_encounter");
+                ModItems.BLACKTIP_REEF_SHARK_ADVANCEMENT_ICON, "blacktip_reef_encounter");
         addEncounterAdvancement(saver, marineCurious, ModEntityTypes.COMMON_OCTOPUS,
                 ModItems.COMMON_OCTOPUS_SPAWN_EGG, "common_octopus_encounter");
         addEncounterAdvancement(saver, marineCurious, ModEntityTypes.CARIBBEAN_REEF_OCTOPUS,
@@ -424,6 +443,40 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
             ModEntityTypes.HARBOR_SEAL, ModEntityTypes.COMMON_STINGRAY,
             ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH, ModEntityTypes.CANNONBALL_JELLYFISH
     };
+
+    /**
+     * Builds vanilla advancement requirement groups for "at least N of these criteria".
+     * Advancement requirements are AND-of-OR groups; requiring every subset of
+     * {@code total - minimum + 1} criteria guarantees that fewer than {@code minimum}
+     * completed criteria leaves one whole group unmet.
+     */
+    private static String[][] atLeast(java.util.Collection<String> criteria, int minimum) {
+        String[] names = criteria.toArray(String[]::new);
+        if (minimum <= 1) return new String[][] { names };
+        if (minimum >= names.length) {
+            String[][] all = new String[names.length][1];
+            for (int i = 0; i < names.length; i++) all[i][0] = names[i];
+            return all;
+        }
+
+        int groupSize = names.length - minimum + 1;
+        java.util.List<String[]> groups = new java.util.ArrayList<>();
+        collectRequirementGroups(names, groupSize, 0, new String[groupSize], 0, groups);
+        return groups.toArray(String[][]::new);
+    }
+
+    private static void collectRequirementGroups(String[] names, int groupSize, int from,
+                                                 String[] group, int depth,
+                                                 java.util.List<String[]> output) {
+        if (depth == groupSize) {
+            output.add(group.clone());
+            return;
+        }
+        for (int i = from; i <= names.length - (groupSize - depth); i++) {
+            group[depth] = names[i];
+            collectRequirementGroups(names, groupSize, i + 1, group, depth + 1, output);
+        }
+    }
 
     private static Advancement.Builder addMobsToDiscover(Advancement.Builder pBuilder) {
         for(EntityType<?> entitytype : MOBS_TO_DISCOVER) {

@@ -22,8 +22,7 @@
     "frame": "goal",
     "hidden": true,
     "icon": {
-      "item": "bensfintasticsharks:captain_ben_hat",
-      "nbt": "{Damage:0}"
+      "item": "bensfintasticsharks:captain_ben_hat"
     },
     "show_toast": true,
     "title": {

@@ -15,6 +15,7 @@ public class GiantMorayEelEntityForge extends GiantMorayEelEntity implements Geo
     private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.giant_moray_eel.swim");
     private static final RawAnimation SWIM_FAST = RawAnimation.begin().thenLoop("animation.giant_moray_eel.swim_fast");
     private static final RawAnimation BITE = RawAnimation.begin().then("animation.giant_moray_eel.bite", Animation.LoopType.PLAY_ONCE);
+    private static final RawAnimation BEACHED = RawAnimation.begin().thenLoop("animation.giant_moray_eel.beached");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private boolean lungeQueued;
@@ -36,11 +37,11 @@ public class GiantMorayEelEntityForge extends GiantMorayEelEntity implements Geo
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        // SWIM-only; the SWIM/SWIM_FAST threshold-toggle flickered near the
-        // cruise speed boundary and locked both animations on frame 0. BITE
-        // remains a one-shot triggerable.
+        // Keep one stable in-water swim clip; the old SWIM/SWIM_FAST threshold-toggle
+        // flickered near the cruise boundary. Out of water uses a dedicated curled,
+        // low-motion beached pose. BITE remains a one-shot triggerable.
         controllers.add(new AnimationController<>(this, "controller", 5, event ->
-                event.setAndContinue(SWIM)
+                event.setAndContinue(isInWaterOrBubble() ? SWIM : BEACHED)
         ).triggerableAnim("bite", BITE));
     }
 

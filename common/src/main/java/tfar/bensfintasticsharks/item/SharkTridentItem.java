@@ -24,8 +24,38 @@ import tfar.bensfintasticsharks.entity.ThrownSharkTridentEntity;
 import java.util.List;
 
 public class SharkTridentItem extends TridentItem {
+
+    /**
+     * Vanilla TridentItem hardcodes a +8 attack damage modifier (9 on the tooltip with the
+     * player's base 1). Ben wants the Shark Trident at 11, so we rebuild the modifier map
+     * with +10 and keep vanilla's -2.9 attack speed.
+     */
+    private final com.google.common.collect.Multimap<net.minecraft.world.entity.ai.attributes.Attribute,
+            net.minecraft.world.entity.ai.attributes.AttributeModifier> sharkTridentModifiers;
+
     public SharkTridentItem(Properties $$0) {
         super($$0);
+        com.google.common.collect.ImmutableMultimap.Builder<net.minecraft.world.entity.ai.attributes.Attribute,
+                net.minecraft.world.entity.ai.attributes.AttributeModifier> builder = com.google.common.collect.ImmutableMultimap.builder();
+        builder.put(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE,
+                new net.minecraft.world.entity.ai.attributes.AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Tool modifier", 10.0,
+                        net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION));
+        builder.put(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED,
+                new net.minecraft.world.entity.ai.attributes.AttributeModifier(BASE_ATTACK_SPEED_UUID, "Tool modifier", -2.9,
+                        net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION));
+        this.sharkTridentModifiers = builder.build();
+    }
+
+    @Override
+    public com.google.common.collect.Multimap<net.minecraft.world.entity.ai.attributes.Attribute,
+            net.minecraft.world.entity.ai.attributes.AttributeModifier> getDefaultAttributeModifiers(net.minecraft.world.entity.EquipmentSlot slot) {
+        return slot == net.minecraft.world.entity.EquipmentSlot.MAINHAND ? sharkTridentModifiers : super.getDefaultAttributeModifiers(slot);
+    }
+
+    // Aqua-blue display name everywhere (inventory, hand, anvil).
+    @Override
+    public Component getName(ItemStack stack) {
+        return Component.translatable(this.getDescriptionId(stack)).withStyle(ChatFormatting.AQUA);
     }
 
     @Override

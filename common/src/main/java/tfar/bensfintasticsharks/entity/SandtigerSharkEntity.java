@@ -51,7 +51,7 @@ public class SandtigerSharkEntity extends AbstractSharkEntity<SandtigerSharkEnti
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return createSharkAttributes(60, 0.9, 4);
+        return createSharkAttributes(80, 0.9, 4);
     }
 
     @Override
@@ -103,6 +103,12 @@ public class SandtigerSharkEntity extends AbstractSharkEntity<SandtigerSharkEnti
     protected void onSharkTick() {
         super.onSharkTick();
         if (level().isClientSide) return;
+        // 0.20 — while fleeing a bigger shark, drop the hover (it pins the shark in place with
+        // a fixed upward velocity) and skip the item/curious logic so the flee actually runs.
+        if (isFleeing()) {
+            hoverTicksRemaining = 0;
+            return;
+        }
 
         SharkState now = getSharkState();
         if (now != lastSeenState) {
@@ -158,6 +164,23 @@ public class SandtigerSharkEntity extends AbstractSharkEntity<SandtigerSharkEnti
         public static Variant getSpawnVariant(RandomSource random) { return NATURAL_VARIANTS.getRandomValue(random).orElseThrow(); }
     }
 
-    @Override public float bfsScaleMin() { return 0.9f; }
-    @Override public float bfsScaleMax() { return 1.05f; }
+    // Suggestion 2: wider size variety. Baseline model is ~3.24m long at scale 1.0, so
+    // 0.72 → ~2.33m juveniles and 1.45 → ~4.70m largest adults — a noticeable range that
+    // stays under the 5m target with margin.
+    @Override public float bfsScaleMin() { return 0.72f; }
+    @Override public float bfsScaleMax() { return 1.45f; }
+
+    // Bite-sync (same recipe as Blacktip's 0.18 fix): animation.sandtigershark.bite opens
+    // the jaw at 0.125s, peaks at 0.25s and snaps shut at 0.375s (7.5t). Default 5t hit early.
+    @Override protected int biteImpactDelayTicks() { return 8; }
+
+    @Override
+    protected double biteRangeAgainst(net.minecraft.world.entity.LivingEntity target) {
+        return Math.min(super.biteRangeAgainst(target), 1.75);
+    }
+
+    @Override
+    protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {
+        return tfar.bensfintasticsharks.init.ModTags.EntityTypes.SANDTIGER_SHARK_PREY;
+    }
 }

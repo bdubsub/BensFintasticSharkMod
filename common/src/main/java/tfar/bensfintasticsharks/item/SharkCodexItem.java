@@ -47,6 +47,14 @@ public class SharkCodexItem extends Item {
         return InteractionResultHolder.sidedSuccess(codex, true);
     }
 
+    @Override
+    public void appendHoverText(@NotNull ItemStack stack, @org.jetbrains.annotations.Nullable Level level,
+                                @NotNull List<Component> tooltip, @NotNull net.minecraft.world.item.TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        tooltip.add(Component.translatable("item.bensfintasticsharks.shark_codex.flavor")
+                .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+    }
+
     private static Component page(String title, String body) {
         return Component.empty()
                 .append(Component.literal(title).withStyle(ChatFormatting.BOLD, ChatFormatting.DARK_BLUE))
@@ -56,8 +64,12 @@ public class SharkCodexItem extends Item {
 
     /** Pages baked into the codex. */
     public static final List<Component> PAGES = List.of(
-            page("Ben's Shark Codex",
-                    "A field journal for the sharks of these seas. Find one species per page. Each entry covers its temperament, habitat, and the bare minimum you need to come home with your toes."),
+            Component.empty()
+                    .append(Component.literal("Capitán Ben's Codex").withStyle(ChatFormatting.BOLD, ChatFormatting.DARK_BLUE))
+                    .append(Component.literal("\n"))
+                    .append(Component.literal("A Compendium of Marine Wildlife").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.ITALIC))
+                    .append(Component.literal("\n\n"))
+                    .append(Component.literal("A field journal for the sharks of these seas. Find one species per page. Each entry covers its temperament, habitat, and the bare minimum you need to come home with your toes.")),
             page("Great White",
                     "Largest of the predatory sharks. Patrols cool open ocean. Curious enough to investigate a thrown bait, hostile enough to remember if you bleed. Disengages when targets leave the water for long. Treat as the apex of any reef."),
             page("Great Hammerhead",

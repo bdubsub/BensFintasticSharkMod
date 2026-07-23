@@ -17,10 +17,8 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
-import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
@@ -48,7 +46,7 @@ import java.util.List;
 import java.util.function.IntFunction;
 
 public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSharkEntity>
-        implements BfsVariantHolder {
+        implements BfsVariantHolder, SharkGrabber {
 
     @Override public int bfsVariantCount() { return Variant.values().length; }
     @Override public void setBfsVariantId(int id) {
@@ -74,7 +72,7 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
         super($$0, $$1, MAKO_PARAMS);
 
 
-        this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1 / 8f, 0, false);
+        this.moveControl = new SharkSwimmingMoveControl(this, 1 / 8f);
         this.lookControl = new SmoothSwimmingLookControl(this, 10);
     }
 
@@ -84,12 +82,15 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
 
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 110).add(Attributes.MOVEMENT_SPEED, 0.80F).add(Attributes.ATTACK_DAMAGE, 6);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 130).add(Attributes.MOVEMENT_SPEED, 0.80F).add(Attributes.ATTACK_DAMAGE, 6);
     }
 
     public void grabMob(LivingEntity entity) {
         if (entity == this.getTarget() && !entity.hasPassenger(this) && this.isInWater()) {
-            entity.startRiding(this);
+            // 0.18 — force the mount: Entity.canRide() refuses riders that are sneaking,
+            // so without force=true a crouch-swimming player could never be grabbed (the
+            // shark would thrash empty water). A shark's jaws don't take no for an answer.
+            entity.startRiding(this, true);
             if (entity instanceof ServerPlayer serverPlayer)
                 serverPlayer.connection.send(new ClientboundSetPassengersPacket(entity));
         }
@@ -182,7 +183,8 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
         entityData.set(DATA_GRAB_TIMER, timer);
     }
 
-    int getGrabTimer() {
+    @Override
+    public int getGrabTimer() {
         return entityData.get(DATA_GRAB_TIMER);
     }
 
@@ -220,8 +222,10 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(      // Run only one of the below behaviours, trying each one in order. Include the generic type because JavaC is silly
                         new TargetOrRetaliate<>()
-                                .attackablePredicate(entity -> this.isInWaterOrBubble() && entity.isAlive() && (!(entity instanceof Player player) || !player.isCreative())),            // Set the attack target and walk target based on nearby entities
-                        // Set the attack target and walk target based on nearby entities
+                                // Base hurt() owns retaliation; this sensor only acquires
+                                // hunger-gated prey and must not enlist nearby player blood.
+                                .attackablePredicate(entity -> this.isInWaterOrBubble()
+                                        && entity.isAlive() && canHuntTarget(entity)),
                         new SetPlayerLookTarget<>(),          // Set the look target for the nearest player
                         new SetRandomLookTarget<>()),         // Set a random look target
                 new OneRandomBehaviour<>(                 // Run a random task from the below options
@@ -238,28 +242,16 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
         return center.add(look.x * scale, 0, look.z * scale);
     }
 
+    // 0.19 — Part II hunger spec: delegate to the shared predicate. Note this drops the
+    // 0.11-era "never attack other sharks" blanket rule on purpose — Ben's prey list puts
+    // blacktip reef sharks on the mako's menu (same-species is still excluded).
     public boolean canTarget(LivingEntity target) {
-        if (target instanceof ShortfinMakoSharkEntity) return false;
-        // Never attack other sharks of any species, even if they're low-health from a
-        // jellyfish sting or stingray strike. Same-species attacks were one of the
-        // biggest immersion breakers reported in the 0.10/0.11 round.
-        if (target instanceof AbstractSharkEntity<?>) return false;
-        if (target instanceof Player player && player.isCreative()) return false;
-        if (!isInWater()) return false;
-        if (target.isDeadOrDying()) return false;
-        if (target.getVehicle() == this) return false;
-        // Satiated mako — one prey per cycle. Players in survival can still
-        // provoke us via the hurt() retaliation path.
-        if (isOnHuntCooldown()) return false;
+        return canHuntTarget(target);
+    }
 
-        if (target.getType().is(ModTags.EntityTypes.SHORTFIN_MAKO_SHARK_ALWAYS_ATTACKS)) return true;
-
-        // Restrict opportunistic kills to actual prey species so the mako doesn't
-        // hoover up villagers, friendly mobs, or unrelated low-health entities.
-        if (!target.getType().is(ModTags.EntityTypes.SHARK_PREY)) return false;
-        if (target.getHealth() / target.getMaxHealth() <= .5) return true;
-
-        return false;
+    @Override
+    protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {
+        return ModTags.EntityTypes.SHORTFIN_MAKO_SHARK_PREY;
     }
 
     @Override
@@ -268,11 +260,9 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
             this.refreshDimensions();
 
         if (isEffectiveAi() && this.isInWater()) {
-            moveRelative(getSpeed(), movementInput);
-            move(MoverType.SELF, getDeltaMovement());
-            setDeltaMovement(getDeltaMovement().scale(this.wasTouchingWater ? 0.65 : 0.25));
-            if (getTarget() == null)
-                setDeltaMovement(getDeltaMovement().add(0.0, -0.005, 0.0));
+            // 0.19 — shared swim step: adds the chase-acceleration burst, in-range brake and
+            // backslide damping that this bespoke override was missing.
+            swimInWater(movementInput, 0.65, 0.005, false);
         } else
             super.travel(movementInput);
     }
@@ -358,7 +348,17 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
         }
     }
 
-    @Override public float bfsScaleMin() { return 0.9f; }
-    @Override public float bfsScaleMax() { return 1.05f; }
-}
+    // 0.18 — Ben: base model ≈4 m; spawn sizes should span 3 m to 5 m.
+    @Override public float bfsScaleMin() { return 0.75f; }
+    @Override public float bfsScaleMax() { return 1.25f; }
 
+    // Fastest shark in the ocean — highest chase floor in the mod (~8.4 m/s vs the
+    // player's ~5.6 m/s sprint-swim). Its MOVEMENT_SPEED attribute is deliberately
+    // low for calm cruising, so without this it would be one of the SLOWEST chasers.
+    @Override protected float chaseSpeedFloor() { return 0.42f; }
+
+    // Bite-sync (same recipe as Blacktip's 0.18 fix): attack.bite holds the jaw neutral
+    // until 0.25s, opens at 0.375s and snaps shut at 0.5s (10t); with the controller's
+    // 5-tick blend-in the visible chomp lands ~0.55s in. Default 5t hit way too early.
+    @Override protected int biteImpactDelayTicks() { return 11; }
+}

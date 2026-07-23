@@ -1,0 +1,33 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_shark_teeth": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "bensfintasticsharks:shark_teeth"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "bensfintasticsharks:shark_trident"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_shark_teeth",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "bensfintasticsharks:shark_trident"
+    ]
+  },
+  "sends_telemetry_event": false
+}

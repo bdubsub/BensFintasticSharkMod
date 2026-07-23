@@ -34,11 +34,18 @@ public class ModEntityLoot extends VanillaEntityLoot {
         nothing(ModEntityTypes.ORCA);
         nothing(ModEntityTypes.COMMON_OCTOPUS);
         nothing(ModEntityTypes.CARIBBEAN_REEF_OCTOPUS);
-        nothing(ModEntityTypes.NAUTILUS);
         nothing(ModEntityTypes.GIANT_MORAY_EEL);
         nothing(ModEntityTypes.GREEN_SEA_TURTLE);
         nothing(ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH);
         nothing(ModEntityTypes.CANNONBALL_JELLYFISH);
+
+        // 0.18 — Ben: nautilus should drop nautilus shells. The other exception to the
+        // conservation principle: it's capped at 1 per 64-block radius and hides in the
+        // deep, so a guaranteed shell rewards the effort of actually finding one.
+        this.add(ModEntityTypes.NAUTILUS, LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1))
+                        .add(LootItem.lootTableItem(net.minecraft.world.item.Items.NAUTILUS_SHELL))));
 
         // Lobster is the explicit exception — it's the food source in the design doc.
         // Drop layout (per pool, independent rolls):

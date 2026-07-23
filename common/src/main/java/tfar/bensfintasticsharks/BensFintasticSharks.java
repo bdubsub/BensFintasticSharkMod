@@ -15,6 +15,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tfar.bensfintasticsharks.advancmenets.OctopusInkedTrigger;
 import tfar.bensfintasticsharks.advancmenets.PlayerFoundEntityTrigger;
 import tfar.bensfintasticsharks.init.*;
 import tfar.bensfintasticsharks.platform.Services;
@@ -29,6 +30,7 @@ public class BensFintasticSharks {
     public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
 
     public static final PlayerFoundEntityTrigger PLAYER_FOUND_ENTITY = CriteriaTriggers.register(new PlayerFoundEntityTrigger());
+    public static final OctopusInkedTrigger OCTOPUS_INKED = CriteriaTriggers.register(new OctopusInkedTrigger());
 
     public static final int GRAB_TIMER = 100;
 

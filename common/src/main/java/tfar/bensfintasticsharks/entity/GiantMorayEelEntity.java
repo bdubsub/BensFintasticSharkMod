@@ -19,6 +19,9 @@ public class GiantMorayEelEntity extends BfsAquaticEntity<GiantMorayEelEntity> i
     private boolean queueLunge;
     private int hideTicks;
     private int hideCheckTimer;
+    /** 0.18 — scheduled strike: damage lands at the bite clip's impact frame, not on trigger. */
+    private Player pendingLungeTarget;
+    private int lungeImpactTicks;
 
     protected GiantMorayEelEntity(EntityType<GiantMorayEelEntity> type, Level level) {
         super(type, level);
@@ -65,7 +68,7 @@ public class GiantMorayEelEntity extends BfsAquaticEntity<GiantMorayEelEntity> i
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 20)
+                .add(Attributes.MAX_HEALTH, 25)
                 .add(Attributes.MOVEMENT_SPEED, 0.9F)
                 .add(Attributes.ATTACK_DAMAGE, 2);
     }
@@ -101,6 +104,16 @@ public class GiantMorayEelEntity extends BfsAquaticEntity<GiantMorayEelEntity> i
             hideTicks--;
             setDeltaMovement(getDeltaMovement().scale(0.3));
         }
+        // 0.18 — land the scheduled strike at the bite clip's impact frame. Ben reported the
+        // animation trailing the damage by ~1s: the old code hurt the player the same tick
+        // the lunge (and its 0.5s bite clip) was queued, so the hit always preceded the chomp.
+        if (pendingLungeTarget != null && --lungeImpactTicks <= 0) {
+            if (pendingLungeTarget.isAlive()
+                    && getBoundingBox().inflate(2.5).intersects(pendingLungeTarget.getBoundingBox())) {
+                pendingLungeTarget.hurt(damageSources().mobAttack(this), 2.0f);
+            }
+            pendingLungeTarget = null;
+        }
         if (lungeCooldown > 0) { lungeCooldown--; queueLunge = false; return; }
         if (tickCount % 10 != 0) return;
         // Lunge if a player is within 2 blocks.
@@ -108,7 +121,8 @@ public class GiantMorayEelEntity extends BfsAquaticEntity<GiantMorayEelEntity> i
         List<Player> nearby = level().getEntitiesOfClass(Player.class, area,
                 p -> !p.isCreative() && !p.isSpectator());
         if (!nearby.isEmpty()) {
-            nearby.get(0).hurt(damageSources().mobAttack(this), 2.0f);
+            pendingLungeTarget = nearby.get(0);
+            lungeImpactTicks = 7; // bite clip peaks ~0.3s in, +1 tick of trigger latency
             queueLunge = true;
             lungeCooldown = 40;
             hideTicks = 0;

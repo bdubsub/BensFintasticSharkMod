@@ -1,7 +1,6 @@
 package tfar.bensfintasticsharks.entity;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -55,7 +54,10 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return createSharkAttributes(80, 1.0, 4);
+        // Bug 10: tiger sharks are large, fast cruising apex predators — bump MOVEMENT_SPEED
+        // from 1.0 to 1.2 (parity with the Great White / Common Thresher tier) so they no
+        // longer lag behind the other big sharks while wandering.
+        return createSharkAttributes(130, 1.2, 4);
     }
 
     @Override
@@ -64,7 +66,18 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
         this.entityData.define(DATA_VARIANT, 0);
     }
 
-    public Variant getVariant() { return Variant.byId(this.entityData.get(DATA_VARIANT)); }
+    /** Bug 5: true when name-tagged "Sandy" — the vanilla jeb_/Toast-style easter egg. */
+    public boolean isSandy() {
+        return hasCustomName() && getCustomName().getString().equals("Sandy");
+    }
+
+    public Variant getVariant() {
+        // A "Sandy"-named tiger shark displays variant 4 (the sandy skin) while named, and
+        // reverts to its natural stored variant if renamed. Overriding the getter (rather than
+        // mutating DATA_VARIANT) matches vanilla jeb_/Toast: no tick churn, auto-revert.
+        if (isSandy()) return Variant.SANDY;
+        return Variant.byId(this.entityData.get(DATA_VARIANT));
+    }
     public void setVariant(Variant v) { this.entityData.set(DATA_VARIANT, v.getId()); }
 
     @Override
@@ -84,7 +97,9 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putInt("Variant", getVariant().getId());
+        // Persist the raw stored variant, NOT getVariant() — otherwise a "Sandy"-named shark
+        // would save Variant=3 and keep the sandy skin after the name is removed.
+        tag.putInt("Variant", this.entityData.get(DATA_VARIANT));
     }
 
     @Override
@@ -107,15 +122,27 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
         super.onSharkTick();
         if (level().isClientSide) return;
         if (biteFlash > 0) biteFlash--;
+        // 0.20 — don't investigate/steer toward dropped items while fleeing a bigger shark.
+        if (isFleeing()) return;
+
+        // Live prey always wins over curiosity. Keeping an old item waypoint here let this
+        // hook fight the shared pursuit waypoint every tick, producing alternating loops.
+        if (getTarget() != null) {
+            investigatedItem = null;
+            return;
+        }
 
         if (investigatedItem != null) {
             if (!investigatedItem.isAlive() || !investigatedItem.isInWater()) {
-                investigatedItem = null;
-            } else if (distanceToSqr(investigatedItem) < 4.0) {
+                stopInvestigatingItem();
+            } else if (distanceToSqr(itemApproachPoint(investigatedItem)) < 6.25) {
                 this.swing(this.getUsedItemHand());
                 biteFlash = 8;
-                investigatedItem = null;
+                stopInvestigatingItem();
                 setStateTimer(60);
+            } else if ((tickCount + getId()) % 4 == 0) {
+                BrainUtils.setMemory(getBrain(), MemoryModuleType.WALK_TARGET,
+                        new WalkTarget(itemApproachPoint(investigatedItem), 0.85f, 2));
             }
         }
 
@@ -137,12 +164,23 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
                 .min(Comparator.comparingDouble(this::distanceToSqr))
                 .orElseThrow();
         investigatedItem = closest;
-        BlockPos pos = closest.blockPosition();
         BrainUtils.setMemory(getBrain(), MemoryModuleType.WALK_TARGET,
-                new WalkTarget(Vec3.atCenterOf(pos), 1.0f, 1));
+                new WalkTarget(itemApproachPoint(closest), 0.85f, 2));
         setSharkState(SharkState.CURIOUS);
         setStateTimer(160);
         itemScanCooldown = 200;
+    }
+
+    private Vec3 itemApproachPoint(ItemEntity item) {
+        Vec3 drift = item.getDeltaMovement();
+        double depth = Math.max(0.6, getBbHeight() * 0.35);
+        return new Vec3(item.getX() + drift.x * 2.0, item.getY() - depth, item.getZ() + drift.z * 2.0);
+    }
+
+    private void stopInvestigatingItem() {
+        investigatedItem = null;
+        BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
+        getNavigation().stop();
     }
 
     public enum Variant implements StringRepresentable {
@@ -170,4 +208,13 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
 
     @Override public float bfsScaleMin() { return 0.85f; }
     @Override public float bfsScaleMax() { return 1.0f; }
+
+    // Bite-sync (same recipe as Blacktip's 0.18 fix): animation.tigershark.bite opens the
+    // jaw at 0.125s, peaks at 0.25s and snaps shut at 0.375s (7.5t). Default 5t hit early.
+    @Override protected int biteImpactDelayTicks() { return 8; }
+
+    @Override
+    protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {
+        return tfar.bensfintasticsharks.init.ModTags.EntityTypes.TIGER_SHARK_PREY;
+    }
 }

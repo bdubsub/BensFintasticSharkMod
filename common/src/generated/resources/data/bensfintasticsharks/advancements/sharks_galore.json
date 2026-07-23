@@ -1,6 +1,20 @@
 {
   "parent": "bensfintasticsharks:shark_codex",
   "criteria": {
+    "bensfintasticsharks:blacktip_reef_shark": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:blacktip_reef_shark"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    },
     "bensfintasticsharks:common_thresher_shark": {
       "conditions": {
         "entity": [
@@ -43,6 +57,34 @@
       },
       "trigger": "bensfintasticsharks:player_found_entity"
     },
+    "bensfintasticsharks:oceanic_whitetip_shark": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:oceanic_whitetip_shark"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    },
+    "bensfintasticsharks:sandtiger_shark": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:sandtiger_shark"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    },
     "bensfintasticsharks:shortfin_mako_shark": {
       "conditions": {
         "entity": [
@@ -51,6 +93,20 @@
             "entity": "this",
             "predicate": {
               "type": "bensfintasticsharks:shortfin_mako_shark"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    },
+    "bensfintasticsharks:tiger_shark": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:tiger_shark"
             }
           }
         ]
@@ -85,6 +141,18 @@
     ],
     [
       "bensfintasticsharks:shortfin_mako_shark"
+    ],
+    [
+      "bensfintasticsharks:tiger_shark"
+    ],
+    [
+      "bensfintasticsharks:oceanic_whitetip_shark"
+    ],
+    [
+      "bensfintasticsharks:sandtiger_shark"
+    ],
+    [
+      "bensfintasticsharks:blacktip_reef_shark"
     ]
   ],
   "sends_telemetry_event": true

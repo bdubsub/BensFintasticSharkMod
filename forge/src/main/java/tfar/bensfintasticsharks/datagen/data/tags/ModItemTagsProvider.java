@@ -20,7 +20,10 @@ public class ModItemTagsProvider extends ItemTagsProvider {
     @SuppressWarnings("unchecked")
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
-        tag(ModTags.Items.SHARK_TEETH).add(ModItems.GREAT_WHITE_SHARK_TOOTH,ModItems.GREAT_HAMMERHEAD_SHARK_TOOTH,ModItems.COMMON_THRESHER_SHARK_TOOTH);
+        tag(ModTags.Items.SHARK_TEETH).add(ModItems.GREAT_WHITE_SHARK_TOOTH,ModItems.GREAT_HAMMERHEAD_SHARK_TOOTH,ModItems.COMMON_THRESHER_SHARK_TOOTH,
+                ModItems.TIGER_SHARK_TOOTH,ModItems.SHORTFIN_MAKO_SHARK_TOOTH,ModItems.OCEANIC_WHITETIP_SHARK_TOOTH);
+        // MEGALODON_TOOTH stays out of SHARK_TEETH on purpose — it's a collectible gag,
+        // not a crafting substitute for real teeth.
         tag(ItemTags.AXES).add(ModItems.SHARK_AXE);
         tag(ItemTags.HOES).add(ModItems.SHARK_HOE);
         tag(ItemTags.PICKAXES).add(ModItems.SHARK_PICKAXE);

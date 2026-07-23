@@ -59,7 +59,12 @@ public class ModItemModelProvider extends ItemModelProvider {
         makeOneLayerItem(ModItems.GREAT_WHITE_SHARK_TOOTH);
         makeOneLayerItem(ModItems.GREAT_HAMMERHEAD_SHARK_TOOTH);
         makeOneLayerItem(ModItems.COMMON_THRESHER_SHARK_TOOTH);
+        makeOneLayerItem(ModItems.TIGER_SHARK_TOOTH);
+        makeOneLayerItem(ModItems.SHORTFIN_MAKO_SHARK_TOOTH);
+        makeOneLayerItem(ModItems.OCEANIC_WHITETIP_SHARK_TOOTH);
+        makeOneLayerItem(ModItems.MEGALODON_TOOTH);
         makeOneLayerItem(ModItems.CARTILAGE);
+        // The *_SHARK_BLOCK icons use handwritten 3D models in assets/ — no datagen here.
 
         makeOneLayerItem(ModItems.SHARK_AXE,handheld);
         makeOneLayerItem(ModItems.SHARK_HOE,handheld);
@@ -85,13 +90,23 @@ public class ModItemModelProvider extends ItemModelProvider {
         makeOneLayerItem(ModItems.ALBINO);
         makeOneLayerItem(ModItems.ZIPPY_PIXEL_ART);
         makeOneLayerItem(ModItems.JUSTICE_FOR_STEVE);
-        makeOneLayerItem(ModItems.UNETHICAL);
         makeOneLayerItem(ModItems.SHARKS_GALORE);
         makeOneLayerItem(ModItems.SLEEPING_WITH_THE_FISHES);
         makeOneLayerItem(ModItems.MOMMY_SHARK);
         makeOneLayerItem(ModItems.SPECIMEN_8);
+        makeOneLayerItem(ModItems.GREAT_WHITE_SHARK_ADVANCEMENT_ICON);
+        makeOneLayerItem(ModItems.GREAT_HAMMERHEAD_SHARK_ADVANCEMENT_ICON);
+        makeOneLayerItem(ModItems.COMMON_THRESHER_SHARK_ADVANCEMENT_ICON);
+        makeOneLayerItem(ModItems.SHORTFIN_MAKO_SHARK_ADVANCEMENT_ICON);
+        makeOneLayerItem(ModItems.TIGER_SHARK_ADVANCEMENT_ICON);
+        makeOneLayerItem(ModItems.OCEANIC_WHITETIP_SHARK_ADVANCEMENT_ICON);
+        makeOneLayerItem(ModItems.SANDTIGER_SHARK_ADVANCEMENT_ICON);
+        makeOneLayerItem(ModItems.BLACKTIP_REEF_SHARK_ADVANCEMENT_ICON);
+        makeOneLayerItem(ModItems.SHARK_JAWS);
 
         trident(ModItems.SHARK_TRIDENT);
+
+        makeOneLayerItem(ModItems.BFS_LOGO);
     }
 
     protected ModelFile.ExistingModelFile generated = getExistingFile(mcLoc("item/generated"));
@@ -111,8 +126,8 @@ public class ModItemModelProvider extends ItemModelProvider {
     }
 
     protected void spawnEgg(Item item) {
-        String path = BuiltInRegistries.ITEM.getKey(item).getPath();
-        getBuilder(path).parent(template_spawn_egg);
+        // Custom per-species sprite (textures/item/<id>.png) instead of the vanilla tinted egg.
+        makeOneLayerItem(item);
     }
 
     protected void makeOneLayerItem(Item item, ResourceLocation texture) {

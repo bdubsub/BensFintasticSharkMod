@@ -1,0 +1,39 @@
+{
+  "parent": "bensfintasticsharks:root",
+  "criteria": {
+    "got_shark_trident": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "bensfintasticsharks:shark_trident"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.fancy_fork.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:shark_trident",
+      "nbt": "{Damage:0}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.fancy_fork.title"
+    }
+  },
+  "requirements": [
+    [
+      "got_shark_trident"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

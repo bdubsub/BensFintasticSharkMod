@@ -21,6 +21,7 @@ public class BiomeModifiers {
     public static final ResourceKey<BiomeModifier> COMMON_OCTOPUS_SPAWNS = create("common_octopus_spawns");
     public static final ResourceKey<BiomeModifier> CARIBBEAN_REEF_OCTOPUS_SPAWNS = create("caribbean_reef_octopus_spawns");
     public static final ResourceKey<BiomeModifier> NAUTILUS_SPAWNS = create("nautilus_spawns");
+    public static final ResourceKey<BiomeModifier> NAUTILUS_CAVE_SPAWNS = create("nautilus_cave_spawns");
     public static final ResourceKey<BiomeModifier> GIANT_MORAY_EEL_SPAWNS = create("giant_moray_eel_spawns");
     public static final ResourceKey<BiomeModifier> GREEN_SEA_TURTLE_SPAWNS = create("green_sea_turtle_spawns");
     public static final ResourceKey<BiomeModifier> AMERICAN_LOBSTER_SPAWNS = create("american_lobster_spawns");

@@ -35,19 +35,28 @@ public class AmericanLobsterEntity extends BfsAquaticEntity<AmericanLobsterEntit
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT =
             SynchedEntityData.defineId(AmericanLobsterEntity.class, EntityDataSerializers.INT);
+    // Synced so the client-side animation controller can pick IDLE vs CRAWL; restTicks is server-only.
+    private static final EntityDataAccessor<Boolean> DATA_RESTING =
+            SynchedEntityData.defineId(AmericanLobsterEntity.class, EntityDataSerializers.BOOLEAN);
 
     private int snipCooldown;
     private int restTicks;
     private int restCheckTimer;
+    /** 0.18 — scheduled pinch: damage lands at the snip clip's impact frame, not on trigger. */
+    private LivingEntity pendingSnipTarget;
+    private int snipImpactTicks;
 
     protected AmericanLobsterEntity(EntityType<AmericanLobsterEntity> type, Level level) {
         super(type, level);
+        // The lobster showed the same close-waypoint orbit as sharks. Reuse their
+        // turn-aware arrival braking, but keep pitch disabled for a seafloor crawler.
+        this.moveControl = new SharkSwimmingMoveControl(this, 1f / 8f, false);
         this.setMaxUpStep(0.6f);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 6)
+                .add(Attributes.MAX_HEALTH, 10)
                 .add(Attributes.MOVEMENT_SPEED, 0.6F)
                 .add(Attributes.ATTACK_DAMAGE, 1);
     }
@@ -56,6 +65,7 @@ public class AmericanLobsterEntity extends BfsAquaticEntity<AmericanLobsterEntit
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_VARIANT, 0);
+        this.entityData.define(DATA_RESTING, false);
     }
 
     public Variant getVariant() { return Variant.byId(this.entityData.get(DATA_VARIANT)); }
@@ -91,8 +101,10 @@ public class AmericanLobsterEntity extends BfsAquaticEntity<AmericanLobsterEntit
 
     @Override
     protected float wanderRadiusXZ() { return 12f; }
+    // Suggestion 1: tight vertical wander so SetRandomSwimTarget stops picking mid-water
+    // destinations that drag the lobster off the seafloor (mirrors the stingray's setRadius(8,1)).
     @Override
-    protected float wanderRadiusY() { return 3f; }
+    protected float wanderRadiusY() { return 1f; }
     @Override
     protected boolean lockHorizontalPitch() { return true; }
     @Override
@@ -118,7 +130,10 @@ public class AmericanLobsterEntity extends BfsAquaticEntity<AmericanLobsterEntit
                 double s = cap / horiz;
                 this.setDeltaMovement(dm.x * s, dm.y, dm.z * s);
             }
-            this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.005, 0.0));
+            // Suggestion 1: persistent sink so the lobster settles on the sea floor instead of
+            // floating (matches the bottom-dwelling Common Stingray's -0.04 bias). -0.005 was too
+            // weak to counter the buoyant yya the move control generates toward wander targets.
+            this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
         } else {
             super.travel(movementInput);
         }
@@ -139,21 +154,32 @@ public class AmericanLobsterEntity extends BfsAquaticEntity<AmericanLobsterEntit
                 restTicks = 100 + getRandom().nextInt(301);
             }
         }
-        if (snipCooldown > 0) return;
-        if (tickCount % 10 != 0) return;
-        AABB area = getBoundingBox().inflate(1.0);
-        List<Player> nearby = level().getEntitiesOfClass(Player.class, area,
-                p -> !p.isCreative() && !p.isSpectator());
-        if (!nearby.isEmpty()) {
-            LivingEntity target = nearby.get(0);
-            target.hurt(damageSources().mobAttack(this), 1.0f);
-            snipCooldown = 30;
-            restTicks = 0;
+        // 0.18 — land the scheduled snip at the claw clip's impact frame. Ben reported the
+        // animation trailing the damage: the old code hurt the player the same tick the snip
+        // (and its 0.5s clip) was queued, so the pinch always preceded the visible snap.
+        if (pendingSnipTarget != null && --snipImpactTicks <= 0) {
+            if (pendingSnipTarget.isAlive()
+                    && getBoundingBox().inflate(1.5).intersects(pendingSnipTarget.getBoundingBox())) {
+                pendingSnipTarget.hurt(damageSources().mobAttack(this), 1.0f);
+            }
+            pendingSnipTarget = null;
         }
+        if (snipCooldown <= 0 && tickCount % 10 == 0) {
+            AABB area = getBoundingBox().inflate(1.0);
+            List<Player> nearby = level().getEntitiesOfClass(Player.class, area,
+                    p -> !p.isCreative() && !p.isSpectator());
+            if (!nearby.isEmpty()) {
+                pendingSnipTarget = nearby.get(0);
+                snipImpactTicks = 7; // snip clip peaks ~0.3s in, +1 tick of trigger latency
+                snipCooldown = 30;
+                restTicks = 0;
+            }
+        }
+        this.entityData.set(DATA_RESTING, restTicks > 0);
     }
 
     public boolean isSnipping() { return snipCooldown > 20; }
-    public boolean isResting() { return restTicks > 0; }
+    public boolean isResting() { return this.entityData.get(DATA_RESTING); }
 
     public enum Variant implements StringRepresentable {
         DEFAULT_1(0, "default_1"),

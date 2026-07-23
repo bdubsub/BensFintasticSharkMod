@@ -22,6 +22,7 @@ public class BlacktipReefSharkEntityForge extends BlacktipReefSharkEntity implem
 
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("swim");
+    private static final RawAnimation FAST_SWIM = RawAnimation.begin().thenLoop("fast_swim");
     private static final RawAnimation BEACHED = RawAnimation.begin().thenLoop("beached2");
     private static final RawAnimation BITE = RawAnimation.begin().then("bite", Animation.LoopType.PLAY_ONCE);
     private static final RawAnimation DEATH = RawAnimation.begin().thenPlayAndHold("death");
@@ -39,9 +40,13 @@ public class BlacktipReefSharkEntityForge extends BlacktipReefSharkEntity implem
         // Pack-alert when ANY blacktip is hurt by a living attacker, not just on
         // disturbance ticks. AbstractSharkEntity.hurt already sets HOSTILE on this
         // shark; we mirror that to the pack so the entire group joins the fight.
+        // 0.19 — gated on this shark actually retaliating (getTarget() == attacker):
+        // a lone timid blacktip flees instead, and summoning a 32-block posse here
+        // would silently defeat the timidity.
         if (took && !level().isClientSide
                 && source.getEntity() instanceof net.minecraft.world.entity.LivingEntity attacker
                 && !(attacker instanceof BlacktipReefSharkEntity)
+                && this.getTarget() == attacker
                 && level() instanceof ServerLevel sl) {
             SharkAlertHandler.fire(sl, this, SharkAlertEvent.Type.PACK_ALERT,
                     BlacktipReefSharkEntity.class, 32.0, attacker);
@@ -68,8 +73,19 @@ public class BlacktipReefSharkEntityForge extends BlacktipReefSharkEntity implem
             if (!this.isInWaterOrBubble()) {
                 return event.setAndContinue(this.onGround() ? BEACHED : IDLE);
             }
+            // 0.16: FAST_SWIM (time-scaled swim clip) while locked onto prey, mako-style —
+            // the synced SharkState only flips at hunt start/end so this doesn't retrigger.
+            if (this.getSharkState() == SharkState.HOSTILE) {
+                return event.setAndContinue(FAST_SWIM);
+            }
+            // 0.19 EXPERIMENT (Ben): no idle clip in water — always SWIM. The isMoving()
+            // velocity gate (threshold 0.015 b/t) flickered across the AI's swim/stop duty
+            // cycle, each flip crossfading over 5 ticks = the "jittery" look. Blacktip is
+            // the test species; Oceanic Whitetip keeps its idle gate as the side-by-side
+            // control. Revert = restore `event.isMoving() ? SWIM : IDLE`.
             return event.setAndContinue(SWIM);
         })
+                .setAnimationSpeedHandler(e -> tfar.bensfintasticsharks.ModAnimations.swimClipSpeed(this))
                 .triggerableAnim("bite", BITE)
                 .triggerableAnim("death", DEATH));
     }

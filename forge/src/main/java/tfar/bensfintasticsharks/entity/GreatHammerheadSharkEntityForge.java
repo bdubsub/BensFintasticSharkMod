@@ -28,8 +28,11 @@ public class GreatHammerheadSharkEntityForge extends GreatHammerheadSharkEntity 
             if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(ModAnimations.BEACHED2);
             }
-            return event.setAndContinue(this.getTarget() != null ? ModAnimations.FAST_SWIM : DefaultAnimations.SWIM);
+            // getTarget() is server-only, so FAST_SWIM never played client-side; getSharkState()
+            // is synced and flips HOSTILE when hunting (same pattern as the mako/tiger).
+            return event.setAndContinue(this.getSharkState() == SharkState.HOSTILE ? ModAnimations.FAST_SWIM : DefaultAnimations.SWIM);
         })
+                .setAnimationSpeedHandler(e -> ModAnimations.swimClipSpeed(this))
                 .triggerableAnim("bite_right", RawAnimation.begin().then("attack.bite_right", Animation.LoopType.PLAY_ONCE))
                 .triggerableAnim("bite_left", RawAnimation.begin().then("attack.bite_left", Animation.LoopType.PLAY_ONCE))
                 .triggerableAnim("death", ModAnimations.DEATH));

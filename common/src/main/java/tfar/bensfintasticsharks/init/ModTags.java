@@ -19,6 +19,17 @@ public class ModTags {
         /** Broad prey list used by all 8 sharks for general targeting. */
         public static final TagKey<EntityType<?>> SHARK_PREY = create("shark_prey");
 
+        // 0.19 — per-species prey lists (Ben's Part II hunger spec). Each shark only hunts
+        // its own list; AbstractSharkEntity#preyTag() picks the right one. Datapack-tunable.
+        public static final TagKey<EntityType<?>> GREAT_WHITE_SHARK_PREY = create("prey/great_white_shark");
+        public static final TagKey<EntityType<?>> GREAT_HAMMERHEAD_SHARK_PREY = create("prey/great_hammerhead_shark");
+        public static final TagKey<EntityType<?>> COMMON_THRESHER_SHARK_PREY = create("prey/common_thresher_shark");
+        public static final TagKey<EntityType<?>> SHORTFIN_MAKO_SHARK_PREY = create("prey/shortfin_mako_shark");
+        public static final TagKey<EntityType<?>> TIGER_SHARK_PREY = create("prey/tiger_shark");
+        public static final TagKey<EntityType<?>> SANDTIGER_SHARK_PREY = create("prey/sandtiger_shark");
+        public static final TagKey<EntityType<?>> OCEANIC_WHITETIP_SHARK_PREY = create("prey/oceanic_whitetip_shark");
+        public static final TagKey<EntityType<?>> BLACKTIP_REEF_SHARK_PREY = create("prey/blacktip_reef_shark");
+
         public static final TagKey<EntityType<?>> SHARKS = create("sharks");
         public static final TagKey<EntityType<?>> APEX_PREDATOR = create("apex_predator");
         public static final TagKey<EntityType<?>> CONSERVATION_PROTECTED = create("conservation_protected");
@@ -55,6 +66,8 @@ public class ModTags {
         public static TagKey<Biome> COMMON_OCTOPUS_SPAWNS = create("common_octopus_spawns");
         public static TagKey<Biome> CARIBBEAN_REEF_OCTOPUS_SPAWNS = create("caribbean_reef_octopus_spawns");
         public static TagKey<Biome> NAUTILUS_SPAWNS = create("nautilus_spawns");
+        // 0.18 — flooded caves below y=0 (dripstone/lush/deep dark aquifers).
+        public static TagKey<Biome> NAUTILUS_CAVE_SPAWNS = create("nautilus_cave_spawns");
         public static TagKey<Biome> GIANT_MORAY_EEL_SPAWNS = create("giant_moray_eel_spawns");
         public static TagKey<Biome> GREEN_SEA_TURTLE_SPAWNS = create("green_sea_turtle_spawns");
         public static TagKey<Biome> AMERICAN_LOBSTER_SPAWNS = create("american_lobster_spawns");

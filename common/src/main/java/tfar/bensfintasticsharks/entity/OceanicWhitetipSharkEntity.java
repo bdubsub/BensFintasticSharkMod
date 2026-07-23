@@ -43,7 +43,7 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return createSharkAttributes(70, 1.0, 3.5);
+        return createSharkAttributes(110, 1.0, 3.5);
     }
 
     @Override
@@ -115,4 +115,14 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
 
     @Override public float bfsScaleMin() { return 0.9f; }
     @Override public float bfsScaleMax() { return 1.05f; }
+
+    // Bite-sync (same recipe as Blacktip's 0.18 fix): the bite clip snaps shut at 0.375s,
+    // but the Forge controller's setAnimationSpeed(1.3) compresses it to ~0.29s (~6t).
+    // Bump to 8 if the 1.3× speed-up is ever scoped to the swim clip only.
+    @Override protected int biteImpactDelayTicks() { return 7; }
+
+    @Override
+    protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {
+        return tfar.bensfintasticsharks.init.ModTags.EntityTypes.OCEANIC_WHITETIP_SHARK_PREY;
+    }
 }

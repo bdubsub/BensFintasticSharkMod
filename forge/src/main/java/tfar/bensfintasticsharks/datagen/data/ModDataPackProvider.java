@@ -45,40 +45,38 @@ public class ModDataPackProvider extends DatapackBuiltinEntriesProvider {
     public static void biomeModifiers(BootstapContext<BiomeModifier> context) {
         var biomes = context.lookup(Registries.BIOME);
 
-        // Existing modifiers preserved
+        // Shark weights stay low. The config chance and spacing gates enforce overall rarity.
         context.register(BiomeModifiers.GREAT_WHITE_SHARK_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.GREAT_WHITE_SHARK_SPAWNS),
-                        List.of(data(ModEntityTypes.GREAT_WHITE_SHARK, 50, 1, 1))));
+                        List.of(data(ModEntityTypes.GREAT_WHITE_SHARK, 12, 1, 1))));
         context.register(BiomeModifiers.GREAT_HAMMERHEAD_SHARK_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.GREAT_HAMMERHEAD_SHARK_SPAWNS),
-                        List.of(data(ModEntityTypes.GREAT_HAMMERHEAD_SHARK, 50, 1, 1))));
+                        List.of(data(ModEntityTypes.GREAT_HAMMERHEAD_SHARK, 12, 1, 1))));
         context.register(BiomeModifiers.COMMON_THRESHER_SHARK_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.COMMON_THRESHER_SHARK_SPAWNS),
-                        List.of(data(ModEntityTypes.COMMON_THRESHER_SHARK, 50, 1, 1))));
+                        List.of(data(ModEntityTypes.COMMON_THRESHER_SHARK, 12, 1, 1))));
         context.register(BiomeModifiers.COMMON_STINGRAY_SHARK_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.COMMON_STINGRAY_SPAWNS),
                         List.of(data(ModEntityTypes.COMMON_STINGRAY, 50, 1, 3))));
         context.register(BiomeModifiers.HARBOR_SEAL_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.HARBOR_SEAL_SPAWNS),
-                        List.of(data(ModEntityTypes.HARBOR_SEAL, 50, 1, 3))));
+                        List.of(data(ModEntityTypes.HARBOR_SEAL, 20, 1, 2))));
         context.register(BiomeModifiers.SHORTFIN_MAKO_SHARK_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.SHORTFIN_MAKO_SHARK_SPAWNS),
-                        List.of(data(ModEntityTypes.SHORTFIN_MAKO_SHARK, 50, 1, 1))));
+                        List.of(data(ModEntityTypes.SHORTFIN_MAKO_SHARK, 12, 1, 1))));
 
-        // Legacy 1.0 — new sharks. Weights halved from the original tuning to keep the
-        // ocean from feeling crowded by default; server owners can raise via config.
         context.register(BiomeModifiers.TIGER_SHARK_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.TIGER_SHARK_SPAWNS),
-                        List.of(data(ModEntityTypes.TIGER_SHARK, 25, 1, 1))));
+                        List.of(data(ModEntityTypes.TIGER_SHARK, 6, 1, 1))));
         context.register(BiomeModifiers.OCEANIC_WHITETIP_SHARK_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.OCEANIC_WHITETIP_SHARK_SPAWNS),
-                        List.of(data(ModEntityTypes.OCEANIC_WHITETIP_SHARK, 15, 1, 1))));
+                        List.of(data(ModEntityTypes.OCEANIC_WHITETIP_SHARK, 4, 1, 1))));
         context.register(BiomeModifiers.SANDTIGER_SHARK_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.SANDTIGER_SHARK_SPAWNS),
-                        List.of(data(ModEntityTypes.SANDTIGER_SHARK, 25, 1, 1))));
+                        List.of(data(ModEntityTypes.SANDTIGER_SHARK, 6, 1, 1))));
         context.register(BiomeModifiers.BLACKTIP_REEF_SHARK_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.BLACKTIP_REEF_SHARK_SPAWNS),
-                        List.of(data(ModEntityTypes.BLACKTIP_REEF_SHARK, 30, 2, 3))));
+                        List.of(data(ModEntityTypes.BLACKTIP_REEF_SHARK, 8, 1, 2))));
 
         // Legacy 1.0 — marine mammals
         context.register(BiomeModifiers.BOTTLENOSE_DOLPHIN_SPAWNS,
@@ -98,6 +96,13 @@ public class ModDataPackProvider extends DatapackBuiltinEntriesProvider {
         context.register(BiomeModifiers.NAUTILUS_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.NAUTILUS_SPAWNS),
                         List.of(data(ModEntityTypes.NAUTILUS, 10, 1, 1))));
+        // 0.18 — Ben: boost nautilus spawns past negative Y in underwater caves. Cave
+        // biomes get their own, much heavier entry: water pockets down there are scarce,
+        // so a high weight is what makes deep spelunkers actually meet one. The spawn
+        // predicate (checkNautilusSpawn) also waives the night gate below y=0.
+        context.register(BiomeModifiers.NAUTILUS_CAVE_SPAWNS,
+                new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.NAUTILUS_CAVE_SPAWNS),
+                        List.of(data(ModEntityTypes.NAUTILUS, 40, 1, 1))));
 
         // Legacy 1.0 — other fauna.
         context.register(BiomeModifiers.GIANT_MORAY_EEL_SPAWNS,
