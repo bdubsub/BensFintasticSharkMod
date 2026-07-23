@@ -14,6 +14,7 @@
 - **Sand Tiger and Blacktip Reef bite reach is close range.** Both species now cap bite distance at 1.75 blocks.
 - **Prismarine armor follows the swimming pose.** The GeckoLib armor renderer now copies the actively posed wearer model, and the armor geometry uses the expected GeckoLib armor identifier.
 - **Prismarine chestplate sleeves fit the swimming stroke.** The sleeves stop above the wrists instead of extending across the full arm, reducing hand and skin clipping during the breaststroke animation.
+- **BFS logo appears in both UI locations.** The creative tab keeps its existing BFS logo item, and the Forge mod list now receives the same logo at the metadata path expected by `mods.toml`.
 - **Zippy glow presentation.** The glow mask aligns with the base texture, so the asset was not shifted. The emissive layer now appears only in low light instead of washing over the daylight skin.
 - **Broken female Orca rendering removed.** Female state, NBT, scale, and dorsal fin deformation are disabled until the replacement model is ready. Existing `Female` NBT is ignored.
 
