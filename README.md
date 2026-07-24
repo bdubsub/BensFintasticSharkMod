@@ -22,7 +22,7 @@ Install Forge, place the mod and its required dependencies in the `mods` directo
 * Orcas, dolphins, octopuses, nautiluses, eels, turtles, lobsters, stingrays, seals, and jellyfish.
 * Independent spawn categories, species caps, rarity controls, and datapack editable biome and prey tags.
 * Creative showcase commands, including a guaranteed trade villager and detailed species information.
-* Shark tools, armor, the Prismarine armor set, Captain Ben's Hat, collectible items, and advancements.
+* Shark tools, armor, a Prismarine armor set fitted to swimming poses, Captain Ben's Hat, collectible items, and advancements.
 * The Shark Codex and the Sunken Trove ocean structure.
 
 Full gameplay, configuration, command, architecture, and troubleshooting details are in [DOCUMENTATION.md](DOCUMENTATION.md). Release changes are in [CHANGELOG.md](CHANGELOG.md).

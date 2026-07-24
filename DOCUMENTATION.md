@@ -10,7 +10,7 @@ Version 0.22 completes another movement and showcase pass. Sharks now defend the
 
 Natural sharks and Harbor Seals are rarer. The apex cap is one, shark spacing is 96 blocks, shark spawn chance defaults to 0.4, and Harbor Seal spawn chance defaults to 0.5. Shortfin Makos now spawn only in Lukewarm and Deep Lukewarm Oceans. Blacktip Reef Sharks remain available in Warm, Lukewarm, and Deep Lukewarm Oceans.
 
-`/bfs info <species>` now gives creative operators a full species card with scientific name, habitats, behavior, diet, configured health, variants, registry ID, spawn category, and natural cap. Female Orca state and scaling have been removed until the replacement model is ready. Prismarine armor now copies the active wearer pose during swimming, and Zippy's emissive layer appears only in low light.
+`/bfs info <species>` now gives creative operators a full species card with scientific name, habitats, behavior, diet, configured health, variants, registry ID, spawn category, and natural cap. Female Orca state and scaling have been removed until the replacement model is ready. Prismarine armor copies the active wearer pose during swimming, uses standard four pixel arm pivots, and contracts its torso layers horizontally as the swim pose blends in so the full breaststroke clears the chestplate. Zippy's emissive layer appears only in low light.
 
 ## 1. What's in the mod
 
