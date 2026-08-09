@@ -1,22 +1,26 @@
 # Ben's Fintastic Sharks
 
-A 1.20.1 Forge mod, currently at version 0.22, that adds twenty sea creatures, a buried treasure structure, a captain's hat, a shark codex book, and a system that makes sharks pay attention to what you're doing in the water.
+A 1.20.1 Forge mod, currently at version `0.23-emergency-fix`, that adds twenty two sea creatures, a buried treasure structure, a captain's hat, a shark codex book, and a system that makes sharks pay attention to what you're doing in the water.
 
 This document is the reference for everything the mod ships with. If you just installed it and you're trying to figure out where to find an Orca, skip to section 3.
 
-## 0.22 highlights
+## 0.23 and emergency fix highlights
 
-Version 0.22 completes another movement and showcase pass. Sharks now defend themselves from living attackers even while satiated, routine cruising suppresses small vertical corrections, and Tiger Sharks approach floating items from below instead of circling an unreachable surface point. Sand Tiger and Blacktip Reef bite reach is capped at close range.
+Version 0.23 repairs the shark steering regression introduced by the 0.22 level cruising branch. Navigation can apply continuous vertical input again instead of alternating between a requested depth change and forced level travel. Turn aware horizontal braking remains in place to control overshoot. Tiger Sharks now use one stable underwater item intercept with timeout and retry memory, which prevents a floating item from pulling them into a permanent orbit.
 
-Natural sharks and Harbor Seals are rarer. The apex cap is one, shark spacing is 96 blocks, shark spawn chance defaults to 0.4, and Harbor Seal spawn chance defaults to 0.5. Shortfin Makos now spawn only in Lukewarm and Deep Lukewarm Oceans. Blacktip Reef Sharks remain available in Warm, Lukewarm, and Deep Lukewarm Oceans.
+Version `0.23-emergency-fix` corrects a population category mismatch in the default vanilla fish replacement. Atlantic Cod and Atlantic Salmon now occupy the same vanilla water ambient population slots as the Cod and Salmon they replace. The replacement allowlist remains limited to those two exact vanilla entity IDs. Tropical Fish, Pufferfish, other vanilla aquatic mobs, BFS mobs, and modded fish are never converted by this feature.
 
-`/bfs info <species>` now gives creative operators a full species card with scientific name, habitats, behavior, diet, configured health, variants, registry ID, spawn category, and natural cap. Female Orca state and scaling have been removed until the replacement model is ready. Prismarine armor copies the active wearer pose during swimming, uses standard four pixel arm pivots, and contracts its torso layers horizontally as the swim pose blends in so the full breaststroke clears the chestplate. Zippy's emissive layer appears only in low light.
+Atlantic Cod and Atlantic Salmon join the roster as passive BFS prey. Both have spawn eggs, raw and cooked food items, fishing and entity loot, cooking recipes, information cards, and encounter and fishing advancements. They use the matching vanilla fish movement, schooling, panic, player avoidance, water navigation, and beached flop behavior. Atlantic Salmon named exactly `Spin` uses its supplied spin loop.
+
+`[spawning] replace_vanilla_mobs` defaults to `true`. Natural vanilla Cod and Salmon become the matching Atlantic fish, and the vanilla Cod and Salmon spawn eggs create the Atlantic versions. Setting it to `false` restores ordinary vanilla Cod and Salmon and enables the separate BFS Atlantic fish biome spawns. Servers can independently disable other new natural vanilla aquatic spawns with `[spawning] disable_vanilla_aquatic_spawns = true`.
+
+Oceanic Whitetips now use the supplied replacement animation set and can thrash a player after a successful bite. Blacktip Reef Sharks use a shorter latch instead of a large shark thrash. Prismarine armor uses standard player arm pivots, full sleeves, and the uncontracted torso so the full swimming stroke remains covered. Shark Spotter now requires viewing a BFS shark through a Spyglass. `/bfs info` reports `TBD` for species without an implemented diet, and Oceanic Whitetip habitat and spawning are limited to Deep Ocean and Deep Lukewarm Ocean.
 
 ## 1. What's in the mod
 
-The roster covers four loose groups.
+The roster covers five loose groups.
 
-The sharks are Great White, Great Hammerhead, Common Thresher, Shortfin Mako, Tiger, Oceanic Whitetip, Sandtiger, and Blacktip Reef. Two marine mammals, the Bottlenose Dolphin and the Orca. Three cephalopods, the Common Octopus, the Caribbean Reef Octopus, and the Nautilus. Five other fauna, the Common Stingray, the Harbor Seal, the American Lobster, the Giant Moray Eel, and the Green Sea Turtle. Two jellyfish, the Black Sea Nettle and the Cannonball.
+The sharks are Great White, Great Hammerhead, Common Thresher, Shortfin Mako, Tiger, Oceanic Whitetip, Sandtiger, and Blacktip Reef. Two marine mammals, the Bottlenose Dolphin and the Orca. Three cephalopods, the Common Octopus, the Caribbean Reef Octopus, and the Nautilus. Five other fauna, the Common Stingray, the Harbor Seal, the American Lobster, the Giant Moray Eel, and the Green Sea Turtle. Two jellyfish, the Black Sea Nettle and the Cannonball. Two Atlantic fish, Atlantic Cod and Atlantic Salmon.
 
 Most of these species ship with multiple skin variants that get rolled randomly on spawn and can also be cycled on the spawn egg. See section 9 for the variant tables.
 
@@ -28,19 +32,21 @@ There is one structure, the Sunken Trove. It generates on the ocean floor in non
 
 ## 2. How spawning works
 
-Vanilla Minecraft caps water mobs at five per player. Cod, salmon, tropical fish, pufferfish, dolphins, and squid all share that single cap of five. If your loaded chunks already have five cod swimming around, no new dolphin can spawn. This is why most ocean mods feel empty.
+Vanilla Minecraft separates aquatic population categories. Cod, Salmon, Tropical Fish, and Pufferfish use the water ambient category. Dolphins and Squid use the water creature category. Population ceilings scale with the eligible spawning chunks around players.
 
-This mod runs on its own categories so it doesn't compete with vanilla water mobs for slots. There are three categories. The apex predator category holds all eight sharks plus the Orca and has a default cap of one. The water creature category holds dolphins, octopuses, stingrays, seals, lobsters, eels, turtles, and nautiluses with a cap of ten. The water ambient category holds the two jellyfish species with a cap of fifteen.
+This mod runs on its own categories so most BFS wildlife doesn't compete with vanilla water mobs for slots. There are three custom categories. The apex predator category holds all eight sharks plus the Orca and has a default cap of one. The water creature category holds dolphins, octopuses, stingrays, seals, lobsters, eels, turtles, and nautiluses with a cap of ten. The water ambient category holds the two jellyfish species with a cap of fifteen. Atlantic Cod and Atlantic Salmon deliberately use vanilla's water ambient category.
+
+With `replace_vanilla_mobs = true`, a natural vanilla Cod or Salmon attempt is converted at the same position into one matching Atlantic fish. The separate Atlantic biome modifier attempt is suppressed so the two systems cannot double the population. These replacements follow the vanilla water ambient population and schooling source rather than the Atlantic per species cap, chance, and group controls. With `replace_vanilla_mobs = false`, vanilla fish remain unchanged and Atlantic fish use their own biome modifiers, caps, spawn chances, and configured groups while still sharing the ordinary water ambient category ceiling.
 
 On top of the category caps, every individual species has its own cap. When a natural spawn fires, we count how many of that species already exist inside a 64 block radius of the spawn position, which is about four chunks. If the count is at or above the species cap, the spawn is cancelled. Setting a species cap to zero disables natural spawning entirely.
 
-Caps only gate natural and chunk generation spawns. Spawn eggs work normally. `/summon` works normally. Structure placements work normally. If you are testing in creative, you can spawn as many sharks as you want with an egg.
+Caps only gate natural and chunk generation spawns. Spawn eggs work normally, except the vanilla Cod and Salmon eggs intentionally create the matching Atlantic fish while replacement is enabled. Both BFS Atlantic spawn eggs always create their own fish. `/summon`, buckets, spawners, and structure placements remain unchanged.
 
 There is also a second knob called spawn chance which is a probability multiplier on each natural spawn attempt. A value of 1.0 leaves the biome modifier weight untouched. A value of 0.5 makes them spawn half as often. A value of 2.0 makes them spawn roughly twice as often, still bounded by the category cap. A value of 0.0 disables natural spawning the same as setting cap to zero. Use this when you want a species to be rarer without removing it entirely.
 
 Sharks have one more local density gate. Before a natural or chunk generation shark spawn is accepted, the game checks a 96 block horizontal radius. Different shark types do not naturally stack inside that area. Non blacktips are solitary by default. Blacktip Reef Sharks are the schooling exception and can form groups of up to three. Command spawns and spawn eggs bypass this spacing check.
 
-Spawn placement rules differ between species. Sharks, the Orca, jellyfish, dolphins, turtles, eels, seals, and stingrays use the standard near surface water rule. The Common Octopus, Caribbean Reef Octopus, American Lobster, and Nautilus use a custom seafloor predicate that requires water at the spawn position, a solid block below it, and at least four blocks of depth below sea level. That's why you no longer see lobsters spawning at the water surface. The Nautilus on top of that needs to be at least twenty blocks below sea level (so it ends up in ravines and deep crevices) and there's an 80% rejection on natural spawns during daytime, so they come out mostly at night.
+Spawn placement rules differ between species. Sharks, the Orca, jellyfish, dolphins, turtles, eels, seals, stingrays, and both Atlantic fish use the standard water rule. The Common Octopus, Caribbean Reef Octopus, American Lobster, and Nautilus use a custom seafloor predicate that requires water at the spawn position, a solid block below it, and at least four blocks of depth below sea level. That's why you no longer see lobsters spawning at the water surface. The Nautilus on top of that needs to be at least twenty blocks below sea level (so it ends up in ravines and deep crevices) and there's an 80% rejection on natural spawns during daytime, so they come out mostly at night.
 
 ## 3. Where each species spawns
 
@@ -57,7 +63,7 @@ Every shark in this list is in the apex predator category. The category cap is o
 | Common Thresher | Ocean, Deep Ocean | 12 | 1 | 1 | Tail whip hunter |
 | Shortfin Mako | Lukewarm Ocean, Deep Lukewarm Ocean | 12 | 1 | 1 | Fastest aggro speed |
 | Tiger Shark | Ocean, Lukewarm Ocean, Warm Ocean, Deep Ocean, Deep Lukewarm Ocean | 6 | 1 | 1 | Investigates dropped items in water |
-| Oceanic Whitetip | Deep Ocean, Deep Lukewarm Ocean, Deep Cold Ocean | 4 | 1 | 1 | Deep ocean only, limited same species blood convergence |
+| Oceanic Whitetip | Deep Ocean, Deep Lukewarm Ocean | 4 | 1 | 1 | Deep ocean only, limited same species blood convergence |
 | Sandtiger | Ocean, Lukewarm Ocean, Warm Ocean | 6 | 1 | 1 | Coastal, sometimes hovers in place |
 | Blacktip Reef | Lukewarm Ocean, Warm Ocean, Deep Lukewarm Ocean | 8 | 1 to 2 | 3 | Intentional school shark; configured minimum group size is 2 |
 
@@ -95,17 +101,24 @@ These are the rarest spawns in the mod. The defaults give you one or two per are
 | Black Sea Nettle | Deep Ocean, Deep Cold Ocean | 3 | 1 | 1 | Drifts toward the surface, contact poison and weakness |
 | Cannonball Jellyfish | Lukewarm Ocean, Deep Lukewarm Ocean, Warm Ocean | 4 | 1 | 2 | Configured minimum group size is 2; contact weakness |
 
+### Atlantic fish
+
+| Species | Default replacement habitats | Own habitats when replacement is disabled | Own weight | Own group | Own cap | Notes |
+|---|---|---|---|---|---|---|
+| Atlantic Cod | Ocean, Deep Ocean, Cold Ocean, Deep Cold Ocean, Lukewarm Ocean, Deep Lukewarm Ocean | Ocean, Deep Ocean, Cold Ocean, Deep Cold Ocean | 60 | 2 to 4 | 8 | Vanilla Cod AI, passive shark prey, available through fishing |
+| Atlantic Salmon | Cold Ocean, Deep Cold Ocean, Frozen Ocean, Deep Frozen Ocean, River, Frozen River | Cold Ocean, Deep Cold Ocean, River, Frozen River | 50 | 2 to 4 | 8 | Vanilla Salmon AI, exact custom name `Spin` activates its spin loop |
+
 ### Conditions every spawn passes through
 
 A natural spawn has to pass several checks before the mob actually appears.
 
-The position has to be a water block. Sharks, Orca, jellyfish, dolphins, turtles, eels, seals, and stingrays use the standard near surface rule. Common Octopus, Caribbean Reef Octopus, American Lobster, and Nautilus need a solid block below them and at least four blocks of depth. The Nautilus also wants twenty plus blocks of depth and a night clock most of the time.
+The position has to be a water block. Sharks, Orca, jellyfish, dolphins, turtles, eels, seals, stingrays, and both Atlantic fish use the standard water rule. Common Octopus, Caribbean Reef Octopus, American Lobster, and Nautilus need a solid block below them and at least four blocks of depth. The Nautilus also wants twenty plus blocks of depth and a night clock most of the time.
 
 Sharks and Orcas refuse to spawn within 24 blocks of a beach biome. The spawn check samples biomes every 8 blocks horizontally and also requires at least five blocks of water below the spawn.
 
 Natural sharks then pass the mixed species spacing check. Inside `shark_spacing_radius`, which defaults to 96 blocks, different types cannot stack. The default local ceiling is one non blacktip or three blacktips. These local ceilings are separate from the apex category cap and the per species cap.
 
-If the species has a configured group size minimum and the spawn finalizes as the first of a group, we spawn additional siblings nearby to reach the minimum. This currently affects Blacktip Reef Shark, Harbor Seal, Bottlenose Dolphin, and Cannonball Jellyfish.
+If the species has a configured group size minimum and the spawn finalizes as the first of a group, we spawn additional siblings nearby to reach the minimum. This currently affects Blacktip Reef Shark, Harbor Seal, Bottlenose Dolphin, Cannonball Jellyfish, and both Atlantic fish. The Atlantic entries apply only while `replace_vanilla_mobs = false`; replacement mode keeps the source vanilla school.
 
 Finally, the per species cap check counts existing mobs of that species inside a 64 block radius of the spawn position. If the count is at or above the cap, the spawn is cancelled.
 
@@ -115,9 +128,13 @@ The config lives at `config/bensfintasticsharks-common.toml`. Most edits take ef
 
 The sections are organized roughly by what they affect.
 
-`[spawning]` holds the three category caps and shark spacing controls. `apex_predator_cap` defaults to `1`, `bfs_water_creature_cap` to `10`, and `bfs_water_ambient_cap` to `15`. `shark_spacing_radius` defaults to `96`, `nearby_non_blacktip_shark_cap` to `1`, and `nearby_blacktip_shark_cap` to `3`. The spacing radius accepts 16 to 256 blocks; both nearby shark ceilings accept 1 to 16.
+`[spawning]` holds the three category caps, shark spacing controls, vanilla fish replacement, and the broader vanilla aquatic spawn switch. `apex_predator_cap` defaults to `1`, `bfs_water_creature_cap` to `10`, and `bfs_water_ambient_cap` to `15`. `shark_spacing_radius` defaults to `96`, `nearby_non_blacktip_shark_cap` to `1`, and `nearby_blacktip_shark_cap` to `3`. The spacing radius accepts 16 to 256 blocks; both nearby shark ceilings accept 1 to 16.
 
-`[caps]` holds twenty individual species caps. The defaults are listed in the tables above. These values accept 0 to 64; zero disables that species's natural spawning.
+`replace_vanilla_mobs` defaults to `true`. It converts only natural and chunk generation `minecraft:cod` and `minecraft:salmon` and entities placed from the matching vanilla spawn eggs or their dispenser behavior. Position, rotation, custom egg name, and safe entity data are copied to the Atlantic replacement. The BFS Atlantic spawn eggs remain unchanged. Setting this option to `false` leaves vanilla Cod and Salmon alone and allows the Atlantic fish biome modifiers to spawn their separate populations. Atlantic fish always use the vanilla water ambient category, so either mode remains bounded by its ordinary population ceiling. Commands, buckets, spawners, structures, existing entities, Tropical Fish, Pufferfish, and every other unrelated species are never converted. This value is read for each new spawn attempt.
+
+`disable_vanilla_aquatic_spawns` defaults to `false`. When enabled, it blocks only natural and chunk generation spawns for vanilla water creature, water ambient, underground water creature, axolotl, and turtle entities. Existing entities, commands, spawn eggs, and nonnatural creation paths remain unchanged. Replacement runs first, so enabling both settings still converts Cod and Salmon while blocking the other covered vanilla aquatic natural spawns. Restart the game or dedicated server after changing this suppression option.
+
+`[caps]` holds twenty two individual species caps. The defaults are listed in the tables above. These values accept 0 to 64; zero disables that species's natural spawning.
 
 `[spawn_chance]` holds the probability multipliers. Sharks default to `0.4`, Harbor Seals default to `0.5`, and other species default to `1.0`. Valid values are 0.0 to 5.0.
 
@@ -225,13 +242,13 @@ Every shark inherits the same base behavior from `AbstractSharkEntity`. They sha
 
 What varies between species is the tuning. Each one has its own detection radius, aggression level, aggro speed, disengage timeout, bite cooldown, and bite damage.
 
-Some species have extra behaviors on top. The Tiger Shark scans for dropped items in water every 200 ticks. If it finds one, it approaches from below and snaps a cosmetic bite. The item is not consumed. The Oceanic Whitetip has a limited, 20 block same species blood convergence for valid prey and a longer disengage timeout than other sharks, 600 ticks instead of 300. The Blacktip Reef Shark is the only player frenzy and pack defense species. It naturally spawns in groups of one to two, with a configured minimum of two. The Sandtiger has a 10% chance every minute while idle to hover motionless for 5 to 10 seconds, and plays a tail whip warning animation when first turning curious.
+Some species have extra behaviors on top. The Tiger Shark scans for dropped items in water every 200 ticks. If it finds one, it chooses a stable reachable point below the item and approaches for a cosmetic bite. The item is not consumed. The investigation times out after 200 ticks and the same item cannot be selected again for 600 ticks. The Oceanic Whitetip has a limited, 20 block same species blood convergence for valid prey and a longer disengage timeout than other sharks, 600 ticks instead of 300. A successful Oceanic Whitetip player bite has a 10% chance to start a 40 tick grab. The victim is held at the mouth, takes 2 damage every 10 ticks, and is released when the timer ends, the shark or victim dies, either leaves valid water, or the entity is removed. The Blacktip Reef Shark is the only player frenzy and pack defense species. A successful player bite has a 20% chance to start its smaller 30 tick latch. The initial bite remains the only damage from the latch itself. It releases through the same bounded water, life, timeout, and removal checks and does not use the large shark thrash or camera effect. Blacktips naturally spawn in groups of one to two, with a configured minimum of two. The Sandtiger has a 10% chance every minute while idle to hover motionless for 5 to 10 seconds, and plays a tail whip warning animation when first turning curious.
 
 ### Marine mammals
 
 The Bottlenose Dolphin surfaces to breathe every 30 to 60 seconds, swimming up to the world surface, splashing at the top, and playing the dolphin splash sound. While in shallow water it has a 5% chance per check to breach into a leap with the dolphin jump sound. It detects floating items every two seconds, walks toward them, and nudges them with an upward and horizontal velocity push. Items aren't consumed. It detects moving boats with a player driver every second, follows about 4 blocks behind at 1.3x speed, and stays in that mode for up to 30 seconds. Nearby sprint swimming players within 9 blocks get Dolphin's Grace for five seconds, refreshed while they stay in range.
 
-The Orca is peaceful by design in Legacy 1.0. The plan for BFS 2.0 is for orcas to hunt sharks, but this build keeps them as imposing peaceful presences. They surface for a blowhole spout that is a taller bubble column and a lower pitched splash sound than the dolphin's. They wander wide territory and do not approach or orbit players. Version 0.22 uses the male Orca model only. Old `Female` NBT is ignored safely.
+The Orca is peaceful by design in Legacy 1.0. The plan for BFS 2.0 is for orcas to hunt sharks, but this build keeps them as imposing peaceful presences. They surface for a blowhole spout that is a taller bubble column and a lower pitched splash sound than the dolphin's. They wander wide territory and do not approach or orbit players. The current build uses the male Orca model only. Old `Female` NBT is ignored safely.
 
 ### Cephalopods
 
@@ -252,6 +269,8 @@ The American Lobster is the food source. It has the highest spawn weight in the 
 The Giant Moray Eel is anchored in place 70% of the time, motionless for 20 to 40 seconds at a stretch. Players within 2 blocks trigger a lunge attack for 2.0 damage. It spawns only in warm oceans at weight 40 with a cap of 4. Out of water it uses its dedicated beached animation instead of swimming in place.
 
 The Green Sea Turtle is a wild encounter species only. It swims slowly and rests occasionally. It does not lay eggs in this build. Use vanilla turtles for breeding.
+
+Atlantic Cod directly extends vanilla Cod, and Atlantic Salmon directly extends vanilla Salmon. Both have 3 health and inherit vanilla fish swimming, water navigation, panic, player avoidance, schooling, persistence, bucket interaction, and beached flop behavior. Cod uses the vanilla maximum school size of eight. Salmon uses the vanilla maximum school size of five. Neither fish has custom combat or hunting logic, while shark prey tags still let sharks hunt them. A salmon named exactly `Spin` stays in its supplied looping spin animation. Changing or removing that exact custom name returns the renderer to its ordinary idle, swim, fast swim, or flop state.
 
 ### Jellyfish
 
@@ -356,7 +375,7 @@ Sharks can't actually leave water. The pathfinding uses the water bound path nav
 
 Stingrays apply persistent downward gravity (0.04 blocks per tick). They essentially rest on the seafloor unless their AI walks them somewhere specifically.
 
-Sharks and octopuses now visibly lean into vertical travel. Lobsters remain level as seafloor crawlers. The Nautilus may pitch toward a vertical destination and now has enough controlled acceleration to reach it.
+Sharks use continuous vertical steering and visibly lean into meaningful ascent or descent. The turn aware control reduces horizontal thrust during a hard turn without suppressing the depth input requested by navigation. Sharks coast when they need to reorient, brake as they arrive, and remain level when their current route does not require a depth change. Octopuses also visibly lean into vertical travel. Lobsters remain level as seafloor crawlers. The Nautilus may pitch toward a vertical destination and now has enough controlled acceleration to reach it.
 
 All BFS aquatic mobs now drown when beached. They follow the vanilla water animal pattern: when out of water their air supply ticks down by one per tick, and when it hits negative twenty they take two drown damage and reset the counter. This means a beached shark or stingray won't just live forever on the sand. Mammals with their own air systems (the dolphin) override this so they can still surface to breathe.
 
@@ -366,15 +385,19 @@ Killing an American Lobster drops 1 or 2 raw lobster claws plus 1 raw lobster ta
 
 You can cook either one in a furnace (200 ticks) or on a campfire (600 ticks) to get the cooked variants. Raw lobster gives you 2 nutrition and 0.2 saturation. Cooked gives you 6 nutrition and 0.8 saturation and counts as meat for vanilla effects.
 
+Atlantic Cod and Atlantic Salmon each drop one matching raw fish. If the fish dies while on fire, the entity loot table smelts the drop into its cooked form. Both raw fish also appear in vanilla fishing gameplay through Forge global loot modifiers at an independent 12.5% chance per completed catch. Furnace, smoker, and campfire recipes cook each raw item. Raw Atlantic Cod and Raw Atlantic Salmon provide 2 nutrition and 0.1 saturation. Cooked Atlantic Cod provides 5 nutrition and 0.6 saturation. Cooked Atlantic Salmon provides 6 nutrition and 0.8 saturation.
+
 The Codex chain takes Lost Manuscripts and refines them into a Shark Codex. See section 11.
 
-No other crafting recipes exist in this build. The Shark Trident and Captain Ben's Hat are find only.
+The Shark Trident and Captain Ben's Hat are find only.
 
 ## 16. Advancements
 
-The advancement tree starts at `Marine Curious`, which fires when you encounter any conservation tagged BFS species. From there it branches into encounter chains and themed milestones.
+The advancement tree starts at `Marine Curious`, which fires when you encounter any BFS species. From there it branches into encounter chains and themed milestones.
 
-Encounter advancements exist for every species the mod ships. Shark Spotter accepts any three of all eight sharks; Sharks Galore and Shark Whisperer each require all eight. Every individual shark encounter now uses its matching supplied 16×16 sprite: Great White, Great Hammerhead, Common Thresher, Shortfin Mako, Tiger, Oceanic Whitetip, Sandtiger, and Blacktip Reef. Marine Biologist covers every species; other milestones include Apex of Apex (Orca), Dolphin Friend (Common Bottlenose Dolphin), Inked (either octopus), and Stung (either jellyfish).
+Encounter advancements exist for every species the mod ships. Shark Spotter requires actively using a Spyglass while the view ray reaches a BFS shark before any solid block. It uses one custom criterion and a vanilla Spyglass icon, so it no longer shows the old `0/28` species counter. Sharks Galore and Shark Whisperer each require all eight sharks. Every individual shark encounter uses its matching supplied 16×16 sprite: Great White, Great Hammerhead, Common Thresher, Shortfin Mako, Tiger, Oceanic Whitetip, Sandtiger, and Blacktip Reef. Marine Biologist covers all twenty two species; other milestones include Apex of Apex (Orca), Dolphin Friend (Common Bottlenose Dolphin), Inked (either octopus), and Stung (either jellyfish).
+
+The Atlantic fish add four advancements. `Gadus morhua` and `Salmo salar` trigger when the player encounters the matching living fish. `Oh My Cod` and `Why aren't you red?` trigger only when the matching raw fish is obtained from a fishing hook catch. Their icons use the supplied raw or cooked item sprites according to Ben's content notes.
 
 The themed ones cover progression. Apex Awareness fires when any shark damages you. Wrong Place, Wrong Time is the survivor variant. Sleeping with the Fishes fires when a shark kills you. Fresh Catch fires when you have any cooked lobster meat in your inventory. Hidden Trove fires when you pick up a Lost Manuscript. Captain's Heir fires when you obtain Captain Ben's Hat. Conservationist is the gentle path: encounter the first three sharks without violence required.
 
@@ -386,7 +409,7 @@ The mod gently discourages killing protected sea creatures.
 
 When a non creative player kills any entity tagged `bensfintasticsharks:conservation_protected`, they receive a custom effect called Respect the Ocean for two minutes. It has no mechanical impact at all. The icon shows up in your effects list with the description "The ocean is watching..."
 
-Nineteen of the twenty species are in the conservation tag. The exception is American Lobster, which is the explicit food source in the design.
+Nineteen of the twenty two species are in the conservation tag. American Lobster, Atlantic Cod, and Atlantic Salmon are the food source exceptions.
 
 Disable the effect entirely with `[visuals] conservation_debuff_enabled = false`.
 
@@ -404,6 +427,24 @@ Lowest category ceilings (category caps cannot be set to zero):
 
 To disable natural spawning, set the desired species to zero under `[caps]` or `[spawn_chance]`.
 
+To keep the default Cod and Salmon replacement:
+```toml
+[spawning]
+  replace_vanilla_mobs = true
+```
+
+To keep vanilla Cod and Salmon while spawning separate Atlantic fish from BFS biome modifiers:
+```toml
+[spawning]
+  replace_vanilla_mobs = false
+```
+
+To suppress the remaining covered vanilla aquatic natural spawns:
+```toml
+[spawning]
+  disable_vanilla_aquatic_spawns = true
+```
+
 Disable specific species:
 ```toml
 [caps]
@@ -411,7 +452,7 @@ Disable specific species:
   great_white_shark = 0
 ```
 
-Half of the default 0.22 shark spawn probability:
+Half of the default 0.23 shark spawn probability:
 ```toml
 [spawn_chance]
   great_white_shark = 0.2
@@ -459,9 +500,9 @@ Lobster farm setup (bigger cap, larger groups):
 
 ## 19. Compatibility
 
-Existing 1.20.1 worlds load cleanly. The four alpha build sharks (Great White, Hammerhead, Thresher, Mako) and the two alpha fauna (Stingray, Harbor Seal) kept their registry IDs, NBT structures, and biome modifier references.
+Existing 1.20.1 worlds load cleanly. The four alpha build sharks (Great White, Hammerhead, Thresher, Mako) and the two alpha fauna (Stingray, Harbor Seal) kept their registry IDs, NBT structures, and biome modifier references. Version 0.23 only adds new registry IDs and does not rename prior entities, items, tags, or advancements. Version `0.23-emergency-fix` changes only the Atlantic fish population category and replacement safety checks.
 
-BFS mob categories are completely independent of vanilla categories. Cod, salmon, tropical fish don't share cap slots with BFS species.
+BFS mob categories are independent of vanilla categories except Atlantic Cod and Atlantic Salmon, which always use vanilla's water ambient category. Default replacement converts accepted vanilla Cod and Salmon spawn attempts into one matching Atlantic fish and suppresses the separate Atlantic biome attempts. With `replace_vanilla_mobs = false`, vanilla and Atlantic fish use separate spawn sources but share the same category ceiling. Enabling `disable_vanilla_aquatic_spawns` changes only future natural vanilla aquatic spawn attempts and does not delete existing mobs.
 
 Dolphin boat follow uses a vanilla `Boat.class` instance check. Modded boats that don't extend `Boat` won't trigger the follow behavior.
 
@@ -475,9 +516,20 @@ First run `/bfs list` to see all the current per-species caps. If everything is 
 
 Then run `/bfs count <species>` near where you're testing to see how many of that species are already in your area. If the count matches the cap, no new ones will spawn until some leave.
 
-Check that the biome you're in is in the species's spawn list (section 3). Orca only spawns in cold ocean. Whitetip only spawns in deep ocean variants. Caribbean Reef Octopus and Giant Moray Eel are warm ocean exclusive. Nautilus needs deep water and prefers night.
+Check that the biome you're in is in the species's spawn list (section 3). Orca only spawns in cold ocean. Whitetip only spawns in Deep Ocean and Deep Lukewarm Ocean. Caribbean Reef Octopus and Giant Moray Eel are warm ocean exclusive. Nautilus needs deep water and prefers night. In default replacement mode, Atlantic Cod follows vanilla Cod habitats and Atlantic Salmon follows vanilla Salmon habitats. With replacement disabled, their narrower BFS biome tags apply.
 
 Make sure `[spawn_chance].<species>` isn't 0.
+
+If vanilla aquatic mobs still spawn after enabling their suppression switch, restart the game or dedicated server. The setting intentionally does not remove mobs that already exist and does not block commands or spawn eggs.
+
+If vanilla Cod or Salmon still appears naturally or from its spawn egg, confirm `[spawning] replace_vanilla_mobs = true`. Existing fish, commands, buckets, and spawner output are intentionally not converted. If separate Atlantic biome spawns are wanted alongside vanilla fish, set the option to `false`.
+
+If a world was opened with the original 0.23 build and already contains an excessive Atlantic fish population, install `0.23-emergency-fix` first. The fixed build prevents new replacements from escaping the water ambient population ceiling but does not delete existing entities. Excess fish can leave or despawn through inherited vanilla fish behavior. An operator who wants immediate cleanup can run the following commands in each affected dimension. They remove all loaded matching Atlantic fish in that dimension, including named or intentionally placed fish.
+
+```mcfunction
+/kill @e[type=bensfintasticsharks:atlantic_cod]
+/kill @e[type=bensfintasticsharks:atlantic_salmon]
+```
 
 If sharks aren't reacting to you:
 
@@ -537,7 +589,7 @@ gradlew.bat :forge:Server
 
 The `Data` task writes to `common/src/generated/resources`. Run it after changing any provider, then inspect the generated diff. The distributable artifact is written to `forge/build/libs`. Inspect the JAR for `META-INF/mods.toml`, the `bensfintasticsharks` assets and data namespaces, mixin configuration, and required embedded metadata before release.
 
-There is no maintained formatter task, static analysis task, unit test suite, or GameTest suite. Source changes must at minimum compile and pass `:forge:build`. Resource and data changes must also pass `:forge:Data`. Common initialization, configuration, registration, command, or server behavior changes require a dedicated server smoke test. Rendering, models, textures, or client synchronization changes require a client smoke test.
+There is no maintained formatter task, static analysis task, or GameTest suite. The Forge module has focused JUnit tests for pure policy code, including the exact vanilla fish replacement allowlist. Source changes must at minimum compile and pass `:forge:test` and `:forge:build`. Resource and data changes must also pass `:forge:Data`. The root `./gradlew build` includes the unsupported Fabric template, which has no SmartBrainLib dependency and is not a release gate for this Forge only project. Common initialization, configuration, registration, command, or server behavior changes require a dedicated server smoke test. Rendering, models, textures, or client synchronization changes require a client smoke test.
 
 The `common` module owns loader independent entity behavior, registries, tags, and shared resources. The `forge` module owns Forge lifecycle registration, commands, configuration, biome modifiers, spawn placement, rendering, and data generation. Common code must not import Forge or client classes. Client rendering stays under the Forge client packages. The `fabric` module is an unused template stub and is outside supported scope.
 

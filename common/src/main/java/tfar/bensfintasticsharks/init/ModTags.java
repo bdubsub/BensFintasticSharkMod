@@ -73,6 +73,8 @@ public class ModTags {
         public static TagKey<Biome> AMERICAN_LOBSTER_SPAWNS = create("american_lobster_spawns");
         public static TagKey<Biome> BLACK_SEA_NETTLE_JELLYFISH_SPAWNS = create("black_sea_nettle_jellyfish_spawns");
         public static TagKey<Biome> CANNONBALL_JELLYFISH_SPAWNS = create("cannonball_jellyfish_spawns");
+        public static TagKey<Biome> ATLANTIC_COD_SPAWNS = create("atlantic_cod_spawns");
+        public static TagKey<Biome> ATLANTIC_SALMON_SPAWNS = create("atlantic_salmon_spawns");
 
         private static TagKey<Biome> create(String pName) {
             return TagKey.create(Registries.BIOME, BensFintasticSharks.id(pName));

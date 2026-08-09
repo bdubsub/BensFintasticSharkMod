@@ -82,6 +82,8 @@ public class ModLangProvider extends LanguageProvider {
         add("item.bensfintasticsharks.sandtiger_shark_spawn_egg.scientific", "Carcharias taurus");
         add("item.bensfintasticsharks.shortfin_mako_shark_spawn_egg.scientific", "Isurus oxyrinchus");
         add("item.bensfintasticsharks.tiger_shark_spawn_egg.scientific", "Galeocerdo cuvier");
+        add("item.bensfintasticsharks.atlantic_cod_spawn_egg.scientific", "Gadus morhua");
+        add("item.bensfintasticsharks.atlantic_salmon_spawn_egg.scientific", "Salmo salar");
 
         addTextComponent(TextComponents.ROOT,"Ben’s Fintastic Sharks!");
         addTextComponent(TextComponents.ROOT_DESC,"Achievement granted when logging in with the mod");
@@ -169,7 +171,7 @@ public class ModLangProvider extends LanguageProvider {
         add("advancements.bensfintasticsharks.marine_curious.title", "Marine Curious");
         add("advancements.bensfintasticsharks.marine_curious.description", "Encounter your first BFS creature.");
         add("advancements.bensfintasticsharks.shark_spotter.title", "Shark Spotter");
-        add("advancements.bensfintasticsharks.shark_spotter.description", "Encounter three shark species.");
+        add("advancements.bensfintasticsharks.shark_spotter.description", "Spot a shark using a Spyglass.");
         add("advancements.bensfintasticsharks.shark_whisperer.title", "Shark Whisperer");
         add("advancements.bensfintasticsharks.shark_whisperer.description", "Encounter all eight shark species.");
         add("advancements.bensfintasticsharks.apex_awareness.title", "Apex Awareness");
@@ -225,6 +227,14 @@ public class ModLangProvider extends LanguageProvider {
         add("advancements.bensfintasticsharks.black_sea_nettle_encounter.description", "Encounter a Black Sea Nettle Jellyfish.");
         add("advancements.bensfintasticsharks.cannonball_jellyfish_encounter.title", "Round Drifter");
         add("advancements.bensfintasticsharks.cannonball_jellyfish_encounter.description", "Encounter a Cannonball Jellyfish.");
+        add("advancements.bensfintasticsharks.oh_my_cod.title", "Oh My Cod");
+        add("advancements.bensfintasticsharks.oh_my_cod.description", "Catch an Atlantic Cod.");
+        add("advancements.bensfintasticsharks.why_arent_you_red.title", "Why aren't you red?");
+        add("advancements.bensfintasticsharks.why_arent_you_red.description", "Catch an Atlantic Salmon.");
+        add("advancements.bensfintasticsharks.gadus_morhua.title", "Gadus morhua");
+        add("advancements.bensfintasticsharks.gadus_morhua.description", "Encounter an Atlantic Cod.");
+        add("advancements.bensfintasticsharks.salmo_salar.title", "Salmo salar");
+        add("advancements.bensfintasticsharks.salmo_salar.description", "Encounter an Atlantic Salmon.");
     }
 
 

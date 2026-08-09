@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "bensfintasticsharks:item/cooked_atlantic_salmon"
+  }
+}

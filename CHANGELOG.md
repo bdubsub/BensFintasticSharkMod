@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.23 emergency fix (2026-07-29)
+
+### Fixed
+
+- **Runaway Atlantic fish populations.** Atlantic Cod and Atlantic Salmon were registered in a different population category from the vanilla fish they replaced. Minecraft did not count an accepted replacement toward the water ambient ceiling, so it repeatedly tried to refill apparently empty fish slots. Both Atlantic fish now use the vanilla water ambient category.
+- **Replacement scope regression protection.** The replacement policy accepts only `minecraft:cod` and `minecraft:salmon`. Tropical Fish, Pufferfish, other vanilla aquatic mobs, BFS entities, and other mods' fish are explicitly outside the replacement path. A startup invariant and runtime fail closed guard prevent a future category mismatch from flooding an ocean.
+
+### Changed
+
+- **Version metadata.** The emergency release version is `0.23-emergency-fix` for Minecraft 1.20.1 Forge.
+- **Existing worlds.** Existing excess Atlantic fish are not deleted automatically. They retain vanilla fish despawn behavior, and operators can remove loaded Atlantic Cod or Atlantic Salmon with the cleanup commands in `DOCUMENTATION.md`.
+
+## 0.23 Movement repair and Atlantic wildlife (2026-07-28)
+
+### Added
+
+- **Atlantic Cod and Atlantic Salmon.** Both are passive BFS prey species with supplied GeckoLib models, textures, animations, spawn eggs, raw and cooked food items, entity loot, fishing loot, and furnace, smoker, and campfire recipes.
+- **Vanilla Cod and Salmon replacement.** `[spawning] replace_vanilla_mobs` defaults to `true`. Natural and chunk generation vanilla Cod and Salmon become the matching Atlantic fish, and the two vanilla spawn eggs create Atlantic fish. Setting it to `false` keeps vanilla fish and enables the separate BFS Atlantic biome spawns.
+- **Atlantic Salmon name easter egg.** A salmon named exactly `Spin` uses the supplied looping spin animation until its name changes.
+- **Optional vanilla aquatic spawn suppression.** The new `[spawning] disable_vanilla_aquatic_spawns` setting blocks only natural and chunk generation spawns for vanilla aquatic mobs. It defaults to `false`, leaves existing mobs alone, preserves commands and spawn eggs, and requires a restart after changing.
+- **Four Atlantic fish advancements.** `Oh My Cod` and `Why aren't you red?` use fishing catches. `Gadus morhua` and `Salmo salar` use living entity encounters.
+- **Oceanic Whitetip thrashing.** A successful bite can now hold and thrash a player using the supplied animation, bounded server side duration, repeated damage, passenger synchronization, and release cleanup.
+- **Blacktip Reef latch.** Blacktips use a short small shark latch instead of the large shark thrash. The initial bite deals damage, the latch holds briefly, and cleanup releases the player on timeout, invalid water state, death, or removal.
+
+### Fixed
+
+- **Shark vertical movement regression.** The 0.22 level cruising branch suppressed vertical input and momentum while navigation still requested depth changes. Shared steering is continuous again, while turn aware horizontal braking and arrival control remain.
+- **Tiger Shark item spinning.** Investigation now uses one stable underwater intercept, refreshes only when the item moves materially, times out cleanly, and remembers the item briefly so it cannot be reacquired into an orbit.
+- **Close shark bite contact.** Sand Tiger and Blacktip Reef Sharks calculate bite distance from physical width with a small mouth contact allowance instead of using an oversized or undersized fixed center radius.
+- **Prismarine swimming fit.** Chest and sleeve geometry now uses standard arm pivots and full sleeve length, and the swim renderer no longer contracts the torso in a way that exposed the player at full breaststroke.
+- **Creative species information.** Species without implemented diets now display `TBD`. Oceanic Whitetip habitat now reports only Deep Ocean and Deep Lukewarm Ocean. Atlantic Cod and Atlantic Salmon have complete cards based on their runtime data.
+- **Oceanic Whitetip habitat.** Deep Cold Ocean was removed from the natural spawn tag.
+- **Shark Spotter.** The old three species counter was replaced by one line of sight criterion that requires actively using a Spyglass to view a BFS shark. The icon is now a vanilla Spyglass.
+
+### Changed
+
+- **Vanilla fish AI for Atlantic fish.** Atlantic Cod and Atlantic Salmon now directly inherit their matching vanilla movement, schooling, panic, player avoidance, water navigation, persistence, bucket interaction, and beached flop behavior.
+- **Runtime species information.** `/bfs info` reports vanilla replacement habitats and spawn sourcing while replacement is enabled, then returns to the BFS biome tags and per species cap when replacement is disabled.
+- **Oceanic Whitetip animation set.** The supplied `bite_new`, `swim_new`, `swim_fast_new`, `death`, `beached`, and `thrash` clips replace the previous controller mapping.
+- **Advancement coverage.** Marine Curious and Marine Biologist include both Atlantic fish without marking either food species as conservation protected.
+- **Version metadata.** The release version is now `0.23` for Minecraft 1.20.1 Forge.
+
 ## 0.22 Movement, rarity, and species info (2026-07-23)
 
 ### Added

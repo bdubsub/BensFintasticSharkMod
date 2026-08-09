@@ -175,6 +175,7 @@ public class BensFintasticSharksForge {
 
     private void onCommonSetup(net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            tfar.bensfintasticsharks.spawn.MobCapManager.validateVanillaFishReplacementCategories();
             applyCategoryCapsFromConfig();
             syncSharkMultsFromConfig();
         });
@@ -272,6 +273,8 @@ public class BensFintasticSharksForge {
         event.put(ModEntityTypes.AMERICAN_LOBSTER, AmericanLobsterEntity.createAttributes().build());
         event.put(ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH, BlackSeaNettleJellyfishEntity.createAttributes().build());
         event.put(ModEntityTypes.CANNONBALL_JELLYFISH, CannonballJellyfishEntity.createAttributes().build());
+        event.put(ModEntityTypes.ATLANTIC_COD, AtlanticCodEntity.createAttributes().build());
+        event.put(ModEntityTypes.ATLANTIC_SALMON, AtlanticSalmonEntity.createAttributes().build());
     }
 
     public static Map<Registry<?>, List<Pair<ResourceLocation, Supplier<?>>>> registerLater = new HashMap<>();

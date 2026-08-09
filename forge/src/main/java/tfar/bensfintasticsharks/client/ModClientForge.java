@@ -64,6 +64,8 @@ public class ModClientForge {
         EntityRenderers.register((EntityType<AmericanLobsterEntityForge>) ModEntityTypes.AMERICAN_LOBSTER, AmericanLobsterRenderer::new);
         EntityRenderers.register((EntityType<BlackSeaNettleJellyfishEntityForge>) ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH, BlackSeaNettleJellyfishRenderer::new);
         EntityRenderers.register((EntityType<CannonballJellyfishEntityForge>) ModEntityTypes.CANNONBALL_JELLYFISH, CannonballJellyfishRenderer::new);
+        EntityRenderers.register((EntityType<AtlanticCodEntityForge>) ModEntityTypes.ATLANTIC_COD, AtlanticCodRenderer::new);
+        EntityRenderers.register((EntityType<AtlanticSalmonEntityForge>) ModEntityTypes.ATLANTIC_SALMON, AtlanticSalmonRenderer::new);
     }
 
 }

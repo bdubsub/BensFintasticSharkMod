@@ -16,6 +16,7 @@ import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.TextComponents;
 import tfar.bensfintasticsharks.advancmenets.OctopusInkedTrigger;
 import tfar.bensfintasticsharks.advancmenets.PlayerFoundEntityTrigger;
+import tfar.bensfintasticsharks.advancmenets.SpyglassSpotSharkTrigger;
 import tfar.bensfintasticsharks.entity.CommonThresherSharkEntity;
 import tfar.bensfintasticsharks.entity.GreatHammerheadSharkEntity;
 import tfar.bensfintasticsharks.entity.GreatWhiteSharkEntity;
@@ -173,31 +174,27 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
 
         // ---- Legacy 1.0 advancements ----
 
-        // Marine Curious — any BFS mob via OR over conservation-protected tag (which includes 19/20 species).
-        Advancement marineCurious = Advancement.Builder.advancement().parent(root)
+        Advancement.Builder marineCuriousBuilder = Advancement.Builder.advancement().parent(root)
                 .display(ModItems.TIGER_SHARK_SPAWN_EGG,
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.marine_curious.title"),
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.marine_curious.description"),
                         null, FrameType.TASK, true, true, false)
-                .addCriterion("found", PlayerFoundEntityTrigger.TriggerInstance.located(
-                        EntityPredicate.Builder.entity().of(ModTags.EntityTypes.CONSERVATION_PROTECTED).build()))
-                .save(saver, BensFintasticSharks.id("marine_curious").toString());
+                .requirements(RequirementsStrategy.OR);
+        for (EntityType<?> type : ALL_BFS_SPECIES) {
+            marineCuriousBuilder.addCriterion(BuiltInRegistries.ENTITY_TYPE.getKey(type).getPath(),
+                    PlayerFoundEntityTrigger.TriggerInstance.located(
+                            EntityPredicate.Builder.entity().of(type).build()));
+        }
+        Advancement marineCurious = marineCuriousBuilder.save(
+                saver, BensFintasticSharks.id("marine_curious").toString());
 
-        // Shark Spotter — encounter any three of all eight shark species. The previous
-        // implementation only registered criteria for the first three entries, so the four
-        // newer sharks reported in the 0.20 test log could never contribute progress.
-        Advancement.Builder sharkSpotterBuilder = Advancement.Builder.advancement().parent(marineCurious)
-                .display(ModItems.SHARKS_GALORE,
+        Advancement sharkSpotter = Advancement.Builder.advancement().parent(marineCurious)
+                .display(Items.SPYGLASS,
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.shark_spotter.title"),
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.shark_spotter.description"),
                         null, FrameType.TASK, true, true, false)
-                .requirements(criteria -> atLeast(criteria, 3));
-        for (EntityType<?> shark : ALL_SHARKS) {
-            sharkSpotterBuilder.addCriterion(BuiltInRegistries.ENTITY_TYPE.getKey(shark).getPath(),
-                    PlayerFoundEntityTrigger.TriggerInstance.located(
-                            EntityPredicate.Builder.entity().of(shark).build()));
-        }
-        Advancement sharkSpotter = sharkSpotterBuilder.save(saver, BensFintasticSharks.id("shark_spotter").toString());
+                .addCriterion("spotted_shark", SpyglassSpotSharkTrigger.TriggerInstance.spotted())
+                .save(saver, BensFintasticSharks.id("shark_spotter").toString());
 
         // Shark Whisperer — encounter all 8 shark species
         Advancement.Builder sharkWhispererBuilder = Advancement.Builder.advancement().parent(sharkSpotter)
@@ -406,6 +403,32 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
                 ModItems.BLACK_SEA_NETTLE_JELLYFISH_SPAWN_EGG, "black_sea_nettle_encounter");
         addEncounterAdvancement(saver, marineCurious, ModEntityTypes.CANNONBALL_JELLYFISH,
                 ModItems.CANNONBALL_JELLYFISH_SPAWN_EGG, "cannonball_jellyfish_encounter");
+        addEncounterAdvancement(saver, marineCurious, ModEntityTypes.ATLANTIC_COD,
+                ModItems.RAW_ATLANTIC_COD, "gadus_morhua");
+        addEncounterAdvancement(saver, marineCurious, ModEntityTypes.ATLANTIC_SALMON,
+                ModItems.RAW_ATLANTIC_SALMON, "salmo_salar");
+
+        Advancement.Builder.advancement().parent(root)
+                .display(ModItems.COOKED_ATLANTIC_COD,
+                        net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.oh_my_cod.title"),
+                        net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.oh_my_cod.description"),
+                        null, FrameType.TASK, true, true, false)
+                .addCriterion("caught_atlantic_cod", FishingRodHookedTrigger.TriggerInstance.fishedItem(
+                        ItemPredicate.Builder.item().build(),
+                        EntityPredicate.Builder.entity().build(),
+                        ItemPredicate.Builder.item().of(ModItems.RAW_ATLANTIC_COD).build()))
+                .save(saver, BensFintasticSharks.id("oh_my_cod").toString());
+
+        Advancement.Builder.advancement().parent(root)
+                .display(ModItems.COOKED_ATLANTIC_SALMON,
+                        net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.why_arent_you_red.title"),
+                        net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.why_arent_you_red.description"),
+                        null, FrameType.TASK, true, true, false)
+                .addCriterion("caught_atlantic_salmon", FishingRodHookedTrigger.TriggerInstance.fishedItem(
+                        ItemPredicate.Builder.item().build(),
+                        EntityPredicate.Builder.entity().build(),
+                        ItemPredicate.Builder.item().of(ModItems.RAW_ATLANTIC_SALMON).build()))
+                .save(saver, BensFintasticSharks.id("why_arent_you_red").toString());
         // Bottlenose Dolphin already has its own advancement: dolphin_friend.
     }
 
@@ -441,42 +464,9 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
             ModEntityTypes.NAUTILUS, ModEntityTypes.GIANT_MORAY_EEL,
             ModEntityTypes.GREEN_SEA_TURTLE, ModEntityTypes.AMERICAN_LOBSTER,
             ModEntityTypes.HARBOR_SEAL, ModEntityTypes.COMMON_STINGRAY,
-            ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH, ModEntityTypes.CANNONBALL_JELLYFISH
+            ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH, ModEntityTypes.CANNONBALL_JELLYFISH,
+            ModEntityTypes.ATLANTIC_COD, ModEntityTypes.ATLANTIC_SALMON
     };
-
-    /**
-     * Builds vanilla advancement requirement groups for "at least N of these criteria".
-     * Advancement requirements are AND-of-OR groups; requiring every subset of
-     * {@code total - minimum + 1} criteria guarantees that fewer than {@code minimum}
-     * completed criteria leaves one whole group unmet.
-     */
-    private static String[][] atLeast(java.util.Collection<String> criteria, int minimum) {
-        String[] names = criteria.toArray(String[]::new);
-        if (minimum <= 1) return new String[][] { names };
-        if (minimum >= names.length) {
-            String[][] all = new String[names.length][1];
-            for (int i = 0; i < names.length; i++) all[i][0] = names[i];
-            return all;
-        }
-
-        int groupSize = names.length - minimum + 1;
-        java.util.List<String[]> groups = new java.util.ArrayList<>();
-        collectRequirementGroups(names, groupSize, 0, new String[groupSize], 0, groups);
-        return groups.toArray(String[][]::new);
-    }
-
-    private static void collectRequirementGroups(String[] names, int groupSize, int from,
-                                                 String[] group, int depth,
-                                                 java.util.List<String[]> output) {
-        if (depth == groupSize) {
-            output.add(group.clone());
-            return;
-        }
-        for (int i = from; i <= names.length - (groupSize - depth); i++) {
-            group[depth] = names[i];
-            collectRequirementGroups(names, groupSize, i + 1, group, depth + 1, output);
-        }
-    }
 
     private static Advancement.Builder addMobsToDiscover(Advancement.Builder pBuilder) {
         for(EntityType<?> entitytype : MOBS_TO_DISCOVER) {

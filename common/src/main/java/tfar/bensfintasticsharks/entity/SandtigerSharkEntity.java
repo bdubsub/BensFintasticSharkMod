@@ -176,7 +176,7 @@ public class SandtigerSharkEntity extends AbstractSharkEntity<SandtigerSharkEnti
 
     @Override
     protected double biteRangeAgainst(net.minecraft.world.entity.LivingEntity target) {
-        return Math.min(super.biteRangeAgainst(target), 1.75);
+        return closeBiteRangeAgainst(target, 0.35);
     }
 
     @Override

@@ -45,6 +45,8 @@ public class BfsSpawnPlacements {
         registerWater(event, ModEntityTypes.COMMON_STINGRAY);
         registerWater(event, ModEntityTypes.BOTTLENOSE_DOLPHIN);
         registerWater(event, ModEntityTypes.GREEN_SEA_TURTLE);
+        registerWater(event, ModEntityTypes.ATLANTIC_COD);
+        registerWater(event, ModEntityTypes.ATLANTIC_SALMON);
 
         // Giant Moray: soft bias toward shipwrecks — always allowed on/at a wreck, rarer in
         // open water, so morays cluster around shipwrecks without vanishing elsewhere.

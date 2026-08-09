@@ -101,6 +101,16 @@ public class BlacktipReefSharkEntityForge extends BlacktipReefSharkEntity implem
     }
 
     @Override
+    protected void onBiteLanded(net.minecraft.world.entity.LivingEntity target) {
+        if (!level().isClientSide
+                && target instanceof net.minecraft.world.entity.player.Player
+                && !target.isDeadOrDying()
+                && getRandom().nextFloat() < 0.2f) {
+            latchMob(target);
+        }
+    }
+
+    @Override
     protected void tickDeath() {
         ++this.deathTime;
         this.triggerAnim("controller", "death");

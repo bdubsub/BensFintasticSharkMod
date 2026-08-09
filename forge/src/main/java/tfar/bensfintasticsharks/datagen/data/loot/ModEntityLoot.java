@@ -2,10 +2,15 @@ package tfar.bensfintasticsharks.datagen.data.loot;
 
 import net.minecraft.data.loot.packs.VanillaEntityLoot;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.SmeltItemFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.advancements.critereon.EntityFlagsPredicate;
+import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import tfar.bensfintasticsharks.datagen.ModDatagen;
@@ -69,10 +74,28 @@ public class ModEntityLoot extends VanillaEntityLoot {
                         .add(LootItem.lootTableItem(ModItems.RAW_LOBSTER_TAIL).setWeight(50))
                         .add(net.minecraft.world.level.storage.loot.entries.EmptyLootItem.emptyItem()
                                 .setWeight(50))));
+
+        this.add(ModEntityTypes.ATLANTIC_COD, LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1))
+                        .add(LootItem.lootTableItem(ModItems.RAW_ATLANTIC_COD)
+                                .apply(SmeltItemFunction.smelted().when(onFire())))));
+
+        this.add(ModEntityTypes.ATLANTIC_SALMON, LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1))
+                        .add(LootItem.lootTableItem(ModItems.RAW_ATLANTIC_SALMON)
+                                .apply(SmeltItemFunction.smelted().when(onFire())))));
     }
 
     protected void nothing(EntityType<?> type) {
         this.add(type, LootTable.lootTable());
+    }
+
+    private static LootItemEntityPropertyCondition.Builder onFire() {
+        return LootItemEntityPropertyCondition.hasProperties(
+                LootContext.EntityTarget.THIS,
+                EntityPredicate.Builder.entity().flags(EntityFlagsPredicate.Builder.flags().setOnFire(true).build()));
     }
 
     @Override

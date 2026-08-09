@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.Biome;
+import tfar.bensfintasticsharks.config.BfsConfig;
 import tfar.bensfintasticsharks.init.ModTags;
 
 import java.util.List;
@@ -14,6 +15,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 final class BfsSpeciesInfo {
+
+    private static final Map<String, String> VANILLA_REPLACEMENT_HABITATS = Map.of(
+            "atlantic_cod", "Cold Ocean, Deep Cold Ocean, Deep Lukewarm Ocean, Deep Ocean, Lukewarm Ocean, Ocean",
+            "atlantic_salmon", "Cold Ocean, Deep Cold Ocean, Deep Frozen Ocean, Frozen Ocean, Frozen River, River"
+    );
 
     private static final Map<String, Entry> ENTRIES = Map.ofEntries(
             Map.entry("great_white_shark", shark("Carcharodon carcharias", "Neutral apex predator",
@@ -33,29 +39,33 @@ final class BfsSpeciesInfo {
             Map.entry("blacktip_reef_shark", shark("Carcharhinus melanopterus", "Skittish schooling predator",
                     ModTags.Biomes.BLACKTIP_REEF_SHARK_SPAWNS, ModTags.EntityTypes.BLACKTIP_REEF_SHARK_PREY)),
             Map.entry("orca", species("Orcinus orca", "Passive marine mammal",
-                    "Fish and marine mammals", ModTags.Biomes.ORCA_SPAWNS)),
+                    "TBD", ModTags.Biomes.ORCA_SPAWNS)),
             Map.entry("bottlenose_dolphin", species("Tursiops truncatus", "Passive and playful",
-                    "Fish and squid", ModTags.Biomes.BOTTLENOSE_DOLPHIN_SPAWNS)),
+                    "TBD", ModTags.Biomes.BOTTLENOSE_DOLPHIN_SPAWNS)),
             Map.entry("common_octopus", species("Octopus vulgaris", "Passive and evasive",
-                    "Crustaceans, mollusks, and fish", ModTags.Biomes.COMMON_OCTOPUS_SPAWNS)),
+                    "TBD", ModTags.Biomes.COMMON_OCTOPUS_SPAWNS)),
             Map.entry("caribbean_reef_octopus", species("Octopus briareus", "Passive and evasive",
-                    "Crustaceans, mollusks, and fish", ModTags.Biomes.CARIBBEAN_REEF_OCTOPUS_SPAWNS)),
+                    "TBD", ModTags.Biomes.CARIBBEAN_REEF_OCTOPUS_SPAWNS)),
             Map.entry("nautilus", species("Nautilus pompilius", "Passive",
-                    "Crustaceans and carrion", ModTags.Biomes.NAUTILUS_SPAWNS, ModTags.Biomes.NAUTILUS_CAVE_SPAWNS)),
+                    "TBD", ModTags.Biomes.NAUTILUS_SPAWNS, ModTags.Biomes.NAUTILUS_CAVE_SPAWNS)),
             Map.entry("giant_moray_eel", species("Gymnothorax javanicus", "Defensive reef predator",
-                    "Fish, crustaceans, and octopuses", ModTags.Biomes.GIANT_MORAY_EEL_SPAWNS)),
+                    "TBD", ModTags.Biomes.GIANT_MORAY_EEL_SPAWNS)),
             Map.entry("green_sea_turtle", species("Chelonia mydas", "Passive",
-                    "Seagrass and algae", ModTags.Biomes.GREEN_SEA_TURTLE_SPAWNS)),
+                    "TBD", ModTags.Biomes.GREEN_SEA_TURTLE_SPAWNS)),
             Map.entry("american_lobster", species("Homarus americanus", "Passive",
-                    "Mollusks, worms, and crustaceans", ModTags.Biomes.AMERICAN_LOBSTER_SPAWNS)),
+                    "TBD", ModTags.Biomes.AMERICAN_LOBSTER_SPAWNS)),
             Map.entry("common_stingray", species("Dasyatis pastinaca", "Defensive when threatened",
-                    "Worms, mollusks, and crustaceans", ModTags.Biomes.COMMON_STINGRAY_SPAWNS)),
+                    "TBD", ModTags.Biomes.COMMON_STINGRAY_SPAWNS)),
             Map.entry("harbor_seal", species("Phoca vitulina", "Passive marine mammal",
-                    "Fish and squid", ModTags.Biomes.HARBOR_SEAL_SPAWNS)),
+                    "TBD", ModTags.Biomes.HARBOR_SEAL_SPAWNS)),
             Map.entry("black_sea_nettle_jellyfish", species("Chrysaora achlyos", "Passive contact hazard",
-                    "Zooplankton and small fish", ModTags.Biomes.BLACK_SEA_NETTLE_JELLYFISH_SPAWNS)),
+                    "TBD", ModTags.Biomes.BLACK_SEA_NETTLE_JELLYFISH_SPAWNS)),
             Map.entry("cannonball_jellyfish", species("Stomolophus meleagris", "Passive contact hazard",
-                    "Zooplankton", ModTags.Biomes.CANNONBALL_JELLYFISH_SPAWNS))
+                    "TBD", ModTags.Biomes.CANNONBALL_JELLYFISH_SPAWNS)),
+            Map.entry("atlantic_cod", species("Gadus morhua", "Passive schooling fish",
+                    "TBD", ModTags.Biomes.ATLANTIC_COD_SPAWNS)),
+            Map.entry("atlantic_salmon", species("Salmo salar", "Passive schooling fish",
+                    "TBD", ModTags.Biomes.ATLANTIC_SALMON_SPAWNS))
     );
 
     private BfsSpeciesInfo() {
@@ -65,7 +75,14 @@ final class BfsSpeciesInfo {
         return ENTRIES.get(species);
     }
 
-    static String habitats(CommandSourceStack source, Entry entry) {
+    static String habitats(CommandSourceStack source, String species, Entry entry) {
+        if (BfsConfig.COMMON.replaceVanillaMobs.get()) {
+            String replacementHabitats = VANILLA_REPLACEMENT_HABITATS.get(species);
+            if (replacementHabitats != null) {
+                return replacementHabitats;
+            }
+        }
+
         var registry = source.getLevel().registryAccess().registryOrThrow(Registries.BIOME);
         List<String> names = entry.habitats().stream()
                 .flatMap(tag -> registry.getTag(tag).stream())

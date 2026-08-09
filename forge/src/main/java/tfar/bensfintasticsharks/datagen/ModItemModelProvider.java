@@ -45,12 +45,18 @@ public class ModItemModelProvider extends ItemModelProvider {
         spawnEgg(ModItems.AMERICAN_LOBSTER_SPAWN_EGG);
         spawnEgg(ModItems.BLACK_SEA_NETTLE_JELLYFISH_SPAWN_EGG);
         spawnEgg(ModItems.CANNONBALL_JELLYFISH_SPAWN_EGG);
+        spawnEgg(ModItems.ATLANTIC_COD_SPAWN_EGG);
+        spawnEgg(ModItems.ATLANTIC_SALMON_SPAWN_EGG);
 
         makeOneLayerItem(ModItems.CAPTAIN_BEN_HAT);
         makeOneLayerItem(ModItems.RAW_LOBSTER_CLAW);
         makeOneLayerItem(ModItems.COOKED_LOBSTER_CLAW);
         makeOneLayerItem(ModItems.RAW_LOBSTER_TAIL);
         makeOneLayerItem(ModItems.COOKED_LOBSTER_TAIL);
+        makeOneLayerItem(ModItems.RAW_ATLANTIC_COD);
+        makeOneLayerItem(ModItems.COOKED_ATLANTIC_COD);
+        makeOneLayerItem(ModItems.RAW_ATLANTIC_SALMON);
+        makeOneLayerItem(ModItems.COOKED_ATLANTIC_SALMON);
 
         makeOneLayerItem(ModItems.GREAT_WHITE_SHARK_SKIN);
         makeOneLayerItem(ModItems.GREAT_HAMMERHEAD_SHARK_SKIN);

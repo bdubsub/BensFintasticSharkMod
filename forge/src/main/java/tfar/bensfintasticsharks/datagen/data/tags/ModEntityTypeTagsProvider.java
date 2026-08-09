@@ -57,7 +57,8 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
                         ModEntityTypes.AMERICAN_LOBSTER, ModEntityTypes.COMMON_OCTOPUS,
                         ModEntityTypes.CARIBBEAN_REEF_OCTOPUS, ModEntityTypes.NAUTILUS,
                         ModEntityTypes.GIANT_MORAY_EEL, ModEntityTypes.GREEN_SEA_TURTLE,
-                        ModEntityTypes.BOTTLENOSE_DOLPHIN);
+                        ModEntityTypes.BOTTLENOSE_DOLPHIN,
+                        ModEntityTypes.ATLANTIC_COD, ModEntityTypes.ATLANTIC_SALMON);
 
         // 0.19 — per-species prey lists (Ben's Part II hunger spec). "Vanilla squid counts"
         // is read as squid + glow squid. Sharks eating smaller sharks is intentional
@@ -67,23 +68,27 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
                         ModEntityTypes.HARBOR_SEAL, ModEntityTypes.GREEN_SEA_TURTLE,
                         ModEntityTypes.BOTTLENOSE_DOLPHIN,
                         ModEntityTypes.BLACKTIP_REEF_SHARK, ModEntityTypes.SANDTIGER_SHARK,
+                        ModEntityTypes.ATLANTIC_COD, ModEntityTypes.ATLANTIC_SALMON,
                         EntityType.TURTLE, EntityType.DOLPHIN);
 
         tag(ModTags.EntityTypes.GREAT_HAMMERHEAD_SHARK_PREY)
                 .add(EntityType.DROWNED,
                         ModEntityTypes.COMMON_STINGRAY, ModEntityTypes.AMERICAN_LOBSTER,
                         ModEntityTypes.COMMON_OCTOPUS, ModEntityTypes.CARIBBEAN_REEF_OCTOPUS,
+                        ModEntityTypes.ATLANTIC_COD, ModEntityTypes.ATLANTIC_SALMON,
                         EntityType.SQUID, EntityType.GLOW_SQUID,
                         EntityType.COD, EntityType.SALMON, EntityType.TROPICAL_FISH);
 
         tag(ModTags.EntityTypes.COMMON_THRESHER_SHARK_PREY)
-                .add(EntityType.DROWNED, EntityType.COD, EntityType.SALMON, EntityType.TROPICAL_FISH);
+                .add(EntityType.DROWNED, EntityType.COD, EntityType.SALMON, EntityType.TROPICAL_FISH,
+                        ModEntityTypes.ATLANTIC_COD, ModEntityTypes.ATLANTIC_SALMON);
 
         tag(ModTags.EntityTypes.SHORTFIN_MAKO_SHARK_PREY)
                 .add(EntityType.DROWNED,
                         ModEntityTypes.COMMON_OCTOPUS, ModEntityTypes.CARIBBEAN_REEF_OCTOPUS,
                         ModEntityTypes.BOTTLENOSE_DOLPHIN, ModEntityTypes.GREEN_SEA_TURTLE,
                         ModEntityTypes.BLACKTIP_REEF_SHARK,
+                        ModEntityTypes.ATLANTIC_COD, ModEntityTypes.ATLANTIC_SALMON,
                         EntityType.DOLPHIN, EntityType.SQUID, EntityType.GLOW_SQUID, EntityType.TURTLE,
                         EntityType.COD, EntityType.SALMON, EntityType.TROPICAL_FISH);
 
@@ -92,6 +97,7 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
                         ModEntityTypes.GREEN_SEA_TURTLE, ModEntityTypes.HARBOR_SEAL,
                         ModEntityTypes.COMMON_OCTOPUS, ModEntityTypes.AMERICAN_LOBSTER,
                         ModEntityTypes.BLACKTIP_REEF_SHARK, ModEntityTypes.SANDTIGER_SHARK,
+                        ModEntityTypes.ATLANTIC_COD, ModEntityTypes.ATLANTIC_SALMON,
                         EntityType.TURTLE, EntityType.SQUID, EntityType.GLOW_SQUID,
                         EntityType.COD, EntityType.SALMON, EntityType.TROPICAL_FISH);
 
@@ -99,12 +105,14 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
                 .add(EntityType.DROWNED,
                         ModEntityTypes.COMMON_OCTOPUS, ModEntityTypes.CARIBBEAN_REEF_OCTOPUS,
                         ModEntityTypes.AMERICAN_LOBSTER,
+                        ModEntityTypes.ATLANTIC_COD, ModEntityTypes.ATLANTIC_SALMON,
                         EntityType.COD, EntityType.SALMON, EntityType.TROPICAL_FISH);
 
         tag(ModTags.EntityTypes.OCEANIC_WHITETIP_SHARK_PREY)
                 .add(EntityType.DROWNED,
                         ModEntityTypes.COMMON_STINGRAY, ModEntityTypes.GREEN_SEA_TURTLE,
                         ModEntityTypes.BOTTLENOSE_DOLPHIN, ModEntityTypes.COMMON_OCTOPUS,
+                        ModEntityTypes.ATLANTIC_COD, ModEntityTypes.ATLANTIC_SALMON,
                         EntityType.TURTLE, EntityType.SQUID, EntityType.GLOW_SQUID, EntityType.DOLPHIN,
                         EntityType.COD, EntityType.SALMON, EntityType.TROPICAL_FISH);
 
@@ -112,6 +120,7 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
                 .add(EntityType.DROWNED,
                         ModEntityTypes.CARIBBEAN_REEF_OCTOPUS, ModEntityTypes.COMMON_STINGRAY,
                         ModEntityTypes.AMERICAN_LOBSTER,
+                        ModEntityTypes.ATLANTIC_COD, ModEntityTypes.ATLANTIC_SALMON,
                         EntityType.COD, EntityType.SALMON, EntityType.TROPICAL_FISH);
 
         tag(ModTags.EntityTypes.APEX_PREDATOR)

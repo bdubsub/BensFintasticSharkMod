@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#bensfintasticsharks:atlantic_cod_spawns",
+  "spawners": {
+    "type": "bensfintasticsharks:atlantic_cod",
+    "maxCount": 4,
+    "minCount": 2,
+    "weight": 60
+  }
+}

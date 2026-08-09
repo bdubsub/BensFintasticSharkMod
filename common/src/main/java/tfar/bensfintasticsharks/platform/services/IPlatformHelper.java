@@ -67,6 +67,8 @@ public interface IPlatformHelper {
     EntityType<AmericanLobsterEntity> registerAmericanLobster();
     EntityType<BlackSeaNettleJellyfishEntity> registerBlackSeaNettleJellyfish();
     EntityType<CannonballJellyfishEntity> registerCannonballJellyfish();
+    EntityType<AtlanticCodEntity> registerAtlanticCod();
+    EntityType<AtlanticSalmonEntity> registerAtlanticSalmon();
 
     ArmorItem createPrismarineArmor(ArmorMaterial prismarine, ArmorItem.Type helmet, Item.Properties properties);
 

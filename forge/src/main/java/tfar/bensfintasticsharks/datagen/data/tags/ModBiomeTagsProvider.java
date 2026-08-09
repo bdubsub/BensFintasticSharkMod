@@ -38,7 +38,7 @@ public class ModBiomeTagsProvider extends BiomeTagsProvider {
         tag(ModTags.Biomes.TIGER_SHARK_SPAWNS).add(Biomes.OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.WARM_OCEAN,
                 Biomes.DEEP_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN);
 
-        tag(ModTags.Biomes.OCEANIC_WHITETIP_SHARK_SPAWNS).add(Biomes.DEEP_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN, Biomes.DEEP_COLD_OCEAN);
+        tag(ModTags.Biomes.OCEANIC_WHITETIP_SHARK_SPAWNS).add(Biomes.DEEP_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN);
 
         tag(ModTags.Biomes.SANDTIGER_SHARK_SPAWNS).add(Biomes.OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.WARM_OCEAN);
 
@@ -72,5 +72,11 @@ public class ModBiomeTagsProvider extends BiomeTagsProvider {
         tag(ModTags.Biomes.BLACK_SEA_NETTLE_JELLYFISH_SPAWNS).add(Biomes.DEEP_OCEAN, Biomes.DEEP_COLD_OCEAN);
 
         tag(ModTags.Biomes.CANNONBALL_JELLYFISH_SPAWNS).add(Biomes.LUKEWARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN, Biomes.WARM_OCEAN);
+
+        tag(ModTags.Biomes.ATLANTIC_COD_SPAWNS).add(
+                Biomes.OCEAN, Biomes.DEEP_OCEAN, Biomes.COLD_OCEAN, Biomes.DEEP_COLD_OCEAN);
+
+        tag(ModTags.Biomes.ATLANTIC_SALMON_SPAWNS).add(
+                Biomes.COLD_OCEAN, Biomes.DEEP_COLD_OCEAN, Biomes.RIVER, Biomes.FROZEN_RIVER);
     }
 }

@@ -47,6 +47,11 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
 
     private int itemScanCooldown;
     private ItemEntity investigatedItem;
+    private ItemEntity recentlyInvestigatedItem;
+    private Vec3 investigatedApproachPoint;
+    private int investigationTicks;
+    private int approachRefreshCooldown;
+    private int recentItemCooldown;
     private int biteFlash;
 
     protected TigerSharkEntity(EntityType<TigerSharkEntity> type, Level level) {
@@ -122,27 +127,46 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
         super.onSharkTick();
         if (level().isClientSide) return;
         if (biteFlash > 0) biteFlash--;
+        if (recentItemCooldown > 0 && --recentItemCooldown == 0) {
+            recentlyInvestigatedItem = null;
+        }
         // 0.20 — don't investigate/steer toward dropped items while fleeing a bigger shark.
-        if (isFleeing()) return;
+        if (isFleeing()) {
+            if (investigatedItem != null) {
+                stopInvestigatingItem(false);
+            }
+            return;
+        }
 
         // Live prey always wins over curiosity. Keeping an old item waypoint here let this
         // hook fight the shared pursuit waypoint every tick, producing alternating loops.
         if (getTarget() != null) {
-            investigatedItem = null;
+            if (investigatedItem != null) {
+                stopInvestigatingItem(false);
+            }
             return;
         }
 
         if (investigatedItem != null) {
             if (!investigatedItem.isAlive() || !investigatedItem.isInWater()) {
-                stopInvestigatingItem();
-            } else if (distanceToSqr(itemApproachPoint(investigatedItem)) < 6.25) {
+                stopInvestigatingItem(true);
+            } else if (--investigationTicks <= 0) {
+                stopInvestigatingItem(true);
+            } else if (distanceToSqr(investigatedApproachPoint) < 5.0625) {
                 this.swing(this.getUsedItemHand());
                 biteFlash = 8;
-                stopInvestigatingItem();
+                stopInvestigatingItem(true);
                 setStateTimer(60);
-            } else if ((tickCount + getId()) % 4 == 0) {
+            } else {
+                if (approachRefreshCooldown > 0) approachRefreshCooldown--;
+                if (approachRefreshCooldown == 0 && itemMovedAwayFromApproach()) {
+                    investigatedApproachPoint = createItemApproachPoint(investigatedItem);
+                    approachRefreshCooldown = 20;
+                }
+            }
+            if (investigatedItem != null && (tickCount + getId()) % 10 == 0) {
                 BrainUtils.setMemory(getBrain(), MemoryModuleType.WALK_TARGET,
-                        new WalkTarget(itemApproachPoint(investigatedItem), 0.85f, 2));
+                        new WalkTarget(investigatedApproachPoint, 0.75f, 2));
             }
         }
 
@@ -155,7 +179,8 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
         if (investigatedItem != null) return;
 
         AABB area = getBoundingBox().inflate(12.0);
-        List<ItemEntity> items = level().getEntitiesOfClass(ItemEntity.class, area, ItemEntity::isInWater);
+        List<ItemEntity> items = level().getEntitiesOfClass(ItemEntity.class, area,
+                item -> item.isInWater() && item != recentlyInvestigatedItem);
         if (items.isEmpty()) {
             itemScanCooldown = 100;
             return;
@@ -164,23 +189,42 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
                 .min(Comparator.comparingDouble(this::distanceToSqr))
                 .orElseThrow();
         investigatedItem = closest;
+        investigatedApproachPoint = createItemApproachPoint(closest);
+        investigationTicks = 200;
+        approachRefreshCooldown = 20;
         BrainUtils.setMemory(getBrain(), MemoryModuleType.WALK_TARGET,
-                new WalkTarget(itemApproachPoint(closest), 0.85f, 2));
+                new WalkTarget(investigatedApproachPoint, 0.75f, 2));
         setSharkState(SharkState.CURIOUS);
-        setStateTimer(160);
+        setStateTimer(200);
         itemScanCooldown = 200;
     }
 
-    private Vec3 itemApproachPoint(ItemEntity item) {
-        Vec3 drift = item.getDeltaMovement();
-        double depth = Math.max(0.6, getBbHeight() * 0.35);
-        return new Vec3(item.getX() + drift.x * 2.0, item.getY() - depth, item.getZ() + drift.z * 2.0);
+    private Vec3 createItemApproachPoint(ItemEntity item) {
+        double depth = Math.max(1.0, getBbHeight() * 0.6);
+        return new Vec3(item.getX(), item.getY() - depth, item.getZ());
     }
 
-    private void stopInvestigatingItem() {
+    private boolean itemMovedAwayFromApproach() {
+        if (investigatedApproachPoint == null) return true;
+        double depth = Math.max(1.0, getBbHeight() * 0.6);
+        Vec3 expectedItemPosition = investigatedApproachPoint.add(0, depth, 0);
+        return investigatedItem.position().distanceToSqr(expectedItemPosition) > 4.0;
+    }
+
+    private void stopInvestigatingItem(boolean rememberItem) {
+        if (rememberItem && investigatedItem != null) {
+            recentlyInvestigatedItem = investigatedItem;
+            recentItemCooldown = 600;
+        }
         investigatedItem = null;
+        investigatedApproachPoint = null;
+        investigationTicks = 0;
+        approachRefreshCooldown = 0;
         BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
         getNavigation().stop();
+        if (getTarget() == null && !isFleeing()) {
+            setSharkState(SharkState.IDLE);
+        }
     }
 
     public enum Variant implements StringRepresentable {

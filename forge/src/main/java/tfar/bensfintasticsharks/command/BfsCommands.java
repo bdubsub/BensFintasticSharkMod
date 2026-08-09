@@ -198,7 +198,7 @@ public class BfsCommands {
 
         src.sendSuccess(() -> type.getDescription().copy().withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
         infoLine(src, "Scientific name", details.scientificName());
-        infoLine(src, "Habitats", BfsSpeciesInfo.habitats(src, details));
+        infoLine(src, "Habitats", BfsSpeciesInfo.habitats(src, species, details));
         infoLine(src, "Behavior", details.behavior());
         infoLine(src, "Diet", BfsSpeciesInfo.diet(details));
         if (!Double.isNaN(health)) {
@@ -207,11 +207,19 @@ public class BfsCommands {
         infoLine(src, "Variants", String.valueOf(variants));
         infoLine(src, "Registry ID", BuiltInRegistries.ENTITY_TYPE.getKey(type).toString());
         infoLine(src, "Spawn category", cat);
-        src.sendSuccess(() -> Component.literal("  Natural cap: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal((cap == 0 ? "DISABLED" : String.valueOf(cap)))
-                        .withStyle(cap != configCap ? ChatFormatting.GOLD : ChatFormatting.WHITE)), false);
-        if (cap != configCap) {
-            src.sendSuccess(() -> Component.literal("  Default cap: " + configCap).withStyle(ChatFormatting.DARK_GRAY), false);
+        boolean vanillaReplacement = BfsConfig.COMMON.replaceVanillaMobs.get()
+                && ("atlantic_cod".equals(species) || "atlantic_salmon".equals(species));
+        if (vanillaReplacement) {
+            String sourceName = "atlantic_cod".equals(species) ? "Vanilla Cod" : "Vanilla Salmon";
+            infoLine(src, "Natural spawning", "Replaces " + sourceName + " spawns");
+            infoLine(src, "Natural cap", "Vanilla water ambient population");
+        } else {
+            src.sendSuccess(() -> Component.literal("  Natural cap: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal((cap == 0 ? "DISABLED" : String.valueOf(cap)))
+                            .withStyle(cap != configCap ? ChatFormatting.GOLD : ChatFormatting.WHITE)), false);
+            if (cap != configCap) {
+                src.sendSuccess(() -> Component.literal("  Default cap: " + configCap).withStyle(ChatFormatting.DARK_GRAY), false);
+            }
         }
         return 1;
     }

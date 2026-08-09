@@ -40,6 +40,8 @@ public class ModItems {
     public static final Item AMERICAN_LOBSTER_SPAWN_EGG = new BfsSpawnEggItem(ModEntityTypes.AMERICAN_LOBSTER, CLEAR, CLEAR, 5, new Item.Properties());
     public static final Item BLACK_SEA_NETTLE_JELLYFISH_SPAWN_EGG = new BfsSpawnEggItem(ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH, CLEAR, CLEAR, 0, new Item.Properties());
     public static final Item CANNONBALL_JELLYFISH_SPAWN_EGG = new BfsSpawnEggItem(ModEntityTypes.CANNONBALL_JELLYFISH, CLEAR, CLEAR, 0, new Item.Properties());
+    public static final Item ATLANTIC_COD_SPAWN_EGG = new BfsSpawnEggItem(ModEntityTypes.ATLANTIC_COD, CLEAR, CLEAR, 0, new Item.Properties());
+    public static final Item ATLANTIC_SALMON_SPAWN_EGG = new BfsSpawnEggItem(ModEntityTypes.ATLANTIC_SALMON, CLEAR, CLEAR, 0, new Item.Properties());
 
     public static final Item GREAT_WHITE_SHARK_SKIN = new Item(new Item.Properties());
     public static final Item GREAT_HAMMERHEAD_SHARK_SKIN = new Item(new Item.Properties());
@@ -91,6 +93,15 @@ public class ModItems {
     public static final Item COOKED_LOBSTER_CLAW = new Item(new Item.Properties().food(COOKED_LOBSTER_MEAT));
     public static final Item RAW_LOBSTER_TAIL = new Item(new Item.Properties().food(RAW_LOBSTER_MEAT));
     public static final Item COOKED_LOBSTER_TAIL = new Item(new Item.Properties().food(COOKED_LOBSTER_MEAT));
+
+    public static final FoodProperties RAW_ATLANTIC_FISH = new FoodProperties.Builder().nutrition(2).saturationMod(0.1F).build();
+    public static final FoodProperties COOKED_ATLANTIC_COD_FOOD = new FoodProperties.Builder().nutrition(5).saturationMod(0.6F).build();
+    public static final FoodProperties COOKED_ATLANTIC_SALMON_FOOD = new FoodProperties.Builder().nutrition(6).saturationMod(0.8F).build();
+
+    public static final Item RAW_ATLANTIC_COD = new Item(new Item.Properties().food(RAW_ATLANTIC_FISH));
+    public static final Item COOKED_ATLANTIC_COD = new Item(new Item.Properties().food(COOKED_ATLANTIC_COD_FOOD));
+    public static final Item RAW_ATLANTIC_SALMON = new Item(new Item.Properties().food(RAW_ATLANTIC_FISH));
+    public static final Item COOKED_ATLANTIC_SALMON = new Item(new Item.Properties().food(COOKED_ATLANTIC_SALMON_FOOD));
 
     //these are only used for advancements
     public static final Item GREAT_WHITE_SHARK_PIXEL_ART = new HiddenItem(new Item.Properties());

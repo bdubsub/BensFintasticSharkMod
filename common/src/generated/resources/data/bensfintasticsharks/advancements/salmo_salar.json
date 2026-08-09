@@ -1,0 +1,40 @@
+{
+  "parent": "bensfintasticsharks:marine_curious",
+  "criteria": {
+    "found": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:atlantic_salmon"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.salmo_salar.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:raw_atlantic_salmon"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.salmo_salar.title"
+    }
+  },
+  "requirements": [
+    [
+      "found"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

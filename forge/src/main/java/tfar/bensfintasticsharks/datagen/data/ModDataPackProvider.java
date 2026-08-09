@@ -122,5 +122,12 @@ public class ModDataPackProvider extends DatapackBuiltinEntriesProvider {
         context.register(BiomeModifiers.CANNONBALL_JELLYFISH_SPAWNS,
                 new ForgeBiomeModifiers.AddSpawnsBiomeModifier(biomes.getOrThrow(ModTags.Biomes.CANNONBALL_JELLYFISH_SPAWNS),
                         List.of(data(ModEntityTypes.CANNONBALL_JELLYFISH, 4, 1, 1))));
+
+        registerSpawn(context, biomes::getOrThrow, BiomeModifiers.ATLANTIC_COD_SPAWNS,
+                ModTags.Biomes.ATLANTIC_COD_SPAWNS,
+                List.of(data(ModEntityTypes.ATLANTIC_COD, 60, 2, 4)));
+        registerSpawn(context, biomes::getOrThrow, BiomeModifiers.ATLANTIC_SALMON_SPAWNS,
+                ModTags.Biomes.ATLANTIC_SALMON_SPAWNS,
+                List.of(data(ModEntityTypes.ATLANTIC_SALMON, 50, 2, 4)));
     }
 }

@@ -1,6 +1,6 @@
 # Ben's Fintastic Sharks
 
-Ben's Fintastic Sharks is a Minecraft 1.20.1 ocean wildlife mod for Forge 47.2.0. Version 0.22 adds twenty marine species, shark hunting and disturbance behavior, natural variants, advancements, trades, equipment, the Shark Codex, and the Sunken Trove structure.
+Ben's Fintastic Sharks is a Minecraft 1.20.1 ocean wildlife mod for Forge 47.2.0. Version `0.23-emergency-fix` adds twenty two marine species, shark hunting and disturbance behavior, natural variants, advancements, trades, equipment, the Shark Codex, and the Sunken Trove structure.
 
 This is a Forge only project. The `fabric` subproject is an unused template stub and does not produce a playable Fabric build.
 
@@ -19,13 +19,15 @@ Install Forge, place the mod and its required dependencies in the `mods` directo
 ## Features
 
 * Eight shark species with distinct prey lists, variants, hunting traits, hunger cooldowns, and water disturbance reactions.
-* Orcas, dolphins, octopuses, nautiluses, eels, turtles, lobsters, stingrays, seals, and jellyfish.
+* Orcas, dolphins, octopuses, nautiluses, eels, turtles, lobsters, stingrays, seals, jellyfish, Atlantic Cod, and Atlantic Salmon.
 * Independent spawn categories, species caps, rarity controls, and datapack editable biome and prey tags.
+* Atlantic Cod and Atlantic Salmon replace only vanilla Cod and Salmon by default, including natural spawns and the two vanilla spawn eggs. Replacements share vanilla's water ambient population ceiling, and a server config switch restores separate vanilla and BFS spawn sources.
+* Optional suppression of other natural vanilla aquatic spawning for packs that want BFS wildlife to fill the oceans.
 * Creative showcase commands, including a guaranteed trade villager and detailed species information.
 * Shark tools, armor, a Prismarine armor set fitted to swimming poses, Captain Ben's Hat, collectible items, and advancements.
 * The Shark Codex and the Sunken Trove ocean structure.
 
-Full gameplay, configuration, command, architecture, and troubleshooting details are in [DOCUMENTATION.md](DOCUMENTATION.md). Release changes are in [CHANGELOG.md](CHANGELOG.md).
+Full gameplay, configuration, command, architecture, and troubleshooting details are in [DOCUMENTATION.md](DOCUMENTATION.md). Release changes are in [CHANGELOG.md](CHANGELOG.md), and the documentation index is in [docs/README.md](docs/README.md).
 
 ## Development
 
@@ -49,21 +51,21 @@ gradlew.bat :forge:Client
 gradlew.bat :forge:Server
 ```
 
-The distributable JAR is written to `forge/build/libs`. There is no maintained Fabric artifact and no automated GameTest suite at present.
+The distributable JAR is written to `forge/build/libs`. There is no maintained Fabric artifact or automated GameTest suite at present. The Forge module includes focused JUnit regression tests for pure spawn policy.
 
 ## Repository layout
 
 * `common/src/main/java` contains loader independent gameplay and entity logic.
 * `common/src/main/resources` contains assets and shared data.
 * `forge/src/main/java` contains Forge registration, commands, configuration, rendering, spawning, and data generation.
-* `forge/src/generated/resources` contains generated data that is checked into the project.
+* `common/src/generated/resources` contains generated data that is checked into the project.
 * `tools` contains project maintenance utilities.
 
 Keep generated resources synchronized by running `:forge:Data` after changing advancements, tags, recipes, loot tables, biome modifiers, or language providers.
 
 ## Configuration and support
 
-Server configuration is stored in `config/bensfintasticsharks-common.toml`. Existing configuration files retain old values when defaults change. Regenerate the file or update the documented keys manually to adopt the quieter 0.22 spawn defaults.
+Server configuration is stored in `config/bensfintasticsharks-common.toml`. Existing configuration files retain old values when defaults change. Version 0.23 adds `[spawning] replace_vanilla_mobs`, which defaults to `true`. With the default, natural vanilla Cod and Salmon and their vanilla spawn eggs produce the matching Atlantic fish. Version `0.23-emergency-fix` corrects their population category so replacements count toward the same water ambient ceiling as the vanilla fish they replace. Tropical Fish, Pufferfish, and every other mob are excluded. Set the option to `false` to retain vanilla Cod and Salmon and enable the Atlantic fish's separate biome spawn sources. The separate `disable_vanilla_aquatic_spawns` option defaults to `false` and requires a game or dedicated server restart after it changes.
 
 The mod targets Forge 47.2.0 on Minecraft 1.20.1 only. Eclipse and Fabric are not supported. See [DOCUMENTATION.md](DOCUMENTATION.md#20-troubleshooting) before reporting a spawn, data, or startup problem.
 

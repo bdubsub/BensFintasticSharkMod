@@ -140,6 +140,10 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         return (this.getBbWidth() * 0.65F) + 1.25 + (target.getBbWidth() * 0.5F);
     }
 
+    protected double closeBiteRangeAgainst(LivingEntity target, double contactPadding) {
+        return this.getBbWidth() * 0.5F + target.getBbWidth() * 0.5F + contactPadding;
+    }
+
     /**
      * Called the tick the bite damage actually lands (after {@link #biteImpactDelayTicks()}
      * has elapsed and the target is still in range). Species override this to apply

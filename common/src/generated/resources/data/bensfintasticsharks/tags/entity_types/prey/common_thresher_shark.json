@@ -3,6 +3,8 @@
     "minecraft:drowned",
     "minecraft:cod",
     "minecraft:salmon",
-    "minecraft:tropical_fish"
+    "minecraft:tropical_fish",
+    "bensfintasticsharks:atlantic_cod",
+    "bensfintasticsharks:atlantic_salmon"
   ]
 }

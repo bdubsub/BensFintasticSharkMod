@@ -57,16 +57,7 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
         float thrustFactor = Math.min(turnFactor, arrivalFactor);
         this.mob.zza *= thrustFactor;
 
-        boolean levelCruise = this.mob instanceof AbstractSharkEntity<?> shark
-                && shark.getTarget() == null
-                && !shark.isFleeing()
-                && Math.abs(dy) < 2.5;
-
-        if (levelCruise) {
-            this.mob.yya *= 0.18f;
-        } else {
-            this.mob.yya *= Math.max(0.55f, arrivalFactor);
-        }
+        this.mob.yya *= Math.max(0.55f, arrivalFactor);
 
         if (yawError > 35.0f || distance < ARRIVAL_BRAKE_DISTANCE) {
             Vec3 movement = this.mob.getDeltaMovement();
@@ -76,13 +67,7 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
             this.mob.setDeltaMovement(movement.x * momentumFactor, movement.y, movement.z * momentumFactor);
         }
 
-        if (levelCruise) {
-            Vec3 movement = this.mob.getDeltaMovement();
-            this.mob.setDeltaMovement(movement.x, movement.y * 0.6, movement.z);
-            if (trackPitch) {
-                this.mob.setXRot(this.rotlerp(this.mob.getXRot(), 0, 4.0f));
-            }
-        } else if (trackPitch && Math.abs(dy) > 0.35) {
+        if (trackPitch && Math.abs(dy) > 0.35) {
             float desiredPitch = (float)(-(Mth.atan2(dy, Math.max(0.25, horizontalDistance)) * Mth.RAD_TO_DEG));
             desiredPitch = Mth.clamp(desiredPitch, -40.0f, 40.0f);
             this.mob.setXRot(this.rotlerp(this.mob.getXRot(), desiredPitch, 7.5f));

@@ -4,6 +4,7 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Item;
@@ -175,6 +176,16 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public EntityType<CannonballJellyfishEntity> registerCannonballJellyfish() {
         return EntityType.Builder.of(CannonballJellyfishEntityForge::new, ModMobCategories.BFS_WATER_AMBIENT).sized(0.5f, 0.5f).build("");
+    }
+
+    @Override
+    public EntityType<AtlanticCodEntity> registerAtlanticCod() {
+        return EntityType.Builder.of(AtlanticCodEntityForge::new, MobCategory.WATER_AMBIENT).sized(0.65f, 0.4f).build("");
+    }
+
+    @Override
+    public EntityType<AtlanticSalmonEntity> registerAtlanticSalmon() {
+        return EntityType.Builder.of(AtlanticSalmonEntityForge::new, MobCategory.WATER_AMBIENT).sized(0.8f, 0.45f).build("");
     }
 
     @Override

@@ -1,5 +1,7 @@
-// 1.20.1	2026-07-05T19:01:28.88926612	Loot Tables
+// 1.20.1	2026-07-28T23:05:14.32702908	Loot Tables
 340eefe2f8c90bb923ad8862bb36b8598edf6504 data/bensfintasticsharks/loot_tables/entities/american_lobster.json
+70e5231c48903ee697ffe0ceb030cd4943dc9407 data/bensfintasticsharks/loot_tables/entities/atlantic_cod.json
+1ce38050a21afb9657d973a08242a28bb27ab6e8 data/bensfintasticsharks/loot_tables/entities/atlantic_salmon.json
 3afe08a22ed80ff5d74b16bb80e27becd54739b5 data/bensfintasticsharks/loot_tables/entities/black_sea_nettle_jellyfish.json
 694e589abca3b64195443db15bdb38cb205d22f2 data/bensfintasticsharks/loot_tables/entities/blacktip_reef_shark.json
 775b663118096f0947872cee496517cc43773c52 data/bensfintasticsharks/loot_tables/entities/bottlenose_dolphin.json

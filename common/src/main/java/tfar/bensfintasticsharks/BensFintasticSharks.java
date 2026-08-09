@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tfar.bensfintasticsharks.advancmenets.OctopusInkedTrigger;
 import tfar.bensfintasticsharks.advancmenets.PlayerFoundEntityTrigger;
+import tfar.bensfintasticsharks.advancmenets.SpyglassSpotSharkTrigger;
 import tfar.bensfintasticsharks.init.*;
 import tfar.bensfintasticsharks.platform.Services;
 
@@ -31,6 +32,8 @@ public class BensFintasticSharks {
 
     public static final PlayerFoundEntityTrigger PLAYER_FOUND_ENTITY = CriteriaTriggers.register(new PlayerFoundEntityTrigger());
     public static final OctopusInkedTrigger OCTOPUS_INKED = CriteriaTriggers.register(new OctopusInkedTrigger());
+    public static final SpyglassSpotSharkTrigger SPYGLASS_SPOTTED_SHARK =
+            CriteriaTriggers.register(new SpyglassSpotSharkTrigger());
 
     public static final int GRAB_TIMER = 100;
 
@@ -59,6 +62,40 @@ public class BensFintasticSharks {
                 PLAYER_FOUND_ENTITY.trigger(serverPlayer, living);
             }
         }
+        if (player instanceof ServerPlayer serverPlayer
+                && serverPlayer.tickCount % 4 == 0
+                && serverPlayer.isUsingItem()
+                && serverPlayer.getUseItem().is(net.minecraft.world.item.Items.SPYGLASS)
+                && isLookingAtShark(serverPlayer)) {
+            SPYGLASS_SPOTTED_SHARK.trigger(serverPlayer);
+        }
+    }
+
+    private static boolean isLookingAtShark(ServerPlayer player) {
+        double range = 128;
+        net.minecraft.world.phys.Vec3 eye = player.getEyePosition();
+        net.minecraft.world.phys.Vec3 view = player.getViewVector(1);
+        net.minecraft.world.phys.Vec3 end = eye.add(view.scale(range));
+        net.minecraft.world.phys.AABB search = player.getBoundingBox()
+                .expandTowards(view.scale(range))
+                .inflate(1);
+        net.minecraft.world.phys.EntityHitResult entityHit =
+                net.minecraft.world.entity.projectile.ProjectileUtil.getEntityHitResult(
+                        player, eye, end, search,
+                        entity -> entity instanceof LivingEntity living
+                                && living.isAlive()
+                                && living.getType().is(ModTags.EntityTypes.SHARKS),
+                        range * range);
+        if (entityHit == null) return false;
+
+        net.minecraft.world.phys.HitResult blockHit = player.level().clip(
+                new net.minecraft.world.level.ClipContext(
+                        eye, end,
+                        net.minecraft.world.level.ClipContext.Block.COLLIDER,
+                        net.minecraft.world.level.ClipContext.Fluid.NONE,
+                        player));
+        return blockHit.getType() == net.minecraft.world.phys.HitResult.Type.MISS
+                || eye.distanceToSqr(entityHit.getLocation()) < eye.distanceToSqr(blockHit.getLocation());
     }
 
     public static Stream<Item> getKnownItems() {

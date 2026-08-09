@@ -1,5 +1,7 @@
-// 1.20.1	2026-07-23T18:00:10.624404238	Registries
+// 1.20.1	2026-07-28T22:54:57.627460558	Registries
 62cdab563bc868847c1b5a18f3c850f4471a387b data/bensfintasticsharks/forge/biome_modifier/american_lobster_spawns.json
+9d8051ce4f9415caaafe3ecbe9614cb04be5d519 data/bensfintasticsharks/forge/biome_modifier/atlantic_cod_spawns.json
+db6663b8fabb076f59cd8156dd16c3b81a7f46c7 data/bensfintasticsharks/forge/biome_modifier/atlantic_salmon_spawns.json
 93be6d64a28471552c8077bf9ef1daa230563ea2 data/bensfintasticsharks/forge/biome_modifier/black_sea_nettle_jellyfish_spawns.json
 92f9528a1c1f20b4f6c1004d09e1da4e5a49ed20 data/bensfintasticsharks/forge/biome_modifier/blacktip_reef_shark_spawns.json
 db609ebc9c27c57a08d87bcfb35a48ea0ef0a127 data/bensfintasticsharks/forge/biome_modifier/bottlenose_dolphin_spawns.json

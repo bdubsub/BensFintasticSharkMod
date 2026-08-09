@@ -3,6 +3,7 @@ package tfar.bensfintasticsharks.datagen.data;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.world.item.Items;
+import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.init.ModItems;
 import tfar.bensfintasticsharks.init.ModTags;
 
@@ -160,5 +161,24 @@ public class ModRecipeProvider extends RecipeProvider {
                         RecipeCategory.FOOD, ModItems.COOKED_LOBSTER_TAIL, 0.35F, 600)
                 .unlockedBy("has_raw_lobster_tail", has(ModItems.RAW_LOBSTER_TAIL))
                 .save(consumer, "cooked_lobster_tail_from_campfire");
+
+        addFishCookingRecipes(consumer, ModItems.RAW_ATLANTIC_COD, ModItems.COOKED_ATLANTIC_COD,
+                "atlantic_cod");
+        addFishCookingRecipes(consumer, ModItems.RAW_ATLANTIC_SALMON, ModItems.COOKED_ATLANTIC_SALMON,
+                "atlantic_salmon");
+    }
+
+    private static void addFishCookingRecipes(Consumer<FinishedRecipe> consumer, net.minecraft.world.item.Item raw,
+                                              net.minecraft.world.item.Item cooked, String name) {
+        var ingredient = net.minecraft.world.item.crafting.Ingredient.of(raw);
+        SimpleCookingRecipeBuilder.smelting(ingredient, RecipeCategory.FOOD, cooked, 0.35F, 200)
+                .unlockedBy("has_raw_" + name, has(raw))
+                .save(consumer, BensFintasticSharks.id("cooked_" + name + "_from_smelting"));
+        SimpleCookingRecipeBuilder.smoking(ingredient, RecipeCategory.FOOD, cooked, 0.35F, 100)
+                .unlockedBy("has_raw_" + name, has(raw))
+                .save(consumer, BensFintasticSharks.id("cooked_" + name + "_from_smoking"));
+        SimpleCookingRecipeBuilder.campfireCooking(ingredient, RecipeCategory.FOOD, cooked, 0.35F, 600)
+                .unlockedBy("has_raw_" + name, has(raw))
+                .save(consumer, BensFintasticSharks.id("cooked_" + name + "_from_campfire"));
     }
 }

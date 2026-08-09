@@ -51,7 +51,8 @@ public class BfsConfig {
             "sandtiger_shark", "blacktip_reef_shark", "orca", "bottlenose_dolphin",
             "common_octopus", "caribbean_reef_octopus", "nautilus", "giant_moray_eel",
             "green_sea_turtle", "american_lobster", "common_stingray", "harbor_seal",
-            "black_sea_nettle_jellyfish", "cannonball_jellyfish"
+            "black_sea_nettle_jellyfish", "cannonball_jellyfish", "atlantic_cod",
+            "atlantic_salmon"
     };
 
     public static final ForgeConfigSpec SPEC;
@@ -75,6 +76,8 @@ public class BfsConfig {
         public final ForgeConfigSpec.IntValue nearbyNonBlacktipSharkCap;
         public final ForgeConfigSpec.IntValue nearbyBlacktipSharkCap;
         public final ForgeConfigSpec.IntValue sharkSpacingRadius;
+        public final ForgeConfigSpec.BooleanValue replaceVanillaMobs;
+        public final ForgeConfigSpec.BooleanValue disableVanillaAquaticSpawns;
 
         // Per-species caps. Keyed by species path (lowercase, matches the entity registry
         // id minus the namespace). Loaded into a map so MobCapManager can look up by EntityType.
@@ -137,6 +140,15 @@ public class BfsConfig {
                             "Blacktips are the schooling exception. They may form a group up to this",
                             "size, but still do not naturally stack beside a different shark species.")
                     .defineInRange("nearby_blacktip_shark_cap", 3, 1, 16);
+            replaceVanillaMobs = b.comment(
+                            "Replace natural vanilla Cod and Salmon with Atlantic Cod and Atlantic Salmon.",
+                            "The vanilla Cod and Salmon spawn eggs also create the matching Atlantic fish.",
+                            "When disabled, vanilla fish remain unchanged and Atlantic fish use their own biome spawns.")
+                    .define("replace_vanilla_mobs", true);
+            disableVanillaAquaticSpawns = b.comment(
+                            "Disable natural spawning for vanilla fish, dolphins, squid, axolotls, and turtles.",
+                            "Restart the game or dedicated server after changing this value.")
+                    .define("disable_vanilla_aquatic_spawns", false);
             b.pop();
 
             b.comment(
@@ -171,6 +183,8 @@ public class BfsConfig {
             // Jellyfish — kept rare. Players asked for fewer; default 1-2 per area.
             speciesCaps.put("black_sea_nettle_jellyfish", b.comment("Deep-water jellyfish — rare cameo, not a swarm.").defineInRange("black_sea_nettle_jellyfish", 1, 0, 64));
             speciesCaps.put("cannonball_jellyfish",       b.comment("Warm-water jellyfish — rare cameo, not a swarm.").defineInRange("cannonball_jellyfish", 2, 0, 64));
+            speciesCaps.put("atlantic_cod",               b.defineInRange("atlantic_cod",               8, 0, 64));
+            speciesCaps.put("atlantic_salmon",            b.defineInRange("atlantic_salmon",            8, 0, 64));
             b.pop();
 
             b.comment(
@@ -233,6 +247,8 @@ public class BfsConfig {
             speciesGroupMin.put("black_sea_nettle_jellyfish", b.defineInRange("black_sea_nettle_jellyfish", 1, 1, 16));
             speciesGroupMin.put("green_sea_turtle",    b.defineInRange("green_sea_turtle",    1, 1, 16));
             speciesGroupMin.put("american_lobster",    b.defineInRange("american_lobster",    1, 1, 16));
+            speciesGroupMin.put("atlantic_cod",        b.defineInRange("atlantic_cod",        2, 1, 16));
+            speciesGroupMin.put("atlantic_salmon",     b.defineInRange("atlantic_salmon",     2, 1, 16));
             b.pop();
 
             b.push("disturbance");

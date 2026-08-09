@@ -2,20 +2,25 @@ package tfar.bensfintasticsharks.entity;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +29,12 @@ import java.util.function.IntFunction;
 public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSharkEntity>
         implements BfsVariantHolder {
 
+    private static final int LATCH_DURATION_TICKS = 30;
+
     private static final EntityDataAccessor<Integer> DATA_VARIANT =
             SynchedEntityData.defineId(BlacktipReefSharkEntity.class, EntityDataSerializers.INT);
+
+    private int latchTicks;
 
     private static final SharkParams PARAMS = new SharkParams(
             /* detectionRadius      */ 20.0f,
@@ -138,7 +147,38 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
 
     @Override
     protected double biteRangeAgainst(net.minecraft.world.entity.LivingEntity target) {
-        return Math.min(super.biteRangeAgainst(target), 1.75);
+        return closeBiteRangeAgainst(target, 0.3);
+    }
+
+    protected void latchMob(LivingEntity target) {
+        if (target != getTarget() || target.isPassenger() || !isInWaterOrBubble()) return;
+        if (!target.startRiding(this, true)) return;
+        latchTicks = LATCH_DURATION_TICKS;
+        if (target instanceof ServerPlayer serverPlayer) {
+            serverPlayer.connection.send(new ClientboundSetPassengersPacket(this));
+        }
+    }
+
+    @Override
+    protected void positionRider(Entity passenger, MoveFunction moveFunction) {
+        Vec3 look = getLookAngle();
+        double distance = Math.max(0.65, getBbWidth() * 0.45);
+        double y = getY() + getBbHeight() * 0.45 - passenger.getBbHeight() * 0.5;
+        moveFunction.accept(passenger, getX() + look.x * distance, y, getZ() + look.z * distance);
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        if (latchTicks <= 0) return;
+
+        latchTicks--;
+        boolean livingPassenger = getPassengers().stream()
+                .anyMatch(passenger -> passenger instanceof LivingEntity living && living.isAlive());
+        if (latchTicks == 0 || !isAlive() || !isInWaterOrBubble() || !livingPassenger) {
+            latchTicks = 0;
+            ejectPassengers();
+        }
     }
 
     @Override

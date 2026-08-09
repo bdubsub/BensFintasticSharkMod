@@ -27,6 +27,8 @@ public class BiomeModifiers {
     public static final ResourceKey<BiomeModifier> AMERICAN_LOBSTER_SPAWNS = create("american_lobster_spawns");
     public static final ResourceKey<BiomeModifier> BLACK_SEA_NETTLE_JELLYFISH_SPAWNS = create("black_sea_nettle_jellyfish_spawns");
     public static final ResourceKey<BiomeModifier> CANNONBALL_JELLYFISH_SPAWNS = create("cannonball_jellyfish_spawns");
+    public static final ResourceKey<BiomeModifier> ATLANTIC_COD_SPAWNS = create("atlantic_cod_spawns");
+    public static final ResourceKey<BiomeModifier> ATLANTIC_SALMON_SPAWNS = create("atlantic_salmon_spawns");
 
     private static ResourceKey<BiomeModifier> create(String key) {
         return ResourceKey.create(ForgeRegistries.Keys.BIOME_MODIFIERS, BensFintasticSharks.id(key));

@@ -1,0 +1,44 @@
+{
+  "parent": "bensfintasticsharks:root",
+  "criteria": {
+    "caught_atlantic_salmon": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {}
+          }
+        ],
+        "item": {
+          "items": [
+            "bensfintasticsharks:raw_atlantic_salmon"
+          ]
+        },
+        "rod": {}
+      },
+      "trigger": "minecraft:fishing_rod_hooked"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.why_arent_you_red.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:cooked_atlantic_salmon"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.why_arent_you_red.title"
+    }
+  },
+  "requirements": [
+    [
+      "caught_atlantic_salmon"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

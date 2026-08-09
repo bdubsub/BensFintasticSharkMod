@@ -1,0 +1,40 @@
+{
+  "parent": "bensfintasticsharks:marine_curious",
+  "criteria": {
+    "found": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:atlantic_cod"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.gadus_morhua.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:raw_atlantic_cod"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.gadus_morhua.title"
+    }
+  },
+  "requirements": [
+    [
+      "found"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
