@@ -45,6 +45,19 @@ loom {
 tasks.withType(JavaCompile).configureEach {
     source(project(":common").sourceSets.main.allSource)
 }
+
+// The Fabric directory is a template only. Keep the default test selector focused on the
+// supported Forge module instead of compiling shared Forge dependent sources through Fabric.
+tasks.named("compileJava") {
+    enabled = false
+}
+tasks.named("compileTestJava") {
+    enabled = false
+}
+tasks.named("test") {
+    enabled = false
+}
+
 tasks.withType(Javadoc).configureEach {
     source(project(":common").sourceSets.main.allJava)
 }
