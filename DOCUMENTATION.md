@@ -1,8 +1,10 @@
 # Ben's Fintastic Sharks
 
-A 1.20.1 Forge mod, currently at version `0.23-emergency-fix`, that adds twenty two sea creatures, a buried treasure structure, a captain's hat, a shark codex book, and a system that makes sharks pay attention to what you're doing in the water.
+A 1.20.1 Forge mod, currently at version `0.24`, that adds twenty two sea creatures, a buried treasure structure, a captain's hat, a shark codex book, and a system that makes sharks pay attention to what you're doing in the water.
 
 This document is the reference for everything the mod ships with. If you just installed it and you're trying to figure out where to find an Orca, skip to section 3.
+
+The `envy/0.24` release branch is based on the stable `1.20.1` branch. It retains the 0.23 behavior while adding the supplied advancement artwork, repaired fish and Oceanic Whitetip animation resources, a single Sharks Galore discovery node, and permanent algae world generation.
 
 ## 0.23 and emergency fix highlights
 
@@ -29,6 +31,8 @@ There is one cosmetic item, Captain Ben's Hat, which is a head slot armor with l
 There is one readable item chain that ends in the Shark Codex. You assemble it from Lost Manuscripts you find in dungeon, shipwreck, buried treasure, and ocean ruin loot. See section 11.
 
 There is one structure, the Sunken Trove. It generates on the ocean floor in non frozen ocean biomes and contains a chest with our loot table.
+
+The 0.24 branch also adds three permanent aquatic plants. Algae Block is a single still texture. Large Green Algae and Large Red Algae use their supplied animated strips and can generate in ocean biomes from y 20 through y 62. They require source water and a valid underwater seagrass position, use cutout rendering, and do not generate in rivers or non ocean biomes. Their block and item forms are available through the generated `bensfintasticsharks:algae` tags.
 
 ## 2. How spawning works
 
@@ -395,7 +399,7 @@ The Shark Trident and Captain Ben's Hat are find only.
 
 The advancement tree starts at `Marine Curious`, which fires when you encounter any BFS species. From there it branches into encounter chains and themed milestones.
 
-Encounter advancements exist for every species the mod ships. Shark Spotter requires actively using a Spyglass while the view ray reaches a BFS shark before any solid block. It uses one custom criterion and a vanilla Spyglass icon, so it no longer shows the old `0/28` species counter. Sharks Galore and Shark Whisperer each require all eight sharks. Every individual shark encounter uses its matching supplied 16×16 sprite: Great White, Great Hammerhead, Common Thresher, Shortfin Mako, Tiger, Oceanic Whitetip, Sandtiger, and Blacktip Reef. Marine Biologist covers all twenty two species; other milestones include Apex of Apex (Orca), Dolphin Friend (Common Bottlenose Dolphin), Inked (either octopus), and Stung (either jellyfish).
+Encounter advancements exist for every species the mod ships. Shark Spotter requires actively using a Spyglass while the view ray reaches a BFS shark before any solid block. It uses one custom criterion and a vanilla Spyglass icon, so it no longer shows the old `0/28` species counter. Sharks Galore is the single all eight shark discovery node. Marine Biologist and Apex of Apex now continue directly from Sharks Galore. Every individual shark encounter uses its matching supplied 16×16 sprite: Great White, Great Hammerhead, Common Thresher, Shortfin Mako, Tiger, Oceanic Whitetip, Sandtiger, and Blacktip Reef. Marine Biologist covers all twenty two species; other milestones include Apex of Apex (Orca), Dolphin Friend (Common Bottlenose Dolphin), Inked (either octopus), and Stung (either jellyfish).
 
 The Atlantic fish add four advancements. `Gadus morhua` and `Salmo salar` trigger when the player encounters the matching living fish. `Oh My Cod` and `Why aren't you red?` trigger only when the matching raw fish is obtained from a fishing hook catch. Their icons use the supplied raw or cooked item sprites according to Ben's content notes.
 

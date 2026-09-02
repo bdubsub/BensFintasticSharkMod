@@ -1,14 +1,27 @@
 package tfar.bensfintasticsharks.datagen.data;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.placement.BiomeFilter;
+import net.minecraft.world.level.levelgen.placement.CountPlacement;
+import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
+import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.placement.RarityFilter;
 import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
 import net.minecraftforge.common.world.BiomeModifier;
 import net.minecraftforge.common.world.ForgeBiomeModifiers;
@@ -17,6 +30,7 @@ import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.BiomeModifiers;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 import tfar.bensfintasticsharks.init.ModTags;
+import tfar.bensfintasticsharks.worldgen.ModFeatures;
 
 import java.util.List;
 import java.util.Set;
@@ -24,6 +38,8 @@ import java.util.concurrent.CompletableFuture;
 public class ModDataPackProvider extends DatapackBuiltinEntriesProvider {
 
     private static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
+            .add(Registries.CONFIGURED_FEATURE, ModDataPackProvider::configuredFeatures)
+            .add(Registries.PLACED_FEATURE, ModDataPackProvider::placedFeatures)
             .add(ForgeRegistries.Keys.BIOME_MODIFIERS, ModDataPackProvider::biomeModifiers);
 
 
@@ -40,6 +56,47 @@ public class ModDataPackProvider extends DatapackBuiltinEntriesProvider {
                                        TagKey<Biome> biomeTag,
                                        List<MobSpawnSettings.SpawnerData> spawners) {
         ctx.register(key, new ForgeBiomeModifiers.AddSpawnsBiomeModifier(lookup.apply(biomeTag), spawners));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void configuredFeatures(BootstapContext<ConfiguredFeature<?, ?>> context) {
+        HolderGetter<Feature<?>> features = context.lookup(Registries.FEATURE);
+        registerConfigured(context, features, ModFeatures.ALGAE_BLOCK_CONFIGURED,
+                ModFeatures.ALGAE_BLOCK_FEATURE_KEY);
+        registerConfigured(context, features, ModFeatures.LARGE_GREEN_ALGAE_CONFIGURED,
+                ModFeatures.LARGE_GREEN_ALGAE_FEATURE_KEY);
+        registerConfigured(context, features, ModFeatures.LARGE_RED_ALGAE_CONFIGURED,
+                ModFeatures.LARGE_RED_ALGAE_FEATURE_KEY);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void registerConfigured(BootstapContext<ConfiguredFeature<?, ?>> context,
+                                           HolderGetter<Feature<?>> features,
+                                           ResourceKey<ConfiguredFeature<?, ?>> key,
+                                           ResourceKey<Feature<?>> featureKey) {
+        Feature<NoneFeatureConfiguration> feature =
+                (Feature<NoneFeatureConfiguration>) (Feature<?>) features.getOrThrow(featureKey).value();
+        context.register(key, new ConfiguredFeature<>(feature, NoneFeatureConfiguration.INSTANCE));
+    }
+
+    public static void placedFeatures(BootstapContext<PlacedFeature> context) {
+        HolderGetter<ConfiguredFeature<?, ?>> configured = context.lookup(Registries.CONFIGURED_FEATURE);
+        registerPlaced(context, ModFeatures.ALGAE_BLOCK_PLACED,
+                configured.getOrThrow(ModFeatures.ALGAE_BLOCK_CONFIGURED));
+        registerPlaced(context, ModFeatures.LARGE_GREEN_ALGAE_PLACED,
+                configured.getOrThrow(ModFeatures.LARGE_GREEN_ALGAE_CONFIGURED));
+        registerPlaced(context, ModFeatures.LARGE_RED_ALGAE_PLACED,
+                configured.getOrThrow(ModFeatures.LARGE_RED_ALGAE_CONFIGURED));
+    }
+
+    private static void registerPlaced(BootstapContext<PlacedFeature> context,
+                                       ResourceKey<PlacedFeature> key,
+                                       net.minecraft.core.Holder<ConfiguredFeature<?, ?>> configured) {
+        context.register(key, new PlacedFeature(configured, List.of(
+                RarityFilter.onAverageOnceEvery(3),
+                InSquarePlacement.spread(),
+                HeightRangePlacement.uniform(VerticalAnchor.absolute(20), VerticalAnchor.absolute(62)),
+                BiomeFilter.biome())));
     }
 
     public static void biomeModifiers(BootstapContext<BiomeModifier> context) {
@@ -129,5 +186,22 @@ public class ModDataPackProvider extends DatapackBuiltinEntriesProvider {
         registerSpawn(context, biomes::getOrThrow, BiomeModifiers.ATLANTIC_SALMON_SPAWNS,
                 ModTags.Biomes.ATLANTIC_SALMON_SPAWNS,
                 List.of(data(ModEntityTypes.ATLANTIC_SALMON, 50, 2, 4)));
+
+        var placed = context.lookup(Registries.PLACED_FEATURE);
+        context.register(BiomeModifiers.ALGAE_BLOCK_FEATURE,
+                new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(ModTags.Biomes.ALGAE_SPAWNS),
+                        HolderSet.direct(placed.getOrThrow(ModFeatures.ALGAE_BLOCK_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION));
+        context.register(BiomeModifiers.LARGE_GREEN_ALGAE_FEATURE,
+                new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(ModTags.Biomes.ALGAE_SPAWNS),
+                        HolderSet.direct(placed.getOrThrow(ModFeatures.LARGE_GREEN_ALGAE_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION));
+        context.register(BiomeModifiers.LARGE_RED_ALGAE_FEATURE,
+                new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(ModTags.Biomes.ALGAE_SPAWNS),
+                        HolderSet.direct(placed.getOrThrow(ModFeatures.LARGE_RED_ALGAE_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION));
     }
 }

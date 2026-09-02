@@ -1,0 +1,616 @@
+{
+  "schemaVersion": 2,
+  "planId": "PLAN-MASTER",
+  "planSetSha256": "36841ba23be381dba6124a189b747316c2dbd6da88523d598890ec3b523d8dd9",
+  "planningSubject": {
+    "name": "Ben's Fintastic Sharks Forge 1.20.1 release 0.24 with retained 0.23 behavior and supplied content",
+    "requestedArtifact": "authoritative_plan",
+    "planProfile": "software_product",
+    "sources": [
+      {
+        "id": "SRC-001",
+        "role": "owner_request",
+        "subject": "0.24 plan update, retained 0.23 scope, beta defect closure, major defect audit, and consistency",
+        "source": "current owner request and clarification",
+        "use": "highest authority for mandatory scope and completion"
+      },
+      {
+        "id": "SRC-002",
+        "role": "requirements",
+        "subject": "0.23 Atlantic fish, Oceanic Whitetip, items, advancement, spawn, and fishing content",
+        "source": "Content/BFS 0.23 Content.zip",
+        "use": "binding retained content contract"
+      },
+      {
+        "id": "SRC-003",
+        "role": "requirements",
+        "subject": "0.24 advancement icons, advancement retirement, and algae request",
+        "source": "Content/BFS 0.24 Content.zip",
+        "use": "binding 0.24 content contract"
+      },
+      {
+        "id": "SRC-004",
+        "role": "requirements",
+        "subject": "permanent algae textures and authored animation frames",
+        "source": "Content/Algae Textures/",
+        "use": "binding permanent 0.24 algae asset contract"
+      },
+      {
+        "id": "SRC-005",
+        "role": "review_feedback",
+        "subject": "Cod, Salmon, Oceanic Whitetip, Tiger Shark, advancement duplication, and punctuation beta failures",
+        "source": "current owner pasted beta reports",
+        "use": "mandatory defect ledger and acceptance evidence"
+      },
+      {
+        "id": "SRC-006",
+        "role": "audit_evidence",
+        "subject": "truncated El Capitán's Legacy advancement description",
+        "source": "/home/envy/.codex/attachments/519e48bf-889e-470c-aebb-65ac7e33d821/codex-clipboard-d78811c2-d6e9-4d75-8071-305eb208aa00.png",
+        "use": "reproduction fixture and visual acceptance baseline"
+      },
+      {
+        "id": "SRC-007",
+        "role": "existing_plan",
+        "subject": "0.23 movement, Atlantic wildlife, advancement, emergency fix, verification, and future scope",
+        "source": "docs/general/plan.md before authorized revision",
+        "use": "preserve stable accepted history and unfinished evidence gates"
+      },
+      {
+        "id": "SRC-008",
+        "role": "repository_evidence",
+        "subject": "current Forge 1.20.1 implementation, generated data, tests, manifests, and git state",
+        "source": "/mnt/hermes/projects/BFSMOD at 06a28f6",
+        "use": "evidence based current state and affected boundaries"
+      }
+    ]
+  },
+  "profileContract": [
+    {
+      "area": "component architecture",
+      "status": "covered",
+      "source": "SRC-008",
+      "plan_section": "Global constraints and non goals",
+      "rationale": "plan defines common, server, client, data, state authority, and ownership boundaries"
+    },
+    {
+      "area": "determinism",
+      "status": "covered",
+      "source": "SRC-003",
+      "plan_section": "Cross cutting acceptance and verification",
+      "rationale": "animation sampling, fixed seed generation, exact mapping, copy audit, and normalized artifacts are deterministic"
+    },
+    {
+      "area": "failure taxonomy",
+      "status": "covered",
+      "source": "SRC-005",
+      "plan_section": "Beta defect ledger",
+      "rationale": "reported and systematic failure classes have mandatory blocking behavior"
+    },
+    {
+      "area": "generalization",
+      "status": "covered",
+      "source": "SRC-008",
+      "plan_section": "Global constraints and non goals",
+      "rationale": "supported Forge environment and unrelated loader, namespace, spawn, biome, and product exclusions are explicit"
+    },
+    {
+      "area": "inputs and outputs",
+      "status": "covered",
+      "source": "SRC-001",
+      "plan_section": "Stable requirement register",
+      "rationale": "plan defines supplied assets, runtime behavior, commands, advancements, blocks, generated data, and release artifacts"
+    },
+    {
+      "area": "release lifecycle",
+      "status": "covered",
+      "source": "SRC-001",
+      "plan_section": "Plan wide Definition of Done",
+      "rationale": "ordered integration, tags, packaging, documentation, checksums, SBOM, and release closure are defined"
+    },
+    {
+      "area": "security",
+      "status": "covered",
+      "source": "SRC-008",
+      "plan_section": "Global constraints and non goals",
+      "rationale": "logical side, untrusted data, artifact, dependency, and release boundaries are defined"
+    },
+    {
+      "area": "state and persistence",
+      "status": "covered",
+      "source": "SRC-007",
+      "plan_section": "Stable requirement register",
+      "rationale": "entity state, replacement state, advancement compatibility, and save preservation are defined"
+    },
+    {
+      "area": "test system",
+      "status": "covered",
+      "source": "SRC-005",
+      "plan_section": "Cross cutting acceptance and verification",
+      "rationale": "unit, GameTest, runtime, multiplayer, fixed seed, visual, and artifact evidence are required"
+    },
+    {
+      "area": "versioning",
+      "status": "covered",
+      "source": "SRC-001",
+      "plan_section": "Plan identity",
+      "rationale": "0.23 baseline, 0.24 target, stable ids, metadata, and compatibility are pinned"
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "id": "BFS-REQ-001",
+      "summary": "shared shark locomotion remains stable",
+      "source": "SRC-007",
+      "owner": "Entity behavior maintainer",
+      "contributors": "Test maintainer and client verification maintainer",
+      "dependencies": [],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-002",
+      "summary": "bite approach and contact remain functional",
+      "source": "SRC-007",
+      "owner": "Combat behavior maintainer",
+      "contributors": "Entity behavior maintainer and test maintainer",
+      "dependencies": [
+        "BFS-REQ-001"
+      ],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-003",
+      "summary": "Tiger Shark item curiosity terminates safely",
+      "source": "SRC-007",
+      "owner": "Entity behavior maintainer",
+      "contributors": "Combat behavior maintainer and test maintainer",
+      "dependencies": [
+        "BFS-REQ-001"
+      ],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-004",
+      "summary": "grab and latch release state always cleans up",
+      "source": "SRC-007",
+      "owner": "Combat behavior maintainer",
+      "contributors": "Networking maintainer and client verification maintainer",
+      "dependencies": [
+        "BFS-REQ-001",
+        "BFS-REQ-002"
+      ],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-005",
+      "summary": "showcase information and Oceanic Whitetip habitat match runtime",
+      "source": "SRC-007",
+      "owner": "Command maintainer",
+      "contributors": "Data maintainer and test maintainer",
+      "dependencies": [],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-006",
+      "summary": "Prismarine armor fits throughout swimming",
+      "source": "SRC-007",
+      "owner": "Client rendering maintainer",
+      "contributors": "Model maintainer and multiplayer test maintainer",
+      "dependencies": [],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-007",
+      "summary": "Oceanic Whitetip supplied clip set remains correctly mapped",
+      "source": "SRC-002",
+      "owner": "Entity animation maintainer",
+      "contributors": "Combat behavior maintainer and client verification maintainer",
+      "dependencies": [
+        "BFS-REQ-004"
+      ],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-008",
+      "summary": "Atlantic fish entities and Spin behavior remain functional",
+      "source": "SRC-002",
+      "owner": "Entity behavior maintainer",
+      "contributors": "Entity animation maintainer and test maintainer",
+      "dependencies": [],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-009",
+      "summary": "Atlantic fish items, drops, recipes, and fishing remain complete",
+      "source": "SRC-002",
+      "owner": "Item loot maintainer",
+      "contributors": "Data maintainer and test maintainer",
+      "dependencies": [
+        "BFS-REQ-008"
+      ],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-010",
+      "summary": "vanilla aquatic controls and fish replacement remain scoped",
+      "source": "SRC-002",
+      "owner": "Spawn system maintainer",
+      "contributors": "Configuration maintainer and test maintainer",
+      "dependencies": [
+        "BFS-REQ-008"
+      ],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-011",
+      "summary": "Atlantic population invariant prevents runaway spawning",
+      "source": "SRC-007",
+      "owner": "Spawn system maintainer",
+      "contributors": "Performance test maintainer and configuration maintainer",
+      "dependencies": [
+        "BFS-REQ-010"
+      ],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-012",
+      "summary": "Shark Spotter and four Atlantic fish advancements remain functional",
+      "source": "SRC-002",
+      "owner": "Advancement maintainer",
+      "contributors": "Data maintainer and client verification maintainer",
+      "dependencies": [],
+      "lifecycleStage": "continuous",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-001"
+    },
+    {
+      "id": "BFS-REQ-013",
+      "summary": "all seven remastered advancement icons are integrated",
+      "source": "SRC-003",
+      "owner": "Advancement asset maintainer",
+      "contributors": "Data maintainer and client verification maintainer",
+      "dependencies": [],
+      "lifecycleStage": "change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-003"
+    },
+    {
+      "id": "BFS-REQ-014",
+      "summary": "duplicate Shark Whisperer advancement is retired with a connected graph",
+      "source": "SRC-003",
+      "owner": "Advancement maintainer",
+      "contributors": "Data maintainer and compatibility test maintainer",
+      "dependencies": [
+        "BFS-REQ-012",
+        "DEC-002"
+      ],
+      "lifecycleStage": "change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-003"
+    },
+    {
+      "id": "BFS-REQ-015",
+      "summary": "advancement copy includes the complete captain description and exact supplied titles",
+      "source": "SRC-001",
+      "owner": "Localization maintainer",
+      "contributors": "Advancement maintainer and client verification maintainer",
+      "dependencies": [
+        "BFS-REQ-013",
+        "DEC-003"
+      ],
+      "lifecycleStage": "change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-003"
+    },
+    {
+      "id": "BFS-REQ-016",
+      "summary": "advancement punctuation and copy follow one deterministic convention",
+      "source": "SRC-005",
+      "owner": "Localization maintainer",
+      "contributors": "Advancement maintainer and test maintainer",
+      "dependencies": [
+        "BFS-REQ-015",
+        "DEC-003"
+      ],
+      "lifecycleStage": "change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-003"
+    },
+    {
+      "id": "BFS-REQ-017",
+      "summary": "Atlantic fish visibly animate in ordinary movement states",
+      "source": "SRC-005",
+      "owner": "Entity animation maintainer",
+      "contributors": "Resource tooling maintainer and client verification maintainer",
+      "dependencies": [
+        "BFS-REQ-008"
+      ],
+      "lifecycleStage": "change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-002"
+    },
+    {
+      "id": "BFS-REQ-018",
+      "summary": "Oceanic Whitetip visibly animates in every supplied state",
+      "source": "SRC-005",
+      "owner": "Entity animation maintainer",
+      "contributors": "Combat behavior maintainer and multiplayer test maintainer",
+      "dependencies": [
+        "BFS-REQ-007"
+      ],
+      "lifecycleStage": "change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-002"
+    },
+    {
+      "id": "BFS-REQ-019",
+      "summary": "Tiger Shark moves, targets, attacks, and recovers",
+      "source": "SRC-005",
+      "owner": "Combat behavior maintainer",
+      "contributors": "Entity behavior maintainer and test maintainer",
+      "dependencies": [
+        "BFS-REQ-001",
+        "BFS-REQ-003"
+      ],
+      "lifecycleStage": "change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-002"
+    },
+    {
+      "id": "BFS-REQ-020",
+      "summary": "three permanent algae content units are registered and animated",
+      "source": "SRC-004",
+      "owner": "Content registration maintainer",
+      "contributors": "Client rendering maintainer and data maintainer",
+      "dependencies": [
+        "DEC-001"
+      ],
+      "lifecycleStage": "change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-004"
+    },
+    {
+      "id": "BFS-REQ-021",
+      "summary": "algae generate naturally at bounded deterministic density",
+      "source": "SRC-003",
+      "owner": "World generation maintainer",
+      "contributors": "Data maintainer and performance test maintainer",
+      "dependencies": [
+        "BFS-REQ-020"
+      ],
+      "lifecycleStage": "change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-004"
+    },
+    {
+      "id": "BFS-REQ-022",
+      "summary": "systematic beta and major defect closure blocks release on known mandatory defects",
+      "source": "SRC-001",
+      "owner": "Verification maintainer",
+      "contributors": "All phase maintainers and security reviewer",
+      "dependencies": [
+        "BFS-REQ-021"
+      ],
+      "lifecycleStage": "post_change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-005"
+    },
+    {
+      "id": "BFS-REQ-023",
+      "summary": "version, documentation, artifact, and release evidence consistently report 0.24",
+      "source": "SRC-001",
+      "owner": "Release maintainer",
+      "contributors": "Documentation maintainer and verification maintainer",
+      "dependencies": [
+        "BFS-REQ-022"
+      ],
+      "lifecycleStage": "post_change",
+      "productionVerification": "none",
+      "releaseImpact": "stable release",
+      "canonicalPhase": "BFS-PHASE-005"
+    }
+  ],
+  "optionalFutureScope": [
+    {
+      "id": "FUT-001",
+      "summary": "BFS AO The Trench Minecraft 26.2 product",
+      "source": "SRC-007",
+      "disposition": "excluded"
+    }
+  ],
+  "nonGoals": [
+    {
+      "id": "NG-001",
+      "summary": "do not upgrade Minecraft, Forge, Java, mappings, Gradle, GeckoLib, or SmartBrainLib",
+      "source": "SRC-007"
+    },
+    {
+      "id": "NG-002",
+      "summary": "do not make the Fabric template a release target",
+      "source": "SRC-007"
+    },
+    {
+      "id": "NG-003",
+      "summary": "do not add unauthored replacement animation sets for pending species",
+      "source": "SRC-007"
+    },
+    {
+      "id": "NG-004",
+      "summary": "do not implement the separate ModJam product in release 0.24",
+      "source": "SRC-007"
+    }
+  ],
+  "ownerDecisions": [
+    {
+      "id": "DEC-001",
+      "question": "Are the supplied algae experimental or permanent 0.24 content",
+      "selectedChoice": "permanent 0.24 content",
+      "rationale": "The owner's clarification makes every supplied algae asset mandatory release content rather than an experiment.",
+      "affectedRequirements": [
+        "BFS-REQ-020",
+        "BFS-REQ-021"
+      ],
+      "supersedes": []
+    },
+    {
+      "id": "DEC-002",
+      "question": "How should duplicate shark discovery advancements be resolved",
+      "selectedChoice": "retire shark_whisperer and retain sharks_galore as the single all shark encounter advancement",
+      "rationale": "One canonical discovery node removes duplicate progression while retaining both existing child branches.",
+      "affectedRequirements": [
+        "BFS-REQ-012",
+        "BFS-REQ-014"
+      ],
+      "supersedes": []
+    },
+    {
+      "id": "DEC-003",
+      "question": "How should advancement punctuation be normalized",
+      "selectedChoice": "preserve exact supplied title punctuation, normalize other titles without accidental terminal punctuation, and require exactly one grammatical terminal mark on descriptions",
+      "rationale": "This preserves authored title intent while making all remaining advancement copy deterministic and testable.",
+      "affectedRequirements": [
+        "BFS-REQ-015",
+        "BFS-REQ-016"
+      ],
+      "supersedes": []
+    }
+  ],
+  "externalPrerequisites": [],
+  "phases": [
+    {
+      "id": "BFS-PHASE-000",
+      "owner": "Integration maintainer",
+      "dependencies": [],
+      "canonicalRequirements": []
+    },
+    {
+      "id": "BFS-PHASE-001",
+      "owner": "Gameplay compatibility maintainer",
+      "dependencies": [
+        "BFS-PHASE-000",
+        "DEC-001",
+        "DEC-002",
+        "DEC-003"
+      ],
+      "canonicalRequirements": [
+        "BFS-REQ-001",
+        "BFS-REQ-002",
+        "BFS-REQ-003",
+        "BFS-REQ-004",
+        "BFS-REQ-005",
+        "BFS-REQ-006",
+        "BFS-REQ-007",
+        "BFS-REQ-008",
+        "BFS-REQ-009",
+        "BFS-REQ-010",
+        "BFS-REQ-011",
+        "BFS-REQ-012"
+      ]
+    },
+    {
+      "id": "BFS-PHASE-002",
+      "owner": "Entity systems maintainer",
+      "dependencies": [
+        "BFS-PHASE-001"
+      ],
+      "canonicalRequirements": [
+        "BFS-REQ-017",
+        "BFS-REQ-018",
+        "BFS-REQ-019"
+      ]
+    },
+    {
+      "id": "BFS-PHASE-003",
+      "owner": "Advancement localization maintainer",
+      "dependencies": [
+        "BFS-PHASE-002",
+        "DEC-002",
+        "DEC-003"
+      ],
+      "canonicalRequirements": [
+        "BFS-REQ-013",
+        "BFS-REQ-014",
+        "BFS-REQ-015",
+        "BFS-REQ-016"
+      ]
+    },
+    {
+      "id": "BFS-PHASE-004",
+      "owner": "World generation maintainer",
+      "dependencies": [
+        "BFS-PHASE-003",
+        "DEC-001"
+      ],
+      "canonicalRequirements": [
+        "BFS-REQ-020",
+        "BFS-REQ-021"
+      ]
+    },
+    {
+      "id": "BFS-PHASE-005",
+      "owner": "Release verification maintainer",
+      "dependencies": [
+        "BFS-PHASE-004"
+      ],
+      "canonicalRequirements": [
+        "BFS-REQ-022",
+        "BFS-REQ-023"
+      ]
+    }
+  ],
+  "completionEndpoint": "version 0.24 is fully evidenced, merged to the authoritative default branch through the required sequential phase workflow, signed and tagged, and its approved Forge artifact and release evidence satisfy the plan wide Definition of Done",
+  "goalCreator": {
+    "mandatoryBoundary": "BFS-REQ-001 through BFS-REQ-023 and BFS-PHASE-000 through BFS-PHASE-005 are mandatory for the Forge 0.24 endpoint.",
+    "optionalFutureDisposition": "excluded",
+    "lockedOwnerDecisions": "DEC-001, DEC-002, DEC-003",
+    "activePhase": "BFS-PHASE-000",
+    "nextExecutableAction": "execute P000-TASK-001 from docs/general/phases/plan-phase-000.md to reconcile repository identity, normalize the main integration branch, protect existing user work, and record the baseline evidence matrix.",
+    "knownFailingChecks": "none; product implementation verification has not started.",
+    "knownExternalBlockers": "none",
+    "requiredEvidenceGates": "complete every canonical requirement criterion, close every beta-ledger defect, pass deterministic tests, Forge GameTests, dedicated-server, interactive-client, multiplayer, fixed-seed generation, documentation, security, artifact, checksum, SBOM, repository-check, merge, default-branch, and signed-tag verification in sequential phase order."
+  }
+}

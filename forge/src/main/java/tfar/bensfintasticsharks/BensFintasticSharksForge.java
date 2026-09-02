@@ -53,6 +53,9 @@ public class BensFintasticSharksForge {
         bus.addListener(tfar.bensfintasticsharks.spawn.BfsSpawnPlacements::onSpawnPlacementRegister);
         bus.addListener(ModDatagen::start);
         MinecraftForge.EVENT_BUS.addListener(this::playerTick);
+        MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
+        MinecraftForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);
+        MinecraftForge.EVENT_BUS.addListener(this::onPlayerRespawn);
         MinecraftForge.EVENT_BUS.addListener(this::trading);
         MinecraftForge.EVENT_BUS.addListener(this::onLivingDeath);
         MinecraftForge.EVENT_BUS.addListener(this::onRegisterCommands);
@@ -99,6 +102,24 @@ public class BensFintasticSharksForge {
                         event.player.getZ() - look.z * 0.4,
                         2, 0.15, 0.15, 0.15, 0.0);
             }
+        }
+    }
+
+    private void onPlayerLoggedOut(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) {
+        releaseGrabbedPlayer(event.getEntity());
+    }
+
+    private void onPlayerChangedDimension(net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent event) {
+        releaseGrabbedPlayer(event.getEntity());
+    }
+
+    private void onPlayerRespawn(net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent event) {
+        releaseGrabbedPlayer(event.getEntity());
+    }
+
+    private void releaseGrabbedPlayer(net.minecraft.world.entity.player.Player player) {
+        if (player.isPassenger()) {
+            player.stopRiding();
         }
     }
 

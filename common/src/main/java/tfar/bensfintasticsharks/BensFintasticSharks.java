@@ -13,6 +13,7 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tfar.bensfintasticsharks.advancmenets.OctopusInkedTrigger;
@@ -41,6 +42,7 @@ public class BensFintasticSharks {
         // Platform-side hook lets each loader create its custom mob categories before
         // ModEntityTypes' static init runs.
         Services.PLATFORM.initCustomCategories();
+        Services.PLATFORM.registerAll(ModBlocks.class, BuiltInRegistries.BLOCK, Block.class);
         Services.PLATFORM.registerAll(ModEntityTypes.class, BuiltInRegistries.ENTITY_TYPE, EntityType.class);
         Services.PLATFORM.registerAll(ModItems.class, BuiltInRegistries.ITEM, Item.class);
         Services.PLATFORM.registerAll(ModMobEffects.class, BuiltInRegistries.MOB_EFFECT, MobEffect.class);
@@ -100,6 +102,10 @@ public class BensFintasticSharks {
 
     public static Stream<Item> getKnownItems() {
         return getKnown(BuiltInRegistries.ITEM);
+    }
+
+    public static Stream<Block> getKnownBlocks() {
+        return getKnown(BuiltInRegistries.BLOCK);
     }
 
     public static <V> Stream<V> getKnown(Registry<V> registry) {

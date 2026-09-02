@@ -103,6 +103,12 @@ public class ModItems {
     public static final Item RAW_ATLANTIC_SALMON = new Item(new Item.Properties().food(RAW_ATLANTIC_FISH));
     public static final Item COOKED_ATLANTIC_SALMON = new Item(new Item.Properties().food(COOKED_ATLANTIC_SALMON_FOOD));
 
+    // Permanent aquatic vegetation. These ordinary BlockItems are intentionally visible in
+    // the existing creative tab, unlike the hidden advancement-only items below.
+    public static final Item ALGAE_BLOCK = new BlockItem(ModBlocks.ALGAE_BLOCK, new Item.Properties());
+    public static final Item LARGE_GREEN_ALGAE = new BlockItem(ModBlocks.LARGE_GREEN_ALGAE, new Item.Properties());
+    public static final Item LARGE_RED_ALGAE = new BlockItem(ModBlocks.LARGE_RED_ALGAE, new Item.Properties());
+
     //these are only used for advancements
     public static final Item GREAT_WHITE_SHARK_PIXEL_ART = new HiddenItem(new Item.Properties());
     public static final Item GREAT_HAMMERHEAD_SHARK_PIXEL_ART = new HiddenItem(new Item.Properties());

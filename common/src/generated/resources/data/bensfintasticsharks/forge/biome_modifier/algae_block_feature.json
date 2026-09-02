@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#bensfintasticsharks:algae_spawns",
+  "features": "bensfintasticsharks:algae_block",
+  "step": "vegetal_decoration"
+}

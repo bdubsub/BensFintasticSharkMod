@@ -58,6 +58,10 @@ public class ModItemModelProvider extends ItemModelProvider {
         makeOneLayerItem(ModItems.RAW_ATLANTIC_SALMON);
         makeOneLayerItem(ModItems.COOKED_ATLANTIC_SALMON);
 
+        makeSimpleBlockItem(ModItems.ALGAE_BLOCK);
+        makeSimpleBlockItem(ModItems.LARGE_GREEN_ALGAE);
+        makeSimpleBlockItem(ModItems.LARGE_RED_ALGAE);
+
         makeOneLayerItem(ModItems.GREAT_WHITE_SHARK_SKIN);
         makeOneLayerItem(ModItems.GREAT_HAMMERHEAD_SHARK_SKIN);
         makeOneLayerItem(ModItems.COMMON_THRESHER_SHARK_SKIN);
@@ -122,7 +126,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 
 
     protected void makeSimpleBlockItem(Item item, ResourceLocation loc) {
-        String s = BuiltInRegistries.ITEM.getKey(item).toString();
+        String s = BuiltInRegistries.ITEM.getKey(item).getPath();
         getBuilder(s)
                 .parent(getExistingFile(loc));
     }

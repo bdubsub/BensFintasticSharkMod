@@ -196,20 +196,6 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
                 .addCriterion("spotted_shark", SpyglassSpotSharkTrigger.TriggerInstance.spotted())
                 .save(saver, BensFintasticSharks.id("shark_spotter").toString());
 
-        // Shark Whisperer — encounter all 8 shark species
-        Advancement.Builder sharkWhispererBuilder = Advancement.Builder.advancement().parent(sharkSpotter)
-                .display(ModItems.SHARKS_GALORE,
-                        net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.shark_whisperer.title"),
-                        net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.shark_whisperer.description"),
-                        null, FrameType.CHALLENGE, true, true, false)
-                .rewards(AdvancementRewards.Builder.experience(100));
-        for (EntityType<?> shark : ALL_SHARKS) {
-            sharkWhispererBuilder.addCriterion(BuiltInRegistries.ENTITY_TYPE.getKey(shark).getPath(),
-                    PlayerFoundEntityTrigger.TriggerInstance.located(
-                            EntityPredicate.Builder.entity().of(shark).build()));
-        }
-        Advancement sharkWhisperer = sharkWhispererBuilder.save(saver, BensFintasticSharks.id("shark_whisperer").toString());
-
         // Apex Awareness — be attacked by a shark (and survive it; no kill condition required here)
         Advancement.Builder apexAwarenessBuilder = Advancement.Builder.advancement().parent(marineCurious)
                 .display(ModItems.GREAT_WHITE_SHARK_TOOTH,
@@ -244,7 +230,7 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
         conservationistBuilder.save(saver, BensFintasticSharks.id("conservationist").toString());
 
         // Marine Biologist — encounter every BFS species
-        Advancement.Builder marineBiologistBuilder = Advancement.Builder.advancement().parent(sharkWhisperer)
+        Advancement.Builder marineBiologistBuilder = Advancement.Builder.advancement().parent(sharksGalore)
                 .display(ModItems.SHARK_CODEX,
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.marine_biologist.title"),
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.marine_biologist.description"),
@@ -317,7 +303,7 @@ public class BensFintasticSharksAdvancements implements ForgeAdvancementProvider
         dolphinFriendBuilder.save(saver, BensFintasticSharks.id("dolphin_friend").toString());
 
         // Apex of Apex — encounter an Orca
-        Advancement apexOfApex = Advancement.Builder.advancement().parent(sharkWhisperer)
+        Advancement apexOfApex = Advancement.Builder.advancement().parent(sharksGalore)
                 .display(ModItems.ORCA_SPAWN_EGG,
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.apex_of_apex.title"),
                         net.minecraft.network.chat.Component.translatable("advancements.bensfintasticsharks.apex_of_apex.description"),

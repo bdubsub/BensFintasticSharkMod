@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "name": "Ben's Fintastic Sharks",
+    "repository": "https://github.com/bdubsub/BensFintasticSharkMod.git"
+  },
+  "master": "plan.md",
+  "plans": [
+    {
+      "id": "PLAN-MASTER",
+      "path": "plan.md",
+      "kind": "master",
+      "classification": "mandatory",
+      "requirementPrefix": "BFS",
+      "owner": "Ben's Fintastic Sharks",
+      "dependsOn": []
+    },
+    {
+      "id": "PLAN-PHASE-000",
+      "path": "phases/plan-phase-000.md",
+      "kind": "phase",
+      "classification": "mandatory",
+      "requirementPrefix": "PHASE000",
+      "phaseId": "BFS-PHASE-000",
+      "owner": "Integration and verification maintainer",
+      "dependsOn": []
+    },
+    {
+      "id": "PLAN-PHASE-001",
+      "path": "phases/plan-phase-001.md",
+      "kind": "phase",
+      "classification": "mandatory",
+      "requirementPrefix": "PHASE001",
+      "phaseId": "BFS-PHASE-001",
+      "owner": "Gameplay and compatibility maintainer",
+      "dependsOn": ["PLAN-PHASE-000"]
+    },
+    {
+      "id": "PLAN-PHASE-002",
+      "path": "phases/plan-phase-002.md",
+      "kind": "phase",
+      "classification": "mandatory",
+      "requirementPrefix": "PHASE002",
+      "phaseId": "BFS-PHASE-002",
+      "owner": "Entity animation and behavior maintainer",
+      "dependsOn": ["PLAN-PHASE-001"]
+    },
+    {
+      "id": "PLAN-PHASE-003",
+      "path": "phases/plan-phase-003.md",
+      "kind": "phase",
+      "classification": "mandatory",
+      "requirementPrefix": "PHASE003",
+      "phaseId": "BFS-PHASE-003",
+      "owner": "Advancement and localization maintainer",
+      "dependsOn": ["PLAN-PHASE-002"]
+    },
+    {
+      "id": "PLAN-PHASE-004",
+      "path": "phases/plan-phase-004.md",
+      "kind": "phase",
+      "classification": "mandatory",
+      "requirementPrefix": "PHASE004",
+      "phaseId": "BFS-PHASE-004",
+      "owner": "World generation and content maintainer",
+      "dependsOn": ["PLAN-PHASE-003"]
+    },
+    {
+      "id": "PLAN-PHASE-005",
+      "path": "phases/plan-phase-005.md",
+      "kind": "phase",
+      "classification": "mandatory",
+      "requirementPrefix": "PHASE005",
+      "phaseId": "BFS-PHASE-005",
+      "owner": "Release and verification maintainer",
+      "dependsOn": ["PLAN-PHASE-004"]
+    }
+  ]
+}

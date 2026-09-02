@@ -25,9 +25,9 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.swim_new");
     private static final RawAnimation FAST_SWIM = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.swim_fast_new");
     private static final RawAnimation BEACHED = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.beached");
-    private static final RawAnimation THRASH = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.thrash");
     private static final RawAnimation BITE = RawAnimation.begin().then("animation.oceanicwhitetipshark.bite_new", Animation.LoopType.PLAY_ONCE);
     private static final RawAnimation DEATH = RawAnimation.begin().thenPlayAndHold("animation.oceanicwhitetipshark.death");
+    private static final RawAnimation THRASH = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.thrash");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 

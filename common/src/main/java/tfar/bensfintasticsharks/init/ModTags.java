@@ -4,6 +4,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.biome.Biome;
 import tfar.bensfintasticsharks.BensFintasticSharks;
 
@@ -41,9 +42,18 @@ public class ModTags {
 
     public static class Items {
         public static final TagKey<Item> SHARK_TEETH = create("shark_teeth");
+        public static final TagKey<Item> ALGAE = create("algae");
 
         private static TagKey<Item> create(String pName) {
             return TagKey.create(Registries.ITEM, BensFintasticSharks.id(pName));
+        }
+    }
+
+    public static class Blocks {
+        public static final TagKey<Block> ALGAE = create("algae");
+
+        private static TagKey<Block> create(String name) {
+            return TagKey.create(Registries.BLOCK, BensFintasticSharks.id(name));
         }
     }
 
@@ -75,6 +85,7 @@ public class ModTags {
         public static TagKey<Biome> CANNONBALL_JELLYFISH_SPAWNS = create("cannonball_jellyfish_spawns");
         public static TagKey<Biome> ATLANTIC_COD_SPAWNS = create("atlantic_cod_spawns");
         public static TagKey<Biome> ATLANTIC_SALMON_SPAWNS = create("atlantic_salmon_spawns");
+        public static TagKey<Biome> ALGAE_SPAWNS = create("algae_spawns");
 
         private static TagKey<Biome> create(String pName) {
             return TagKey.create(Registries.BIOME, BensFintasticSharks.id(pName));

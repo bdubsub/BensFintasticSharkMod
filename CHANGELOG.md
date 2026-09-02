@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.24 (2026-09-02)
+
+### Added
+
+- **Advancement artwork.** The seven supplied 16×16 icons are installed for their matching advancement entries.
+- **Permanent algae.** Algae Block, Large Green Algae, and Large Red Algae are registered with item forms, animated textures, tags, loot, and bounded ocean floor generation from y 20 through y 62.
+
+### Fixed
+
+- **Captain's Legacy description.** The complete description is now `Obtain Capitán Ben's Hat.`.
+- **Duplicate shark discovery.** `shark_whisperer` is retired and `sharks_galore` is the single all shark discovery node.
+- **Fish animation playback.** Atlantic Cod and Atlantic Salmon now evaluate their authored movement clips, and Oceanic Whitetip controllers use the complete supplied idle, swim, fast swim, bite, death, beached, and thrash set.
+- **Tiger Shark item curiosity.** Tiger Sharks use reachable underwater intercepts and stop failed navigation instead of appearing stationary around unreachable items.
+- **Advancement punctuation.** Advancement titles and descriptions use one consistent sentence punctuation policy.
+
+### Changed
+
+- **Version metadata.** The release version is `0.24` for Minecraft 1.20.1 Forge.
+
 ## 0.23 emergency fix (2026-07-29)
 
 ### Fixed

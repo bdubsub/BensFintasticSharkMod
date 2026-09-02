@@ -63,9 +63,9 @@ final class BfsSpeciesInfo {
             Map.entry("cannonball_jellyfish", species("Stomolophus meleagris", "Passive contact hazard",
                     "TBD", ModTags.Biomes.CANNONBALL_JELLYFISH_SPAWNS)),
             Map.entry("atlantic_cod", species("Gadus morhua", "Passive schooling fish",
-                    "TBD", ModTags.Biomes.ATLANTIC_COD_SPAWNS)),
+                    "Small fish and aquatic invertebrates", ModTags.Biomes.ATLANTIC_COD_SPAWNS)),
             Map.entry("atlantic_salmon", species("Salmo salar", "Passive schooling fish",
-                    "TBD", ModTags.Biomes.ATLANTIC_SALMON_SPAWNS))
+                    "Small fish and aquatic invertebrates", ModTags.Biomes.ATLANTIC_SALMON_SPAWNS))
     );
 
     private BfsSpeciesInfo() {
