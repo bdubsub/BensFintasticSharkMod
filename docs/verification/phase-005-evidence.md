@@ -8,7 +8,7 @@ This record is the release evidence packet for Forge 1.20.1 version 0.24. The ow
 | --- | --- |
 | Stable branch | `1.20.1` |
 | Release branch | `envy/0.24` |
-| Release source commit | `f386f19bd5616854ad476ad9c260b7182ceaa53f` |
+| Release source commit | `25e824c1f3c264346afc393031047b47d2ad1cfa` |
 | Minecraft | `1.20.1` |
 | Forge | `47.2.0` |
 | Java | `17.0.19+10` Eclipse Adoptium |
@@ -21,14 +21,16 @@ This record is the release evidence packet for Forge 1.20.1 version 0.24. The ow
 
 The branch is a direct descendant of `1.20.1` commit `06a28f6b3fcc62ee54cead9e62370c86aea0bfb9`. The root `build.gradle` line ending change and the owner supplied `Content/` archives remain outside the commit.
 
+Pull requests `#5`, `#6`, and `#7` were merged into `1.20.1`. The original release tag `bfs-0.24` remains on the release merge, and signed tag `bfs-0.24-final` identifies the final default branch verification merge `25e824c1f3c264346afc393031047b47d2ad1cfa`.
+
 ## Deterministic verification
 
 | Check | Command | Result |
 | --- | --- | --- |
-| Unit and release contract tests | `JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64 PATH=/usr/lib/jvm/temurin-17-jdk-amd64/bin:$PATH ./gradlew :forge:test --rerun-tasks` | Passed. |
-| Data generation | `JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64 PATH=/usr/lib/jvm/temurin-17-jdk-amd64/bin:$PATH ./gradlew :forge:Data --rerun-tasks` | Passed. The data run reported 302 generated files and no stale removals. |
-| Forge GameTests | `JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64 PATH=/usr/lib/jvm/temurin-17-jdk-amd64/bin:$PATH ./gradlew :forge:GameTestServer --rerun-tasks` | Passed. The clean Forge server reported two required tests and all two passed. |
-| Forge build | `JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64 PATH=/usr/lib/jvm/temurin-17-jdk-amd64/bin:$PATH ./gradlew :forge:build --rerun-tasks` | Passed. |
+| Unit and release contract tests | `./gradlew test --no-daemon` from a clean archive of `origin/1.20.1` at `25e824c1f3c264346afc393031047b47d2ad1cfa` | Passed. Fabric test tasks were skipped by the documented unsupported template guard, and Forge tests passed. |
+| Data generation | `./gradlew :forge:Data --rerun-tasks` from the same clean archive | Passed. The data run reported 302 generated files and no stale removals. |
+| Forge GameTests | `./gradlew :forge:GameTestServer --rerun-tasks` from the same clean archive with a disposable `forge/run/server.properties` | Passed. The clean Forge server reported two required tests and all two passed. |
+| Forge build | `./gradlew :forge:build --rerun-tasks` from the same clean archive | Passed. |
 | Repository diff hygiene | `git diff --check -- . ':(exclude)build.gradle'` | Passed. Generated cache files and the protected line ending change were not staged. |
 | JSON validation | Python JSON parsing and duplicate key scan for tracked resource JSON | Passed. Zero parse errors and zero duplicate keys. |
 | Side and secret scans | Client reference scan for common sources and secret pattern scan | Passed. No unexpected common side reference or secret pattern was found. |
@@ -49,9 +51,9 @@ The loading smokes prove startup and resource registration only. Interactive vis
 | Field | Value |
 | --- | --- |
 | File | `forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` |
-| Size | `1,748,439` bytes |
-| SHA 256 | `513e7e734e163cbf527c77eead0bde3baf1992381f87d82a4f4730af450a30de` |
-| SHA 512 | `7c50451ceab73c0d160a98b47fbe8e40597a2287cb009c079e09895a731284e623aa36a7d5884ed89600c925413a40a3d7d2e322e3e335195ed57e4974025b19` |
+| Size | `1,748,578` bytes |
+| SHA 256 | `eca83e5c4b9e0ec08a35deeaa5ccbf74e21e139c27f34094f83a37e10c028f7c` |
+| SHA 512 | `ab8eb0a0b0270b56fd84257421e321efcf794798191cff6d4b2d753860a6ca658b13fd0835ad5f2f220ba2d62f1443f3ef558893529e7883b90dab8949fb40e6` |
 | Archive test | `unzip -t` passed with 874 entries and no errors. |
 | Manifest | `Specification-Version`, `Implementation-Version`, and `mods.toml` version are `0.24`; `Built-On-Minecraft` is `1.20.1`; `Built-On-Java` is Java 17. |
 
