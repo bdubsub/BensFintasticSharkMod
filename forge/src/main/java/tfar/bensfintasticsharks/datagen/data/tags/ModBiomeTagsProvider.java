@@ -78,5 +78,12 @@ public class ModBiomeTagsProvider extends BiomeTagsProvider {
 
         tag(ModTags.Biomes.ATLANTIC_SALMON_SPAWNS).add(
                 Biomes.COLD_OCEAN, Biomes.DEEP_COLD_OCEAN, Biomes.RIVER, Biomes.FROZEN_RIVER);
+
+        tag(ModTags.Biomes.ALGAE_SPAWNS).add(
+                Biomes.OCEAN, Biomes.DEEP_OCEAN,
+                Biomes.COLD_OCEAN, Biomes.DEEP_COLD_OCEAN,
+                Biomes.FROZEN_OCEAN, Biomes.DEEP_FROZEN_OCEAN,
+                Biomes.LUKEWARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN,
+                Biomes.WARM_OCEAN);
     }
 }

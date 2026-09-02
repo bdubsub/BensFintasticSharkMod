@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.AABB;
@@ -118,7 +119,10 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
     public boolean justBitItem() { return biteFlash > 0; }
 
     @Override
-    protected float wanderRadiusXZ() { return 64f; }
+    // Keep random idle targets within a normally navigable ocean pocket. A 64 block
+    // search regularly selected a target outside a small loaded water volume, leaving
+    // the shark with no path and making it appear stationary until the next roll.
+    protected float wanderRadiusXZ() { return 32f; }
     @Override
     protected float wanderRadiusY() { return 16f; }
 
@@ -152,6 +156,12 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
                 stopInvestigatingItem(true);
             } else if (--investigationTicks <= 0) {
                 stopInvestigatingItem(true);
+            } else if (investigationTicks < 190 && getNavigation().isDone()
+                    && distanceToSqr(investigatedApproachPoint) >= 5.0625) {
+                // A reachable intercept should keep a path active until the shark arrives.
+                // If navigation has finished while the shark is still outside bite distance,
+                // treat that as a failed path instead of waiting out the curiosity timeout.
+                stopInvestigatingItem(true);
             } else if (distanceToSqr(investigatedApproachPoint) < 5.0625) {
                 this.swing(this.getUsedItemHand());
                 biteFlash = 8;
@@ -180,7 +190,10 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
 
         AABB area = getBoundingBox().inflate(12.0);
         List<ItemEntity> items = level().getEntitiesOfClass(ItemEntity.class, area,
-                item -> item.isInWater() && item != recentlyInvestigatedItem);
+                item -> item.isInWater()
+                        && item.getItem().isEdible()
+                        && item != recentlyInvestigatedItem
+                        && isReachableItem(item));
         if (items.isEmpty()) {
             itemScanCooldown = 100;
             return;
@@ -202,6 +215,14 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
     private Vec3 createItemApproachPoint(ItemEntity item) {
         double depth = Math.max(1.0, getBbHeight() * 0.6);
         return new Vec3(item.getX(), item.getY() - depth, item.getZ());
+    }
+
+    private boolean isReachableItem(ItemEntity item) {
+        Vec3 approach = createItemApproachPoint(item);
+        net.minecraft.core.BlockPos approachPos = net.minecraft.core.BlockPos.containing(approach);
+        if (!level().getFluidState(approachPos).is(net.minecraft.tags.FluidTags.WATER)) return false;
+        Path path = getNavigation().createPath(approachPos, 0);
+        return path != null && path.canReach();
     }
 
     private boolean itemMovedAwayFromApproach() {

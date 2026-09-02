@@ -56,6 +56,8 @@ public class MobCapManager {
 
     private static final ThreadLocal<Boolean> REPLACING_VANILLA_FISH =
             ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Boolean> SPAWNING_GROUP_EXTRAS =
+            ThreadLocal.withInitial(() -> false);
     private static final AtomicBoolean REPLACEMENT_CATEGORY_ERROR_REPORTED = new AtomicBoolean();
 
     /** Returns the current cap for an EntityType, or {@code -1} if uncapped. */
@@ -188,7 +190,7 @@ public class MobCapManager {
         // finalizes. Only on NATURAL/CHUNK_GENERATION to avoid spawner/patrol stacking.
         if (reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) {
             var groupMin = BfsConfig.COMMON.speciesGroupMin.get(speciesPath);
-            if (groupMin != null && groupMin.get() > 1) {
+            if (groupMin != null && groupMin.get() > 1 && !SPAWNING_GROUP_EXTRAS.get()) {
                 spawnGroupExtras(event, groupMin.get());
             }
         }
@@ -219,7 +221,21 @@ public class MobCapManager {
 
         CompoundTag data = new CompoundTag();
         original.saveWithoutId(data);
+        // A replacement must receive player-authored state such as a custom name and safe
+        // spawn-egg tags, but never the source entity identity or attachment graph. Loading
+        // UUID, position, motion, passengers, or leash data would either collide with the
+        // source or resurrect relationships that were not part of the fish conversion.
+        data.remove("UUID");
+        data.remove("Pos");
+        data.remove("Motion");
+        data.remove("Rotation");
+        data.remove("Passengers");
+        data.remove("Leash");
         replacement.load(data);
+        replacement.moveTo(original.getX(), original.getY(), original.getZ(), original.getYRot(), original.getXRot());
+        replacement.setDeltaMovement(original.getDeltaMovement());
+        replacement.yHeadRot = original.yHeadRot;
+        replacement.yBodyRot = original.yBodyRot;
         if (event.getLevel().addFreshEntity(replacement)) {
             event.setCanceled(true);
         }
@@ -341,23 +357,42 @@ public class MobCapManager {
 
     private void spawnGroupExtras(MobSpawnEvent.FinalizeSpawn event, int desiredGroupSize) {
         if (!(event.getLevel() instanceof net.minecraft.server.level.ServerLevel sl)) return;
-        Entity primary = event.getEntity();
+        Mob primary = event.getEntity();
         EntityType<?> type = primary.getType();
-        // Count siblings already present nearby — bail if we have enough.
-        AABB nearby = primary.getBoundingBox().inflate(16);
+        AABB nearby = primary.getBoundingBox().inflate(COUNT_RADIUS);
         int existing = sl.getEntitiesOfClass(primary.getClass(), nearby, e -> e != primary && e.isAlive()).size();
-        int toSpawn = Math.max(0, desiredGroupSize - 1 - existing);
+        int cap = getCap(type);
+        int available = cap > 0 ? Math.max(0, cap - existing - 1) : Integer.MAX_VALUE;
+        int toSpawn = Math.min(available, Math.max(0, desiredGroupSize - 1 - existing));
         if (toSpawn <= 0) return;
         var rnd = sl.getRandom();
-        for (int i = 0; i < toSpawn; i++) {
-            double ox = (rnd.nextDouble() - 0.5) * 6.0;
-            double oz = (rnd.nextDouble() - 0.5) * 6.0;
-            var pos = new net.minecraft.core.BlockPos((int) (primary.getX() + ox), (int) primary.getY(), (int) (primary.getZ() + oz));
-            if (!sl.getFluidState(pos).is(net.minecraft.tags.FluidTags.WATER)) continue;
-            Entity sibling = type.create(sl);
-            if (sibling == null) continue;
-            sibling.moveTo(pos.getX() + 0.5, pos.getY() + 0.1, pos.getZ() + 0.5, rnd.nextFloat() * 360f, 0);
-            sl.addFreshEntity(sibling);
+        Boolean previous = SPAWNING_GROUP_EXTRAS.get();
+        SPAWNING_GROUP_EXTRAS.set(true);
+        try {
+            SpawnGroupData groupData = event.getSpawnData();
+            for (int i = 0; i < toSpawn; i++) {
+                double ox = (rnd.nextDouble() - 0.5) * 6.0;
+                double oz = (rnd.nextDouble() - 0.5) * 6.0;
+                var pos = new net.minecraft.core.BlockPos((int) (primary.getX() + ox), (int) primary.getY(), (int) (primary.getZ() + oz));
+                var fluid = sl.getFluidState(pos);
+                if (!fluid.is(net.minecraft.tags.FluidTags.WATER) || !fluid.isSource()) continue;
+                Entity created = type.create(sl);
+                if (!(created instanceof Mob sibling)) continue;
+                sibling.moveTo(pos.getX() + 0.5, pos.getY() + 0.1, pos.getZ() + 0.5, rnd.nextFloat() * 360f, 0);
+                if (!sl.noCollision(sibling, sibling.getBoundingBox())) continue;
+                groupData = ForgeEventFactory.onFinalizeSpawn(
+                        sibling,
+                        event.getLevel(),
+                        event.getDifficulty(),
+                        event.getSpawnType(),
+                        groupData,
+                        event.getSpawnTag());
+                if (groupData == null) continue;
+                if (!sl.addFreshEntity(sibling)) continue;
+                event.setSpawnData(groupData);
+            }
+        } finally {
+            SPAWNING_GROUP_EXTRAS.set(previous);
         }
     }
 }

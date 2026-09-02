@@ -30,6 +30,10 @@ public class BiomeModifiers {
     public static final ResourceKey<BiomeModifier> ATLANTIC_COD_SPAWNS = create("atlantic_cod_spawns");
     public static final ResourceKey<BiomeModifier> ATLANTIC_SALMON_SPAWNS = create("atlantic_salmon_spawns");
 
+    public static final ResourceKey<BiomeModifier> ALGAE_BLOCK_FEATURE = create("algae_block_feature");
+    public static final ResourceKey<BiomeModifier> LARGE_GREEN_ALGAE_FEATURE = create("large_green_algae_feature");
+    public static final ResourceKey<BiomeModifier> LARGE_RED_ALGAE_FEATURE = create("large_red_algae_feature");
+
     private static ResourceKey<BiomeModifier> create(String key) {
         return ResourceKey.create(ForgeRegistries.Keys.BIOME_MODIFIERS, BensFintasticSharks.id(key));
     }

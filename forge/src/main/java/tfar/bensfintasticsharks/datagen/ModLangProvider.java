@@ -42,6 +42,7 @@ public class ModLangProvider extends LanguageProvider {
         exclude_items.add(tfar.bensfintasticsharks.init.ModItems.NAUTILUS_SPAWN_EGG);
         exclude_items.add(tfar.bensfintasticsharks.init.ModItems.SANDTIGER_SHARK_SPAWN_EGG);
         BensFintasticSharks.getKnownItems().toList().stream().filter(item -> !exclude_items.contains(item)).<Supplier<? extends Item>>map(item -> () -> item).forEach(this::addDefaultItem);
+        BensFintasticSharks.getKnownBlocks().<Supplier<? extends Block>>map(block -> () -> block).forEach(this::addDefaultBlock);
 
         for (EntityType<?> type : ModDatagen.getKnownEntityTypes().toList()) {
             // 0.18 — explicit "Common Bottlenose Dolphin" override below.
@@ -86,58 +87,58 @@ public class ModLangProvider extends LanguageProvider {
         add("item.bensfintasticsharks.atlantic_salmon_spawn_egg.scientific", "Salmo salar");
 
         addTextComponent(TextComponents.ROOT,"Ben’s Fintastic Sharks!");
-        addTextComponent(TextComponents.ROOT_DESC,"Achievement granted when logging in with the mod");
+        addTextComponent(TextComponents.ROOT_DESC,"Achievement granted when logging in with the mod.");
 
         addTextComponent(TextComponents.GREAT_WHITE_ENCOUNTER,"King of the Seas");
-        addTextComponent(TextComponents.GREAT_WHITE_ENCOUNTER_DESC,"Encounter a Great White Shark");
+        addTextComponent(TextComponents.GREAT_WHITE_ENCOUNTER_DESC,"Encounter a Great White Shark.");
 
         addTextComponent(TextComponents.GREAT_HAMMERHEAD_ENCOUNTER,"Stop! Hammer Time!");
-        addTextComponent(TextComponents.GREAT_HAMMERHEAD_ENCOUNTER_DESC,"Encounter a Great Hammerhead Shark");
+        addTextComponent(TextComponents.GREAT_HAMMERHEAD_ENCOUNTER_DESC,"Encounter a Great Hammerhead Shark.");
 
         addTextComponent(TextComponents.COMMON_THRESHER_ENCOUNTER,"Whiplash!");
-        addTextComponent(TextComponents.COMMON_THRESHER_ENCOUNTER_DESC,"Encounter a Common Thresher Shark");
+        addTextComponent(TextComponents.COMMON_THRESHER_ENCOUNTER_DESC,"Encounter a Common Thresher Shark.");
 
         addTextComponent(TextComponents.SHORTFIN_MAKO_ENCOUNTER,"Fast as hell, twice as mean.");
-        addTextComponent(TextComponents.SHORTFIN_MAKO_ENCOUNTER_DESC,"Encounter a Shortfin Mako Shark");
+        addTextComponent(TextComponents.SHORTFIN_MAKO_ENCOUNTER_DESC,"Encounter a Shortfin Mako Shark.");
 
-        addTextComponent(TextComponents.HARBOR_SEAL_ENCOUNTER,"Awkward.");
-        addTextComponent(TextComponents.HARBOR_SEAL_ENCOUNTER_DESC,"Encounter a Harbor Seal");
+        addTextComponent(TextComponents.HARBOR_SEAL_ENCOUNTER,"Awkward...");
+        addTextComponent(TextComponents.HARBOR_SEAL_ENCOUNTER_DESC,"Encounter a Harbor Seal.");
 
         addTextComponent(TextComponents.SLEEPING_WITH_THE_FISHES,"Sleeping with the fishes.");
-        addTextComponent(TextComponents.SLEEPING_WITH_THE_FISHES_DESC,"Killed by a shark");
+        addTextComponent(TextComponents.SLEEPING_WITH_THE_FISHES_DESC,"Killed by a shark.");
 
         addTextComponent(TextComponents.ALBINO_ENCOUNTER,"It's a shiny!");
-        addTextComponent(TextComponents.ALBINO_ENCOUNTER_DESC,"Encounter an albino variant");
+        addTextComponent(TextComponents.ALBINO_ENCOUNTER_DESC,"Encounter an albino variant.");
 
         addTextComponent(TextComponents.ILLEGAL_POACHING,"Conservation Violation");
-        addTextComponent(TextComponents.ILLEGAL_POACHING_DESC,"Kill a shark");
+        addTextComponent(TextComponents.ILLEGAL_POACHING_DESC,"Kill a shark.");
 
         addTextComponent(TextComponents.JUSTICE_FOR_STEVE,"Crikey! Respect the wildlife!");
-        addTextComponent(TextComponents.JUSTICE_FOR_STEVE_DESC,"Encounter and get stung by a Common Stingray");
+        addTextComponent(TextComponents.JUSTICE_FOR_STEVE_DESC,"Encounter and get stung by a Common Stingray.");
 
         addTextComponent(TextComponents.PRISMARINE_ARMOR,"The Sea Dwelling Knight");
-        addTextComponent(TextComponents.PRISMARINE_ARMOR_DESC,"Obtain a full set of Prismarine Armor");
+        addTextComponent(TextComponents.PRISMARINE_ARMOR_DESC,"Obtain a full set of Prismarine Armor.");
 
-        addTextComponent(TextComponents.ZIPPY_ENCOUNTER,"Shark of Zeus");
-        addTextComponent(TextComponents.ZIPPY_ENCOUNTER_DESC,"Discover Zippy");
+        addTextComponent(TextComponents.ZIPPY_ENCOUNTER,"THUNDER BRINGER!");
+        addTextComponent(TextComponents.ZIPPY_ENCOUNTER_DESC,"Discover Zippy.");
 
-        addTextComponent(TextComponents.SPECIMEN_8_ENCOUNTER,"I’ll be back.");
-        addTextComponent(TextComponents.SPECIMEN_8_ENCOUNTER_DESC,"Discover Specimen-8");
+        addTextComponent(TextComponents.SPECIMEN_8_ENCOUNTER,"I'll be back");
+        addTextComponent(TextComponents.SPECIMEN_8_ENCOUNTER_DESC,"Discover Specimen-8.");
 
-        addTextComponent(TextComponents.DEEP_BLUE_ENCOUNTER,"Mommy Shark");
-        addTextComponent(TextComponents.DEEP_BLUE_ENCOUNTER_DESC,"Discover Deep Blue");
+        addTextComponent(TextComponents.DEEP_BLUE_ENCOUNTER,"Mommy Shark.");
+        addTextComponent(TextComponents.DEEP_BLUE_ENCOUNTER_DESC,"Discover Deep Blue.");
 
         addTextComponent(TextComponents.SHARK_CODEX,"Knowledge is power…");
-        addTextComponent(TextComponents.SHARK_CODEX_DESC,"Craft Capitán Ben's Codex");
+        addTextComponent(TextComponents.SHARK_CODEX_DESC,"Craft Capitán Ben's Codex.");
 
         addTextComponent(TextComponents.LOST_MANUSCRIPT,"Lost beneath the waves");
-        addTextComponent(TextComponents.LOST_MANUSCRIPT_DESC,"Find a lost manuscript");
+        addTextComponent(TextComponents.LOST_MANUSCRIPT_DESC,"Find a lost manuscript.");
 
         addTextComponent(TextComponents.LEVEL_SHARK_CODEX,"Level Up!");
-        addTextComponent(TextComponents.LEVEL_SHARK_CODEX_DESC,"Combine 9 Codex Pages with Capitán Ben's Codex");
+        addTextComponent(TextComponents.LEVEL_SHARK_CODEX_DESC,"Combine 9 Codex Pages with Capitán Ben's Codex.");
 
-        addTextComponent(TextComponents.SHARKS_GALORE,"Shark Galore!");
-        addTextComponent(TextComponents.SHARKS_GALORE_DESC,"Discover every species of sharks");
+        addTextComponent(TextComponents.SHARKS_GALORE,"Sharks Galore!");
+        addTextComponent(TextComponents.SHARKS_GALORE_DESC,"Discover every species of sharks.");
 
         addTextComponent(TextComponents.TAB_TITLE,"Ben's Fintastic Sharks");
 
@@ -172,8 +173,6 @@ public class ModLangProvider extends LanguageProvider {
         add("advancements.bensfintasticsharks.marine_curious.description", "Encounter your first BFS creature.");
         add("advancements.bensfintasticsharks.shark_spotter.title", "Shark Spotter");
         add("advancements.bensfintasticsharks.shark_spotter.description", "Spot a shark using a Spyglass.");
-        add("advancements.bensfintasticsharks.shark_whisperer.title", "Shark Whisperer");
-        add("advancements.bensfintasticsharks.shark_whisperer.description", "Encounter all eight shark species.");
         add("advancements.bensfintasticsharks.apex_awareness.title", "Apex Awareness");
         add("advancements.bensfintasticsharks.apex_awareness.description", "Survive a shark attack without killing the shark.");
         add("advancements.bensfintasticsharks.conservationist.title", "Conservationist");
@@ -195,7 +194,7 @@ public class ModLangProvider extends LanguageProvider {
         add("advancements.bensfintasticsharks.hidden_trove.title", "Hidden Trove");
         add("advancements.bensfintasticsharks.hidden_trove.description", "Find a Sunken Trove.");
         add("advancements.bensfintasticsharks.captains_heir.title", "El Capit\u00E1n's Legacy");
-        add("advancements.bensfintasticsharks.captains_heir.description", "Obtain the Capitán.");
+        add("advancements.bensfintasticsharks.captains_heir.description", "Obtain Capitán Ben's Hat.");
         add("advancements.bensfintasticsharks.fancy_fork.title", "Fancy Fork");
         add("advancements.bensfintasticsharks.fancy_fork.description", "Obtain a Shark Trident.");
         // 0.18 — Megalodon Tooth gag advancement.

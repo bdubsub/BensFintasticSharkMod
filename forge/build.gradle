@@ -56,6 +56,21 @@ minecraft {
             }
         }
 
+        gameTestServer {
+            workingDirectory project.file('run')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName 'GameTestServer'
+            property 'forge.enabledGameTestNamespaces', mod_id
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods {
+                modGameTestRun {
+                    source sourceSets.main
+                    source project(":common").sourceSets.main
+                }
+            }
+        }
+
         data {
             workingDirectory project.file('run')
             ideaModule "${rootProject.name}.${project.name}.main"
@@ -102,6 +117,17 @@ tasks.named("sourcesJar", Jar) {
 
 processResources {
     from project(":common").sourceSets.main.resources
+}
+
+tasks.configureEach {
+    if (name == "GameTestServer") {
+    doFirst {
+        copy {
+            from file("src/main/resources/gameteststructures")
+            into file("run/gameteststructures")
+        }
+    }
+    }
 }
 
 jar.finalizedBy('reobfJar')

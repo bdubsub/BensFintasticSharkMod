@@ -27,14 +27,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.IntFunction;
 
 public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSharkEntity>
-        implements BfsVariantHolder {
+        implements BfsVariantHolder, SharkGrabber {
 
     private static final int LATCH_DURATION_TICKS = 30;
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT =
             SynchedEntityData.defineId(BlacktipReefSharkEntity.class, EntityDataSerializers.INT);
 
-    private int latchTicks;
+    private static final EntityDataAccessor<Integer> DATA_LATCH_TIMER =
+            SynchedEntityData.defineId(BlacktipReefSharkEntity.class, EntityDataSerializers.INT);
 
     private static final SharkParams PARAMS = new SharkParams(
             /* detectionRadius      */ 20.0f,
@@ -59,6 +60,7 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_VARIANT, 0);
+        this.entityData.define(DATA_LATCH_TIMER, 0);
     }
 
     public Variant getVariant() { return Variant.byId(this.entityData.get(DATA_VARIANT)); }
@@ -153,7 +155,7 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
     protected void latchMob(LivingEntity target) {
         if (target != getTarget() || target.isPassenger() || !isInWaterOrBubble()) return;
         if (!target.startRiding(this, true)) return;
-        latchTicks = LATCH_DURATION_TICKS;
+        setGrabTimer(LATCH_DURATION_TICKS);
         if (target instanceof ServerPlayer serverPlayer) {
             serverPlayer.connection.send(new ClientboundSetPassengersPacket(this));
         }
@@ -170,15 +172,34 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
     @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
-        if (latchTicks <= 0) return;
+        int timer = getGrabTimer();
+        if (timer <= 0) return;
 
-        latchTicks--;
+        int next = timer - 1;
         boolean livingPassenger = getPassengers().stream()
                 .anyMatch(passenger -> passenger instanceof LivingEntity living && living.isAlive());
-        if (latchTicks == 0 || !isAlive() || !isInWaterOrBubble() || !livingPassenger) {
-            latchTicks = 0;
+        if (next <= 0 || !isAlive() || !isInWaterOrBubble() || !livingPassenger) {
+            setGrabTimer(0);
             ejectPassengers();
+        } else {
+            setGrabTimer(next);
         }
+    }
+
+    private void setGrabTimer(int timer) {
+        entityData.set(DATA_LATCH_TIMER, Math.max(0, timer));
+    }
+
+    @Override
+    public int getGrabTimer() {
+        return entityData.get(DATA_LATCH_TIMER);
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        setGrabTimer(0);
+        ejectPassengers();
+        super.remove(reason);
     }
 
     @Override

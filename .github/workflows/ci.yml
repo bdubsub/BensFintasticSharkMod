@@ -3,7 +3,7 @@ name: ci
 on:
   pull_request:
   push:
-    branches: [main, master]
+    branches: [1.20.1, envy/0.24]
 
 permissions:
   contents: read

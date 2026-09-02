@@ -1,6 +1,8 @@
 package tfar.bensfintasticsharks.client;
 
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -11,6 +13,7 @@ import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.client.renderer.*;
 import tfar.bensfintasticsharks.entity.*;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
+import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.item.SharkCodexItem;
 
 public class ModClientForge {
@@ -33,7 +36,12 @@ public class ModClientForge {
     }
 
     static void setup(FMLClientSetupEvent event) {
-        event.enqueueWork(ModClient::registerRenderers);
+        event.enqueueWork(() -> {
+            ModClient.registerRenderers();
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.ALGAE_BLOCK, RenderType.cutout());
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.LARGE_GREEN_ALGAE, RenderType.cutout());
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.LARGE_RED_ALGAE, RenderType.cutout());
+        });
         // Wire the Shark Codex book-reader opener. The common SharkCodexItem keeps a
         // no-op Consumer by default so the dedicated server can load that class
         // without touching client-only GUI types.

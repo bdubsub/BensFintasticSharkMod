@@ -87,14 +87,10 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
     }
 
     public void grabMob(LivingEntity entity) {
-        if (entity == this.getTarget() && !entity.hasPassenger(this) && this.isInWater()) {
-            // 0.18 — force the mount: Entity.canRide() refuses riders that are sneaking,
-            // so without force=true a crouch-swimming player could never be grabbed (the
-            // shark would thrash empty water). A shark's jaws don't take no for an answer.
-            entity.startRiding(this, true);
-            if (entity instanceof ServerPlayer serverPlayer)
-                serverPlayer.connection.send(new ClientboundSetPassengersPacket(entity));
-        }
+        if (entity != this.getTarget() || entity.isPassenger() || !this.isInWaterOrBubble()) return;
+        if (!entity.startRiding(this, true)) return;
+        if (entity instanceof ServerPlayer serverPlayer)
+            serverPlayer.connection.send(new ClientboundSetPassengersPacket(this));
         setGrabTimer(BensFintasticSharks.GRAB_TIMER);
     }
 
@@ -175,28 +171,39 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
         int grabCountdown = getGrabTimer();
         if (grabCountdown > 0) {
             int next = grabCountdown - 1;
-            setGrabTimer(next);
+            boolean livingPassenger = getPassengers().stream()
+                    .anyMatch(passenger -> passenger instanceof LivingEntity living && living.isAlive());
+            if (next <= 0 || !isAlive() || !isInWaterOrBubble() || !livingPassenger) {
+                setGrabTimer(0);
+                ejectPassengers();
+                return;
+            }
             // Thrash damage: while a victim is being held, deal a tick of damage every 10t.
             // Without this the grab is purely visual and the prey just hitches a ride home.
-            if (!getPassengers().isEmpty() && (next % 10 == 0)) {
+            if (next % 10 == 0) {
                 for (Entity p : getPassengers()) {
                     if (p instanceof LivingEntity le && le.isAlive()) {
                         le.hurt(this.damageSources().mobAttack(this), 2.0f);
                     }
                 }
             }
-            if (next == 0) {
-                ejectPassengers();
-            }
+            setGrabTimer(next);
         }}
 
     void setGrabTimer(int timer) {
-        entityData.set(DATA_GRAB_TIMER,timer);
+        entityData.set(DATA_GRAB_TIMER, Math.max(0, timer));
     }
 
     @Override
     public int getGrabTimer() {
         return entityData.get(DATA_GRAB_TIMER);
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        setGrabTimer(0);
+        ejectPassengers();
+        super.remove(reason);
     }
 
     @Override

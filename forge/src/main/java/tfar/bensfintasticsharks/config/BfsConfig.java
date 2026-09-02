@@ -144,10 +144,12 @@ public class BfsConfig {
                             "Replace natural vanilla Cod and Salmon with Atlantic Cod and Atlantic Salmon.",
                             "The vanilla Cod and Salmon spawn eggs also create the matching Atlantic fish.",
                             "When disabled, vanilla fish remain unchanged and Atlantic fish use their own biome spawns.")
+                    .worldRestart()
                     .define("replace_vanilla_mobs", true);
             disableVanillaAquaticSpawns = b.comment(
                             "Disable natural spawning for vanilla fish, dolphins, squid, axolotls, and turtles.",
                             "Restart the game or dedicated server after changing this value.")
+                    .worldRestart()
                     .define("disable_vanilla_aquatic_spawns", false);
             b.pop();
 

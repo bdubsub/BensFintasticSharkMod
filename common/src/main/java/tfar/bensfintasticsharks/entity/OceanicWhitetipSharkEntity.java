@@ -174,6 +174,13 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
     }
 
     @Override
+    public void remove(RemovalReason reason) {
+        setGrabTimer(0);
+        ejectPassengers();
+        super.remove(reason);
+    }
+
+    @Override
     public int getGrabTimer() {
         return entityData.get(DATA_GRAB_TIMER);
     }
