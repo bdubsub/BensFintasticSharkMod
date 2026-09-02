@@ -8,7 +8,7 @@ This record is the release evidence packet for Forge 1.20.1 version 0.24. The ow
 | --- | --- |
 | Stable branch | `1.20.1` |
 | Release branch | `envy/0.24` |
-| Release source commit | `6cb5c638fba7e61a6a566ee45f9ec51fc46c8bf0` |
+| Release source commit | `f386f19bd5616854ad476ad9c260b7182ceaa53f` |
 | Minecraft | `1.20.1` |
 | Forge | `47.2.0` |
 | Java | `17.0.19+10` Eclipse Adoptium |
@@ -50,8 +50,8 @@ The loading smokes prove startup and resource registration only. Interactive vis
 | --- | --- |
 | File | `forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` |
 | Size | `1,748,439` bytes |
-| SHA 256 | `d1c43cccfde547b530f77d2a5b0c9e4f446539f5b99787ebf6ccc524d258887d` |
-| SHA 512 | `0d9126aadca2d1bec4329798981d4a5ce3a2d18092351996f07faca6078b133514f1c53405ecc13bc79fbe12719c01d438c850ce0cc34bf8fb0b47383736d176` |
+| SHA 256 | `513e7e734e163cbf527c77eead0bde3baf1992381f87d82a4f4730af450a30de` |
+| SHA 512 | `7c50451ceab73c0d160a98b47fbe8e40597a2287cb009c079e09895a731284e623aa36a7d5884ed89600c925413a40a3d7d2e322e3e335195ed57e4974025b19` |
 | Archive test | `unzip -t` passed with 874 entries and no errors. |
 | Manifest | `Specification-Version`, `Implementation-Version`, and `mods.toml` version are `0.24`; `Built-On-Minecraft` is `1.20.1`; `Built-On-Java` is Java 17. |
 
