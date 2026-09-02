@@ -1,0 +1,14 @@
+release: BensFintasticSharks Forge 1.20.1 0.24
+branch: envy/0.24
+stable branch: 1.20.1
+source commit: 6cb5c638fba7e61a6a566ee45f9ec51fc46c8bf0
+artifact: BensFintasticSharks-forge-1.20.1-0.24.jar
+artifact size: 1748439 bytes
+artifact sha256: d1c43cccfde547b530f77d2a5b0c9e4f446539f5b99787ebf6ccc524d258887d
+artifact sha512: 0d9126aadca2d1bec4329798981d4a5ce3a2d18092351996f07faca6078b133514f1c53405ecc13bc79fbe12719c01d438c850ce0cc34bf8fb0b47383736d176
+plan sha256: b75748b2dfbe2902015f5872e0bcf9ab7a41324861690833325aef95d5f0b027
+plan index sha256: 8d22d8a17ed56a1f0f102f41a29ae0919ad66f61af3ec97fbf46231a0ca4a70d
+plan handoff sha256: f979b8dd4e0a19f42ca54126e72f86cd0bd7f53eae15df0e32f3f97356be671f
+goal sha256: 142bc71f75fb32f343428daa225ef8e51c4d5c29e5fe1445bff37db9952ec6f2
+archive bfs 0.23 sha256: 1dcfd0db544184bffd467255ba294b57f0a1376b06023f10034f380b9e5d0eaa
+archive bfs 0.24 sha256: 25290e8d019339aff68c8ba168bd750d5c445aa915720d249aeed5700c9f3274

@@ -1,0 +1,149 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "BensFintasticSharks Forge 1.20.1 0.24",
+  "documentNamespace": "https://github.com/bdubsub/BensFintasticSharkMod/spdx/bfs-0.24-6cb5c638",
+  "creationInfo": {
+    "created": "2026-09-02T20:09:48Z",
+    "creators": [
+      "Person: EnVy"
+    ]
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-BFS",
+      "name": "BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "versionInfo": "0.24",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": true,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "C0-1.0",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "APPLICATION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d1c43cccfde547b530f77d2a5b0c9e4f446539f5b99787ebf6ccc524d258887d"
+        },
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "0d9126aadca2d1bec4329798981d4a5ce3a2d18092351996f07faca6078b133514f1c53405ecc13bc79fbe12719c01d438c850ce0cc34bf8fb0b47383736d176"
+        }
+      ],
+      "comment": "Direct runtime package inventory for the Forge artifact. Transitive Forge runtime resolution is pinned by the checked in Gradle dependency graph."
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Minecraft",
+      "name": "net.minecraft:client",
+      "versionInfo": "1.20.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/net.minecraft/client@1.20.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Forge",
+      "name": "net.minecraftforge:forge",
+      "versionInfo": "1.20.1-47.2.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/net.minecraftforge/forge@1.20.1-47.2.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-GeckoLib",
+      "name": "software.bernie.geckolib:geckolib-forge-1.20.1",
+      "versionInfo": "4.4.7",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/software.bernie.geckolib/geckolib-forge-1.20.1@4.4.7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-SmartBrainLib",
+      "name": "net.tslat.smartbrainlib:SmartBrainLib-forge-1.20.1",
+      "versionInfo": "1.14.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/net.tslat.smartbrainlib/SmartBrainLib-forge-1.20.1@1.14.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Parchment",
+      "name": "net.minecraft:mappings_parchment",
+      "versionInfo": "2023.09.03-1.20.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/net.minecraft/mappings_parchment@2023.09.03-1.20.1"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-Package-BFS",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-Minecraft"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-BFS",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-Forge"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-BFS",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-GeckoLib"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-BFS",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-SmartBrainLib"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-BFS",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-Parchment"
+    }
+  ]
+}
