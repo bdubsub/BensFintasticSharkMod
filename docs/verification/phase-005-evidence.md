@@ -51,13 +51,13 @@ The loading smokes prove startup and resource registration only. Interactive vis
 | Field | Value |
 | --- | --- |
 | File | `forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` |
-| Size | `1,748,578` bytes |
-| SHA 256 | `eca83e5c4b9e0ec08a35deeaa5ccbf74e21e139c27f34094f83a37e10c028f7c` |
-| SHA 512 | `ab8eb0a0b0270b56fd84257421e321efcf794798191cff6d4b2d753860a6ca658b13fd0835ad5f2f220ba2d62f1443f3ef558893529e7883b90dab8949fb40e6` |
+| Size | `1,748,571` bytes |
+| SHA 256 | `05dd7110fbe931c3b455f2650c672d0c63938fdade9a3f3f83809c7f1d7889e6` |
+| SHA 512 | `7a9f548be0bd5372fa72de2bfc0ceda4b2fb3bdaecca9c3858e302a14be834fd5806b48a0ee7268fde75897386791bc34c2c07385e17d09c9a54f6f8557f5c50` |
 | Archive test | `unzip -t` passed with 874 entries and no errors. |
 | Manifest | `Specification-Version`, `Implementation-Version`, and `mods.toml` version are `0.24`; `Built-On-Minecraft` is `1.20.1`; `Built-On-Java` is Java 17. |
 
-The JAR contains all seven 16 by 16 advancement icons, the Cod, Salmon, and Oceanic Whitetip animation resources, three algae block textures and generated world data, the surviving advancement graph, and no `shark_whisperer` resource. Checksums and the SPDX document are stored beside this record in `docs/verification/artifacts`.
+The JAR was rebuilt from the exact release source commit with Java 17 after data generation. It contains all seven 16 by 16 advancement icons, the Cod, Salmon, and Oceanic Whitetip animation resources, three algae block textures and generated world data, the surviving advancement graph, and no `shark_whisperer` resource. Checksums and the SPDX document are stored beside this record in `docs/verification/artifacts`.
 
 ## Supplied source material
 
