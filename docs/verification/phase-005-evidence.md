@@ -9,6 +9,7 @@ This record is the release evidence packet for Forge 1.20.1 version 0.24. The ow
 | Stable branch | `1.20.1` |
 | Release branch | `envy/0.24` |
 | Release source commit | `25e824c1f3c264346afc393031047b47d2ad1cfa` |
+| Evidence merge commit | `ddaba02317d0c2c348d15f8d89e5e2d4c2fd9da2` |
 | Minecraft | `1.20.1` |
 | Forge | `47.2.0` |
 | Java | `17.0.19+10` Eclipse Adoptium |
@@ -21,7 +22,7 @@ This record is the release evidence packet for Forge 1.20.1 version 0.24. The ow
 
 The branch is a direct descendant of `1.20.1` commit `06a28f6b3fcc62ee54cead9e62370c86aea0bfb9`. The root `build.gradle` line ending change and the owner supplied `Content/` archives remain outside the commit.
 
-Pull requests `#5`, `#6`, and `#7` were merged into `1.20.1`. The original release tag `bfs-0.24` remains on the release merge, and signed tag `bfs-0.24-final` identifies the final default branch verification merge `25e824c1f3c264346afc393031047b47d2ad1cfa`.
+Pull requests `#5`, `#6`, `#7`, `#8`, and `#9` were merged into `1.20.1`. Pull request `#8` recorded the final default verification packet, and pull request `#9` corrected its artifact provenance to the Java 17 build. The original release tag `bfs-0.24` remains on the release merge, and signed tag `bfs-0.24-final` identifies the final runtime verification merge `25e824c1f3c264346afc393031047b47d2ad1cfa`.
 
 ## Deterministic verification
 
