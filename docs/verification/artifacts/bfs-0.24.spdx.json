@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "BensFintasticSharks Forge 1.20.1 0.24",
-  "documentNamespace": "https://github.com/bdubsub/BensFintasticSharkMod/spdx/bfs-0.24-f386f19b",
+  "documentNamespace": "https://github.com/bdubsub/BensFintasticSharkMod/spdx/bfs-0.24-25e824c1",
   "creationInfo": {
-    "created": "2026-09-02T20:09:48Z",
+    "created": "2026-09-02T20:58:39Z",
     "creators": [
       "Person: EnVy"
     ]
@@ -24,11 +24,11 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "513e7e734e163cbf527c77eead0bde3baf1992381f87d82a4f4730af450a30de"
+          "checksumValue": "eca83e5c4b9e0ec08a35deeaa5ccbf74e21e139c27f34094f83a37e10c028f7c"
         },
         {
           "algorithm": "SHA512",
-          "checksumValue": "7c50451ceab73c0d160a98b47fbe8e40597a2287cb009c079e09895a731284e623aa36a7d5884ed89600c925413a40a3d7d2e322e3e335195ed57e4974025b19"
+          "checksumValue": "ab8eb0a0b0270b56fd84257421e321efcf794798191cff6d4b2d753860a6ca658b13fd0835ad5f2f220ba2d62f1443f3ef558893529e7883b90dab8949fb40e6"
         }
       ],
       "comment": "Direct runtime package inventory for the Forge artifact. Transitive Forge runtime resolution is pinned by the checked in Gradle dependency graph."
