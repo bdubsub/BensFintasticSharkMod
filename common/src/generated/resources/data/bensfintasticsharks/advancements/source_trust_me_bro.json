@@ -1,0 +1,38 @@
+{
+  "parent": "bensfintasticsharks:root",
+  "criteria": {
+    "got_megalodon_tooth": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "bensfintasticsharks:megalodon_tooth"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.source_trust_me_bro.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:megalodon_tooth"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.source_trust_me_bro.title"
+    }
+  },
+  "requirements": [
+    [
+      "got_megalodon_tooth"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

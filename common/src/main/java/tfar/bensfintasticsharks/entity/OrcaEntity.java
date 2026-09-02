@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec3;
 public class OrcaEntity extends BfsAquaticEntity<OrcaEntity> {
 
     private int airTicks;
+    private int breachTicks;
 
     protected OrcaEntity(EntityType<OrcaEntity> type, Level level) {
         super(type, level);
@@ -24,7 +25,7 @@ public class OrcaEntity extends BfsAquaticEntity<OrcaEntity> {
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 120)
+                .add(Attributes.MAX_HEALTH, 130)
                 .add(Attributes.MOVEMENT_SPEED, 1.1F)
                 .add(Attributes.ATTACK_DAMAGE, 4)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.4);
@@ -45,14 +46,26 @@ public class OrcaEntity extends BfsAquaticEntity<OrcaEntity> {
         super.tick();
         if (level().isClientSide) return;
         if (!(level() instanceof ServerLevel sl)) return;
+        if (breachTicks > 0) breachTicks--;
         if (airTicks > 0) { airTicks--; return; }
         BlockPos here = blockPosition();
         int surface = sl.getHeight(Heightmap.Types.WORLD_SURFACE_WG, here.getX(), here.getZ());
         if (here.getY() < surface - 1 && isInWater()) {
             Vec3 v = getDeltaMovement();
-            setDeltaMovement(v.x, Math.max(v.y, 0.14), v.z);
+            // 0.18 — stronger run-up (0.14 → 0.22) so the orca reaches the surface with speed.
+            setDeltaMovement(v.x, Math.max(v.y, 0.22), v.z);
         }
         if (!isInWater() || here.getY() >= surface - 1) {
+            // Breach: launch up out of the water and fire the one-shot breach animation
+            // (OrcaEntityForge.tick() reads isBreaching() and triggers it for all clients).
+            if (isInWater()) {
+                Vec3 v = getDeltaMovement();
+                // 0.18 — Ben: "it barely breaches the surface." 0.7 b/t apexed ~3 blocks,
+                // which an orca-sized body barely clears. 1.05 b/t apexes ~6.5 blocks
+                // (height ≈ v²/(2×0.08)) — a proper full-body breach.
+                setDeltaMovement(v.x, 1.05, v.z);
+            }
+            breachTicks = 30;
             sl.sendParticles(ParticleTypes.BUBBLE_COLUMN_UP, getX(), getY() + 1.5, getZ(),
                     10, 0.3, 0.3, 0.3, 0.0);
             sl.sendParticles(ParticleTypes.SPLASH, getX(), getY() + 1, getZ(),
@@ -61,6 +74,8 @@ public class OrcaEntity extends BfsAquaticEntity<OrcaEntity> {
             airTicks = 600 + getRandom().nextInt(601);
         }
     }
+
+    public boolean isBreaching() { return breachTicks > 0; }
 
     @Override public float bfsScaleMin() { return 0.9f; }
     @Override public float bfsScaleMax() { return 1.05f; }

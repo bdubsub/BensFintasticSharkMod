@@ -39,6 +39,9 @@ public class ModEntityTypes {
     public static final EntityType<? extends BlackSeaNettleJellyfishEntity> BLACK_SEA_NETTLE_JELLYFISH = Services.PLATFORM.registerBlackSeaNettleJellyfish();
     public static final EntityType<? extends CannonballJellyfishEntity> CANNONBALL_JELLYFISH = Services.PLATFORM.registerCannonballJellyfish();
 
+    public static final EntityType<? extends AtlanticCodEntity> ATLANTIC_COD = Services.PLATFORM.registerAtlanticCod();
+    public static final EntityType<? extends AtlanticSalmonEntity> ATLANTIC_SALMON = Services.PLATFORM.registerAtlanticSalmon();
+
     // build("") matches the pattern used in ForgePlatformHelper — see the note there.
     public static final EntityType<ThrownSharkTridentEntity> SHARK_TRIDENT = EntityType.Builder.<ThrownSharkTridentEntity>of(ThrownSharkTridentEntity::new, MobCategory.MISC).build("");
 }

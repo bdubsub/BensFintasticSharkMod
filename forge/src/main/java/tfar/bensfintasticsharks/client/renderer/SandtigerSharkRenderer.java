@@ -40,4 +40,10 @@ public class SandtigerSharkRenderer extends GeoEntityRenderer<SandtigerSharkEnti
         if (Math.abs(s - 1.0f) > 0.001f) poseStack.scale(s, s, s);
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
     }
+
+    @Override
+    protected void applyRotations(SandtigerSharkEntityForge animatable, com.mojang.blaze3d.vertex.PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
+        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
+        AquaticRenderTransforms.applySharkPitch(poseStack, animatable, partialTick);
+    }
 }

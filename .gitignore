@@ -28,3 +28,10 @@ misc
 CLAUDE.md
 audit.md
 /Finished Forge Mod/
+
+# local workspace files
+AGENTS.md
+.codegraph/
+_qa/
+__pycache__/
+*.py[cod]

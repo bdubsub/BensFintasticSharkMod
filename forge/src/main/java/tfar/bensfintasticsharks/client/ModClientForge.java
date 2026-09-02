@@ -5,6 +5,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.client.renderer.*;
 import tfar.bensfintasticsharks.entity.*;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
@@ -15,6 +18,18 @@ public class ModClientForge {
     public static void init(IEventBus bus) {
         bus.addListener(ModClientForge::renderers);
         bus.addListener(ModClientForge::setup);
+        bus.addListener(ModClientForge::registerAdditionalModels);
+        // 0.18 — grab/thrash screen effects (camera lock + red tint) live on the
+        // runtime Forge bus; init() is only reached on the client dist.
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new GrabClientHandler());
+    }
+
+    static void registerAdditionalModels(final ModelEvent.RegisterAdditional event) {
+        // The thrown-trident renderer fetches this 3D model by name. It's only referenced
+        // as a perspective parent in the item model, so it isn't baked as a standalone
+        // top-level model and getModel() returned the missing-texture placeholder (the
+        // "missing texture block" seen on a stuck trident). Register it so it's baked.
+        event.register(new ModelResourceLocation(BensFintasticSharks.id("shark_trident_3d"), "inventory"));
     }
 
     static void setup(FMLClientSetupEvent event) {
@@ -49,6 +64,8 @@ public class ModClientForge {
         EntityRenderers.register((EntityType<AmericanLobsterEntityForge>) ModEntityTypes.AMERICAN_LOBSTER, AmericanLobsterRenderer::new);
         EntityRenderers.register((EntityType<BlackSeaNettleJellyfishEntityForge>) ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH, BlackSeaNettleJellyfishRenderer::new);
         EntityRenderers.register((EntityType<CannonballJellyfishEntityForge>) ModEntityTypes.CANNONBALL_JELLYFISH, CannonballJellyfishRenderer::new);
+        EntityRenderers.register((EntityType<AtlanticCodEntityForge>) ModEntityTypes.ATLANTIC_COD, AtlanticCodRenderer::new);
+        EntityRenderers.register((EntityType<AtlanticSalmonEntityForge>) ModEntityTypes.ATLANTIC_SALMON, AtlanticSalmonRenderer::new);
     }
 
 }

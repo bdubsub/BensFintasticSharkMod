@@ -131,6 +131,16 @@ public class FabricPlatformHelper implements IPlatformHelper {
     }
 
     @Override
+    public EntityType<AtlanticCodEntity> registerAtlanticCod() {
+        return null;
+    }
+
+    @Override
+    public EntityType<AtlanticSalmonEntity> registerAtlanticSalmon() {
+        return null;
+    }
+
+    @Override
     public ArmorItem createPrismarineArmor(ArmorMaterial prismarine, ArmorItem.Type helmet, Item.Properties properties) {
         return null;
     }

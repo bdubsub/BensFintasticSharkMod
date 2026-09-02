@@ -1,3 +1,6 @@
 {
-  "parent": "minecraft:item/template_spawn_egg"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "bensfintasticsharks:item/black_sea_nettle_jellyfish_spawn_egg"
+  }
 }

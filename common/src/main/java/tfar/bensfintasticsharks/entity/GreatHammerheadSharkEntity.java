@@ -17,10 +17,8 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
-import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
@@ -47,7 +45,7 @@ import java.util.List;
 import java.util.function.IntFunction;
 
 public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerheadSharkEntity>
-        implements BfsVariantHolder {
+        implements BfsVariantHolder, SharkGrabber {
 
     @Override public int bfsVariantCount() { return Variant.values().length; }
     @Override public void setBfsVariantId(int id) {
@@ -69,7 +67,7 @@ public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerh
     protected GreatHammerheadSharkEntity(EntityType<GreatHammerheadSharkEntity> $$0, Level $$1) {
         super($$0, $$1, HAMMERHEAD_PARAMS);
 
-        this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1/10f, 0, false);
+        this.moveControl = new SharkSwimmingMoveControl(this, 1/10f);
         this.lookControl = new SmoothSwimmingLookControl(this, 10);
     }
 
@@ -79,7 +77,7 @@ public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerh
 
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 110).add(Attributes.MOVEMENT_SPEED, 1).add(Attributes.ATTACK_DAMAGE, 8);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 130).add(Attributes.MOVEMENT_SPEED, 1).add(Attributes.ATTACK_DAMAGE, 8);
     }
 
     @Override
@@ -89,18 +87,15 @@ public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerh
         entityData.define(DATA_GRAB_TIMER,0);
     }
 
+    // 0.19 — Part II hunger spec: delegate to the shared predicate (per-species prey tag +
+    // hunger gate). The old form targeted ANY mob under 50% health with no cooldown check.
     public boolean canTarget(LivingEntity target) {
-        if (target instanceof GreatHammerheadSharkEntity) return false;
-        if (target instanceof Player player && player.isCreative()) return false;
-        if (!isInWater()) return false;
-        if (target.isDeadOrDying()) return false;
-        if (target.getVehicle() == this) return false;
+        return canHuntTarget(target);
+    }
 
-        if (target.getType().is(ModTags.EntityTypes.GREAT_HAMMERHEAD_SHARK_ALWAYS_ATTACKS)) return true;
-
-        if (target.getHealth() / target.getMaxHealth() <= .5) return true;
-
-        return false;
+    @Override
+    protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {
+        return ModTags.EntityTypes.GREAT_HAMMERHEAD_SHARK_PREY;
     }
 
 
@@ -127,7 +122,10 @@ public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerh
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(      // Run only one of the below behaviours, trying each one in order. Include the generic type because JavaC is silly
                         new TargetOrRetaliate<>()
-                                .attackablePredicate(entity -> this.isInWaterOrBubble() && entity.isAlive() && (!(entity instanceof Player player) || !player.isCreative())),            // Set the attack target and walk target based on nearby entities
+                                // Base hurt() owns retaliation; this sensor only acquires
+                                // hunger-gated prey and must not enlist nearby player blood.
+                                .attackablePredicate(entity -> this.isInWaterOrBubble()
+                                        && entity.isAlive() && canHuntTarget(entity)),
                         new SetPlayerLookTarget<>(),          // Set the look target for the nearest player
                         new SetRandomLookTarget<>()),         // Set a random look target
                 new OneRandomBehaviour<>(                 // Run a random task from the below options
@@ -178,7 +176,10 @@ public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerh
 
     public void grabMob(LivingEntity entity) {
         if (entity == this.getTarget() && !entity.hasPassenger(this) && this.isInWater()) {
-            entity.startRiding(this);
+            // 0.18 — force the mount: Entity.canRide() refuses riders that are sneaking,
+            // so without force=true a crouch-swimming player could never be grabbed (the
+            // shark would thrash empty water). A shark's jaws don't take no for an answer.
+            entity.startRiding(this, true);
             if (entity instanceof ServerPlayer serverPlayer)
                 serverPlayer.connection.send(new ClientboundSetPassengersPacket(entity));
         }
@@ -242,7 +243,8 @@ public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerh
         entityData.set(DATA_GRAB_TIMER,timer);
     }
 
-    int getGrabTimer() {
+    @Override
+    public int getGrabTimer() {
         return entityData.get(DATA_GRAB_TIMER);
     }
 
@@ -253,6 +255,15 @@ public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerh
         if (grabCountdown > 0) {
             int next = grabCountdown - 1;
             setGrabTimer(next);
+            // Thrash damage: while a victim is being held, deal a tick of damage every 10t.
+            // Without this the grab is purely visual and the prey just hitches a ride home.
+            if (!getPassengers().isEmpty() && (next % 10 == 0)) {
+                for (Entity p : getPassengers()) {
+                    if (p instanceof LivingEntity le && le.isAlive()) {
+                        le.hurt(this.damageSources().mobAttack(this), 2.0f);
+                    }
+                }
+            }
             if (next == 0) {
                 ejectPassengers();
             }
@@ -265,11 +276,9 @@ public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerh
             this.refreshDimensions();
 
         if (isEffectiveAi() && this.isInWater()) {
-            moveRelative(getSpeed(), movementInput);
-            move(MoverType.SELF, getDeltaMovement());
-            setDeltaMovement(getDeltaMovement().scale(this.wasTouchingWater ? 0.65 : 0.25));
-            if (getTarget() == null)
-                setDeltaMovement(getDeltaMovement().add(0.0, -0.005, 0.0));
+            // 0.19 — shared swim step: adds the chase-acceleration burst, in-range brake and
+            // backslide damping that this bespoke override was missing.
+            swimInWater(movementInput, 0.65, 0.005, false);
         } else
             super.travel(movementInput);
     }

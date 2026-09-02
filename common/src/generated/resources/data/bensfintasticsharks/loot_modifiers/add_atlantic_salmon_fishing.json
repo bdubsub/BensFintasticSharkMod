@@ -1,0 +1,13 @@
+{
+  "type": "bensfintasticsharks:add_item_chance",
+  "chance": 0.125,
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:gameplay/fishing/fish"
+    }
+  ],
+  "item": "bensfintasticsharks:raw_atlantic_salmon",
+  "max": 1,
+  "min": 1
+}

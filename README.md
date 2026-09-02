@@ -1,27 +1,74 @@
 # Ben's Fintastic Sharks
 
-> **Forge sided only.** This mod ships and runs on Minecraft Forge 47.2.0 for 1.20.1 only. The `fabric/` subproject in this repo is a non-functional template stub — it is intentionally not built or maintained, and the mod is not playable on Fabric. All gameplay, datagen, biome modifiers, and entity registration go through the Forge side.
+Ben's Fintastic Sharks is a Minecraft 1.20.1 ocean wildlife mod for Forge 47.2.0. Version `0.23-emergency-fix` adds twenty two marine species, shark hunting and disturbance behavior, natural variants, advancements, trades, equipment, the Shark Codex, and the Sunken Trove structure.
 
-Built on a MultiLoader template, but only the `common/` (vanilla-MC code) and `forge/` (Forge loader code) subprojects are wired up. If you need a Fabric build, you'll need to implement `FabricPlatformHelper` and the rest of the Fabric port from scratch.
+This is a Forge only project. The `fabric` subproject is an unused template stub and does not produce a playable Fabric build.
 
-## Getting Started
+## Requirements
 
-## IntelliJ IDEA
-This guide will show how to import the MultiLoader Template into IntelliJ IDEA. The setup process is roughly equivalent to setting up Forge and Fabric independently and should be very familiar to anyone who has worked with their MDKs.
+Players and servers need:
 
-1. Clone or download this repository to your computer.
-2. Configure the project by editing the `group`, `mod_name`, `mod_author`, and `mod_id` properties in the `gradle.properties` file. You will also need to change the `rootProject.name`  property in `settings.gradle`, this should match the folder name of your project, or else IDEA may complain.
-3. Open the template's root folder as a new project in IDEA. This is the folder that contains this README file and the gradlew executable.
-4. If your default JVM/JDK is not Java 17 you will encounter an error when opening the project. This error is fixed by going to `File > Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle JVM`and changing the value to a valid Java 17 JVM. You will also need to set the Project SDK to Java 17. This can be done by going to `File > Project Structure > Project SDK`. Once both have been set open the Gradle tab in IDEA and click the refresh button to reload the project.
-5. Open the Gradle tab in IDEA if it has not already been opened. Navigate to `Your Project > Common > Tasks > vanilla gradle > decompile`. Run this task to decompile Minecraft.
-6. Open the Gradle tab in IDEA if it has not already been opened. Navigate to `Your Project > Forge > Tasks > forgegradle runs > genIntellijRuns`. Run this task to set up run configurations for Forge.
-7. Open your Run/Debug Configurations. Under the Application category there should now be options to run Forge and Fabric projects. Select one of the client options and try to run it.
-8. Assuming you were able to run the game in step 7 your workspace should now be set up.
+* Minecraft 1.20.1.
+* Forge 47.2.0.
+* GeckoLib 4.4.7.
+* SmartBrainLib 1.14.2.
+* Java 17.
 
-### Eclipse
-While it is possible to use this template in Eclipse it is not recommended. During the development of this template multiple critical bugs and quirks related to Eclipse were found at nearly every level of the required build tools. While we continue to work with these tools to report and resolve issues support for projects like these are not there yet. For now Eclipse is considered unsupported by this project. The development cycle for build tools is notoriously slow so there are no ETAs available.
+Install Forge, place the mod and its required dependencies in the `mods` directory, then start the game. Client and server installations must use matching mod versions.
 
-## Development Guide
-When using this template the majority of your mod is developed in the Common project. The Common project is compiled against the vanilla game and is used to hold code that is shared between the different loader-specific versions of your mod. The Common project has no knowledge or access to ModLoader specific code, apis, or concepts. Code that requires something from a specific loader must be done through the project that is specific to that loader, such as the Forge or Fabric project.
+## Features
 
-Loader specific projects such as the Forge and Fabric project are used to load the Common project into the game. These projects also define code that is specific to that loader. Loader specific projects can access all of the code in the Common project. It is important to remember that the Common project can not access code from loader specific projects.
+* Eight shark species with distinct prey lists, variants, hunting traits, hunger cooldowns, and water disturbance reactions.
+* Orcas, dolphins, octopuses, nautiluses, eels, turtles, lobsters, stingrays, seals, jellyfish, Atlantic Cod, and Atlantic Salmon.
+* Independent spawn categories, species caps, rarity controls, and datapack editable biome and prey tags.
+* Atlantic Cod and Atlantic Salmon replace only vanilla Cod and Salmon by default, including natural spawns and the two vanilla spawn eggs. Replacements share vanilla's water ambient population ceiling, and a server config switch restores separate vanilla and BFS spawn sources.
+* Optional suppression of other natural vanilla aquatic spawning for packs that want BFS wildlife to fill the oceans.
+* Creative showcase commands, including a guaranteed trade villager and detailed species information.
+* Shark tools, armor, a Prismarine armor set fitted to swimming poses, Captain Ben's Hat, collectible items, and advancements.
+* The Shark Codex and the Sunken Trove ocean structure.
+
+Full gameplay, configuration, command, architecture, and troubleshooting details are in [DOCUMENTATION.md](DOCUMENTATION.md). Release changes are in [CHANGELOG.md](CHANGELOG.md), and the documentation index is in [docs/README.md](docs/README.md).
+
+## Development
+
+Use the checked in Gradle Wrapper and Java 17. On Linux:
+
+```bash
+./gradlew :forge:compileJava
+./gradlew :forge:Data
+./gradlew :forge:build
+./gradlew :forge:Client
+./gradlew :forge:Server
+```
+
+On Windows:
+
+```bat
+gradlew.bat :forge:compileJava
+gradlew.bat :forge:Data
+gradlew.bat :forge:build
+gradlew.bat :forge:Client
+gradlew.bat :forge:Server
+```
+
+The distributable JAR is written to `forge/build/libs`. There is no maintained Fabric artifact or automated GameTest suite at present. The Forge module includes focused JUnit regression tests for pure spawn policy.
+
+## Repository layout
+
+* `common/src/main/java` contains loader independent gameplay and entity logic.
+* `common/src/main/resources` contains assets and shared data.
+* `forge/src/main/java` contains Forge registration, commands, configuration, rendering, spawning, and data generation.
+* `common/src/generated/resources` contains generated data that is checked into the project.
+* `tools` contains project maintenance utilities.
+
+Keep generated resources synchronized by running `:forge:Data` after changing advancements, tags, recipes, loot tables, biome modifiers, or language providers.
+
+## Configuration and support
+
+Server configuration is stored in `config/bensfintasticsharks-common.toml`. Existing configuration files retain old values when defaults change. Version 0.23 adds `[spawning] replace_vanilla_mobs`, which defaults to `true`. With the default, natural vanilla Cod and Salmon and their vanilla spawn eggs produce the matching Atlantic fish. Version `0.23-emergency-fix` corrects their population category so replacements count toward the same water ambient ceiling as the vanilla fish they replace. Tropical Fish, Pufferfish, and every other mob are excluded. Set the option to `false` to retain vanilla Cod and Salmon and enable the Atlantic fish's separate biome spawn sources. The separate `disable_vanilla_aquatic_spawns` option defaults to `false` and requires a game or dedicated server restart after it changes.
+
+The mod targets Forge 47.2.0 on Minecraft 1.20.1 only. Eclipse and Fabric are not supported. See [DOCUMENTATION.md](DOCUMENTATION.md#20-troubleshooting) before reporting a spawn, data, or startup problem.
+
+## License
+
+See [LICENSE](LICENSE).

@@ -51,7 +51,8 @@ public class BfsConfig {
             "sandtiger_shark", "blacktip_reef_shark", "orca", "bottlenose_dolphin",
             "common_octopus", "caribbean_reef_octopus", "nautilus", "giant_moray_eel",
             "green_sea_turtle", "american_lobster", "common_stingray", "harbor_seal",
-            "black_sea_nettle_jellyfish", "cannonball_jellyfish"
+            "black_sea_nettle_jellyfish", "cannonball_jellyfish", "atlantic_cod",
+            "atlantic_salmon"
     };
 
     public static final ForgeConfigSpec SPEC;
@@ -72,6 +73,11 @@ public class BfsConfig {
         public final ForgeConfigSpec.IntValue apexPredatorCap;
         public final ForgeConfigSpec.IntValue bfsWaterCreatureCap;
         public final ForgeConfigSpec.IntValue bfsWaterAmbientCap;
+        public final ForgeConfigSpec.IntValue nearbyNonBlacktipSharkCap;
+        public final ForgeConfigSpec.IntValue nearbyBlacktipSharkCap;
+        public final ForgeConfigSpec.IntValue sharkSpacingRadius;
+        public final ForgeConfigSpec.BooleanValue replaceVanillaMobs;
+        public final ForgeConfigSpec.BooleanValue disableVanillaAquaticSpawns;
 
         // Per-species caps. Keyed by species path (lowercase, matches the entity registry
         // id minus the namespace). Loaded into a map so MobCapManager can look up by EntityType.
@@ -99,6 +105,7 @@ public class BfsConfig {
         public final ForgeConfigSpec.BooleanValue conservationDebuffEnabled;
         public final ForgeConfigSpec.BooleanValue jellyfishGlowParticles;
         public final ForgeConfigSpec.BooleanValue octopusInkParticles;
+        public final ForgeConfigSpec.BooleanValue swimBubbles;
 
         public final ForgeConfigSpec.DoubleValue sharkDetectionRadiusMult;
         public final ForgeConfigSpec.DoubleValue sharkDisengageDistanceMult;
@@ -113,13 +120,35 @@ public class BfsConfig {
         Common(ForgeConfigSpec.Builder b) {
             b.comment("Spawn caps. See class-level Javadoc for an explanation of how caps work.")
                     .push("spawning");
-            apexPredatorCap = b.comment("BFS apex predator category cap (per player, per loaded area). " +
-                            "Vanilla water_creature is 5 — this is independent.")
-                    .defineInRange("apex_predator_cap", 3, 1, 20);
+            apexPredatorCap = b.comment("BFS apex predator category cap per player and loaded area.",
+                            "The quieter default allows one naturally spawned apex predator at a time.",
+                            "Existing worlds must update this value manually or regenerate the config.")
+                    .defineInRange("apex_predator_cap", 1, 1, 20);
             bfsWaterCreatureCap = b.comment("BFS water creature category cap (per player, per loaded area).")
                     .defineInRange("bfs_water_creature_cap", 10, 1, 50);
             bfsWaterAmbientCap = b.comment("BFS water ambient category cap, used by jellyfish.")
                     .defineInRange("bfs_water_ambient_cap", 15, 1, 100);
+            sharkSpacingRadius = b.comment(
+                            "Radius for the mixed-shark natural-spawn spacing check.",
+                            "96 blocks is six chunks in every horizontal direction.")
+                    .defineInRange("shark_spacing_radius", 96, 16, 256);
+            nearbyNonBlacktipSharkCap = b.comment(
+                            "Maximum nearby naturally-spawned sharks for non-blacktip species.",
+                            "A value of 1 keeps solitary sharks separated.")
+                    .defineInRange("nearby_non_blacktip_shark_cap", 1, 1, 16);
+            nearbyBlacktipSharkCap = b.comment(
+                            "Blacktips are the schooling exception. They may form a group up to this",
+                            "size, but still do not naturally stack beside a different shark species.")
+                    .defineInRange("nearby_blacktip_shark_cap", 3, 1, 16);
+            replaceVanillaMobs = b.comment(
+                            "Replace natural vanilla Cod and Salmon with Atlantic Cod and Atlantic Salmon.",
+                            "The vanilla Cod and Salmon spawn eggs also create the matching Atlantic fish.",
+                            "When disabled, vanilla fish remain unchanged and Atlantic fish use their own biome spawns.")
+                    .define("replace_vanilla_mobs", true);
+            disableVanillaAquaticSpawns = b.comment(
+                            "Disable natural spawning for vanilla fish, dolphins, squid, axolotls, and turtles.",
+                            "Restart the game or dedicated server after changing this value.")
+                    .define("disable_vanilla_aquatic_spawns", false);
             b.pop();
 
             b.comment(
@@ -130,14 +159,14 @@ public class BfsConfig {
                     "species entirely. Caps don't restrict /summon, spawn eggs, or convert-style spawns."
             ).push("caps");
             // Sharks
-            speciesCaps.put("great_white_shark",          b.defineInRange("great_white_shark",          2, 0, 64));
-            speciesCaps.put("great_hammerhead_shark",     b.defineInRange("great_hammerhead_shark",     2, 0, 64));
-            speciesCaps.put("common_thresher_shark",      b.defineInRange("common_thresher_shark",      2, 0, 64));
-            speciesCaps.put("shortfin_mako_shark",        b.defineInRange("shortfin_mako_shark",        2, 0, 64));
-            speciesCaps.put("tiger_shark",                b.defineInRange("tiger_shark",                2, 0, 64));
-            speciesCaps.put("oceanic_whitetip_shark",     b.defineInRange("oceanic_whitetip_shark",     2, 0, 64));
-            speciesCaps.put("sandtiger_shark",            b.defineInRange("sandtiger_shark",            2, 0, 64));
-            speciesCaps.put("blacktip_reef_shark",        b.comment("Pack shark; higher cap so groups stay together.").defineInRange("blacktip_reef_shark", 5, 0, 64));
+            speciesCaps.put("great_white_shark",          b.defineInRange("great_white_shark",          1, 0, 64));
+            speciesCaps.put("great_hammerhead_shark",     b.defineInRange("great_hammerhead_shark",     1, 0, 64));
+            speciesCaps.put("common_thresher_shark",      b.defineInRange("common_thresher_shark",      1, 0, 64));
+            speciesCaps.put("shortfin_mako_shark",        b.defineInRange("shortfin_mako_shark",        1, 0, 64));
+            speciesCaps.put("tiger_shark",                b.defineInRange("tiger_shark",                1, 0, 64));
+            speciesCaps.put("oceanic_whitetip_shark",     b.defineInRange("oceanic_whitetip_shark",     1, 0, 64));
+            speciesCaps.put("sandtiger_shark",            b.defineInRange("sandtiger_shark",            1, 0, 64));
+            speciesCaps.put("blacktip_reef_shark",        b.comment("Schooling shark with a small group cap.").defineInRange("blacktip_reef_shark", 3, 0, 64));
             // Marine mammals
             speciesCaps.put("orca",                       b.comment("Apex of apex — rare by design.").defineInRange("orca", 1, 0, 64));
             speciesCaps.put("bottlenose_dolphin",         b.defineInRange("bottlenose_dolphin",         4, 0, 64));
@@ -150,10 +179,12 @@ public class BfsConfig {
             speciesCaps.put("green_sea_turtle",           b.defineInRange("green_sea_turtle",           3, 0, 64));
             speciesCaps.put("american_lobster",           b.comment("Food source — high cap so they're easy to find.").defineInRange("american_lobster", 10, 0, 64));
             speciesCaps.put("common_stingray",            b.defineInRange("common_stingray",            3, 0, 64));
-            speciesCaps.put("harbor_seal",                b.comment("Pack mammal — higher cap so groups stay together.").defineInRange("harbor_seal", 5, 0, 64));
+            speciesCaps.put("harbor_seal",                b.comment("Small groups remain possible without crowding coastlines.").defineInRange("harbor_seal", 3, 0, 64));
             // Jellyfish — kept rare. Players asked for fewer; default 1-2 per area.
             speciesCaps.put("black_sea_nettle_jellyfish", b.comment("Deep-water jellyfish — rare cameo, not a swarm.").defineInRange("black_sea_nettle_jellyfish", 1, 0, 64));
             speciesCaps.put("cannonball_jellyfish",       b.comment("Warm-water jellyfish — rare cameo, not a swarm.").defineInRange("cannonball_jellyfish", 2, 0, 64));
+            speciesCaps.put("atlantic_cod",               b.defineInRange("atlantic_cod",               8, 0, 64));
+            speciesCaps.put("atlantic_salmon",            b.defineInRange("atlantic_salmon",            8, 0, 64));
             b.pop();
 
             b.comment(
@@ -163,7 +194,14 @@ public class BfsConfig {
                     "JSON still controls *where* a species can spawn at all."
             ).push("spawn_chance");
             for (String s : ALL_SPECIES) {
-                speciesSpawnChance.put(s, b.defineInRange(s, 1.0, 0.0, 5.0));
+                double defaultChance = switch (s) {
+                    case "great_white_shark", "great_hammerhead_shark", "common_thresher_shark",
+                            "shortfin_mako_shark", "tiger_shark", "oceanic_whitetip_shark",
+                            "sandtiger_shark", "blacktip_reef_shark" -> 0.4;
+                    case "harbor_seal" -> 0.5;
+                    default -> 1.0;
+                };
+                speciesSpawnChance.put(s, b.defineInRange(s, defaultChance, 0.0, 5.0));
             }
             b.pop();
 
@@ -202,13 +240,15 @@ public class BfsConfig {
                     "to keep biome-modifier-only groups. Useful for tightening reef shark packs",
                     "or jellyfish blooms."
             ).push("group_size_min");
-            speciesGroupMin.put("blacktip_reef_shark", b.defineInRange("blacktip_reef_shark", 3, 1, 16));
-            speciesGroupMin.put("harbor_seal",         b.defineInRange("harbor_seal",         3, 1, 16));
+            speciesGroupMin.put("blacktip_reef_shark", b.defineInRange("blacktip_reef_shark", 2, 1, 16));
+            speciesGroupMin.put("harbor_seal",         b.defineInRange("harbor_seal",         2, 1, 16));
             speciesGroupMin.put("bottlenose_dolphin",  b.defineInRange("bottlenose_dolphin",  2, 1, 16));
             speciesGroupMin.put("cannonball_jellyfish",b.defineInRange("cannonball_jellyfish",2, 1, 16));
             speciesGroupMin.put("black_sea_nettle_jellyfish", b.defineInRange("black_sea_nettle_jellyfish", 1, 1, 16));
             speciesGroupMin.put("green_sea_turtle",    b.defineInRange("green_sea_turtle",    1, 1, 16));
             speciesGroupMin.put("american_lobster",    b.defineInRange("american_lobster",    1, 1, 16));
+            speciesGroupMin.put("atlantic_cod",        b.defineInRange("atlantic_cod",        2, 1, 16));
+            speciesGroupMin.put("atlantic_salmon",     b.defineInRange("atlantic_salmon",     2, 1, 16));
             b.pop();
 
             b.push("disturbance");
@@ -224,6 +264,8 @@ public class BfsConfig {
                     .define("conservation_debuff_enabled", true);
             jellyfishGlowParticles = b.define("jellyfish_glow_particles", true);
             octopusInkParticles = b.define("octopus_ink_particles", true);
+            swimBubbles = b.comment("Emit a trail of bubbles behind the player while swimming through water.")
+                    .define("player_swim_bubbles", true);
             b.pop();
 
             b.push("ai");

@@ -23,4 +23,17 @@ public abstract class SmartWaterAnimal<T extends SmartWaterAnimal<T>> extends Wa
         tickBrain((T) this);
     }
 
+    // Magma/soul-sand bubble columns launch water mobs to the surface (and beyond) because
+    // the whirlpool/updraft velocity is applied every tick with no opt-out — Ben watched
+    // sharks bounce "all the way up to the surface". BFS sea creatures are strong swimmers:
+    // skip the vertical push entirely. Lives here (not BfsAquaticEntity) so the stingray
+    // and harbor seal, which extend SmartWaterAnimal directly, are covered too.
+    @Override
+    public void onAboveBubbleCol(boolean downFlowing) {}
+
+    @Override
+    public void onInsideBubbleColumn(boolean downFlowing) {
+        this.resetFallDistance(); // keep vanilla's side effect, skip the push
+    }
+
 }

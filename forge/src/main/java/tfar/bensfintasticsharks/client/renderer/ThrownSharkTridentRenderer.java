@@ -57,11 +57,20 @@ public class ThrownSharkTridentRenderer extends EntityRenderer<ThrownSharkTriden
 
         pose.pushPose();
 
-        // Match vanilla TridentRenderer's rotation chain exactly. The model already
-        // ships with the tip oriented along +Y, so the standard yaw/pitch chain
-        // aligns the tip with the flight direction with no extra Z flip needed.
+        // Vanilla rotation chain. -90/yaw makes the model point in the direction of flight,
+        // +90/pitch tilts to follow the velocity's vertical component.
         pose.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90.0F));
         pose.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot()) + 90.0F));
+
+        // Our 3D model points +Y while vanilla's TridentModel points -Y. Flip so the
+        // rotation chain above places the tip in the direction of motion.
+        pose.mulPose(Axis.ZP.rotationDegrees(180));
+
+        // Recentre on the entity. The model spans pixels -2.5..32 (~2.1 blocks) and the item
+        // renderer centres pixel 8 on the origin, which left the whole trident sitting ABOVE the
+        // entity point (the "floating" look). Shift ~1 block down the model's long axis so it
+        // straddles the entity — tip leading, shaft trailing — like a thrown spear.
+        pose.translate(0, -1.0, 0);
 
         // Render the 3D model directly so we don't fall back to the 2D GUI sprite.
         ItemStack stack = new ItemStack(ModItems.SHARK_TRIDENT);

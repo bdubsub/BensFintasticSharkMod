@@ -1,0 +1,19 @@
+{
+  "values": [
+    "minecraft:drowned",
+    "bensfintasticsharks:common_octopus",
+    "bensfintasticsharks:caribbean_reef_octopus",
+    "bensfintasticsharks:bottlenose_dolphin",
+    "bensfintasticsharks:green_sea_turtle",
+    "bensfintasticsharks:blacktip_reef_shark",
+    "bensfintasticsharks:atlantic_cod",
+    "bensfintasticsharks:atlantic_salmon",
+    "minecraft:dolphin",
+    "minecraft:squid",
+    "minecraft:glow_squid",
+    "minecraft:turtle",
+    "minecraft:cod",
+    "minecraft:salmon",
+    "minecraft:tropical_fish"
+  ]
+}

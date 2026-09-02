@@ -14,8 +14,7 @@
     "frame": "task",
     "hidden": false,
     "icon": {
-      "item": "bensfintasticsharks:shark_trident",
-      "nbt": "{Damage:0}"
+      "item": "bensfintasticsharks:bfs_logo"
     },
     "show_toast": true,
     "title": {

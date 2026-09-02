@@ -26,6 +26,7 @@ public class ShortfinMakoSharkEntityForge  extends ShortfinMakoSharkEntity imple
     private static final RawAnimation BEACHED = RawAnimation.begin().thenLoop("misc.beached2");
     private static final RawAnimation BITE = RawAnimation.begin().then("attack.bite", Animation.LoopType.PLAY_ONCE);
     private static final RawAnimation THRASH = RawAnimation.begin().thenLoop("attack.thrash");
+    private static final RawAnimation DEATH = RawAnimation.begin().thenPlayAndHold("misc.death");
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
@@ -37,8 +38,12 @@ public class ShortfinMakoSharkEntityForge  extends ShortfinMakoSharkEntity imple
             if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(BEACHED);
             }
-            return event.setAndContinue(this.getTarget() != null ? FAST_SWIM : SWIM);
-        }).triggerableAnim("bite", BITE));
+            // getTarget() is server-only (vanilla Mob target isn't synced) so the client
+            // predicate never saw it. getSharkState() IS synced and HOSTILE == locked-on prey.
+            return event.setAndContinue(this.getSharkState() == SharkState.HOSTILE ? FAST_SWIM : SWIM);
+        }).setAnimationSpeedHandler(e -> ModAnimations.swimClipSpeed(this))
+                .triggerableAnim("bite", BITE)
+                .triggerableAnim("death", DEATH));
 
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
             if (!this.getPassengers().isEmpty()) {
@@ -77,6 +82,9 @@ public class ShortfinMakoSharkEntityForge  extends ShortfinMakoSharkEntity imple
     @Override
     protected void tickDeath() {
         ++this.deathTime;
+        // Play the death clip like the other sharks (this was missing — the mako
+        // just froze for 30 ticks and vanished).
+        this.triggerAnim("idle_controller", "death");
         if (this.deathTime == 30) {
             this.remove(Entity.RemovalReason.KILLED);
             this.dropExperience();

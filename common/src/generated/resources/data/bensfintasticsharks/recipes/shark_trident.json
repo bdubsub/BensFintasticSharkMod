@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "item": "bensfintasticsharks:common_thresher_shark_tooth"
+    },
+    "H": {
+      "item": "bensfintasticsharks:great_hammerhead_shark_tooth"
+    },
+    "P": {
+      "item": "minecraft:prismarine_shard"
+    },
+    "R": {
+      "item": "bensfintasticsharks:cartilage"
+    },
+    "T": {
+      "item": "minecraft:trident"
+    },
+    "W": {
+      "item": "bensfintasticsharks:great_white_shark_tooth"
+    }
+  },
+  "pattern": [
+    " CW",
+    "RTH",
+    "PR "
+  ],
+  "result": {
+    "item": "bensfintasticsharks:shark_trident"
+  },
+  "show_notification": true
+}

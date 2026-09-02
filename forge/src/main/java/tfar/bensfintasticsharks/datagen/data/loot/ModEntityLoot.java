@@ -2,10 +2,15 @@ package tfar.bensfintasticsharks.datagen.data.loot;
 
 import net.minecraft.data.loot.packs.VanillaEntityLoot;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.SmeltItemFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.advancements.critereon.EntityFlagsPredicate;
+import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import tfar.bensfintasticsharks.datagen.ModDatagen;
@@ -34,11 +39,18 @@ public class ModEntityLoot extends VanillaEntityLoot {
         nothing(ModEntityTypes.ORCA);
         nothing(ModEntityTypes.COMMON_OCTOPUS);
         nothing(ModEntityTypes.CARIBBEAN_REEF_OCTOPUS);
-        nothing(ModEntityTypes.NAUTILUS);
         nothing(ModEntityTypes.GIANT_MORAY_EEL);
         nothing(ModEntityTypes.GREEN_SEA_TURTLE);
         nothing(ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH);
         nothing(ModEntityTypes.CANNONBALL_JELLYFISH);
+
+        // 0.18 — Ben: nautilus should drop nautilus shells. The other exception to the
+        // conservation principle: it's capped at 1 per 64-block radius and hides in the
+        // deep, so a guaranteed shell rewards the effort of actually finding one.
+        this.add(ModEntityTypes.NAUTILUS, LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1))
+                        .add(LootItem.lootTableItem(net.minecraft.world.item.Items.NAUTILUS_SHELL))));
 
         // Lobster is the explicit exception — it's the food source in the design doc.
         // Drop layout (per pool, independent rolls):
@@ -62,10 +74,28 @@ public class ModEntityLoot extends VanillaEntityLoot {
                         .add(LootItem.lootTableItem(ModItems.RAW_LOBSTER_TAIL).setWeight(50))
                         .add(net.minecraft.world.level.storage.loot.entries.EmptyLootItem.emptyItem()
                                 .setWeight(50))));
+
+        this.add(ModEntityTypes.ATLANTIC_COD, LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1))
+                        .add(LootItem.lootTableItem(ModItems.RAW_ATLANTIC_COD)
+                                .apply(SmeltItemFunction.smelted().when(onFire())))));
+
+        this.add(ModEntityTypes.ATLANTIC_SALMON, LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1))
+                        .add(LootItem.lootTableItem(ModItems.RAW_ATLANTIC_SALMON)
+                                .apply(SmeltItemFunction.smelted().when(onFire())))));
     }
 
     protected void nothing(EntityType<?> type) {
         this.add(type, LootTable.lootTable());
+    }
+
+    private static LootItemEntityPropertyCondition.Builder onFire() {
+        return LootItemEntityPropertyCondition.hasProperties(
+                LootContext.EntityTarget.THIS,
+                EntityPredicate.Builder.entity().flags(EntityFlagsPredicate.Builder.flags().setOnFire(true).build()));
     }
 
     @Override

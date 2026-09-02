@@ -19,7 +19,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
-import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.entity.player.Player;
@@ -51,7 +50,7 @@ import java.util.List;
 import java.util.function.IntFunction;
 
 public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEntity>
-        implements ConditionalGlowing, BfsVariantHolder {
+        implements ConditionalGlowing, BfsVariantHolder, SharkGrabber {
 
     @Override public int bfsVariantCount() { return Variant.values().length; }
     @Override public void setBfsVariantId(int id) {
@@ -73,7 +72,7 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
     protected GreatWhiteSharkEntity(EntityType<GreatWhiteSharkEntity> $$0, Level $$1) {
         super($$0, $$1, GREAT_WHITE_PARAMS);
 
-        this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1/10f, 0, false);
+        this.moveControl = new SharkSwimmingMoveControl(this, 1/10f);
         this.lookControl = new SmoothSwimmingLookControl(this, 10);
     }
 
@@ -84,12 +83,15 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
 
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 120).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 8);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 150).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 8);
     }
 
     public void grabMob(LivingEntity entity) {
         if (entity == this.getTarget() && !entity.hasPassenger(this) && this.isInWater()) {
-            entity.startRiding(this);
+            // 0.18 — force the mount: Entity.canRide() refuses riders that are sneaking,
+            // so without force=true a crouch-swimming player could never be grabbed (the
+            // shark would thrash empty water). A shark's jaws don't take no for an answer.
+            entity.startRiding(this, true);
             if (entity instanceof ServerPlayer serverPlayer)
                 serverPlayer.connection.send(new ClientboundSetPassengersPacket(entity));
         }
@@ -174,6 +176,15 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
         if (grabCountdown > 0) {
             int next = grabCountdown - 1;
             setGrabTimer(next);
+            // Thrash damage: while a victim is being held, deal a tick of damage every 10t.
+            // Without this the grab is purely visual and the prey just hitches a ride home.
+            if (!getPassengers().isEmpty() && (next % 10 == 0)) {
+                for (Entity p : getPassengers()) {
+                    if (p instanceof LivingEntity le && le.isAlive()) {
+                        le.hurt(this.damageSources().mobAttack(this), 2.0f);
+                    }
+                }
+            }
             if (next == 0) {
                 ejectPassengers();
             }
@@ -183,7 +194,8 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
         entityData.set(DATA_GRAB_TIMER,timer);
     }
 
-    int getGrabTimer() {
+    @Override
+    public int getGrabTimer() {
         return entityData.get(DATA_GRAB_TIMER);
     }
 
@@ -223,8 +235,10 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(      // Run only one of the below behaviours, trying each one in order. Include the generic type because JavaC is silly
                         new TargetOrRetaliate<>()
-                                .attackablePredicate(entity -> this.isInWaterOrBubble() && entity.isAlive() && (!(entity instanceof Player player) || !player.isCreative())),            // Set the attack target and walk target based on nearby entities
-                        // Set the attack target and walk target based on nearby entities
+                                // Base hurt() owns retaliation; this sensor only acquires
+                                // hunger-gated prey and must not enlist nearby player blood.
+                                .attackablePredicate(entity -> this.isInWaterOrBubble()
+                                        && entity.isAlive() && canHuntTarget(entity)),
                         new SetPlayerLookTarget<>(),          // Set the look target for the nearest player
                         new SetRandomLookTarget<>()),         // Set a random look target
                 new OneRandomBehaviour<>(                 // Run a random task from the below options
@@ -241,18 +255,16 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
         return center.add(look.x * scale,0,look.z * scale);
     }
 
+    // 0.19 — Part II hunger spec: delegate to the shared predicate (per-species prey tag +
+    // hunger gate). The old form targeted ANY mob under 50% health with no cooldown check,
+    // which is what kept the feeding frenzy going for the legacy species.
     public boolean canTarget(LivingEntity target) {
-        if (target instanceof GreatWhiteSharkEntity) return false;
-        if (target instanceof Player player && player.isCreative()) return false;
-        if (!isInWater()) return false;
-        if (target.isDeadOrDying()) return false;
-        if (target.getVehicle() == this) return false;
+        return canHuntTarget(target);
+    }
 
-        if (target.getType().is(ModTags.EntityTypes.GREAT_WHITE_SHARK_ALWAYS_ATTACKS)) return true;
-
-        if (target.getHealth() / target.getMaxHealth() <= .5) return true;
-
-        return false;
+    @Override
+    protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {
+        return ModTags.EntityTypes.GREAT_WHITE_SHARK_PREY;
     }
 
     public boolean isBeached() {
@@ -265,11 +277,11 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
             this.refreshDimensions();
 
         if (isEffectiveAi() && this.isInWater()) {
-            moveRelative(getSpeed(), movementInput);
-            move(MoverType.SELF, getDeltaMovement());
-            setDeltaMovement(getDeltaMovement().scale(this.wasTouchingWater ? 0.65 : 0.25));
-            if (getTarget() == null)
-                setDeltaMovement(getDeltaMovement().add(0.0, -0.005, 0.0));
+            // 0.19 — route through the shared swim step so the Great White gets the chase
+            // acceleration burst (Ben: "doesn't increase speed when chasing"), the in-range
+            // brake, and backslide damping. This override previously only re-applied the flat
+            // chase floor, so it cruised at a constant speed with no visible lunge.
+            swimInWater(movementInput, 0.65, 0.005, false);
         } else
             super.travel(movementInput);
     }

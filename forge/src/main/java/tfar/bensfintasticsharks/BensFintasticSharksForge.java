@@ -28,10 +28,11 @@ import tfar.bensfintasticsharks.datagen.ModDatagen;
 import tfar.bensfintasticsharks.disturbance.WaterDisturbanceListeners;
 import tfar.bensfintasticsharks.entity.*;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
-import tfar.bensfintasticsharks.init.ModItems;
 import tfar.bensfintasticsharks.init.ModMobEffects;
 import tfar.bensfintasticsharks.init.ModTags;
+import tfar.bensfintasticsharks.trade.BfsFishermanTrades;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,20 @@ public class BensFintasticSharksForge {
 
 
             BensFintasticSharks.playerTick(event.player);
+
+            // QoL: a trail of bubbles behind the player while swimming through water.
+            if (tfar.bensfintasticsharks.config.BfsConfig.COMMON.swimBubbles.get()
+                    && event.player.isInWater()
+                    && event.player.getDeltaMovement().lengthSqr() > 0.01
+                    && event.player.tickCount % 3 == 0
+                    && event.player.level() instanceof net.minecraft.server.level.ServerLevel sl) {
+                net.minecraft.world.phys.Vec3 look = event.player.getLookAngle();
+                sl.sendParticles(net.minecraft.core.particles.ParticleTypes.BUBBLE,
+                        event.player.getX() - look.x * 0.4,
+                        event.player.getY() + 0.4,
+                        event.player.getZ() - look.z * 0.4,
+                        2, 0.15, 0.15, 0.15, 0.0);
+            }
         }
     }
 
@@ -160,6 +175,7 @@ public class BensFintasticSharksForge {
 
     private void onCommonSetup(net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            tfar.bensfintasticsharks.spawn.MobCapManager.validateVanillaFishReplacementCategories();
             applyCategoryCapsFromConfig();
             syncSharkMultsFromConfig();
         });
@@ -216,18 +232,21 @@ public class BensFintasticSharksForge {
     private void trading(VillagerTradesEvent event) {
         VillagerProfession type = event.getType();
         if (type == VillagerProfession.FISHERMAN) {
-            event.getTrades().put(1,List.of(
-                    new VillagerTrades.ItemsForEmeralds(ModItems.GREAT_WHITE_SHARK_TOOTH,1,4,10),
-                    new VillagerTrades.ItemsForEmeralds(ModItems.GREAT_HAMMERHEAD_SHARK_TOOTH,1,4,10),
-                    new VillagerTrades.ItemsForEmeralds(ModItems.COMMON_THRESHER_SHARK_TOOTH,1,4,10),
-
-                    new VillagerTrades.ItemsForEmeralds(ModItems.GREAT_WHITE_SHARK_SKIN,1,4,10),
-                    new VillagerTrades.ItemsForEmeralds(ModItems.GREAT_HAMMERHEAD_SHARK_SKIN,1,4,10),
-                    new VillagerTrades.ItemsForEmeralds(ModItems.COMMON_THRESHER_SHARK_SKIN,1,4,10),
-
-                    new VillagerTrades.ItemsForEmeralds(ModItems.CARTILAGE,1,6,10)
-
-                    ));
+            // Shark byproducts are rare MASTER-tier (level 5) goods. We MERGE into the
+            // existing master pool instead of overwriting level 1 (the old code wiped the
+            // vanilla novice trades).
+            //
+            // 0.18 review fix: vanilla draws exactly TWO listings from this pool and does
+            // NOT redraw when a listing's getOffer returns null. The previous shape — a
+            // dozen independent chance-gated listings — meant BFS entries crowded out the
+            // two vanilla master trades and then usually rolled null, leaving most master
+            // fishermen with zero level-5 trades and making every BFS item several times
+            // rarer than intended. One composite listing that ALWAYS yields exactly one
+            // weighted offer keeps the pool at three: ~2/3 of master fishermen carry one
+            // shark byproduct next to their vanilla trades, ~1/3 carry none.
+            List<VillagerTrades.ItemListing> master = new ArrayList<>(event.getTrades().getOrDefault(5, List.of()));
+            master.add(BfsFishermanTrades.WEIGHTED_LISTING);
+            event.getTrades().put(5, master);
         }
     }
 
@@ -254,6 +273,8 @@ public class BensFintasticSharksForge {
         event.put(ModEntityTypes.AMERICAN_LOBSTER, AmericanLobsterEntity.createAttributes().build());
         event.put(ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH, BlackSeaNettleJellyfishEntity.createAttributes().build());
         event.put(ModEntityTypes.CANNONBALL_JELLYFISH, CannonballJellyfishEntity.createAttributes().build());
+        event.put(ModEntityTypes.ATLANTIC_COD, AtlanticCodEntity.createAttributes().build());
+        event.put(ModEntityTypes.ATLANTIC_SALMON, AtlanticSalmonEntity.createAttributes().build());
     }
 
     public static Map<Registry<?>, List<Pair<ResourceLocation, Supplier<?>>>> registerLater = new HashMap<>();

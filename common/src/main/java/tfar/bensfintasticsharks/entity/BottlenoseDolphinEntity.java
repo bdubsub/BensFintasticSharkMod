@@ -85,7 +85,7 @@ public class BottlenoseDolphinEntity extends BfsAquaticEntity<BottlenoseDolphinE
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 22)
+                .add(Attributes.MAX_HEALTH, 30)
                 .add(Attributes.MOVEMENT_SPEED, 1.2F)
                 .add(Attributes.ATTACK_DAMAGE, 2);
     }
@@ -232,8 +232,11 @@ public class BottlenoseDolphinEntity extends BfsAquaticEntity<BottlenoseDolphinE
         public static Variant getSpawnVariant(net.minecraft.util.RandomSource random) { return NATURAL_VARIANTS.getRandomValue(random).orElseThrow(); }
     }
 
-    @Override public float bfsScaleMin() { return 0.8f; }
-    @Override public float bfsScaleMax() { return 1.1f; }
+    // Bug fix: dolphins only reached ~2m. The model is ~2.0m long at scale 1.0, so
+    // 0.5 → ~1.0m (1 block) juveniles and 2.0 → ~4.0m (4 blocks) largest adults —
+    // Ben's requested 1-to-4-block range.
+    @Override public float bfsScaleMin() { return 0.5f; }
+    @Override public float bfsScaleMax() { return 2.0f; }
 
     /**
      * Marine-mammal land-survival window: ~20s longer than the BfsAquaticEntity default.

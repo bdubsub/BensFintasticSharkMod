@@ -26,17 +26,11 @@ public class TextComponents {
     public static final MutableComponent HARBOR_SEAL_ENCOUNTER = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".harbor_seal_encounter.title");
     public static final MutableComponent HARBOR_SEAL_ENCOUNTER_DESC = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".harbor_seal_encounter.description");
 
-    public static final MutableComponent STINGRAY_ATTACKS_PLAYER = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".stingray_attacks_player.title");
-    public static final MutableComponent STINGRAY_ATTACKS_PLAYER_DESC = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".stingray_attacks_player.description");
-
     public static final MutableComponent ALBINO_ENCOUNTER = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".albino_encounter.title");
     public static final MutableComponent ALBINO_ENCOUNTER_DESC = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".albino_encounter.description");
 
     public static final MutableComponent ILLEGAL_POACHING = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".illegal_poaching.title");
     public static final MutableComponent ILLEGAL_POACHING_DESC = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".illegal_poaching.description");
-
-    public static final MutableComponent UNETHICAL = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".unethical.title");
-    public static final MutableComponent UNETHICAL_DESC = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".unethical.description");
 
     public static final MutableComponent JUSTICE_FOR_STEVE = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".justice_for_steve.title");
     public static final MutableComponent JUSTICE_FOR_STEVE_DESC = Component.translatable("advancements."+ BensFintasticSharks.MOD_ID+".justice_for_steve.description");

@@ -1,6 +1,8 @@
 package tfar.bensfintasticsharks.item;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
@@ -35,9 +37,13 @@ public class PrismarineArmorItem extends ArmorItem implements GeoItem {
                 if (this.renderer == null)
                     this.renderer = new PrismarineArmorRenderer();
 
-                // This prepares our GeoArmorRenderer for the current render frame.
-                // These parameters may be null however, so we don't do anything further with them
-                this.renderer.prepForRender(livingEntity, itemStack, equipmentSlot, original);
+                HumanoidModel<?> poseSource = original;
+                var entityRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(livingEntity);
+                if (entityRenderer instanceof LivingEntityRenderer<?, ?> livingRenderer
+                        && livingRenderer.getModel() instanceof HumanoidModel<?> humanoidModel) {
+                    poseSource = humanoidModel;
+                }
+                this.renderer.prepForRender(livingEntity, itemStack, equipmentSlot, poseSource);
 
                 return this.renderer;
             }

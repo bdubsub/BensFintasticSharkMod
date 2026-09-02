@@ -45,6 +45,13 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         add("add_captain_ben_hat_shipwreck_map", new AddOncePerWorldLootModifier(
                 new LootItemCondition[]{ LootTableIdCondition.builder(BuiltInLootTables.SHIPWRECK_MAP).build() },
                 ModItems.CAPTAIN_BEN_HAT, 0.03f));
+
+        add("add_atlantic_cod_fishing", new AddItemChanceLootModifier(
+                new LootItemCondition[]{LootTableIdCondition.builder(BuiltInLootTables.FISHING_FISH).build()},
+                ModItems.RAW_ATLANTIC_COD, 1, 1, 0.125f));
+        add("add_atlantic_salmon_fishing", new AddItemChanceLootModifier(
+                new LootItemCondition[]{LootTableIdCondition.builder(BuiltInLootTables.FISHING_FISH).build()},
+                ModItems.RAW_ATLANTIC_SALMON, 1, 1, 0.125f));
     }
 
     void addModifier(ResourceLocation table) {

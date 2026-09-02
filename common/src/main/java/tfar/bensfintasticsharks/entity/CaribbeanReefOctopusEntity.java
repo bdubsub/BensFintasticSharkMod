@@ -23,13 +23,22 @@ public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOc
     private int hideTicks;
     private int hideCheckTimer;
 
+    /**
+     * Squid-style visual body pitch in degrees: 0 = upright, -90 = level with
+     * horizontal travel (vanilla Squid's xBodyRot convention, measured from the
+     * vertical axis). Computed from synced velocity on both sides; the renderer
+     * applies it so the octopus leans into its swim instead of drifting upright.
+     */
+    public float xBodyRot;
+    public float xBodyRotO;
+
     protected CaribbeanReefOctopusEntity(EntityType<CaribbeanReefOctopusEntity> type, Level level) {
         super(type, level);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 8)
+                .add(Attributes.MAX_HEALTH, 6)
                 .add(Attributes.MOVEMENT_SPEED, 0.8F);
     }
 
@@ -43,15 +52,19 @@ public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOc
     protected int idleWeight() { return 3; }
     // Pitch unlocked so the smooth-swim move control can tilt toward vertical targets.
     @Override
-    protected float swimSpeedMultiplier() { return 0.10f; }
+    protected float swimSpeedMultiplier() { return 0.14f; }
     @Override
-    protected float maxHorizontalSpeed() { return 0.18f; }
+    protected float maxHorizontalSpeed() { return 0.22f; }
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
         boolean took = super.hurt(source, amount);
         if (took && !level().isClientSide && level() instanceof ServerLevel sl) {
             emitInk(sl);
+            // "Aw, you made me ink!" — only the player who provoked the ink earns it.
+            if (source.getEntity() instanceof net.minecraft.server.level.ServerPlayer provoker) {
+                tfar.bensfintasticsharks.BensFintasticSharks.OCTOPUS_INKED.trigger(provoker, this);
+            }
         }
         return took;
     }
@@ -61,6 +74,7 @@ public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOc
     @Override
     public void tick() {
         super.tick();
+        updateBodyPitch();
         if (level().isClientSide) return;
         if (inkCooldown > 0) inkCooldown--;
         if (hideTicks > 0) {
@@ -86,6 +100,21 @@ public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOc
                 hideTicks = 200 + getRandom().nextInt(301);
             }
         }
+    }
+
+    /** Vanilla-Squid-style lean toward the swim direction; eases back upright when resting. */
+    private void updateBodyPitch() {
+        this.xBodyRotO = this.xBodyRot;
+        Vec3 vel = getDeltaMovement();
+        float target = 0f;
+        if (isInWater() && !onGround() && vel.lengthSqr() > 1.0e-4) {
+            // atan2(horizontal speed, vertical speed): 0 when rising, -90 when level.
+            target = (float) (-(net.minecraft.util.Mth.atan2(vel.horizontalDistance(), vel.y) * (180F / (float) Math.PI)));
+            // Cap the lean at -65 (≈25° off horizontal) so horizontal travel keeps a visible
+            // slant instead of lying dead-flat (Ben's feedback), and sinking tilts without nose-diving.
+            target = net.minecraft.util.Mth.clamp(target, -65f, 0f);
+        }
+        this.xBodyRot += (target - this.xBodyRot) * 0.1f;
     }
 
     protected void emitInk(ServerLevel level) {

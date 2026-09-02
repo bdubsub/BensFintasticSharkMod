@@ -3,6 +3,7 @@ package tfar.bensfintasticsharks.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +13,7 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.Animation;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tfar.bensfintasticsharks.disturbance.DisturbanceType;
 import tfar.bensfintasticsharks.disturbance.SharkAlertEvent;
@@ -20,8 +22,12 @@ import tfar.bensfintasticsharks.disturbance.SharkAlertHandler;
 public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity implements GeoEntity {
 
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.idle");
-    private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.swim");
-    private static final RawAnimation BITE = RawAnimation.begin().then("animation.oceanicwhitetipshark.bite", Animation.LoopType.PLAY_ONCE);
+    private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.swim_new");
+    private static final RawAnimation FAST_SWIM = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.swim_fast_new");
+    private static final RawAnimation BEACHED = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.beached");
+    private static final RawAnimation THRASH = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.thrash");
+    private static final RawAnimation BITE = RawAnimation.begin().then("animation.oceanicwhitetipshark.bite_new", Animation.LoopType.PLAY_ONCE);
+    private static final RawAnimation DEATH = RawAnimation.begin().thenPlayAndHold("animation.oceanicwhitetipshark.death");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -47,11 +53,23 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
-            if (!this.isInWaterOrBubble()) {
-                return event.setAndContinue(IDLE);
+            if (this.onGround() && !this.isInWaterOrBubble()) {
+                return event.setAndContinue(BEACHED);
             }
-            return event.setAndContinue(SWIM);
-        }).triggerableAnim("bite", BITE));
+            if (this.getSharkState() == SharkState.HOSTILE) {
+                return event.setAndContinue(FAST_SWIM);
+            }
+            return event.setAndContinue(event.isMoving() ? SWIM : IDLE);
+        })
+                .triggerableAnim("bite", BITE)
+                .triggerableAnim("death", DEATH));
+
+        controllers.add(new AnimationController<>(this, "thrash_controller", 5, event -> {
+            if (!this.getPassengers().isEmpty()) {
+                return event.setAndContinue(THRASH);
+            }
+            return PlayState.STOP;
+        }));
     }
 
     @Override
@@ -62,5 +80,23 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     @Override
     protected void onBiteAttack(LivingEntity target) {
         if (!level().isClientSide) triggerAnim("controller", "bite");
+    }
+
+    @Override
+    protected void onBiteLanded(LivingEntity target) {
+        if (level().isClientSide || target.isDeadOrDying()) return;
+        if (getRandom().nextFloat() < 0.10f) {
+            grabMob(target);
+        }
+    }
+
+    @Override
+    protected void tickDeath() {
+        ++this.deathTime;
+        this.triggerAnim("controller", "death");
+        if (this.deathTime == 30) {
+            this.remove(Entity.RemovalReason.KILLED);
+            this.dropExperience();
+        }
     }
 }

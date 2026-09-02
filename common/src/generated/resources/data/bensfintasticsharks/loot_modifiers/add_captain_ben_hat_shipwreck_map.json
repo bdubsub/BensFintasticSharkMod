@@ -1,5 +1,5 @@
 {
-  "type": "bensfintasticsharks:add_item_chance",
+  "type": "bensfintasticsharks:add_once_per_world",
   "chance": 0.03,
   "conditions": [
     {
@@ -7,7 +7,5 @@
       "loot_table_id": "minecraft:chests/shipwreck_map"
     }
   ],
-  "item": "bensfintasticsharks:captain_ben_hat",
-  "max": 1,
-  "min": 1
+  "item": "bensfintasticsharks:captain_ben_hat"
 }

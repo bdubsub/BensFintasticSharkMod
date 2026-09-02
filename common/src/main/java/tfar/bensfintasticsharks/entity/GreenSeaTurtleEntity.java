@@ -65,7 +65,7 @@ public class GreenSeaTurtleEntity extends BfsAquaticEntity<GreenSeaTurtleEntity>
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 30)
+                .add(Attributes.MAX_HEALTH, 40)
                 .add(Attributes.MOVEMENT_SPEED, 0.8F);
     }
 

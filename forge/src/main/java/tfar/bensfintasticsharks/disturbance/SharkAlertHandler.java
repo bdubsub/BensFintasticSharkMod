@@ -40,10 +40,18 @@ public class SharkAlertHandler {
             if (shark.isOnHuntCooldown()) continue;
             switch (event.getType()) {
                 case BLOOD_CONVERGENCE -> {
-                    if (event.getTarget() != null) {
-                        shark.setTarget(event.getTarget());
+                    // 0.19 review: the raw setTarget bypassed every prey/species guard —
+                    // whitetips converged on their own bleeding packmates (who can't even
+                    // retaliate, thanks to the same-species hurt() guard) and on non-prey
+                    // like bleeding great whites. Same rule as the base BLOOD path now:
+                    // players always draw the convergence, mobs must pass canHuntTarget.
+                    net.minecraft.world.entity.LivingEntity target = event.getTarget();
+                    boolean valid = target != null
+                            && (shark.getTarget() == target || shark.canHuntTarget(target));
+                    if (valid) {
+                        shark.setTarget(target);
                         shark.reactToDisturbance(event.getSource(),
-                                tfar.bensfintasticsharks.disturbance.DisturbanceType.BLOOD, event.getTarget());
+                                tfar.bensfintasticsharks.disturbance.DisturbanceType.BLOOD, target);
                     }
                 }
                 case PACK_ALERT -> {

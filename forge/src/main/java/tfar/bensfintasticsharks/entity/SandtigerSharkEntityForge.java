@@ -37,9 +37,10 @@ public class SandtigerSharkEntityForge extends SandtigerSharkEntity implements G
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        // SWIM-only main controller (no FAST_SWIM flip). Toggling between SWIM
-        // and FAST_SWIM based on chase state retriggers GeckoLib every prey
-        // scan and stalls both anims on frame 0. BITE remains a triggerable
+        // FAST_SWIM while locked onto prey, SWIM otherwise — same pattern as the mako.
+        // getSharkState() is synced entity data (getTarget() is server-only), and with
+        // the post-kill hunt cooldown the state only flips at hunt start/end, so the
+        // controller no longer retriggers every prey scan. BITE remains a triggerable
         // one-shot.
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
             if (!this.isInWaterOrBubble()) {
@@ -48,8 +49,9 @@ public class SandtigerSharkEntityForge extends SandtigerSharkEntity implements G
             if (isHovering()) {
                 return event.setAndContinue(IDLE);
             }
-            return event.setAndContinue(SWIM);
+            return event.setAndContinue(getSharkState() == SharkState.HOSTILE ? FAST_SWIM : SWIM);
         })
+                .setAnimationSpeedHandler(e -> tfar.bensfintasticsharks.ModAnimations.swimClipSpeed(this))
                 .triggerableAnim("bite", BITE)
                 .triggerableAnim("tail_whip", BITE));
     }

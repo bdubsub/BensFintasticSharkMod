@@ -2,20 +2,25 @@ package tfar.bensfintasticsharks.entity;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +29,12 @@ import java.util.function.IntFunction;
 public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSharkEntity>
         implements BfsVariantHolder {
 
+    private static final int LATCH_DURATION_TICKS = 30;
+
     private static final EntityDataAccessor<Integer> DATA_VARIANT =
             SynchedEntityData.defineId(BlacktipReefSharkEntity.class, EntityDataSerializers.INT);
+
+    private int latchTicks;
 
     private static final SharkParams PARAMS = new SharkParams(
             /* detectionRadius      */ 20.0f,
@@ -43,7 +52,7 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return createSharkAttributes(40, 1.1, 2.5);
+        return createSharkAttributes(60, 1.1, 2.5);
     }
 
     @Override
@@ -88,6 +97,23 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
     @Override
     protected float wanderRadiusY() { return 10f; }
 
+    @Override
+    public boolean canJoinPlayerFeedingFrenzy() { return true; }
+
+    @Override
+    protected boolean alertsPackmatesWhenAttacked() { return true; }
+
+    // Feedback singled blacktips out as visually too fast once a school enters a frenzy.
+    // Keep their normal cruise untouched, but trim the chase burst/floor and terminal cap.
+    @Override
+    protected float chaseAccelBoost() { return 1.55f; }
+    @Override
+    protected float chaseSpeedFloor() { return 0.27f; }
+    @Override
+    protected float maxHorizontalSpeed() {
+        return getTarget() != null ? 0.52f : super.maxHorizontalSpeed();
+    }
+
     public enum Variant implements StringRepresentable {
         DEFAULT_1(0, "default_1"),
         DEFAULT_2(1, "default_2"),
@@ -112,4 +138,63 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
 
     @Override public float bfsScaleMin() { return 0.9f; }
     @Override public float bfsScaleMax() { return 1.05f; }
+
+    // 0.18 — Ben: the bite animation seemed to lag ~1s behind the damage. The 1.125s
+    // bite clip snaps shut around 0.5-0.65s in (plus the controller's 0.25s blend-in),
+    // but the default 5-tick impact delay landed the damage at 0.25s — well before the
+    // visible chomp. 12 ticks (0.6s) puts the hit on the animation's impact frame.
+    @Override protected int biteImpactDelayTicks() { return 12; }
+
+    @Override
+    protected double biteRangeAgainst(net.minecraft.world.entity.LivingEntity target) {
+        return closeBiteRangeAgainst(target, 0.3);
+    }
+
+    protected void latchMob(LivingEntity target) {
+        if (target != getTarget() || target.isPassenger() || !isInWaterOrBubble()) return;
+        if (!target.startRiding(this, true)) return;
+        latchTicks = LATCH_DURATION_TICKS;
+        if (target instanceof ServerPlayer serverPlayer) {
+            serverPlayer.connection.send(new ClientboundSetPassengersPacket(this));
+        }
+    }
+
+    @Override
+    protected void positionRider(Entity passenger, MoveFunction moveFunction) {
+        Vec3 look = getLookAngle();
+        double distance = Math.max(0.65, getBbWidth() * 0.45);
+        double y = getY() + getBbHeight() * 0.45 - passenger.getBbHeight() * 0.5;
+        moveFunction.accept(passenger, getX() + look.x * distance, y, getZ() + look.z * distance);
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        if (latchTicks <= 0) return;
+
+        latchTicks--;
+        boolean livingPassenger = getPassengers().stream()
+                .anyMatch(passenger -> passenger instanceof LivingEntity living && living.isAlive());
+        if (latchTicks == 0 || !isAlive() || !isInWaterOrBubble() || !livingPassenger) {
+            latchTicks = 0;
+            ejectPassengers();
+        }
+    }
+
+    @Override
+    protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {
+        return tfar.bensfintasticsharks.init.ModTags.EntityTypes.BLACKTIP_REEF_SHARK_PREY;
+    }
+
+    /**
+     * Blacktips are skittish. A lone one that gets hit bolts instead of fighting back;
+     * with a group of its own kind nearby it gets bold and retaliates (and the base
+     * hurt() help-call then drags the rest of the school into the fight).
+     */
+    @Override
+    protected boolean retaliatesAgainst(net.minecraft.world.entity.LivingEntity attacker) {
+        int buddies = level().getEntitiesOfClass(BlacktipReefSharkEntity.class,
+                getBoundingBox().inflate(16.0), s -> s != this && s.isAlive() && s.isInWater()).size();
+        return buddies >= 1;
+    }
 }

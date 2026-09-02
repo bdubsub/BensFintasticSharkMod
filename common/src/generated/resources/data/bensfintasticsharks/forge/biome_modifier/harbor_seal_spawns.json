@@ -3,8 +3,8 @@
   "biomes": "#bensfintasticsharks:harbor_seal_spawns",
   "spawners": {
     "type": "bensfintasticsharks:harbor_seal",
-    "maxCount": 3,
+    "maxCount": 2,
     "minCount": 1,
-    "weight": 50
+    "weight": 20
   }
 }

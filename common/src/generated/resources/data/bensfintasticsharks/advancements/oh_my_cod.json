@@ -1,0 +1,44 @@
+{
+  "parent": "bensfintasticsharks:root",
+  "criteria": {
+    "caught_atlantic_cod": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {}
+          }
+        ],
+        "item": {
+          "items": [
+            "bensfintasticsharks:raw_atlantic_cod"
+          ]
+        },
+        "rod": {}
+      },
+      "trigger": "minecraft:fishing_rod_hooked"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.bensfintasticsharks.oh_my_cod.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "bensfintasticsharks:cooked_atlantic_cod"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.bensfintasticsharks.oh_my_cod.title"
+    }
+  },
+  "requirements": [
+    [
+      "caught_atlantic_cod"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

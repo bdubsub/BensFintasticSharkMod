@@ -13,7 +13,7 @@
           }
         ]
       },
-      "trigger": "bensfintasticsharks:player_found_entity"
+      "trigger": "bensfintasticsharks:octopus_inked"
     },
     "common_octopus": {
       "conditions": {
@@ -27,7 +27,7 @@
           }
         ]
       },
-      "trigger": "bensfintasticsharks:player_found_entity"
+      "trigger": "bensfintasticsharks:octopus_inked"
     }
   },
   "display": {

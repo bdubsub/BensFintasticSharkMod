@@ -26,8 +26,8 @@ public final class SharkCodexClient {
 
     public static void openReader(Player player) {
         ItemStack virtualBook = new ItemStack(Items.WRITTEN_BOOK);
-        virtualBook.addTagElement("title", StringTag.valueOf("Shark Codex"));
-        virtualBook.addTagElement("author", StringTag.valueOf("Ben"));
+        virtualBook.addTagElement("title", StringTag.valueOf("Capitán Ben's Codex"));
+        virtualBook.addTagElement("author", StringTag.valueOf("Capitán Ben"));
         ListTag pageList = new ListTag();
         for (Component page : SharkCodexItem.PAGES) {
             pageList.add(StringTag.valueOf(Component.Serializer.toJson(page)));

@@ -31,6 +31,12 @@ public class CaptainBenHatItem extends ArmorItem implements GeoItem {
         super(material, type, properties);
     }
 
+    // Gold display name — matches the pirate-treasure / collector's-piece framing.
+    @Override
+    public Component getName(ItemStack stack) {
+        return Component.translatable(this.getDescriptionId(stack)).withStyle(ChatFormatting.GOLD);
+    }
+
     /** Collector's piece — never lose durability. */
     @Override
     public boolean isDamageable(ItemStack stack) {
@@ -73,5 +79,11 @@ public class CaptainBenHatItem extends ArmorItem implements GeoItem {
         super.appendHoverText(stack, level, tooltip, flag);
         tooltip.add(Component.translatable("item.bensfintasticsharks.captain_ben_hat.flavor")
                 .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+        tooltip.add(Component.translatable("item.bensfintasticsharks.captain_ben_hat.flavor2")
+                .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+        tooltip.add(Component.translatable("item.bensfintasticsharks.captain_ben_hat.flavor3")
+                .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+        tooltip.add(Component.translatable("item.bensfintasticsharks.captain_ben_hat.attribution")
+                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
     }
 }

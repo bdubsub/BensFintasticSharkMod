@@ -1,21 +1,29 @@
 package tfar.bensfintasticsharks.spawn;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.animal.AbstractSchoolingFish;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.config.BfsConfig;
+import tfar.bensfintasticsharks.init.ModEntityTypes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Per-species mob cap enforcement.
@@ -45,6 +53,10 @@ public class MobCapManager {
 
     /** Lookup-table: species path → EntityType, populated lazily. */
     private static final Map<String, EntityType<?>> SPECIES_BY_PATH = new HashMap<>();
+
+    private static final ThreadLocal<Boolean> REPLACING_VANILLA_FISH =
+            ThreadLocal.withInitial(() -> false);
+    private static final AtomicBoolean REPLACEMENT_CATEGORY_ERROR_REPORTED = new AtomicBoolean();
 
     /** Returns the current cap for an EntityType, or {@code -1} if uncapped. */
     public static int getCap(EntityType<?> type) {
@@ -103,8 +115,31 @@ public class MobCapManager {
 
     @SubscribeEvent
     public void onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn event) {
-        // Only gate natural-style spawns. /summon, spawn eggs, structure placements should pass.
         MobSpawnType reason = event.getSpawnType();
+        if (REPLACING_VANILLA_FISH.get()) {
+            return;
+        }
+
+        boolean naturalSpawn = reason == MobSpawnType.NATURAL
+                || reason == MobSpawnType.CHUNK_GENERATION;
+        EntityType<?> type = event.getEntity().getType();
+
+        if (naturalSpawn && BfsConfig.COMMON.replaceVanillaMobs.get()) {
+            if (replacementTypeFor(type) != null && replaceNaturalFish(event)) {
+                return;
+            }
+            if (isAtlanticFish(type)) {
+                event.setSpawnCancelled(true);
+                return;
+            }
+        }
+
+        if (naturalSpawn
+                && BfsConfig.COMMON.disableVanillaAquaticSpawns.get()
+                && isVanillaAquatic(type)) {
+            event.setSpawnCancelled(true);
+            return;
+        }
         if (reason != MobSpawnType.NATURAL
                 && reason != MobSpawnType.CHUNK_GENERATION
                 && reason != MobSpawnType.SPAWNER
@@ -113,7 +148,6 @@ public class MobCapManager {
             return;
         }
         Entity entity = event.getEntity();
-        EntityType<?> type = entity.getType();
         var key = BuiltInRegistries.ENTITY_TYPE.getKey(type);
         if (key == null || !BensFintasticSharks.MOD_ID.equals(key.getNamespace())) return;
         String speciesPath = key.getPath();
@@ -158,6 +192,151 @@ public class MobCapManager {
                 spawnGroupExtras(event, groupMin.get());
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onEntityJoin(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide
+                || !BfsConfig.COMMON.replaceVanillaMobs.get()
+                || !(event.getEntity() instanceof Mob original)) {
+            return;
+        }
+
+        MobSpawnType reason = original.getSpawnType();
+        if (reason != MobSpawnType.SPAWN_EGG && reason != MobSpawnType.DISPENSER) {
+            return;
+        }
+
+        EntityType<? extends Mob> replacementType = replacementTypeFor(original.getType());
+        if (replacementType == null) {
+            return;
+        }
+
+        Mob replacement = replacementType.create(event.getLevel());
+        if (replacement == null) {
+            return;
+        }
+
+        CompoundTag data = new CompoundTag();
+        original.saveWithoutId(data);
+        replacement.load(data);
+        if (event.getLevel().addFreshEntity(replacement)) {
+            event.setCanceled(true);
+        }
+    }
+
+    private static boolean replaceNaturalFish(MobSpawnEvent.FinalizeSpawn event) {
+        EntityType<?> originalType = event.getEntity().getType();
+        EntityType<? extends Mob> replacementType = replacementTypeFor(originalType);
+        if (replacementType == null) {
+            return false;
+        }
+        if (!usesSameMobCategory(originalType, replacementType)) {
+            if (REPLACEMENT_CATEGORY_ERROR_REPORTED.compareAndSet(false, true)) {
+                BensFintasticSharks.LOG.error(
+                        "Vanilla fish replacement is disabled because {} uses {} instead of {}.",
+                        BuiltInRegistries.ENTITY_TYPE.getKey(replacementType),
+                        replacementType.getCategory().getName(),
+                        originalType.getCategory().getName()
+                );
+            }
+            event.setSpawnCancelled(true);
+            return true;
+        }
+
+        Mob original = event.getEntity();
+        Mob replacement = replacementType.create(original.level());
+        if (replacement == null) {
+            return false;
+        }
+
+        replacement.moveTo(
+                original.getX(),
+                original.getY(),
+                original.getZ(),
+                original.getYRot(),
+                original.getXRot()
+        );
+        replacement.yHeadRot = original.yHeadRot;
+        replacement.yBodyRot = original.yBodyRot;
+        replacement.setDeltaMovement(original.getDeltaMovement());
+
+        SpawnGroupData sourceGroup = event.getSpawnData();
+        boolean added;
+        REPLACING_VANILLA_FISH.set(true);
+        try {
+            ForgeEventFactory.onFinalizeSpawn(
+                    replacement,
+                    event.getLevel(),
+                    event.getDifficulty(),
+                    event.getSpawnType(),
+                    sourceGroup,
+                    event.getSpawnTag()
+            );
+            added = event.getLevel().addFreshEntity(replacement);
+        } finally {
+            REPLACING_VANILLA_FISH.remove();
+        }
+
+        if (!added) {
+            return false;
+        }
+
+        if (sourceGroup == null && replacement instanceof AbstractSchoolingFish schoolingFish) {
+            event.setSpawnData(new AbstractSchoolingFish.SchoolSpawnGroupData(schoolingFish));
+        }
+        event.setSpawnCancelled(true);
+        return true;
+    }
+
+    public static void validateVanillaFishReplacementCategories() {
+        validateReplacementCategory(EntityType.COD, ModEntityTypes.ATLANTIC_COD);
+        validateReplacementCategory(EntityType.SALMON, ModEntityTypes.ATLANTIC_SALMON);
+    }
+
+    private static void validateReplacementCategory(EntityType<?> source, EntityType<?> replacement) {
+        if (!usesSameMobCategory(source, replacement)) {
+            throw new IllegalStateException(
+                    BuiltInRegistries.ENTITY_TYPE.getKey(replacement)
+                            + " must use the same mob category as "
+                            + BuiltInRegistries.ENTITY_TYPE.getKey(source)
+            );
+        }
+    }
+
+    private static boolean usesSameMobCategory(EntityType<?> source, EntityType<?> replacement) {
+        return source.getCategory() == replacement.getCategory();
+    }
+
+    private static EntityType<? extends Mob> replacementTypeFor(EntityType<?> type) {
+        var key = BuiltInRegistries.ENTITY_TYPE.getKey(type);
+        if (key == null) {
+            return null;
+        }
+        VanillaFishReplacementPolicy.Replacement replacement =
+                VanillaFishReplacementPolicy.replacementFor(key.getNamespace(), key.getPath());
+        if (replacement == null) {
+            return null;
+        }
+        return switch (replacement) {
+            case ATLANTIC_COD -> ModEntityTypes.ATLANTIC_COD;
+            case ATLANTIC_SALMON -> ModEntityTypes.ATLANTIC_SALMON;
+        };
+    }
+
+    private static boolean isAtlanticFish(EntityType<?> type) {
+        return type == ModEntityTypes.ATLANTIC_COD || type == ModEntityTypes.ATLANTIC_SALMON;
+    }
+
+    private static boolean isVanillaAquatic(EntityType<?> type) {
+        var key = BuiltInRegistries.ENTITY_TYPE.getKey(type);
+        if (key == null || !"minecraft".equals(key.getNamespace())) return false;
+        var category = type.getCategory();
+        return category == net.minecraft.world.entity.MobCategory.WATER_CREATURE
+                || category == net.minecraft.world.entity.MobCategory.WATER_AMBIENT
+                || category == net.minecraft.world.entity.MobCategory.UNDERGROUND_WATER_CREATURE
+                || category == net.minecraft.world.entity.MobCategory.AXOLOTLS
+                || type == EntityType.TURTLE;
     }
 
     private void spawnGroupExtras(MobSpawnEvent.FinalizeSpawn event, int desiredGroupSize) {

@@ -15,6 +15,34 @@
       },
       "trigger": "bensfintasticsharks:player_found_entity"
     },
+    "atlantic_cod": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:atlantic_cod"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    },
+    "atlantic_salmon": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "bensfintasticsharks:atlantic_salmon"
+            }
+          }
+        ]
+      },
+      "trigger": "bensfintasticsharks:player_found_entity"
+    },
     "black_sea_nettle_jellyfish": {
       "conditions": {
         "entity": [
@@ -357,6 +385,12 @@
     ],
     [
       "cannonball_jellyfish"
+    ],
+    [
+      "atlantic_cod"
+    ],
+    [
+      "atlantic_salmon"
     ]
   ],
   "rewards": {

@@ -1,10 +1,12 @@
 {
   "entries": [
+    "bensfintasticsharks:add_atlantic_salmon_fishing",
     "bensfintasticsharks:add_item_chance_ocean_ruin_cold",
     "bensfintasticsharks:add_item_chance_simple_dungeon",
     "bensfintasticsharks:add_captain_ben_hat_shipwreck_map",
     "bensfintasticsharks:add_item_chance_shipwreck_map",
     "bensfintasticsharks:add_item_chance_buried_treasure",
+    "bensfintasticsharks:add_atlantic_cod_fishing",
     "bensfintasticsharks:add_item_chance_ocean_ruin_warm",
     "bensfintasticsharks:add_captain_ben_hat_buried_treasure"
   ],

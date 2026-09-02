@@ -74,12 +74,48 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
         var pred = preds.stream()
                 .min(java.util.Comparator.comparingDouble(this::distanceToSqr))
                 .orElseThrow();
-        // Walk target is "current position + away vector × 8". Faster than wandering — prey
-        // flees but sharks still catch them since shark base speed > prey base speed.
-        Vec3 away = position().subtract(pred.position()).normalize().scale(8.0).add(position());
-        net.tslat.smartbrainlib.util.BrainUtils.setMemory(getBrain(),
-                net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET,
-                new net.minecraft.world.entity.ai.memory.WalkTarget(away, 1.4f, 1));
+        // Pick a reachable water path rather than blindly projecting one vector away. The
+        // old target was often behind a wall when an octopus was already near a ruin/corner;
+        // re-applying it every second pinned the animal into that corner indefinitely.
+        Vec3 escape = findReachableApexEscape(pred);
+        if (escape != null) {
+            net.tslat.smartbrainlib.util.BrainUtils.setMemory(getBrain(),
+                    net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET,
+                    new net.minecraft.world.entity.ai.memory.WalkTarget(escape, 1.4f, 1));
+        }
+    }
+
+    /**
+     * Finds the first reachable water destination in an away-biased fan. Directly away is
+     * preferred; diagonal/side exits let a frightened animal route around a wall or corner.
+     */
+    @org.jetbrains.annotations.Nullable
+    private Vec3 findReachableApexEscape(net.minecraft.world.entity.LivingEntity predator) {
+        Vec3 rawAway = position().subtract(predator.position());
+        Vec3 horizontal = new Vec3(rawAway.x, 0, rawAway.z);
+        if (horizontal.lengthSqr() < 1.0e-4) {
+            double angle = getRandom().nextDouble() * Math.PI * 2.0;
+            horizontal = new Vec3(Math.cos(angle), 0, Math.sin(angle));
+        } else {
+            horizontal = horizontal.normalize();
+        }
+        double vertical = net.minecraft.util.Mth.clamp(rawAway.y * 0.35, -2.5, 2.5);
+        double[] turns = {0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2,
+                Math.PI * 3 / 4, -Math.PI * 3 / 4};
+        for (double turn : turns) {
+            double cos = Math.cos(turn);
+            double sin = Math.sin(turn);
+            Vec3 direction = new Vec3(
+                    horizontal.x * cos - horizontal.z * sin,
+                    0,
+                    horizontal.x * sin + horizontal.z * cos);
+            Vec3 candidate = position().add(direction.scale(9.0)).add(0, vertical, 0);
+            net.minecraft.core.BlockPos pos = net.minecraft.core.BlockPos.containing(candidate);
+            if (!level().getFluidState(pos).is(net.minecraft.tags.FluidTags.WATER)) continue;
+            net.minecraft.world.level.pathfinder.Path path = getNavigation().createPath(pos, 0);
+            if (path != null && path.canReach()) return Vec3.atCenterOf(path.getTarget());
+        }
+        return null;
     }
 
     /** Horizontal wander radius. Override for species (e.g. nautilus is sluggish, dolphin is wide). */
@@ -209,6 +245,16 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
             setBfsScale(min + r * (max - min));
         } else {
             setBfsScale(min);
+        }
+        // QoL: a soft bubble "plop" when a player places one (spawn egg / dispenser) — satisfying
+        // feedback without spamming ambient sounds on natural spawns.
+        if (reason == net.minecraft.world.entity.MobSpawnType.SPAWN_EGG
+                || reason == net.minecraft.world.entity.MobSpawnType.DISPENSER) {
+            net.minecraft.server.level.ServerLevel sl = level.getLevel();
+            sl.sendParticles(net.minecraft.core.particles.ParticleTypes.BUBBLE,
+                    getX(), getY() + getBbHeight() * 0.5, getZ(), 12, 0.3, 0.3, 0.3, 0.02);
+            sl.playSound(null, blockPosition(), net.minecraft.sounds.SoundEvents.BUBBLE_COLUMN_BUBBLE_POP,
+                    net.minecraft.sounds.SoundSource.NEUTRAL, 0.6f, 1.2f);
         }
         return super.finalizeSpawn(level, diff, reason, data, tag);
     }

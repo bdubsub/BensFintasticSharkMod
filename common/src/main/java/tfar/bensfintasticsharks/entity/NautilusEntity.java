@@ -12,6 +12,10 @@ public class NautilusEntity extends BfsAquaticEntity<NautilusEntity> implements 
 
     private static final net.minecraft.network.syncher.EntityDataAccessor<Integer> DATA_VARIANT =
             net.minecraft.network.syncher.SynchedEntityData.defineId(NautilusEntity.class, net.minecraft.network.syncher.EntityDataSerializers.INT);
+    // Resting must be synced: the client-side animation controller reads isResting() to pick
+    // the HIDE pose, but restTicks is mutated server-only.
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Boolean> DATA_RESTING =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(NautilusEntity.class, net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);
 
     private int restTicks;
     private int restCheckTimer;
@@ -24,6 +28,7 @@ public class NautilusEntity extends BfsAquaticEntity<NautilusEntity> implements 
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_VARIANT, 0);
+        this.entityData.define(DATA_RESTING, false);
     }
 
     public Variant getVariant() { return Variant.byId(this.entityData.get(DATA_VARIANT)); }
@@ -61,12 +66,15 @@ public class NautilusEntity extends BfsAquaticEntity<NautilusEntity> implements 
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 8)
-                .add(Attributes.MOVEMENT_SPEED, 0.5F);
+                .add(Attributes.MAX_HEALTH, 10)
+                // Bug 13: lift base speed from 0.5 to 0.7 so it reliably clears each path node
+                // before SmoothSwimmingMoveControl zeroes speed at navigation.isDone(). Still the
+                // slowest non-jelly mover (octopus 0.8).
+                .add(Attributes.MOVEMENT_SPEED, 0.7F);
     }
 
     public boolean isResting() {
-        return restTicks > 0;
+        return this.entityData.get(DATA_RESTING);
     }
 
     // Nautilus drifts slowly — keep wander tight but don't freeze it.
@@ -84,10 +92,13 @@ public class NautilusEntity extends BfsAquaticEntity<NautilusEntity> implements 
     protected int idleMaxTicks() { return 120; }
     // Pitch unlocked — locking it kept the smooth-swim move control from ever tilting
     // the nautilus toward vertical targets, so it'd refuse to swim up/down.
+    // Bug 13: the nautilus barely translated (accel ~0.005 b/t², capped at 0.12 it never
+    // reached). Double the acceleration multiplier and raise the cap so it actually drifts
+    // while still reading as the slowest non-jelly mover.
     @Override
-    protected float swimSpeedMultiplier() { return 0.08f; }
+    protected float swimSpeedMultiplier() { return 0.16f; }
     @Override
-    protected float maxHorizontalSpeed() { return 0.12f; }
+    protected float maxHorizontalSpeed() { return 0.18f; }
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
@@ -108,14 +119,16 @@ public class NautilusEntity extends BfsAquaticEntity<NautilusEntity> implements 
             restTicks--;
             // Slow movement to a glide — don't hard-stop it.
             setDeltaMovement(getDeltaMovement().scale(0.85));
-            return;
+        } else if (restCheckTimer > 0) {
+            restCheckTimer--;
+        } else {
+            // 20% chance per 400-tick window (20s) to rest for 5-10s.
+            if (getRandom().nextFloat() < 0.20f) {
+                restTicks = 100 + getRandom().nextInt(101);
+            }
+            restCheckTimer = 400;
         }
-        if (restCheckTimer > 0) { restCheckTimer--; return; }
-        // 20% chance per 400-tick window (20s) to rest for 5-10s.
-        if (getRandom().nextFloat() < 0.20f) {
-            restTicks = 100 + getRandom().nextInt(101);
-        }
-        restCheckTimer = 400;
+        this.entityData.set(DATA_RESTING, restTicks > 0);
     }
 
     public enum Variant implements net.minecraft.util.StringRepresentable {

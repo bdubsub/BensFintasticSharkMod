@@ -1,6 +1,7 @@
 package tfar.bensfintasticsharks.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -56,12 +57,21 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     /** Scheduled hit: damage lands a few ticks after the bite animation triggers so the visual matches the hit. */
     private LivingEntity pendingBiteTarget;
     private int pendingBiteTicks;
+    /**
+     * Sustained flight from a larger shark (Ben 0.19 suggestion). While {@code > 0} the
+     * shark does not hunt, does not retaliate, and keeps re-pathing away from
+     * {@link #fleeFrom}. Transient — deliberately not persisted (a 6s panic, not a mood).
+     */
+    private int fleeTicks;
+    @Nullable
+    private LivingEntity fleeFrom;
     /** How many ticks after the swing the actual damage frame lands. Override per-species if needed. */
     protected int biteImpactDelayTicks() { return 5; }
 
     protected AbstractSharkEntity(EntityType<T> type, Level level, SharkParams params) {
         super(type, level);
         this.params = params;
+        this.moveControl = new SharkSwimmingMoveControl(this, 1f / 8f);
     }
 
     /**
@@ -106,6 +116,15 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                 .add(Attributes.ATTACK_DAMAGE, attack);
     }
 
+    // Bug 3: sharks are a protected/conservation species and must drop nothing, including XP.
+    // WaterAnimal.getExperienceReward() otherwise returns 1-3 XP unconditionally. Returning 0
+    // here (shared by all 8 sharks) zeroes both the vanilla LivingEntity death path and the
+    // explicit dropExperience() calls in the Forge subclasses' tickDeath() animation hooks.
+    @Override
+    public int getExperienceReward() {
+        return 0;
+    }
+
     /** Forge-side hook to fire a bite/attack animation when {@link #onSharkTick} swings. */
     protected void onBiteAttack(LivingEntity target) {}
 
@@ -115,7 +134,14 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
      * cap it tighter so the bite has to actually contact the prey.
      */
     protected double biteRangeAgainst(LivingEntity target) {
-        return (this.getBbWidth() * 0.6F) + 1.0 + (target.getBbWidth() * 0.5F);
+        // Give the visible snout a little more room than the compact collision box. This is
+        // still far below vanilla's width-based reach for large mobs, but no longer asks a
+        // great white's nose to overlap the victim before an animated bite can connect.
+        return (this.getBbWidth() * 0.65F) + 1.25 + (target.getBbWidth() * 0.5F);
+    }
+
+    protected double closeBiteRangeAgainst(LivingEntity target, double contactPadding) {
+        return this.getBbWidth() * 0.5F + target.getBbWidth() * 0.5F + contactPadding;
     }
 
     /**
@@ -126,6 +152,72 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
      */
     protected void onBiteLanded(LivingEntity target) {}
 
+    /**
+     * This species' prey list (Part II hunger spec). Each of the 8 sharks overrides with
+     * its own {@code bensfintasticsharks:prey/<species>} tag; the broad legacy tag is only
+     * the fallback for any future AbstractSharkEntity subclass that hasn't picked one.
+     */
+    protected net.minecraft.tags.TagKey<EntityType<?>> preyTag() {
+        return tfar.bensfintasticsharks.init.ModTags.EntityTypes.SHARK_PREY;
+    }
+
+    /**
+     * Single hunt-target predicate shared by the base prey scan AND the legacy species'
+     * SBL sensors/behaviours (which previously each had their own canTarget and were the
+     * feeding-frenzy loophole — "any mob under 50% health" with no hunger check).
+     *
+     * <p>Rules: non-player prey requires an empty hunger clock and membership in this
+     * species' {@link #preyTag()}. Wounded players are an opportunistic target only for
+     * species that opt into {@link #canJoinPlayerFeedingFrenzy()} (blacktips); every shark
+     * can still target a player through its own disturbance or retaliation.</p>
+     */
+    public boolean canHuntTarget(LivingEntity target) {
+        if (target == this || target.getType() == this.getType()) return false;
+        if (!this.isInWater()) return false;
+        if (!target.isAlive() || target.isDeadOrDying()) return false;
+        if (target.getVehicle() == this) return false;
+        if (target instanceof Player player) {
+            if (player.isCreative() || player.isSpectator()) return false;
+            // Only schooling blacktips opportunistically join another shark's attack on a
+            // wounded swimmer. Other species still attack players that disturb or hurt them,
+            // but do not pile into a cross-species feeding frenzy just because blood exists.
+            return canJoinPlayerFeedingFrenzy()
+                    && target.getHealth() / target.getMaxHealth() <= 0.5f;
+        }
+        if (isOnHuntCooldown()) return false;
+        return target.getType().is(preyTag());
+    }
+
+    /** Whether this species may acquire a wounded player from blood/nearby-prey scans. */
+    public boolean canJoinPlayerFeedingFrenzy() {
+        return false;
+    }
+
+    /**
+     * Selects one deterministic non-schooling shark to investigate fresh player blood.
+     * If a non-blacktip is already attacking that player it remains the sole responder;
+     * otherwise the closest eligible non-blacktip starts the encounter. Blacktips are
+     * handled separately by {@link #canJoinPlayerFeedingFrenzy()} and may school.
+     */
+    private boolean isPrimaryPlayerBloodResponder(LivingEntity bleedingPlayer) {
+        if (canJoinPlayerFeedingFrenzy()) return false;
+        var area = bleedingPlayer.getBoundingBox().inflate(24.0);
+        java.util.List<AbstractSharkEntity> nearby = level().getEntitiesOfClass(
+                AbstractSharkEntity.class, area,
+                shark -> shark.isAlive() && shark.isInWater()
+                        && !shark.canJoinPlayerFeedingFrenzy()
+                        && (shark.getTarget() == null || shark.getTarget() == bleedingPlayer)
+                        && (!shark.isOnHuntCooldown() || shark.getTarget() == bleedingPlayer));
+        boolean encounterInProgress = nearby.stream()
+                .anyMatch(shark -> shark.getTarget() == bleedingPlayer);
+        if (encounterInProgress) return this.getTarget() == bleedingPlayer;
+        return nearby.stream()
+                .min(java.util.Comparator
+                        .comparingDouble((AbstractSharkEntity shark) -> shark.distanceToSqr(bleedingPlayer))
+                        .thenComparingInt(net.minecraft.world.entity.Entity::getId))
+                .orElse(null) == this;
+    }
+
     @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
@@ -134,18 +226,44 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         // Land the scheduled bite at the visual peak of the animation.
         if (pendingBiteTicks > 0) {
             pendingBiteTicks--;
-            if (pendingBiteTicks == 0 && pendingBiteTarget != null && pendingBiteTarget.isAlive()) {
-                double reach = biteRangeAgainst(pendingBiteTarget);
-                if (this.distanceToSqr(pendingBiteTarget) <= reach * reach) {
-                    this.doHurtTarget(pendingBiteTarget);
-                    onBiteLanded(pendingBiteTarget);
-                }
+            if (pendingBiteTicks == 0) {
+                // Release the slot UNCONDITIONALLY (0.19 review): the old code only nulled
+                // the target inside the isAlive() branch, so a victim dying during the
+                // impact delay (packmate kill, thrash tick, /kill, chunk unload) wedged
+                // pendingBiteTarget forever and the shark could never bite again.
+                LivingEntity victim = pendingBiteTarget;
                 pendingBiteTarget = null;
+                if (victim != null && victim.isAlive()) {
+                    double reach = biteRangeAgainst(victim);
+                    if (this.distanceToSqr(victim) <= reach * reach) {
+                        this.doHurtTarget(victim);
+                        onBiteLanded(victim);
+                    }
+                }
             }
         }
-        // Drop out of non-IDLE states when timer runs out.
+        // Persistent pursuit: the timeout is now time spent outside the species' disengage
+        // radius, not a fixed lifetime for every attack. Previously every shark forgot a live,
+        // nearby target after exactly 15-20 seconds — often just after ejecting a thrash victim.
+        LivingEntity timedTarget = this.getTarget();
+        // The four older SBL brains can assign Mob#setTarget before the shared prey scan runs.
+        // Normalize that path into the synced state machine so animation and timeout behavior
+        // are identical regardless of which sensor noticed the prey first.
+        if (timedTarget != null && timedTarget.isAlive() && this.isInWater()
+                && getSharkState() != SharkState.HOSTILE) {
+            setSharkState(SharkState.HOSTILE);
+            stateTimer = effectiveDisengageTimeoutTicks();
+        }
+        boolean activelyTracking = getSharkState() == SharkState.HOSTILE
+                && timedTarget != null && timedTarget.isAlive()
+                && this.distanceToSqr(timedTarget)
+                    <= effectiveDisengageDistance() * effectiveDisengageDistance();
+        if (activelyTracking) {
+            stateTimer = effectiveDisengageTimeoutTicks();
+        }
+        // Drop out of non-IDLE states when the target has remained lost/far away long enough.
         if (stateTimer > 0) {
-            stateTimer--;
+            if (!activelyTracking) stateTimer--;
             if (stateTimer == 0 && getSharkState() != SharkState.IDLE) {
                 setSharkState(SharkState.IDLE);
                 this.setTarget(null);
@@ -162,11 +280,29 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         if (tgt != null && tgt != lastHuntTarget) {
             lastHuntTarget = tgt;
         }
-        // If our last hunt target just died (or was killed by our bite landing
-        // this tick), that counts as a successful hunt — start the cooldown.
+        // Our last hunt target just died. Only credit a successful hunt — and the 10-minute
+        // satiation cooldown — if WE actually killed it (0.19 fix). The old code started the
+        // cooldown on ANY death of the last target, which produced two reported bugs:
+        //   • Blacktips "never attack anything": reef blacktips school and BLOOD scans latch
+        //     several onto the same fish; whichever one lands the kill satiates the rest, so
+        //     the whole school goes docile for 10 minutes and re-satiates before it wears off.
+        //   • Big shark "gives up the chase": while a great white/tiger chases a blacktip, the
+        //     blacktip eats a cod; the cod's death (or a stray retarget onto it) credited the
+        //     big shark with a kill it never made, dropping it into IDLE + cooldown.
+        // getKillCredit() returns the entity the combat tracker blames for the kill, so
+        // "== this" is true only for our own bite/thrash/tail-whip. getKillCredit() prefers a
+        // recent player attacker over the mob, so a player softening the prey before our fatal
+        // bite would otherwise leave us un-satiated (perpetual hunting near players) — fall back
+        // to getLastHurtByMob(), which is the last MOB to hit it (= us, when we land the kill).
+        // A schooling packmate that merely targeted but never bit the prey is still not the last
+        // mob hitter, so this does not reopen the whole-school satiation bug.
         if (lastHuntTarget != null && !lastHuntTarget.isAlive()) {
-            huntCooldown = HUNT_COOLDOWN_TICKS;
+            boolean ourKill = lastHuntTarget.getKillCredit() == this
+                    || lastHuntTarget.getLastHurtByMob() == this;
             lastHuntTarget = null;
+            if (ourKill) {
+                huntCooldown = HUNT_COOLDOWN_TICKS;
+            }
             this.setTarget(null);
             setSharkState(SharkState.IDLE);
             ticksTargetOutOfWater = 0;
@@ -206,17 +342,37 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     protected void onSharkTick() {
         if (level().isClientSide) return;
 
+        // Sustained flight from a larger shark (Ben 0.19). While fleeing the shark neither
+        // hunts nor chases — it just keeps re-pathing away every half-second until the timer
+        // runs out or it has opened up a safe gap.
+        if (fleeTicks > 0) {
+            fleeTicks--;
+            LivingEntity from = fleeFrom;
+            if (from == null || !from.isAlive() || from.isRemoved()
+                    || this.distanceToSqr(from) > 40.0 * 40.0) {
+                fleeTicks = 0;
+                fleeFrom = null;
+            } else {
+                if (tickCount % 10 == 0) {
+                    Vec3 away = position().subtract(from.position()).normalize().scale(12).add(position());
+                    BrainUtils.setMemory(getBrain(), MemoryModuleType.WALK_TARGET, new WalkTarget(away, 1.5f, 1));
+                }
+                return;
+            }
+        }
+
         // Prey scan: every 20 ticks (staggered by entity id so they don't all scan
-        // the same tick), look for SHARK_PREY-tagged living entities in water and
-        // lock onto the closest. Replaces the SBL TargetOrRetaliate behaviour.
-        // Skipped while the hunt cooldown is active — one prey per cycle.
-        if (huntCooldown <= 0 && this.getTarget() == null && (tickCount % 20) == (this.getId() & 0xF) % 20) {
+        // the same tick), look for huntable living entities in water and lock onto
+        // the closest. Replaces the SBL TargetOrRetaliate behaviour. canHuntTarget is
+        // the single authority (Part II spec): per-species preyTag() for mobs, gated
+        // by the hunt cooldown. Only blacktips opt into opportunistically acquiring a
+        // wounded player, preventing blood from pulling every nearby species into the same
+        // frenzy. Shark-on-shark predation is allowed when the tag says so; same-species never.
+        if (this.getTarget() == null && (tickCount % 20) == (this.getId() & 0xF) % 20) {
             float radius = effectiveDetectionRadius();
             var preyArea = this.getBoundingBox().inflate(radius);
             java.util.List<LivingEntity> prey = level().getEntitiesOfClass(LivingEntity.class, preyArea,
-                    e -> e.isAlive() && e.isInWater() && e != this
-                            && !(e instanceof AbstractSharkEntity<?>)
-                            && e.getType().is(tfar.bensfintasticsharks.init.ModTags.EntityTypes.SHARK_PREY));
+                    e -> e.isInWater() && canHuntTarget(e));
             if (!prey.isEmpty()) {
                 LivingEntity closest = prey.stream()
                         .min(java.util.Comparator.comparingDouble(this::distanceToSqr))
@@ -227,25 +383,35 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             }
         }
 
-        // Active chase: while a target exists, refresh the walk target every 10
-        // ticks at aggro speed. Faster than prey base speed so prey can't outrun us.
+        // Active chase: while a target exists, refresh the walk target every 4
+        // ticks at aggro speed. The former 10-tick snapshot lagged behind fast or vertically
+        // moving prey and made sharks orbit yesterday's path node in a figure eight.
         // Skip walk-target refresh once we're already in bite range so the move
         // control doesn't keep pushing us forward over the target.
         LivingEntity tgt = this.getTarget();
-        if (tgt != null && tgt.isAlive() && tickCount % 10 == 0) {
+        if (tgt != null && tgt.isAlive()) {
             double biteRange = biteRangeAgainst(tgt);
             double biteRangeSqr = biteRange * biteRange;
             boolean inBiteRange = this.distanceToSqr(tgt) <= biteRangeSqr;
-            if (!inBiteRange) {
-                BrainUtils.setMemory(getBrain(), MemoryModuleType.WALK_TARGET,
-                        new WalkTarget(tgt.position(), params.aggroSpeedMult(), 1));
-            } else {
-                // Drop any active walk target so the brain stops pushing the entity forward.
-                BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
+            if ((tickCount + getId()) % 4 == 0) {
+                if (!inBiteRange) {
+                    Vec3 targetCenter = new Vec3(tgt.getX(), tgt.getY(0.5), tgt.getZ());
+                    // A short lead keeps the waypoint ahead of lateral prey without making
+                    // erratic targets yank the path around. Four ticks is the refresh interval.
+                    Vec3 chasePoint = targetCenter.add(tgt.getDeltaMovement().scale(2.0));
+                    BrainUtils.setMemory(getBrain(), MemoryModuleType.WALK_TARGET,
+                            new WalkTarget(chasePoint, params.aggroSpeedMult(), 1));
+                } else {
+                    // Drop any active walk target so the brain stops pushing the entity forward.
+                    BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
+                }
             }
             // Trigger the bite animation when in range, but defer the actual damage
             // until the visual impact frame so the hit syncs with the model snap.
-            if (this.distanceToSqr(tgt) <= biteRangeSqr
+            // Checked EVERY tick (0.19): behind the old %10 gate a fast shark could
+            // cross the whole bite disc between checks and never fire, which fed the
+            // overshoot-orbit loop.
+            if (inBiteRange
                     && biteCooldown <= 0
                     && pendingBiteTarget == null) {
                 this.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
@@ -291,10 +457,24 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             return wasHurt;
         }
 
-        // During the hunt cooldown, only retaliate against players (self-defense
-        // — a satiated shark still defends itself if a player attacks it). Other
-        // attackers are ignored so the shark doesn't start a fresh hunt mid-cooldown.
-        if (huntCooldown > 0 && !(attacker instanceof Player)) {
+        // Ben 0.19 suggestion: a smaller shark bolts when a meaningfully larger shark bites
+        // it rather than turning to fight (and dragging its packmates into a losing brawl).
+        // Runs before the cooldown/retaliation logic so a satiated small shark still flees,
+        // and returns here so the help-call never fires for the fleeing shark.
+        if (attacker instanceof AbstractSharkEntity<?> bigger && isSmallerThan(bigger)) {
+            startFleeing(attacker);
+            return wasHurt;
+        }
+
+        // Species veto on fighting back (e.g. a lone blacktip is too timid to retaliate).
+        if (!retaliatesAgainst(attacker)) {
+            // Drop any current aggro first (0.19 review): a timid shark that was already
+            // hunting keeps chasing otherwise — onSharkTick's chase overwrites the flee
+            // walk-target every 10t while a target is set, and the blacktip Forge
+            // pack-alert gate (getTarget() == attacker) would fire despite the timidity.
+            this.setTarget(null);
+            setSharkState(SharkState.IDLE);
+            onRetaliationDeclined(attacker);
             return wasHurt;
         }
 
@@ -306,13 +486,17 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         // so a piranha-style bunch of small ticks doesn't drag every shark in.
         // Tightened from 4 helpers / 32-block radius to 2 helpers / 16 blocks so
         // a single shark attack doesn't pull the entire local population.
-        if (amount > 4f || getRandom().nextFloat() < 0.20f) {
+        if (alertsPackmatesWhenAttacked()
+                && (amount > 4f || getRandom().nextFloat() < 0.20f)) {
             float helpRadius = 16f;
             var helpers = level().getEntitiesOfClass(AbstractSharkEntity.class,
                     this.getBoundingBox().inflate(helpRadius),
                     s -> s != this && s.isAlive() && s.isInWater()
                             && (s.getTarget() == null || s.getTarget() == attacker)
-                            && s.getType() == this.getType());
+                            && s.getType() == this.getType()
+                            // Satiated packmates ignore mob-on-shark scuffles; a player
+                            // attack is pack defense and always brings help.
+                            && (attacker instanceof Player || !s.isOnHuntCooldown()));
             int called = 0;
             for (AbstractSharkEntity<?> helper : helpers) {
                 if (called >= 2) break;
@@ -323,6 +507,49 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             }
         }
         return wasHurt;
+    }
+
+    /**
+     * Whether this shark fights back when hurt by {@code attacker}. Default: always.
+     * Species override for temperament (blacktip reef sharks are timid when alone).
+     */
+    protected boolean retaliatesAgainst(LivingEntity attacker) {
+        return true;
+    }
+
+    /** Only true pack species should turn a player's fight with one shark into a group fight. */
+    protected boolean alertsPackmatesWhenAttacked() {
+        return false;
+    }
+
+    /** Called instead of targeting when {@link #retaliatesAgainst} vetoes. Default: bolt away. */
+    protected void onRetaliationDeclined(LivingEntity attacker) {
+        Vec3 away = position().subtract(attacker.position()).normalize().scale(12).add(position());
+        BrainUtils.setMemory(getBrain(), MemoryModuleType.WALK_TARGET, new WalkTarget(away, 1.4f, 1));
+    }
+
+    /** Begin ~6s of sustained flight away from {@code from}; drops any current target/hunt. */
+    protected void startFleeing(LivingEntity from) {
+        this.fleeFrom = from;
+        this.fleeTicks = 120;
+        this.setTarget(null);
+        setSharkState(SharkState.IDLE);
+        Vec3 away = position().subtract(from.position()).normalize().scale(12).add(position());
+        BrainUtils.setMemory(getBrain(), MemoryModuleType.WALK_TARGET, new WalkTarget(away, 1.5f, 1));
+    }
+
+    /** True while this shark is actively fleeing a larger one (used by species tick hooks). */
+    public boolean isFleeing() { return fleeTicks > 0; }
+
+    /**
+     * Whether {@code other} is a meaningfully larger shark (≥25% wider at effective, scaled
+     * size). Uses the registered base width × per-entity {@link #getBfsScale()} so it's correct
+     * even for the species that don't call {@code refreshDimensions()} each tick.
+     */
+    private boolean isSmallerThan(AbstractSharkEntity<?> other) {
+        float mine = this.getType().getWidth() * this.getBfsScale();
+        float theirs = other.getType().getWidth() * other.getBfsScale();
+        return theirs > mine * 1.25f;
     }
 
     private boolean isNearBeach() {
@@ -420,7 +647,25 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                         // the 56-block radius into the fight.
                         && !(sourceEntity instanceof AbstractSharkEntity<?>)
                         // Satiated sharks ignore blood — one prey per cycle.
-                        && huntCooldown <= 0) {
+                        && huntCooldown <= 0
+                        // 0.19 review: bleeding MOBS must still be on this species'
+                        // prey list — otherwise "hunt any wounded mob" survives via
+                        // the blood path. Bleeding players stay fair game (that's
+                        // the intended player-aggression channel).
+                        && (sourceEntity instanceof Player
+                                ? (this.getTarget() == sourceEntity
+                                    || canJoinPlayerFeedingFrenzy()
+                                    || isPrimaryPlayerBloodResponder(sourceEntity))
+                                : canHuntTarget(sourceEntity))
+                        // 0.20 — don't abandon an ACTIVE chase for a bystander's blood. A great
+                        // white already HOSTILE-locked onto a live blacktip used to get yanked
+                        // onto whatever the blacktip was biting; the fish then died to the blacktip
+                        // and the great white was (falsely) satiated. Gate on "hostile with a live
+                        // target" specifically — NOT "has any target" — so the whitetip's blood
+                        // convergence (SharkAlertHandler pre-sets the target on an IDLE/CURIOUS
+                        // shark before calling this) can still flip it to HOSTILE.
+                        && (getSharkState() != SharkState.HOSTILE
+                                || this.getTarget() == null || !this.getTarget().isAlive())) {
                     setSharkState(SharkState.HOSTILE);
                     this.setTarget(sourceEntity);
                     stateTimer = params.disengageTimeoutTicks();
@@ -452,38 +697,170 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     @Override
     protected float maxHorizontalSpeed() {
         // Sharks chasing prey go meaningfully faster than the player's swim (0.13 b/t baseline).
-        // Wandering sharks stay slow so they don't blow past the player on idle pathing.
-        return this.getTarget() != null ? 0.75f : 0.40f;
+        // Wandering sharks stay slow so they don't blow past the player on idle pathing. A shark
+        // fleeing a bigger shark gets the chase cap too (it has no target, so it would otherwise
+        // be pinned to the slow wander cap and never open the gap the flee expects).
+        return (this.getTarget() != null || isFleeing()) ? 0.75f : 0.40f;
+    }
+
+    /**
+     * Extra thrust while locked onto prey. SmoothSwimmingMoveControl hands travel() a
+     * forward input of only speed×0.125, so the friction equilibrium for an attacking
+     * shark settles at ~0.14-0.17 b/t (≈3 m/s) — slower than a sprint-swimming player
+     * (~0.28 b/t / 5.6 m/s), which is how Ben could outswim every species. The boost
+     * roughly doubles chase acceleration; species keep their relative speed ordering.
+     */
+    protected float chaseAccelBoost() { return 2.2f; }
+
+    /**
+     * Hard lower bound on horizontal speed while chasing (outside the brake zone).
+     * Catches the slower-attribute species (hammerhead, sandtiger, mako's low base
+     * speed) whose boosted equilibrium still lands under the player's sprint-swim.
+     * 0.32 b/t ≈ 6.4 m/s vs the player's ~5.6 m/s. Mako overrides higher — fastest
+     * shark in the ocean, fastest in the mod.
+     */
+    protected float chaseSpeedFloor() { return 0.32f; }
+
+    /**
+     * Enforces {@link #chaseSpeedFloor()} on the current delta movement. Shared by the
+     * base {@link #travel} and the four species with bespoke travel() overrides (Great
+     * White, Great Hammerhead, Common Thresher, Shortfin Mako) — the first cut of the
+     * 0.18 speed fix only patched the base method, which those four never reach in water.
+     *
+     * <p>Guards (review round): the floor only applies while locked on, outside the brake
+     * zone, and while the move control is actually steering ({@code movementInput} check —
+     * otherwise it would amplify residual drift up the floor in a stale direction whenever
+     * the navigation idles). It also respects the shallow-water slowdown so a chase can't
+     * bypass {@link #shallowWaterSpeedScale()}.</p>
+     */
+    protected void applyChaseFloor(Vec3 movementInput) {
+        LivingEntity tgt = this.getTarget();
+        if (tgt == null || !tgt.isAlive()) return;
+        double brakeRange = biteRangeAgainst(tgt);
+        double distSqr = this.distanceToSqr(tgt);
+        // Inside the bite range travel()'s hard brake owns the velocity — hands off.
+        if (distSqr <= brakeRange * brakeRange) return;
+        if (movementInput.lengthSqr() < 1.0e-4) return;
+        // 0.19 — approach band (biteRange + 2.0): taper the floor near the bite disc so an
+        // overshooting shark doesn't carry full speed through the final turn. Not dropped —
+        // a floor-free band let sprint-swimming players hold a fixed gap forever. 0.30 b/t
+        // still outruns the player and its ~1.7-block turn radius fits every bite range.
+        double band = brakeRange + 2.0;
+        boolean inBand = distSqr <= band * band;
+        double floor = (inBand ? Math.min(chaseSpeedFloor(), 0.30f) : chaseSpeedFloor())
+                * shallowWaterSpeedScale();
+
+        // 0.19 — the floor now drives velocity straight along the shark's BODY-FORWARD axis
+        // instead of a velocity/target blend. The old blend could point the delta-movement in
+        // a direction the body hadn't turned to yet (the move control slews yaw only 10°/tick),
+        // so the shark translated sideways or backwards while facing elsewhere — Ben's "gliding
+        // backwards while chasing". Pinning speed to the facing direction makes velocity ≡
+        // heading, so there is no sideways/backward glide during a chase, and it can never
+        // shove the shark in reverse.
+        float yawRad = this.yBodyRot * ((float) Math.PI / 180f);
+        double fx = -Mth.sin(yawRad);
+        double fz = Mth.cos(yawRad);
+        // Only boost when the body is actually pointed at the prey (within ~60°). While
+        // mis-aimed the floor stays OFF: friction bleeds the speed, the turn radius collapses,
+        // the move control re-points the body, and the floor re-engages once aligned. Gating on
+        // FACING (not velocity) is what both kills the old orbiting "spin of doom" and guarantees
+        // we never floor a heading the body isn't holding.
+        Vec3 toTgt = new Vec3(tgt.getX() - getX(), 0, tgt.getZ() - getZ());
+        double toLen = toTgt.length();
+        if (toLen < 1.0e-4) return;
+        // When prey is mostly above/below us, horizontal flooring creates an artificial
+        // orbit while the move controller is trying to climb or dive. Let vertical steering
+        // own that approach until the horizontal and vertical gaps are comparable again.
+        double verticalGap = Math.abs(tgt.getY(0.5) - this.getY(0.5));
+        if (verticalGap > toLen * 1.5) return;
+        double facingDot = (fx * toTgt.x + fz * toTgt.z) / toLen;
+        if (facingDot <= 0.5) return;
+        Vec3 dm = getDeltaMovement();
+        double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
+        if (horiz >= floor) return;
+        setDeltaMovement(fx * floor, dm.y, fz * floor);
+    }
+
+    /**
+     * Damps any horizontal velocity component pointing OPPOSITE the body's facing, so a
+     * coasting/turning shark never visibly slides tail-first (Ben 0.19: "sharks can't swim
+     * backwards"). Purely lateral (banking) velocity is untouched, so turns still read as
+     * fluid — only true reverse motion is bled off. A knockback shove still lands; it's just
+     * curbed to a brief nudge instead of a sustained backslide.
+     */
+    protected void dampBackslide() {
+        Vec3 dm = getDeltaMovement();
+        if (dm.x * dm.x + dm.z * dm.z < 1.0e-6) return;
+        float yawRad = this.yBodyRot * ((float) Math.PI / 180f);
+        double fx = -Mth.sin(yawRad);
+        double fz = Mth.cos(yawRad);
+        double along = dm.x * fx + dm.z * fz; // signed speed along body-forward
+        if (along >= 0) return;               // moving forward or purely sideways — fine
+        double remove = 0.85;                 // strip 85% of the backward component
+        setDeltaMovement(dm.x - fx * along * remove, dm.y, dm.z - fz * along * remove);
+    }
+
+    /**
+     * Shared in-water swim step for the base shark and the four species with bespoke
+     * {@code travel()} overrides (Great White, Great Hammerhead, Common Thresher, Shortfin
+     * Mako). Applies the chase-acceleration burst, hard braking inside bite range, friction,
+     * the horizontal speed cap, the chase floor, and backslide damping in one place so all
+     * five paths stay in lock-step.
+     *
+     * @param useSwimMultiplier true for the base tuning (accel scaled by {@link #swimSpeedMultiplier()},
+     *        friction {@code waterFriction}); false for the grabber species which accelerate on
+     *        raw {@link #getSpeed()} with their own lower friction.
+     */
+    protected void swimInWater(Vec3 movementInput, double waterFriction, double idleSink, boolean useSwimMultiplier) {
+        LivingEntity tgt = this.getTarget();
+        // While a victim is grabbed (grabber species) the prey is already caught — don't brake
+        // or burst, just cruise so the grab/thrash keeps the exact feel it had before 0.19.
+        boolean hasPassenger = !this.getPassengers().isEmpty();
+        double brakeRange = tgt != null ? biteRangeAgainst(tgt) : 0;
+        boolean braking = !hasPassenger && tgt != null && tgt.isAlive()
+                && this.distanceToSqr(tgt) <= brakeRange * brakeRange;
+        // 0.19 — the burst that was missing on the four bespoke overrides (Ben: "Great White
+        // doesn't increase speed when chasing"). Chasing multiplies acceleration so the shark
+        // visibly lunges instead of coasting at the flat floor speed.
+        boolean chasing = !hasPassenger && tgt != null && tgt.isAlive() && !braking;
+        // 0.20 — a shark fleeing a bigger shark (no target) gets the same burst so it can
+        // actually pull away, not just walk off at wander speed while the hunter closes.
+        boolean fleeing = !hasPassenger && isFleeing();
+        float scale = shallowWaterSpeedScale();
+        if (chasing || fleeing) scale *= chaseAccelBoost();
+        Vec3 effectiveInput = braking ? Vec3.ZERO : movementInput;
+        float accel = useSwimMultiplier
+                ? this.getSpeed() * swimSpeedMultiplier() * scale
+                : this.getSpeed() * scale;
+        this.moveRelative(accel, effectiveInput);
+        this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
+        double friction = braking ? 0.30 : (this.wasTouchingWater ? waterFriction : 0.25);
+        this.setDeltaMovement(this.getDeltaMovement().scale(friction));
+        Vec3 dm = this.getDeltaMovement();
+        double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
+        float cap = maxHorizontalSpeed();
+        if (horiz > cap) {
+            double s = cap / horiz;
+            this.setDeltaMovement(dm.x * s, dm.y, dm.z * s);
+        } else {
+            applyChaseFloor(movementInput);
+        }
+        if (this.getTarget() == null) {
+            this.setDeltaMovement(this.getDeltaMovement().add(0.0, -idleSink, 0.0));
+        }
+        dampBackslide();
     }
 
     @Override
     public void travel(@NotNull Vec3 movementInput) {
         if (this.isEffectiveAi() && this.isInWater()) {
-            // Hard braking when chasing prey and within striking range — without this the
-            // shark overshoots, smooth-swim steers it back, and the loop becomes a visual
-            // "circle of doom" around the target. We zero the input acceleration AND apply
-            // heavier friction so velocity bleeds off in a couple of ticks.
-            LivingEntity tgt = this.getTarget();
-            double brakeRange = tgt != null ? biteRangeAgainst(tgt) + 1.0 : 0;
-            boolean braking = tgt != null && tgt.isAlive()
-                    && this.distanceToSqr(tgt) <= brakeRange * brakeRange;
-
-            float scale = shallowWaterSpeedScale();
-            Vec3 effectiveInput = braking ? Vec3.ZERO : movementInput;
-            this.moveRelative(this.getSpeed() * swimSpeedMultiplier() * scale, effectiveInput);
-            this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
-            double friction = braking ? 0.30 : (this.wasTouchingWater ? 0.78 : 0.25);
-            this.setDeltaMovement(this.getDeltaMovement().scale(friction));
-            Vec3 dm = this.getDeltaMovement();
-            double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
-            float cap = maxHorizontalSpeed();
-            if (horiz > cap) {
-                double s = cap / horiz;
-                this.setDeltaMovement(dm.x * s, dm.y, dm.z * s);
-            }
-            if (this.getTarget() == null) {
-                this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.002, 0.0));
-            }
+            // Braking, chase burst, cap, chase floor and backslide damping all live in the
+            // shared helper so this path and the four bespoke species overrides can't drift
+            // apart. Braking (inside bite range) zeroes input and applies heavy friction so
+            // the shark doesn't overshoot into the old "circle of doom"; the brake zone is
+            // kept strictly inside the bite range so slower species never stall in a dead
+            // annulus one block short of the target.
+            swimInWater(movementInput, 0.78, 0.002, true);
         } else {
             super.travel(movementInput);
         }

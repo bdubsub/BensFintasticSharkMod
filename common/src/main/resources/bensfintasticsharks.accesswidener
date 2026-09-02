@@ -15,3 +15,6 @@ accessible method net/minecraft/advancements/CriteriaTriggers register (Lnet/min
 
 mutable field net/minecraft/advancements/critereon/EntitySubPredicate$Types TYPES Lcom/google/common/collect/BiMap;
 accessible field net/minecraft/world/entity/ai/control/SmoothSwimmingLookControl maxYRotFromCenter I
+
+# ThrownSharkTridentEntity.onHitEntity override (thrown damage 8 -> 11)
+accessible field net/minecraft/world/entity/projectile/ThrownTrident dealtDamage Z

@@ -35,4 +35,19 @@ public class CommonOctopusRenderer extends GeoEntityRenderer<CommonOctopusEntity
         if (Math.abs(s - 1.0f) > 0.001f) poseStack.scale(s, s, s);
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
     }
+
+    @Override
+    protected void applyRotations(CommonOctopusEntityForge animatable, com.mojang.blaze3d.vertex.PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
+        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
+        // Squid-style lean: tilt the upright-authored model toward the swim direction
+        // (after the body yaw, around mid-height) so horizontal travel reads as
+        // swimming instead of an upright vertical drift.
+        float pitch = net.minecraft.util.Mth.lerp(partialTick, animatable.xBodyRotO, animatable.xBodyRot);
+        if (Math.abs(pitch) > 0.01f) {
+            float pivot = animatable.getType().getHeight() * 0.5f;
+            poseStack.translate(0, pivot, 0);
+            poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(pitch));
+            poseStack.translate(0, -pivot, 0);
+        }
+    }
 }

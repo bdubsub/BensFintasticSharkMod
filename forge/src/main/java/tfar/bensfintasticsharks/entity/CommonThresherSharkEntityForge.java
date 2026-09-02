@@ -28,8 +28,11 @@ public class CommonThresherSharkEntityForge extends CommonThresherSharkEntity im
             if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(ModAnimations.BEACHED);
             }
-            return event.setAndContinue(this.getTarget() != null ? ModAnimations.FAST_SWIM : DefaultAnimations.SWIM);
+            // getTarget() is server-only, so FAST_SWIM never played client-side; getSharkState()
+            // is synced and flips HOSTILE when hunting (same pattern as the mako/tiger).
+            return event.setAndContinue(this.getSharkState() == SharkState.HOSTILE ? ModAnimations.FAST_SWIM : DefaultAnimations.SWIM);
         })
+                .setAnimationSpeedHandler(e -> ModAnimations.swimClipSpeed(this))
                 .triggerableAnim("bite", RawAnimation.begin().then("attack.bite", Animation.LoopType.PLAY_ONCE))
                 .triggerableAnim("tail_whip", RawAnimation.begin().then("attack.tail_whip", Animation.LoopType.PLAY_ONCE))
                 .triggerableAnim("death", ModAnimations.DEATH));
@@ -60,6 +63,23 @@ public class CommonThresherSharkEntityForge extends CommonThresherSharkEntity im
         if (level().isClientSide) return;
         if (nextStrikeIsTailWhip) {
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 0));
+            // Suggestion (Ben): the whip should launch its victim. knockback() wants the
+            // vector TOWARD the attacker; water friction eats impulses fast, hence 1.2
+            // instead of vanilla's 0.4. hurtMarked syncs the velocity to player clients.
+            target.knockback(1.2D, this.getX() - target.getX(), this.getZ() - target.getZ());
+            target.setDeltaMovement(target.getDeltaMovement().add(0.0, 0.4, 0.0));
+            target.hurtMarked = true;
+            // ...and shove anything else caught in the sweep (no damage, just the wake).
+            for (net.minecraft.world.entity.LivingEntity e : level().getEntitiesOfClass(
+                    net.minecraft.world.entity.LivingEntity.class, this.getBoundingBox().inflate(3.0),
+                    e -> e != this && e != target && e.isAlive() && e.isInWater()
+                            && !(e instanceof AbstractSharkEntity<?>)
+                            && !(e instanceof net.minecraft.world.entity.player.Player p
+                                    && (p.isCreative() || p.isSpectator())))) {
+                e.knockback(0.6D, this.getX() - e.getX(), this.getZ() - e.getZ());
+                e.setDeltaMovement(e.getDeltaMovement().add(0.0, 0.25, 0.0));
+                e.hurtMarked = true;
+            }
         }
     }
 

@@ -1,5 +1,233 @@
 # Changelog
 
+## 0.23 emergency fix (2026-07-29)
+
+### Fixed
+
+- **Runaway Atlantic fish populations.** Atlantic Cod and Atlantic Salmon were registered in a different population category from the vanilla fish they replaced. Minecraft did not count an accepted replacement toward the water ambient ceiling, so it repeatedly tried to refill apparently empty fish slots. Both Atlantic fish now use the vanilla water ambient category.
+- **Replacement scope regression protection.** The replacement policy accepts only `minecraft:cod` and `minecraft:salmon`. Tropical Fish, Pufferfish, other vanilla aquatic mobs, BFS entities, and other mods' fish are explicitly outside the replacement path. A startup invariant and runtime fail closed guard prevent a future category mismatch from flooding an ocean.
+
+### Changed
+
+- **Version metadata.** The emergency release version is `0.23-emergency-fix` for Minecraft 1.20.1 Forge.
+- **Existing worlds.** Existing excess Atlantic fish are not deleted automatically. They retain vanilla fish despawn behavior, and operators can remove loaded Atlantic Cod or Atlantic Salmon with the cleanup commands in `DOCUMENTATION.md`.
+
+## 0.23 Movement repair and Atlantic wildlife (2026-07-28)
+
+### Added
+
+- **Atlantic Cod and Atlantic Salmon.** Both are passive BFS prey species with supplied GeckoLib models, textures, animations, spawn eggs, raw and cooked food items, entity loot, fishing loot, and furnace, smoker, and campfire recipes.
+- **Vanilla Cod and Salmon replacement.** `[spawning] replace_vanilla_mobs` defaults to `true`. Natural and chunk generation vanilla Cod and Salmon become the matching Atlantic fish, and the two vanilla spawn eggs create Atlantic fish. Setting it to `false` keeps vanilla fish and enables the separate BFS Atlantic biome spawns.
+- **Atlantic Salmon name easter egg.** A salmon named exactly `Spin` uses the supplied looping spin animation until its name changes.
+- **Optional vanilla aquatic spawn suppression.** The new `[spawning] disable_vanilla_aquatic_spawns` setting blocks only natural and chunk generation spawns for vanilla aquatic mobs. It defaults to `false`, leaves existing mobs alone, preserves commands and spawn eggs, and requires a restart after changing.
+- **Four Atlantic fish advancements.** `Oh My Cod` and `Why aren't you red?` use fishing catches. `Gadus morhua` and `Salmo salar` use living entity encounters.
+- **Oceanic Whitetip thrashing.** A successful bite can now hold and thrash a player using the supplied animation, bounded server side duration, repeated damage, passenger synchronization, and release cleanup.
+- **Blacktip Reef latch.** Blacktips use a short small shark latch instead of the large shark thrash. The initial bite deals damage, the latch holds briefly, and cleanup releases the player on timeout, invalid water state, death, or removal.
+
+### Fixed
+
+- **Shark vertical movement regression.** The 0.22 level cruising branch suppressed vertical input and momentum while navigation still requested depth changes. Shared steering is continuous again, while turn aware horizontal braking and arrival control remain.
+- **Tiger Shark item spinning.** Investigation now uses one stable underwater intercept, refreshes only when the item moves materially, times out cleanly, and remembers the item briefly so it cannot be reacquired into an orbit.
+- **Close shark bite contact.** Sand Tiger and Blacktip Reef Sharks calculate bite distance from physical width with a small mouth contact allowance instead of using an oversized or undersized fixed center radius.
+- **Prismarine swimming fit.** Chest and sleeve geometry now uses standard arm pivots and full sleeve length, and the swim renderer no longer contracts the torso in a way that exposed the player at full breaststroke.
+- **Creative species information.** Species without implemented diets now display `TBD`. Oceanic Whitetip habitat now reports only Deep Ocean and Deep Lukewarm Ocean. Atlantic Cod and Atlantic Salmon have complete cards based on their runtime data.
+- **Oceanic Whitetip habitat.** Deep Cold Ocean was removed from the natural spawn tag.
+- **Shark Spotter.** The old three species counter was replaced by one line of sight criterion that requires actively using a Spyglass to view a BFS shark. The icon is now a vanilla Spyglass.
+
+### Changed
+
+- **Vanilla fish AI for Atlantic fish.** Atlantic Cod and Atlantic Salmon now directly inherit their matching vanilla movement, schooling, panic, player avoidance, water navigation, persistence, bucket interaction, and beached flop behavior.
+- **Runtime species information.** `/bfs info` reports vanilla replacement habitats and spawn sourcing while replacement is enabled, then returns to the BFS biome tags and per species cap when replacement is disabled.
+- **Oceanic Whitetip animation set.** The supplied `bite_new`, `swim_new`, `swim_fast_new`, `death`, `beached`, and `thrash` clips replace the previous controller mapping.
+- **Advancement coverage.** Marine Curious and Marine Biologist include both Atlantic fish without marking either food species as conservation protected.
+- **Version metadata.** The release version is now `0.23` for Minecraft 1.20.1 Forge.
+
+## 0.22 Movement, rarity, and species info (2026-07-23)
+
+### Added
+
+- **Expanded creative species information.** `/bfs info <species>` now reports scientific name, current habitat tags, behavior, diet, configured health, variant count, registry ID, spawn category, and natural cap. The command is limited to creative operators and non player command sources.
+
+### Fixed
+
+- **Satiated sharks defend themselves.** A shark on its post meal hunt cooldown now retaliates against living attackers instead of ignoring them.
+- **Routine shark cruising is level.** Small vertical waypoint corrections are damped while a shark is not hunting or fleeing. Meaningful climbs, dives, pursuits, and escapes keep full vertical steering and body pitch.
+- **Tiger Sharks stop circling floating items.** Their curiosity waypoint now leads below the drifting item, uses a wider arrival zone, and stops navigation after the cosmetic bite.
+- **Sand Tiger and Blacktip Reef bite reach is close range.** Both species now cap bite distance at 1.75 blocks.
+- **Prismarine armor follows the swimming pose.** The GeckoLib armor renderer now copies the actively posed wearer model, and the armor geometry uses the expected GeckoLib armor identifier.
+- **Prismarine chestplate fits the full swimming stroke.** The sleeves stop above the wrists and retain pivots sized for standard four pixel player arms. While the swimming pose blends in, the bulky torso layers contract horizontally just enough to clear the arms at peak breaststroke without changing the standing fit.
+- **BFS logo appears in both UI locations.** The creative tab keeps its existing BFS logo item, and the Forge mod list now receives the same logo at the metadata path expected by `mods.toml`.
+- **Zippy glow presentation.** The glow mask aligns with the base texture, so the asset was not shifted. The emissive layer now appears only in low light instead of washing over the daylight skin.
+- **Broken female Orca rendering removed.** Female state, NBT, scale, and dorsal fin deformation are disabled until the replacement model is ready. Existing `Female` NBT is ignored.
+
+### Changed
+
+- **Sharks are substantially rarer.** The apex category cap defaults to one, mixed shark spacing defaults to 96 blocks, non blacktip local density defaults to one, blacktip density defaults to three, shark species caps default to one, and shark spawn chance defaults to 0.4.
+- **Harbor Seals are rarer.** Their weight is 20, group size is one to two, species cap is three, minimum group size is two, and spawn chance defaults to 0.5.
+- **Shortfin Mako habitat corrected.** Natural Makos now spawn only in Lukewarm and Deep Lukewarm Oceans. Blacktip Reef Sharks remain in Warm, Lukewarm, and Deep Lukewarm Oceans.
+- **Version metadata.** The release version is now `0.22` for Minecraft 1.20.1 Forge.
+
+### Configuration migration
+
+Existing `bensfintasticsharks-common.toml` files keep their old values. Regenerate the file or update the spawning, caps, spawn chance, and group size keys to adopt the 0.22 rarity defaults.
+
+## 0.21 Showcase tools & feedback pass (2026-07-15)
+
+### Added
+
+- **Creative showcase fisherman:** operators can run `/bfs summon villager [trade]` to summon a persistent master-level Fisherman at their position. The villager receives normal Fisherman offers from all five vanilla tiers plus one guaranteed BFS offer at the end of the list. Omitting `[trade]`, or using `random`, chooses from the BFS catalogue at random.
+- **Selectable showcase trade IDs:** `great_white_shark_tooth`, `great_hammerhead_shark_tooth`, `common_thresher_shark_tooth`, `tiger_shark_tooth`, `shortfin_mako_shark_tooth`, `oceanic_whitetip_shark_tooth`, `great_white_shark_skin`, `great_hammerhead_shark_skin`, `common_thresher_shark_skin`, `cartilage`, `shark_jaws`, and `megalodon_tooth`. Command suggestions expose the same list.
+- **Eight supplied 16×16 shark sprites are now advancement icons.** Each shark's individual encounter advancement uses its matching pixel-art sprite without replacing the normal collectible/item models. Sharks Galore now checks all eight species, matching Shark Whisperer and the complete set of individual encounter criteria.
+- **Female orcas:** natural spawns, spawn eggs, and ordinary command spawns now roll male/female at 50/50. Sex persists in the `Female` NBT flag; females render slightly smaller with a shorter dorsal fin. Showcases can force a result with `{Female:1b}` or `{Female:0b}`.
+
+### Fixed
+
+- **Figure-eight/circle chasing:** all sharks now use turn-aware swim steering, arrival braking, faster chase-target refreshes, and a short movement lead. Sharks coast while making a hard turn instead of applying full sideways thrust around a stale waypoint, while close targets are no longer overshot repeatedly.
+- **Vertical pursuit:** shark steering preserves vertical thrust and tracks steeper targets. All eight renderers now apply a smooth, clamped whole-body pitch, so a shark visibly angles up or down before levelling out instead of floating vertically beneath or above prey.
+- **Drowned are valid prey for all eight shark species.** The Drowned entry lives in each datapack-tunable per-species prey tag as well as the broad fallback prey tag.
+- **Cross-species player dogpiles:** wounded players no longer pull every nearby shark into one feeding frenzy. One eligible non-schooling shark becomes the primary responder, while Blacktip Reef Sharks remain the intentional schooling exception. Only blacktips recruit packmates when attacked; other sharks still defend themselves without summoning a local swarm.
+- **Tiger Shark and Oceanic Whitetip deaths:** both now play a dedicated 1.5-second death animation and remain for the full 30-tick animation before removal.
+- **Missing beached/idle states:** Giant Moray Eels now use a dedicated beached animation. American Lobsters use their synced resting state for a real idle animation. Orcas and Common Bottlenose Dolphins debounce the idle transition when stopped in water instead of flickering between idle and swim.
+- **Black Sea Nettle model/animation:** the protruding tentacle was removed from the beached pose, and the previously blank underside faces of the bell now point at authored texture regions.
+- **Nautilus readability:** its movement animation now includes a gentle shell/body pulse, its resting state syncs to clients, and its slow travel tuning now produces visible movement without making it a fast swimmer.
+- **Octopus corner pinning:** apex-predator escape logic now tests a reachable, away-biased fan of water paths instead of repeatedly pushing an octopus into the same blocked corner. Common and Caribbean Reef Octopus swimming was also tuned for more purposeful movement; both existing siphon bones remain animated.
+- **Lobster spinning/floating:** American Lobsters use close-waypoint arrival braking, a one-block vertical wander range, and a stronger downward bias so they turn cleanly and settle back onto the seafloor. The reachable escape-path fix also prevents predator avoidance from pinning them in corners.
+- **Captain Ben's Hat feather:** overlapping feather planes now have a tiny depth separation, removing the lower-half texture fighting in both the held/worn models.
+
+### Changed
+
+- **Natural shark spacing:** a new mixed-shark gate checks a configurable 64-block horizontal radius. Different shark types do not naturally stack in that area; non-blacktips permit at most a rare same-species pair by default, while blacktips retain schools up to four. The new `[spawning]` keys are `shark_spacing_radius = 64`, `nearby_non_blacktip_shark_cap = 2`, and `nearby_blacktip_shark_cap = 4`.
+- **Sunken Trove:** the old chest-and-few-blocks site is now a readable 7×7 excavation with an irregular sand/gravel/sandstone floor, a cut-sandstone center, two uneven broken shrine pillars, waterlogged stair/slab rubble, a recessed sea lantern, and heavier seagrass/kelp reclamation. Loot and locate/place IDs are unchanged.
+- **Version metadata:** release version is now `0.21` for Minecraft 1.20.1 Forge.
+
+### Intentional / deferred
+
+- Shark health values were left unchanged; the high health is intentional protection against casual killing rather than an AI bug.
+- Compendium prose is still awaiting authored copy. The existing Codex remains available, but this pass does not invent the planned new compendium content.
+
+## 0.20 Movement & AI bug sweep (2026-07-08)
+
+### Fixed
+
+- **Sharks no longer glide/swim backwards.** Root cause: the 0.19 chase-speed floor set the shark's velocity from a *blend* of its current velocity and the direction to its prey, which could point the shark's motion somewhere its body hadn't turned to yet (the swim steering only rotates 10°/tick), so it visibly slid sideways or tail-first mid-chase. The floor now drives speed **straight along the way the shark is facing**, gated on the body actually pointing at the prey   velocity always matches heading, so there's no backslide, and the anti-orbit behaviour from 0.19 is preserved (a mis-aimed shark coasts and re-aims instead of getting shoved). A second safety net damps any leftover reverse motion on every swim tick.
+- **Blacktip Reef Sharks actually hunt now.** They were being falsely "satiated": the 10-minute post-meal hunger cooldown started whenever a shark's target died *for any reason*, so in a reef full of schooling blacktips, one shark's kill (or even a fish another predator killed) put the whole school to sleep for 10 minutes   which kept re-triggering before it wore off. A shark now only counts a kill as *its* meal if it actually landed the killing blow.
+- **Great White, Great Hammerhead and Common Thresher now play their fast-swim animation while chasing.** Their animation controller checked a server-only value that's always empty on the client, so the fast-swim clip never showed. Switched to the same synced hunt-state the Mako/Tiger already use.
+- **Great White now visibly accelerates when it starts a chase.** Its custom movement code (shared by the Hammerhead, Thresher and Mako) never got the chase-acceleration burst that the other sharks have   it just cruised at a flat speed and relied on the minimum-speed floor. All five movement paths now run through one shared routine, so every shark lunges when locked on.
+- **Shortfin Mako no longer looks like it's idling while swimming.** Its swim and fast-swim animations were authored as single-keyframe formulas that the game freezes into a static pose (the same freeze bug fixed for other mobs in 0.13, but in a keyframe format the earlier fix didn't recognise). Both clips now animate   the tail beats through a full stroke, faster when hunting. (Also un-froze the Harbor Seal's `bask3` pose.)
+- **A larger shark no longer gives up a chase when the smaller shark it's chasing eats something.** Two causes, both fixed: the small shark's kill was being (wrongly) credited to the big shark as *its* meal (see the blacktip fix above), and a nearby "blood in the water" event could yank the big shark off its live target onto whatever the small shark was biting. Blood now only diverts a shark that isn't already chasing.
+
+### Added
+
+- **Prey flees after a shark bites it.** Anything a shark attacks in the water gets an immediate dart away plus a short sprint to safety   including vanilla fish (cod, salmon, squid) that previously ignored being bitten. Grabbed victims are left alone (they're pinned in the jaws). This is on top of the existing "flee when a shark comes near" behaviour the mod's own sea creatures already had.
+- **Smaller sharks flee when a much larger shark attacks them.** A blacktip or sand tiger bitten by a great white (or any shark ≥25% larger) now bolts for ~6 seconds instead of turning to fight a battle it can't win, and it won't call its pack into the hopeless brawl. Same-size sharks still retaliate as before.
+
+### Changed
+
+- **Swimming reads as more fluid.** The swim animation now speeds its tail-beat up and down with how fast the shark is actually moving, instead of looping at a fixed rate regardless of speed   a cruising shark looks calm, a charging one looks frantic. Combined with the backslide and frozen-Mako fixes, this addresses the "swimming looks a bit stiff" report.
+
+## 0.19 Bug sweep + hunger system (2026-07-06)
+
+### Fixed
+
+- **Great Hammerhead (and Great White) grabs now actually hurt.** Only the Mako ever dealt thrash damage while holding a victim; the other two grabbers just counted the timer down and let go   worse, the hammerhead parks its victim at 2.55 blocks while its bite only reaches ~2.4, so it dealt literally zero damage for the whole grab. Both now deal the Mako's 2.0 damage every 10 ticks of the hold.
+- **"Press SHIFT to dismount" no longer shows while a shark has you.** The vanilla mount hint was a lie anyway (sneak is disabled during the grab   the jaws decide when you leave).
+- **Bite animation vs damage timing fixed for Oceanic Whitetip, Sand Tiger, Tiger, and Shortfin Mako**   same per-species impact-frame fix the Blacktip got: the damage now lands on each clip's jaw-snap frame (7/8/8/11 ticks) instead of the 0.25s default that hit before the mouth even opened.
+- **Sharks (and all BFS sea creatures) ignore bubble columns.** Magma-block updrafts were rocketing sharks to the surface; the whole roster now swims straight through.
+- **Spawn eggs got their scientific names back.** They'd been hand-edited into a *generated* lang file, so the next datagen run deleted all 20. They now live in the datagen provider itself and can't be wiped again. Also restored the "Chambered Nautilus" and "Sand Tiger Shark" display names that regressed the same way.
+- **Chase orbiting ("spinning out of control") fixed.** Root cause: the 0.18 chase-speed floor re-amplified stale, sideways velocity every tick, so an overshooting shark could never slow down enough for its 10°/tick turn to converge   a stable orbit around the prey. The floor is now direction-aware (only boosts when pointed within ~60° of the target, gently re-aiming as it does) and tapers to just above player sprint-swim speed in a 2-block approach band around the bite range, so the final turn can tighten without any species becoming outswimmable. The bite check also runs every tick instead of every 10, so a fast pass through bite range actually connects. Chase speeds themselves are unchanged   no need to go back to slower sharks.
+- **Latent one-bite-lockout fixed** (found by the review pass, present since 0.13): if a shark's scheduled bite victim died during the impact-delay window   a packmate's kill, its own thrash tick, a player finishing the fish off   the shark could never bite, grab, or tail-whip again until the chunk unloaded. With pack alerts, shark-on-shark predation, and the longer impact delays this would have fired constantly.
+- Blood in the water now respects the prey lists for mobs: a bleeding cow no longer draws sharks (a bleeding cod still draws a hungry thresher, and bleeding *players* still draw every hungry shark in range). The whitetip's blood-convergence also no longer piles its school onto a bleeding shark   including its own packmates, who couldn't even fight back thanks to the same-species guard.
+- A timid lone blacktip now actually flees: it drops whatever it was chasing when hit (previously the chase overwrote the flee every half-second and the pack-alert could still fire).
+- All eight species now treat a badly wounded player (≤50% health) as blood in the water   previously only the four legacy sharks did.
+- **Feeding frenzy fixed / hunger system completed.** The 10-minute hunt cooldown existed but the four legacy species (Great White, Hammerhead, Thresher, Mako) had their own targeting that bypassed it   and targeted *any* mob under half health, plus cows/pigs/sheep. All targeting paths now run through one hunger-gated predicate. A shark that eats does not hunt again for 10 real-time minutes (self-defense vs players is unaffected; satiated packmates also stop joining mob fights).
+
+### Added
+
+- **Per-species prey lists (Ben's Part II spec), datapack-tunable** (`bensfintasticsharks:prey/<species>` entity-type tags):
+  - Great White: harbor seal, green sea turtle, bottlenose dolphin, blacktip reef shark, sand tiger shark (+ vanilla turtle, dolphin)
+  - Great Hammerhead: stingray, lobster, both octopuses (+ vanilla squid/glow squid, cod, salmon, tropical fish)
+  - Common Thresher: vanilla cod, salmon, tropical fish only
+  - Shortfin Mako: both octopuses, bottlenose dolphin, green sea turtle, blacktip reef shark (+ vanilla dolphin, squid, turtle, cod, salmon, tropical fish)
+  - Tiger: green sea turtle, harbor seal, common octopus, lobster, blacktip + sand tiger sharks (+ vanilla turtle, squid, cod, salmon, tropical fish)
+  - Sand Tiger: both octopuses, lobster (+ vanilla cod, salmon, tropical fish)
+  - Oceanic Whitetip: stingray, green sea turtle, bottlenose dolphin, common octopus (+ vanilla turtle, squid, dolphin, cod, salmon, tropical fish)
+  - Blacktip Reef: caribbean reef octopus, stingray, lobster (+ vanilla cod, salmon, tropical fish)
+  - Shark-on-shark predation is intentional and same-species attacks remain impossible.
+- **Thresher tail whip now launches its victim** (strong knockback + upward fling, velocity synced to player clients) and shoves any other mobs caught within 3 blocks of the sweep.
+- **Blacktip group confidence:** a lone blacktip that gets hit stays timid and bolts; with two or more other blacktips within 16 blocks it retaliates   and its help-call/pack-alert then brings the school. Pack alerts no longer fire from a fleeing (timid) blacktip. Natural spawns come in groups of 2-4 again so the mechanic actually shows up.
+- **EXPERIMENT   Blacktip has no idle animation in water** (always plays swim). The velocity-threshold idle gate was the visible half of the "jittery" swim/stop/swim look. Oceanic Whitetip keeps its idle as the side-by-side control; say the word and the change spreads or reverts.
+
+### Changed
+
+- **Sharks are much rarer, especially near shore.** Apex-predator cap default lowered 3 → 2 (existing config files keep their old value   delete `apex_predator_cap` from `bensfintasticsharks-common.toml` to pick up the new default), beach exclusion ring widened 8 → 24 blocks, and predators now require at least 5 blocks of water beneath them to spawn   no more sharks materializing in waist-deep shore water inside encounter-advancement range of the beach.
+- Datagen spawn weights synced to the shipped 0.13 values (they had silently diverged; a datagen run would have restored the old, much higher weights).
+- **Shark Trident damage 9 → 11** (melee attribute +10; thrown damage raised to match at 11   vanilla tridents throw at 8).
+
+### Known / punted
+
+- **Zippy texture:** nothing new has arrived in the repo   `zippy.png` is still the 2024 file with the transparent body strip (the see-through tail). All variant plumbing is done; drop the repainted 128×128 `zippy.png` in place and it works, no code change.
+- **Shark block-item advancement icons:** already fixed in this working tree   the bake tool output for all five display models validates clean against vanilla's rotation rules (Ben's report was from a build predating the bake). No 16×16 pixel icons needed; verify in-game before shipping.
+- Hammerhead/Great White/Mako thrash kills count as the shark's meal and start its 10-minute hunger like any other kill.
+
+## 0.18 Content drop + feedback round (2026-07-05)
+
+### Added
+
+- **Megalodon Tooth**   Ben's carved-netherite gag collectible (Epic rarity, fire-resistant, tooltip: *"100% authentic Otodus megalodon specimen tooth!...Probably."*). Sold by ~1% of master fishermen for a full stack of emerald blocks (576 emeralds), one sale per restock cycle. The scam is the point.
+- **"Source: trust me bro"** advancement (challenge frame)   obtain a Megalodon Tooth.
+- **Tiger, Shortfin Mako, and Oceanic Whitetip shark teeth**   join the existing three in the `shark_teeth` tag (usable in shark tool/armor recipes) and the master-fisherman catch table (12 emeralds, ~6% of master fishermen each).
+- **Shark Jaws** is now a real item (was a hidden advancement icon): Ben's revamped skeleton-jaws sprite, Rare rarity, and the rarest fisherman find short of the Meg Tooth (48 emeralds, ~2.5% of master fishermen). Still doubles as the Conservationist advancement icon.
+- Nautilus now drops a nautilus shell (the second exception, after the lobster, to the "protected species drop nothing" rule   it's capped at 1 per area and hides in the deep).
+- Grab/thrash screen effects: while a Great White / Great Hammerhead / Shortfin Mako thrashes you, mouse-look is locked (the camera whips around with the thrash, facing the jaws; sneak can't dismount) and a red tint ramps in, fading out over ~1.5s after release. Tint intensity is one constant in `GrabClientHandler` if it lands on the "cringy" side of the experiment.
+- `tools/bake_blockitem_rotations.py`   converts Blockbench generic-model exports into legal vanilla item models by baking quarter-turns into the geometry (with face/UV remapping) and snapping remainders to the 22.5° grid.
+
+### Changed
+
+- **Advancement icons:** "King of the Seas" (Great White), "Fast as hell, twice as mean." (Shortfin Mako), and "Whiplash!" (Common Thresher, the full-body model with the curled tail whip) now use Ben's 3D block-item models; "Stop! Hammer Time!" got the updated hammerhead model. Vanilla item models only allow one rotation axis per cube on a 22.5° grid, and Ben's exports carry free multi-axis rotations (the nonstandard `rotated` key vanilla silently ignores   in-game they'd render axis-aligned). The new bake tool decomposes each cube's true rotation into exact quarter-turns baked into the geometry plus a snapped single-axis remainder with centroid correction; leftover per-cube orientation error sits on 1–3-pixel cubes and is invisible at icon size (verified with offline renders). Conservation Violation got its revamped bloody-jaw texture.
+- **Sharks now outswim players.** Chase acceleration roughly doubled and every species gained a chase-speed floor (~6.4 m/s, Mako ~8.4 m/s) vs the player's ~5.6 m/s sprint-swim; previously chase speed settled at ~3 m/s and any sprint-swimming player could escape any shark. Wander/cruise speeds unchanged.
+- Shortfin Mako spawn sizes now span 3–5 m (scale 0.75–1.25 on the ~4 m base; was 0.9–1.05).
+- Orca breach: run-up boosted and launch impulse raised 0.7 → 1.05 b/t (~3 → ~6.5 block apex) so it actually clears the water.
+- Nautilus spawning below y=0: flooded caves in dripstone/lush/deep-dark biomes get a dedicated high-weight spawn entry, and the 80%-night-only gate is waived below y=0 (it's always dark down there). Tip: the `nautilus` per-species cap in `bensfintasticsharks-common.toml` still limits how many can be alive per 64-block radius.
+- Bottlenose Dolphin renamed to **Common Bottlenose Dolphin** (entity name, spawn egg, and the Dolphin Tale advancement description).
+
+### Fixed
+
+- Bite animation no longer trails the damage by ~1s on Blacktip Reef Shark (impact delay now lands the hit on the 1.125s clip's chomp frame), Giant Moray Eel, and American Lobster (both dealt damage the same tick their 0.5s clip was *queued*; the hit is now scheduled onto the clip's impact frame).
+- Master fishermen no longer roll empty level-5 trade slots. Vanilla draws exactly two listings from the master pool and doesn't redraw when one declines, so the old dozen chance-gated shark listings usually crowded out the vanilla trades and then produced nothing. All shark byproducts now live in one weighted "catch" listing that always yields exactly one offer   ~2/3 of master fishermen carry one shark byproduct alongside their intact vanilla trades.
+- A crouch-swimming player could never be grabbed (vanilla refuses to mount sneaking riders; the shark thrashed empty water while the victim swam off). Grabs now force the mount.
+
+### Known / punted
+
+- Common Bottlenose Dolphin plays its swim animation while idle   the model has no idle clip yet; nothing to wire until Ben ships one.
+- Remaining shark-head block items (Ben is modeling them) and the "Shark Jaws" decoration *block* form will come in a later drop.
+
+## 0.16 Feedback round (2026-06-11)
+
+### Fixed
+
+- Tiger, Oceanic Whitetip, Sandtiger, and Blacktip Reef sharks no longer stop ~1 block short of their target and stare. The braking zone started 1 block outside the bite range, so slower species coasted to a stop in a dead band where the bite could never trigger; braking now begins only inside bite range.
+- Those four species now switch to their fast-swim animation while locked onto prey (same synced-state pattern as the Shortfin Mako). The Oceanic Whitetip and Blacktip Reef gained new `fast_swim` clips (time-scaled from their swim loops).
+- Shortfin Mako now plays its death animation (the trigger call and controller registration were missing).
+- Jellyfish take knockback again. Their drift logic overwrote velocity every tick, swallowing punches and shoves; it now blends toward the drift so impulses play out.
+- "Aw, you made me ink!" no longer pops on a random encounter. A new `octopus_inked` criterion fires only for the player who actually hurts an octopus.
+- The Conservation Violation advancement icon item no longer shows the stale "Illegal Poaching" name on `/give`, and it got Ben's retextured bloody shark-jaws icon.
+
+### Changed
+
+- Nautilus now swims shell-first (visual 180° flip; navigation untouched).
+- Octopuses lean into their swim direction like vanilla squids instead of drifting bolt upright.
+- Shark Codex rebranded to "Capitán Ben's Codex" with the tooltip/GUI subtext "A Compendium of Marine Wildlife" (item name, tooltip, book first page, and the two codex advancement descriptions).
+- "You're gonna need a bigger boat…" renamed to "King of the Seas".
+- "Justice for Steve" is now "Crikey! Respect the wildlife!"   triggered by getting stung by a Common Stingray instead of killing one (same icon).
+- "Stop! Hammer Time!" advancement icon replaced with Ben's 3D Great Hammerhead block-item model.
+- "Find a Sunken Trove" advancement icon is now a plain chest.
+- Root "Ben's Fintastic Sharks!" advancement icon switched from the Shark Trident to the BFS logo.
+
+### Removed
+
+- "Crankey!" (get stung by a stingray) advancement   folded into the reworked Crikey!/Justice for Steve.
+- "Unethical" (kill a Harbor Seal) advancement and its icon item.
+
 ## 0.8 Legacy 1.0 polish pass (2026-05-19)
 
 Everything since the previous build (`eeea267`, "Shortfin Mako first implementation WIP"). The list is split by category. Numbers in parentheses are the new defaults where relevant.
