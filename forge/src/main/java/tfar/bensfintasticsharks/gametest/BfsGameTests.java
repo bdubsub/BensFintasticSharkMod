@@ -14,13 +14,14 @@ public final class BfsGameTests {
 
     private static final BlockPos WATER_POS = new BlockPos(1, 1, 1);
     private static final BlockPos ALGAE_POS = new BlockPos(1, 2, 1);
+    private static final BlockPos SUPPORT_POS = new BlockPos(1, 0, 1);
 
     private BfsGameTests() {
     }
 
     @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 20)
     public static void algaePlacementPreservesWaterAndHasNoCollision(GameTestHelper helper) {
-        helper.setBlock(WATER_POS, Blocks.WATER.defaultBlockState());
+        prepareWaterColumn(helper);
         helper.setBlock(ALGAE_POS, ModBlocks.ALGAE_BLOCK.defaultBlockState());
 
         helper.assertBlockPresent(ModBlocks.ALGAE_BLOCK, ALGAE_POS);
@@ -35,7 +36,7 @@ public final class BfsGameTests {
 
     @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 20)
     public static void algaeRemovalRestoresWater(GameTestHelper helper) {
-        helper.setBlock(WATER_POS, Blocks.WATER.defaultBlockState());
+        prepareWaterColumn(helper);
         helper.setBlock(ALGAE_POS, ModBlocks.LARGE_GREEN_ALGAE.defaultBlockState());
         helper.runAfterDelay(1, () -> {
             helper.setBlock(ALGAE_POS, Blocks.WATER.defaultBlockState());
@@ -44,5 +45,11 @@ public final class BfsGameTests {
                     "removing algae must leave water in the source position");
             helper.succeed();
         });
+    }
+
+    private static void prepareWaterColumn(GameTestHelper helper) {
+        helper.setBlock(SUPPORT_POS, Blocks.SAND.defaultBlockState());
+        helper.setBlock(WATER_POS, Blocks.WATER.defaultBlockState());
+        helper.setBlock(ALGAE_POS, Blocks.WATER.defaultBlockState());
     }
 }
