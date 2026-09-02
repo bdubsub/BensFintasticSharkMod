@@ -12,8 +12,7 @@ import tfar.bensfintasticsharks.init.ModBlocks;
 @GameTestHolder("bensfintasticsharks")
 public final class BfsGameTests {
 
-    private static final BlockPos WATER_POS = new BlockPos(1, 1, 1);
-    private static final BlockPos ALGAE_POS = new BlockPos(1, 2, 1);
+    private static final BlockPos ALGAE_POS = new BlockPos(1, 1, 1);
     private static final BlockPos SUPPORT_POS = new BlockPos(1, 0, 1);
 
     private BfsGameTests() {
@@ -25,11 +24,12 @@ public final class BfsGameTests {
         helper.setBlock(ALGAE_POS, ModBlocks.ALGAE_BLOCK.defaultBlockState());
 
         helper.assertBlockPresent(ModBlocks.ALGAE_BLOCK, ALGAE_POS);
-        helper.assertTrue(helper.getLevel().getFluidState(ALGAE_POS).is(FluidTags.WATER),
+        BlockPos absoluteAlgaePos = helper.absolutePos(ALGAE_POS);
+        helper.assertTrue(helper.getLevel().getFluidState(absoluteAlgaePos).is(FluidTags.WATER),
                 "algae placement must retain a water fluid state");
-        helper.assertTrue(ModBlocks.ALGAE_BLOCK.defaultBlockState().getCollisionShape(helper.getLevel(), ALGAE_POS).isEmpty(),
+        helper.assertTrue(ModBlocks.ALGAE_BLOCK.defaultBlockState().getCollisionShape(helper.getLevel(), absoluteAlgaePos).isEmpty(),
                 "algae must not create a collision barrier");
-        helper.assertTrue(ModBlocks.ALGAE_BLOCK.defaultBlockState().canSurvive(helper.getLevel(), ALGAE_POS),
+        helper.assertTrue(ModBlocks.ALGAE_BLOCK.defaultBlockState().canSurvive(helper.getLevel(), absoluteAlgaePos),
                 "algae must survive while its water support is present");
         helper.succeed();
     }
@@ -41,7 +41,7 @@ public final class BfsGameTests {
         helper.runAfterDelay(1, () -> {
             helper.setBlock(ALGAE_POS, Blocks.WATER.defaultBlockState());
             helper.assertBlockPresent(Blocks.WATER, ALGAE_POS);
-            helper.assertTrue(helper.getLevel().getFluidState(ALGAE_POS).is(FluidTags.WATER),
+            helper.assertTrue(helper.getLevel().getFluidState(helper.absolutePos(ALGAE_POS)).is(FluidTags.WATER),
                     "removing algae must leave water in the source position");
             helper.succeed();
         });
@@ -49,7 +49,6 @@ public final class BfsGameTests {
 
     private static void prepareWaterColumn(GameTestHelper helper) {
         helper.setBlock(SUPPORT_POS, Blocks.SAND.defaultBlockState());
-        helper.setBlock(WATER_POS, Blocks.WATER.defaultBlockState());
         helper.setBlock(ALGAE_POS, Blocks.WATER.defaultBlockState());
     }
 }
