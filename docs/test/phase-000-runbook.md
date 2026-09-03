@@ -16,6 +16,8 @@ git branch -vv
 
 The stable default branch is `1.20.1` and the 0.24 work branch is `envy/0.24`.
 
+For phase execution, use a separate worktree and a branch such as `envy/0.24-phase-000` created from the verified canonical `origin/1.20.1` tip when that tip is newer than `origin/envy/0.24`. Do not create or rename `main` or `master`, and do not stage the protected `build.gradle`, generated `.cache`, or `Content/` paths.
+
 ## Deterministic checks
 
 Run these checks in order after a clean source or resource change:
@@ -40,7 +42,7 @@ The task copies the empty fixture into the development run directory, starts a c
 
 ## Runtime checks
 
-Run `./gradlew :forge:Server` with an unused development port and record the complete startup log. Confirm that the mod loads on the dedicated server without a client class, registry, or data pack error. Use a fixed seed for world probes and retain the seed, coordinates, biome, configuration, and command transcript in the phase evidence record.
+Run `./gradlew :forge:Server` with an unused development port and record the complete startup log. Confirm that the mod loads on the dedicated server without a client class, registry, or data pack error. The disposable run must have an explicit `eula=true` only after the owner authorizes accepting the Minecraft EULA. Never change the EULA setting silently or in the protected worktree. If the setting remains `eula=false`, record the server gate as blocked rather than treating the process exit as a pass. Use a fixed seed for world probes and retain the seed, coordinates, biome, configuration, and command transcript in the phase evidence record.
 
 Run `./gradlew :forge:Client` with the supported headless display setup when client evidence is required. Capture labeled clips for the fish animation states, Oceanic Whitetip grab and release, Tiger Shark movement and curiosity, Shark Spotter, and Prismarine armor. Review the client log for missing models, textures, bones, animation clips, and render layer warnings.
 

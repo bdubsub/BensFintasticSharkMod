@@ -1,0 +1,213 @@
+{
+  "schema": "bfs.phase000.evidence.v1",
+  "phase": "BFS-PHASE-000",
+  "revision": {
+    "phase_branch": "envy/0.24-phase-000",
+    "phase_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
+    "canonical_branch": "1.20.1",
+    "canonical_ref": "origin/1.20.1",
+    "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
+    "work_ref": "origin/envy/0.24",
+    "work_commit": "a4d4e41511ab47a05f27d72387075e21a5ef3cb5",
+    "main_branch_present": false,
+    "master_branch_present": false
+  },
+  "protected_dirty_state": {
+    "original_worktree": {
+      "build.gradle": {
+        "working_tree_sha256": "71fcd9ca04c96389a97202347bf4230008a0a149c96a6c77da84a0cde187ebf2",
+        "working_tree_git_blob": "9fdd5f8c915a46caed327b1f709795f3ebc82255",
+        "head_git_blob": "81bed49d28dd8764d2b15dd91eaf09cf0a03305e",
+        "classification": "line ending only"
+      },
+      "common/src/generated/resources/.cache/06b1ebdc5509e6429aa0a2f04ab3f606ab1fda5e": {
+        "working_tree_sha256": "61caabe8c713ec0e4e464a8259e9b07830cac041e21db5544bfb7c7ec9bfc3c2",
+        "working_tree_git_blob": "8e10f4077973cab93ef249b93b9d3c6b7020a266",
+        "head_git_blob": "6d78e4d7e26fe22f13f4b3cd0dbe788e7572db74"
+      },
+      "common/src/generated/resources/.cache/103d9f3f36b01595f1aa5172191e60eff02e6924": {
+        "working_tree_sha256": "9bf9c1e3c3ad48a7643ecaa4739947080f09c7a5846d9e17fd27375dd573ef34",
+        "working_tree_git_blob": "739ce21847507e7794c8e809f76c5f08597f2630",
+        "head_git_blob": "289b42c218ff0ecd15095dab0e3fc37a99bb1265"
+      },
+      "common/src/generated/resources/.cache/59eb3dbb5f86130e09b3c62d89b9525ee01cf52d": {
+        "working_tree_sha256": "c9b6407ff0aab2bdeae934a0f312c6fe330495b4676c7205c40256b19cd89213",
+        "working_tree_git_blob": "2eaf7f764b2b49480c4602078e6a86b178616849",
+        "head_git_blob": "3589523eaa984bde548c16348df77a568368af73"
+      },
+      "common/src/generated/resources/.cache/6355c9590ee25603929abf26c75a332d9588a284": {
+        "working_tree_sha256": "2c47e14c0b41d6619f16497c55dcee557e95be5cee945de4500db69759f121f0",
+        "working_tree_git_blob": "f0580c19877b2ecc239aff39ac1e8c55a048540b",
+        "head_git_blob": "5b55a5844339ae10f0594919495cc6f383bee1b6"
+      },
+      "common/src/generated/resources/.cache/739d2feb9960800afec6317e23ff52b218887ce1": {
+        "working_tree_sha256": "4868a277e5c0fb9d98bc7e961d2a8af4a134b791ac65b0581db2461dcf70fd20",
+        "working_tree_git_blob": "273a5d9c63b7c4b675632c4534624f3f0a25fe17",
+        "head_git_blob": "0ef3886e35b87162a1146641a703bef1679a567d"
+      },
+      "common/src/generated/resources/.cache/c622617f6fabf890a00b9275cd5f643584a8a2c8": {
+        "working_tree_sha256": "e2a77d202c139148e3da76be4f83df43476c9cbe482fa4d96e8ca6597de8aa7c",
+        "working_tree_git_blob": "a30e0ce2bc2d82bfd4b130430c6a4ab4dd2ce2a4",
+        "head_git_blob": "c7ab0af89fe994e5c47e2122a63991ff9b35afc6"
+      },
+      "common/src/generated/resources/.cache/c8cb2bd3a37f08f6158242942ad14b8041c48f8a": {
+        "working_tree_sha256": "488a4e816b6db64befb82ebc3d5f7a39510d09eece5227da9c9d79cea5fa7c49",
+        "working_tree_git_blob": "0b54aa4cd4d77e7fdaaacc7c92442e9dc0d8e4d0",
+        "head_git_blob": "1219999f4776f01ff1ada2a2e8ed54e93c905f07"
+      },
+      "common/src/generated/resources/.cache/e481799ad5073aa219264694871e092615972ff7": {
+        "working_tree_sha256": "29e224eb82588d5bb057c4f4513446512f0bb26118485fb8b460d70a711fe8db",
+        "working_tree_git_blob": "5e6a1ccd87061e84d6d1a762f2b69557cea706c1",
+        "head_git_blob": "620f07e3b23de22ac3ba9f57ee4210e39f6f8237"
+      },
+      "common/src/generated/resources/.cache/e5c5eb35b4ba40351ecb7d9f04c3527f2f5779b0": {
+        "working_tree_sha256": "ff36b90d064b5a35c7decb8b1099421dccb426ba2f9a2c37d009f7ad2cfcc6ac",
+        "working_tree_git_blob": "d24f611f600c2ff5f5d7c76fc572c2a91fe6c362",
+        "head_git_blob": "445f239f1d9e0389f912ec11e3b80295b6430511"
+      }
+    },
+    "content_directory": "covered by the archive and loose asset fingerprints above",
+    "staged_phase_paths": []
+  },
+  "inputs": {
+    "screenshot": {
+      "source_id": "SRC-006",
+      "sha256": "02bdee8362de4c1e7d1fb874899a85321e8f95287d6b686fa945298fd583a59a",
+      "dimensions": "1328x115"
+    },
+    "archives": [
+      {
+        "path": "Content/BFS 0.23 Content.zip",
+        "sha256": "1dcfd0db544184bffd467255ba294b57f0a1376b06023f10034f380b9e5d0eaa",
+        "member_count": 19,
+        "members": [
+          {"path": "BFS 0.23 Content/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "BFS 0.23 Content/Atlantic Cod/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "BFS 0.23 Content/Atlantic Cod/atlantic_cod.animation.json", "type": "file", "crc32": "b8a9c28a", "size": 10514, "sha256": "efd3e6231ca130f5b28d0e87225960e7877b85cc1fb0407e6d7404cc3c4a04ad"},
+          {"path": "BFS 0.23 Content/Atlantic Cod/atlantic_cod.geo.json", "type": "file", "crc32": "fdb3299b", "size": 13789, "sha256": "ef54d1552d53d530cf1b08d2566cc1fc4544b4022df750adc54038af2a5aa8cc"},
+          {"path": "BFS 0.23 Content/Atlantic Cod/atlantic_cod.png", "type": "file", "crc32": "287cc5e7", "size": 3063, "sha256": "ed3987ecb2a1b21ebfdc6c63ce65e8431b4cd717ee1bf3567711ce9183b25ad4", "dimensions": "80x80"},
+          {"path": "BFS 0.23 Content/Atlatnic Salmon/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "BFS 0.23 Content/Atlatnic Salmon/atlantic_salmon.animation.json", "type": "file", "crc32": "ab62451c", "size": 9922, "sha256": "19a5463fb83ce1fd9329125365f733a0ff715abdb5f06c6de5e7f1ccfff18648"},
+          {"path": "BFS 0.23 Content/Atlatnic Salmon/atlantic_salmon.geo.json", "type": "file", "crc32": "72b63a6f", "size": 27513, "sha256": "e9af49fbf1b954db868d1b93de5dae7c14645081512534dba871a13a59e98ff6"},
+          {"path": "BFS 0.23 Content/Atlatnic Salmon/atlantic_salmon.png", "type": "file", "crc32": "017db6a0", "size": 4790, "sha256": "0719e6aec5c2936480856ba8ad7d382b2f7a62697faf0131622ba8adc8f4849b", "dimensions": "128x128"},
+          {"path": "BFS 0.23 Content/BFS 0.23 Notes for Coder.txt", "type": "file", "crc32": "9a6fc6ef", "size": 1337, "sha256": "9a8042c18739b65e00b8c81c1698d7f1ab483fb49d4917c267c26ffc71ebe518"},
+          {"path": "BFS 0.23 Content/New Items/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "BFS 0.23 Content/New Items/Atlantic Cod Spawn Egg.png", "type": "file", "crc32": "416e490e", "size": 411, "sha256": "f34698d4115fe66dcd77b5c739bf8ad879959d1670d875c4de81b174653a32d5", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/New Items/Atlantic Salmon Spawn Egg.png", "type": "file", "crc32": "6756069e", "size": 420, "sha256": "9999a81aa0c294aefa8a23df525a6d079b2c16514c94b6020fcc0fef43cb1542", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/New Items/Cooked Atlantic Cod.png", "type": "file", "crc32": "1d1f6845", "size": 479, "sha256": "51769694f3cd9ac8565c327158f464532c11c6541c8374549b998dc1adf8a6c1", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/New Items/Cooked Atlantic Salmon.png", "type": "file", "crc32": "b3574356", "size": 460, "sha256": "ff82528016ad8bb8a34454fc935b324b22f7552b4e4311d538132cc39189e2f1", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/New Items/Raw Atlantic Cod.png", "type": "file", "crc32": "623fdea3", "size": 440, "sha256": "15bd270d1d10ee9fe23d84a57b06c5f7d14c5da6accef10802238d61cedf2326", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/New Items/Raw Atlantic Salmon.png", "type": "file", "crc32": "fd11faec", "size": 464, "sha256": "85f66a2ef9ac43a50f1872aefdab3bf39f0b8f377d5b803b13674ac96bd75994", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/Oceanic Whitetip Animations New/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "BFS 0.23 Content/Oceanic Whitetip Animations New/oceanicwhitetipshark.animation.json", "type": "file", "crc32": "cb15a6e1", "size": 26865, "sha256": "dece327b4655f89d1f79ae463f05a6a3d3683cc2f7eb9550205e8b199d700e86"}
+        ]
+      },
+      {
+        "path": "Content/BFS 0.24 Content.zip",
+        "sha256": "25290e8d019339aff68c8ba168bd750d5c445aa915720d249aeed5700c9f3274",
+        "member_count": 9,
+        "members": [
+          {"path": "Advancement Icons Remaster/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "Advancement Icons Remaster/Awkward Advancement Icon 16x.png", "type": "file", "crc32": "b93beb17", "size": 560, "sha256": "e5e531f62b458fea3ab50b1e61abc4504c75453fa7cd06c8640aabf794b0abd1", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Its A Shiny Advancement Icon 16x.png", "type": "file", "crc32": "f191897b", "size": 491, "sha256": "e0638a22ee40480f03a7e4361ff324e4a8d9b1cb93590a2ec695b2830f79ab76", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Mommy Shark Advancement 16x.png", "type": "file", "crc32": "41b62a57", "size": 536, "sha256": "58fb46c5267ea9b6e027fdaf4532ad2d76de7dcf75aa046367f3720f18c00cde", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Sharks Galore Advancement Icon 16x.png", "type": "file", "crc32": "a44cafd1", "size": 293, "sha256": "11f66a72567bb8ae16aa2022ca21778d43eb0d0fcbb531b21d34e03fa4e020f6", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Sleeping With The Fishes Advancement Icon 16x.png", "type": "file", "crc32": "3df200e8", "size": 684, "sha256": "6c01085423275d602fbad91924a8772249c1a8dbeee749f5e1e9907df0995977", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Specimen8 Advancement Icon 16x.png", "type": "file", "crc32": "eb0e3212", "size": 576, "sha256": "88f6dc345a7c399034142cf2bebc54fdd488e41b9f36f19d470806d393c1fc65", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Thunder Bringer Advancement 16x.png", "type": "file", "crc32": "a4b83c36", "size": 477, "sha256": "4f54793625dc71ab456ca58de55b6bfe015f586c81930d11b72d5a3d6942595d", "dimensions": "16x16"},
+          {"path": "bfscontent0.24.txt", "type": "file", "crc32": "51f18328", "size": 379, "sha256": "831cf974a07a7737238a6d1fdc72267d83667b24d1723481dbaa74d479d81de1"}
+        ]
+      }
+    ],
+    "loose_algae": [
+      {"path": "Content/Algae Textures/algea_block.png", "dimensions": "16x16", "sha256": "562c9b1a75c2f9ed912c22b0f424651792a3df02ea96bf72b8b5cb6a59ba7392"},
+      {"path": "Content/Algae Textures/biggreenalgea_strip.png", "dimensions": "16x160", "sha256": "6818750169255d1fd99f33f3363c96157ef5355f2fe8663ba78f3f344ef7f0ab"},
+      {"path": "Content/Algae Textures/bigredalgea_1.png", "dimensions": "16x16", "sha256": "818238e574a12e13050fb1b3897d5901a332be422c8779ce0095eded6f99d204"},
+      {"path": "Content/Algae Textures/bigredalgea_2.png", "dimensions": "16x16", "sha256": "818238e574a12e13050fb1b3897d5901a332be422c8779ce0095eded6f99d204"},
+      {"path": "Content/Algae Textures/bigredalgea_3.png", "dimensions": "16x16", "sha256": "818238e574a12e13050fb1b3897d5901a332be422c8779ce0095eded6f99d204"},
+      {"path": "Content/Algae Textures/bigredalgea_4.png", "dimensions": "16x16", "sha256": "49d1246b44d22bc572f140214cc2ffe05cb3fffd7f4d078dcd97318521d0903d"},
+      {"path": "Content/Algae Textures/bigredalgea_5.png", "dimensions": "16x16", "sha256": "49d1246b44d22bc572f140214cc2ffe05cb3fffd7f4d078dcd97318521d0903d"},
+      {"path": "Content/Algae Textures/bigredalgea_6.png", "dimensions": "16x16", "sha256": "49d1246b44d22bc572f140214cc2ffe05cb3fffd7f4d078dcd97318521d0903d"},
+      {"path": "Content/Algae Textures/bigredalgea_7.png", "dimensions": "16x16", "sha256": "bc8431c1432f863de7635d03b3c70dd66dda30d80dd44379076d24d162379a77"},
+      {"path": "Content/Algae Textures/bigredalgea_8.png", "dimensions": "16x16", "sha256": "bc8431c1432f863de7635d03b3c70dd66dda30d80dd44379076d24d162379a77"},
+      {"path": "Content/Algae Textures/bigredalgea_9.png", "dimensions": "16x16", "sha256": "bc8431c1432f863de7635d03b3c70dd66dda30d80dd44379076d24d162379a77"},
+      {"path": "Content/Algae Textures/bigredalgea_strip.png", "dimensions": "16x144", "sha256": "ad9c3abbd801de619c1d8e14b53b3ec0e74bb21c47da1e980bca553210f8110c"},
+      {"path": "Content/Algae Textures/greenbigalgea_1.png", "dimensions": "16x16", "sha256": "852cc1899f2756b241eaf7bad1aea675e0a00ab9b60de9a867da8496c43c1096"},
+      {"path": "Content/Algae Textures/greenbigalgea_10.png", "dimensions": "16x16", "sha256": "0900b4ade7560b4e9e94caa3895f2b076a732801d4765df0b55effbecb316525"},
+      {"path": "Content/Algae Textures/greenbigalgea_2.png", "dimensions": "16x16", "sha256": "0fe9c99166e5f52e2ec49ab435ed9eb001a7c3b2db72c9553f62d273e8436ccf"},
+      {"path": "Content/Algae Textures/greenbigalgea_3.png", "dimensions": "16x16", "sha256": "0fe9c99166e5f52e2ec49ab435ed9eb001a7c3b2db72c9553f62d273e8436ccf"},
+      {"path": "Content/Algae Textures/greenbigalgea_4.png", "dimensions": "16x16", "sha256": "76d85b975460493cc142f629106c56e6dafe0a0888095d124da148fd88a2e177"},
+      {"path": "Content/Algae Textures/greenbigalgea_5.png", "dimensions": "16x16", "sha256": "76d85b975460493cc142f629106c56e6dafe0a0888095d124da148fd88a2e177"},
+      {"path": "Content/Algae Textures/greenbigalgea_6.png", "dimensions": "16x16", "sha256": "76d85b975460493cc142f629106c56e6dafe0a0888095d124da148fd88a2e177"},
+      {"path": "Content/Algae Textures/greenbigalgea_7.png", "dimensions": "16x16", "sha256": "93450e1856167cddfe967f71a3ae240b1074adf983508bfa7ae1be62be2a32fc"},
+      {"path": "Content/Algae Textures/greenbigalgea_8.png", "dimensions": "16x16", "sha256": "93450e1856167cddfe967f71a3ae240b1074adf983508bfa7ae1be62be2a32fc"},
+      {"path": "Content/Algae Textures/greenbigalgea_9.png", "dimensions": "16x16", "sha256": "0900b4ade7560b4e9e94caa3895f2b076a732801d4765df0b55effbecb316525"}
+    ]
+  },
+  "destination_mapping": {
+    "icon_destinations": [
+      {"source": "Awkward Advancement Icon 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/harbor_seal_block.png", "sha256": "e5e531f62b458fea3ab50b1e61abc4504c75453fa7cd06c8640aabf794b0abd1"},
+      {"source": "Its A Shiny Advancement Icon 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/albino.png", "sha256": "e0638a22ee40480f03a7e4361ff324e4a8d9b1cb93590a2ec695b2830f79ab76"},
+      {"source": "Sharks Galore Advancement Icon 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/sharks_galore.png", "sha256": "11f66a72567bb8ae16aa2022ca21778d43eb0d0fcbb531b21d34e03fa4e020f6"},
+      {"source": "Sleeping With The Fishes Advancement Icon 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/sleeping_with_the_fishes.png", "sha256": "6c01085423275d602fbad91924a8772249c1a8dbeee749f5e1e9907df0995977"},
+      {"source": "Specimen8 Advancement Icon 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/specimen_8.png", "sha256": "88f6dc345a7c399034142cf2bebc54fdd488e41b9f36f19d470806d393c1fc65"},
+      {"source": "Mommy Shark Advancement 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/mommy_shark.png", "sha256": "58fb46c5267ea9b6e027fdaf4532ad2d76de7dcf75aa046367f3720f18c00cde"},
+      {"source": "Thunder Bringer Advancement 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/zippy_pixel_art.png", "sha256": "4f54793625dc71ab456ca58de55b6bfe015f586c81930d11b72d5a3d6942595d"}
+    ],
+    "algae_destinations": [
+      {"source": "Content/Algae Textures/algea_block.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/block/algae_block.png", "sha256": "562c9b1a75c2f9ed912c22b0f424651792a3df02ea96bf72b8b5cb6a59ba7392"},
+      {"source": "Content/Algae Textures/biggreenalgea_strip.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/block/large_green_algae.png", "sha256": "6818750169255d1fd99f33f3363c96157ef5355f2fe8663ba78f3f344ef7f0ab"},
+      {"source": "Content/Algae Textures/bigredalgea_strip.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/block/large_red_algae.png", "sha256": "ad9c3abbd801de619c1d8e14b53b3ec0e74bb21c47da1e980bca553210f8110c"}
+    ],
+    "animation_disposition": {
+      "atlantic_cod": "source MoLang channels are deterministically baked into numeric time maps; clip names and lengths are retained",
+      "atlantic_salmon": "source MoLang channels are deterministically baked into numeric time maps; clip names, lengths, and exact Spin name are retained",
+      "oceanic_whitetip_shark": "source leftFin and rightFin channels map to the existing Fin and Fin2 geometry bones; source MoLang channels are deterministically baked"
+    }
+  },
+  "verification": {
+    "forge_test": "passed",
+    "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
+    "forge_data": "passed, 302 generated files, no generated JSON drift",
+    "forge_gametest": "passed, bfs_baseline batch, 2 required tests",
+    "forge_build": {
+      "status": "passed",
+      "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "size": 1748575,
+      "sha256": "01e5bedca3a95b7378b75e411363d98083c5afb9be15a0a9cad5a103aff8b284",
+      "sha512": "3aa1511e11c348fc1caff316796a9e8021f06e9ecfe092d2971ec91c18ff8f3834791a13c34ad0e0f21a77fce96204b50d4077e13b4c37455cbbb59efcaca6ae",
+      "zip_integrity": "passed"
+    },
+    "dedicated_server": {
+      "status": "blocked",
+      "reason": "forge/run/eula.txt contains eula=false; the server stopped at the Minecraft EULA gate before readiness",
+      "eula_changed": false
+    },
+    "client_loading": {
+      "status": "bounded_smoke_passed",
+      "observed": "OpenGL 4.5 llvmpipe, Forge loading, resource reload, texture atlas completion, and OpenAL initialization",
+      "visual_acceptance": "not_proven"
+    },
+    "secret_scan": "passed",
+    "diff_check": "passed"
+  },
+  "defects": {
+    "DEF-024-001": "blocked, deterministic copy passes but fresh tooltip capture is missing",
+    "DEF-024-002": "blocked, baked clip motion passes but interactive state capture is missing",
+    "DEF-024-003": "blocked, structural clip and controller checks pass but interactive transition and damage capture are missing",
+    "DEF-024-004": "blocked, controlled Tiger movement and attack trace is missing",
+    "DEF-024-005": "blocked, generated graph passes but fresh profile completion capture is missing",
+    "DEF-024-006": "positively_disproved for the deterministic copy path; fresh visual review remains open",
+    "DEF-024-007": "blocked, exact icon paths pass but interactive advancement display capture is missing",
+    "DEF-024-008": "blocked, registration and placement smoke checks pass but fixed-seed generation and visual capture are missing"
+  },
+  "phase_exit": "open",
+  "phase_exit_blockers": [
+    "dedicated server EULA authorization and ready-state capture",
+    "interactive client visual evidence",
+    "multiplayer and reconnect evidence",
+    "sustained population evidence",
+    "fixed-seed world-generation density evidence",
+    "fresh-profile advancement evidence"
+  ]
+}
