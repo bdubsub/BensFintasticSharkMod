@@ -339,6 +339,37 @@
           "sha256": "85e80a66383e8012894a0b381d82829367998d7bbf4a562b182a01cbc6da0e72",
           "dimensions": "1280x720",
           "observed": "The post-capture command found no Cod entity. This establishes an observed disappearance after the chase, but not a clean damage timeline or bite-state visual oracle."
+        },
+        {
+          "id": "client-fish-current-labeled-video",
+          "kind": "video",
+          "sha256": "fc1e807bbb025cae0abe034738822f87fc567db43e02291cdc661c70f2dfa3e5",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "duration_seconds": 12,
+          "captured_at": "2026-09-03T12:59:14-05:00",
+          "observed": "The current candidate client rendered labeled Atlantic Cod, Atlantic Salmon, and named Spin Salmon actors in one fixed aquarium view. Sampled frames show the actors remaining visible and changing position, but the capture does not establish every required state transition, death presentation, or unambiguous authored transform."
+        },
+        {
+          "id": "client-fish-current-labeled-frame-01",
+          "sha256": "ce51c50441a6ef1f6fa10a7e2f62d534a5e88fcfc5d365813f96a78db8f5b71b",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Initial sampled frame from the current labeled fish control, with Cod, Salmon, and Spin labels visible."
+        },
+        {
+          "id": "client-fish-current-labeled-frame-02",
+          "sha256": "b41448ac84cfcb26a16691e8d8c8e63872a3ec7e2fa1a5011e3c6f3a28eed5f5",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Middle sampled frame from the current labeled fish control, showing changed actor positions while all labels remain attributable."
+        },
+        {
+          "id": "client-fish-current-labeled-frame-03",
+          "sha256": "1d2c3f4fb04f89dba1a17aef019bfec787fe3cb66f525cf6655cd96c42956bfa",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Final sampled frame from the current labeled fish control, showing changed actor positions and the named Spin Salmon still visible."
         }
       ],
       "limitations": "command-assisted disposable fixtures; fish, Tiger Shark, and Oceanic Whitetip probes are exploratory and do not replace the required state, damage, recovery, multiplayer, completion-path, or advancement-display matrices"
