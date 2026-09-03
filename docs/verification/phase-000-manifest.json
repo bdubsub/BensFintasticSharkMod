@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "0550d3694211a03ea7b443608c13ce38aa0955c7",
+    "phase_commit": "cbbb079494230dce312705c47a5cb36e2bfb7f5e",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
@@ -342,6 +342,47 @@
         }
       ],
       "limitations": "command-assisted disposable fixtures; fish, Tiger Shark, and Oceanic Whitetip probes are exploratory and do not replace the required state, damage, recovery, multiplayer, completion-path, or advancement-display matrices"
+    },
+    "fresh_profile_progression": {
+      "status": "sharks_galore_natural_trigger_passed_with_controlled_fixture",
+      "world": "forge/run/saves/phase000-fresh-advancements",
+      "player_uuid": "380df991-f603-344c-a090-369bad2a924a",
+      "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+      "advancement_file": "forge/run/saves/phase000-fresh-advancements/advancements/380df991-f603-344c-a090-369bad2a924a.json",
+      "advancement_file_sha256": "7fe926c1baa836e11f51f7e53ed3f2e9065511e1127bec6ed399c5ab5dba6178",
+      "completed_advancement": "bensfintasticsharks:sharks_galore",
+      "completed_criteria": [
+        "bensfintasticsharks:great_white_shark",
+        "bensfintasticsharks:great_hammerhead_shark",
+        "bensfintasticsharks:common_thresher_shark",
+        "bensfintasticsharks:shortfin_mako_shark",
+        "bensfintasticsharks:tiger_shark",
+        "bensfintasticsharks:oceanic_whitetip_shark",
+        "bensfintasticsharks:sandtiger_shark",
+        "bensfintasticsharks:blacktip_reef_shark"
+      ],
+      "captures": [
+        {
+          "id": "client-fresh-shark-fixture",
+          "sha256": "7178fe1671fa49da80545f6a0882dbd91dba012ba555d0be874c45db9e0eeca3",
+          "dimensions": "1280x720",
+          "observed": "Fresh disposable world displayed all eight controlled shark fixtures after the summon commands completed."
+        },
+        {
+          "id": "client-fresh-advancement-shark-tree",
+          "sha256": "100ae59b734226b59e17f0936cea32165694177c3a2fafc0768014b4898cd543",
+          "dimensions": "1280x720",
+          "observed": "Fresh disposable profile advancement screen rendered the BFS tree after the eight shark criteria had completed."
+        },
+        {
+          "id": "client-fresh-advancement-mommy-shark-tooltip",
+          "sha256": "aff04503fda6005cdeff3d88da73c422e8afdc49da80f8caddd1c3e983a9e2d9",
+          "dimensions": "1280x720",
+          "observed": "Fresh disposable profile rendered the supplied Mommy Shark icon and the complete title and description tooltip."
+        }
+      ],
+      "observed": "All eight sharks_galore criteria were recorded by the normal player nearby-entity trigger at 2026-09-03 12:27:25 through 12:27:47, and the saved advancement record reports done true.",
+      "limitations": "The world used cheats and controlled summon fixtures, so this strengthens fresh-profile reachability and natural trigger evidence but does not prove natural biome spawning or a clean no-cheat completion path."
     },
     "fixed_seed_worldgen": {
       "status": "passed",
