@@ -170,13 +170,13 @@
     "forge_test": "passed",
     "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
     "forge_data": "passed, 302 generated files, no generated JSON drift",
-    "forge_gametest": "passed, bfs_baseline batch, 2 required tests",
+    "forge_gametest": "passed on three consecutive runs, bfs_baseline batch, 3 required tests including Tiger Shark reachable edible item pursuit",
     "forge_build": {
       "status": "passed",
       "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
-      "size": 1748575,
-      "sha256": "01e5bedca3a95b7378b75e411363d98083c5afb9be15a0a9cad5a103aff8b284",
-      "sha512": "3aa1511e11c348fc1caff316796a9e8021f06e9ecfe092d2971ec91c18ff8f3834791a13c34ad0e0f21a77fce96204b50d4077e13b4c37455cbbb59efcaca6ae",
+      "size": 1749629,
+      "sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
+      "sha512": "b0408394d34b553db53c08fd2b823746424ad58138cd138c4c1eccade1caf73d92197023019bfbb06bcb89cf63b69d5d9842806bae06c58cec36ddd107e89cc5",
       "zip_integrity": "passed"
     },
     "dedicated_server": {
@@ -196,7 +196,7 @@
     "DEF-024-001": "blocked, deterministic copy passes but fresh tooltip capture is missing",
     "DEF-024-002": "blocked, baked clip motion passes but interactive state capture is missing",
     "DEF-024-003": "blocked, structural clip and controller checks pass but interactive transition and damage capture are missing",
-    "DEF-024-004": "blocked, controlled Tiger movement and attack trace is missing",
+    "DEF-024-004": "blocked, three-run GameTest proves reachable edible item movement; vertical pursuit, damage, recovery, and interactive capture remain missing",
     "DEF-024-005": "blocked, generated graph passes but fresh profile completion capture is missing",
     "DEF-024-006": "positively_disproved for the deterministic copy path; fresh visual review remains open",
     "DEF-024-007": "blocked, exact icon paths pass but interactive advancement display capture is missing",
