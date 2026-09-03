@@ -76,13 +76,27 @@ public final class BfsGameTests {
 
     @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 180)
     public static void sharkVerticalRouteFollowsDolphinWithoutOrbit(GameTestHelper helper) {
+        runVerticalRoute(helper, new BlockPos(4, 3, 4), new BlockPos(4, 18, 4),
+                new BlockPos(4, 3, 8), new BlockPos(4, 18, 8), 1);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 180)
+    public static void sharkDescendingRouteFollowsDolphinWithoutOrbit(GameTestHelper helper) {
+        runVerticalRoute(helper, new BlockPos(4, 18, 4), new BlockPos(4, 3, 4),
+                new BlockPos(4, 18, 8), new BlockPos(4, 3, 8), -1);
+    }
+
+    private static void runVerticalRoute(GameTestHelper helper,
+                                         BlockPos sharkStartPos, BlockPos sharkTargetPos,
+                                         BlockPos dolphinStartPos, BlockPos dolphinTargetPos,
+                                         int verticalDirection) {
         prepareVerticalWaterVolume(helper);
-        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(4, 3, 4));
-        BottlenoseDolphinEntity dolphin = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN, new BlockPos(4, 3, 8));
+        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, sharkStartPos);
+        BottlenoseDolphinEntity dolphin = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN, dolphinStartPos);
         shark.getBrain().removeAllBehaviors();
         dolphin.getBrain().removeAllBehaviors();
-        Vec3 sharkTarget = helper.absolutePos(new BlockPos(4, 18, 4)).getCenter();
-        Vec3 dolphinTarget = helper.absolutePos(new BlockPos(4, 18, 8)).getCenter();
+        Vec3 sharkTarget = helper.absolutePos(sharkTargetPos).getCenter();
+        Vec3 dolphinTarget = helper.absolutePos(dolphinTargetPos).getCenter();
         setVerticalTarget(shark, sharkTarget);
         setVerticalTarget(dolphin, dolphinTarget);
         double sharkStartY = shark.getY();
@@ -98,7 +112,7 @@ public final class BfsGameTests {
 
         sampleVerticalRoute(helper, shark, dolphin, sharkTarget, dolphinTarget,
                 sharkStartY, dolphinStartY, sharkStartX, sharkStartZ, dolphinStartX, dolphinStartZ,
-                sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets, 0);
+                sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets, verticalDirection, 0);
     }
 
     private static void sampleVerticalRoute(GameTestHelper helper, Mob shark, Mob dolphin,
@@ -110,6 +124,7 @@ public final class BfsGameTests {
                                              java.util.List<Double> dolphinHeights,
                                              java.util.List<Double> sharkHorizontalOffsets,
                                              java.util.List<Double> dolphinHorizontalOffsets,
+                                             int verticalDirection,
                                              int sample) {
         helper.runAfterDelay(1, () -> {
             sharkHeights.add(shark.getY());
@@ -121,26 +136,27 @@ public final class BfsGameTests {
                 setVerticalTarget(dolphin, dolphinTarget);
                 sampleVerticalRoute(helper, shark, dolphin, sharkTarget, dolphinTarget,
                         sharkStartY, dolphinStartY, sharkStartX, sharkStartZ, dolphinStartX, dolphinStartZ,
-                        sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets, sample + 1);
+                        sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets,
+                        verticalDirection, sample + 1);
                 return;
             }
 
             double sharkProgress = shark.getY() - sharkStartY;
             double dolphinProgress = dolphin.getY() - dolphinStartY;
-            helper.assertTrue(dolphinProgress > 0.25,
+            helper.assertTrue(dolphinProgress * verticalDirection > 0.25,
                     "bottlenose dolphin must complete the vertical reference route");
-            helper.assertTrue(sharkProgress > 0.25,
+            helper.assertTrue(sharkProgress * verticalDirection > 0.25,
                     "shark must complete the vertical route");
-            helper.assertTrue(sharkProgress >= dolphinProgress * 0.5,
+            helper.assertTrue(sharkProgress * verticalDirection >= dolphinProgress * verticalDirection * 0.5,
                     "shark vertical progress must follow the dolphin reference, shark=" + sharkProgress
                             + ", dolphin=" + dolphinProgress + ", navDone=" + shark.getNavigation().isDone()
                             + ", position=" + shark.position() + ", delta=" + shark.getDeltaMovement());
             helper.assertTrue(max(sharkHorizontalOffsets) <= max(dolphinHorizontalOffsets) + 0.75,
                     "shark must not orbit horizontally while following a vertical route");
-            helper.assertTrue(hasNoDirectionReversal(sharkHeights),
+            helper.assertTrue(hasNoDirectionReversal(sharkHeights, verticalDirection),
                     "shark vertical travel must not repeatedly reverse direction, reversals="
                             + directionReversals(sharkHeights) + ", heights=" + sharkHeights);
-            helper.assertTrue(hasNoDirectionReversal(dolphinHeights),
+            helper.assertTrue(hasNoDirectionReversal(dolphinHeights, verticalDirection),
                     "dolphin reference must remain smooth and monotonic");
             helper.succeed();
         });
@@ -150,15 +166,15 @@ public final class BfsGameTests {
         mob.getNavigation().moveTo(target.x, target.y, target.z, 1.0D);
     }
 
-    private static boolean hasNoDirectionReversal(java.util.List<Double> heights) {
-        int positive = 0;
+    private static boolean hasNoDirectionReversal(java.util.List<Double> heights, int direction) {
+        int forward = 0;
         int negative = 0;
         for (int i = 1; i < heights.size(); i++) {
-            double delta = heights.get(i) - heights.get(i - 1);
-            if (delta > 1.0e-4) positive++;
-            if (delta < -1.0e-4) negative++;
+            double directedDelta = (heights.get(i) - heights.get(i - 1)) * direction;
+            if (directedDelta > 1.0e-4) forward++;
+            if (directedDelta < -1.0e-4) negative++;
         }
-        return positive > 5 && negative == 0;
+        return forward > 5 && negative == 0;
     }
 
     private static int directionReversals(java.util.List<Double> heights) {

@@ -170,27 +170,27 @@
     "forge_test": "passed",
     "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
     "forge_data": "passed, 302 generated files, no generated JSON drift",
-    "forge_gametest": "passed on three consecutive runs, bfs_baseline and bfs_movement batches, 4 required tests including Tiger Shark reachable edible item pursuit and Dolphin parity vertical movement; the latest movement run completed at 2026-09-03 11:05:06",
+    "forge_gametest": "passed on three consecutive runs, bfs_baseline and bfs_movement batches, 5 required tests including Tiger Shark reachable edible item pursuit and Dolphin parity vertical movement for ascent and descent; the latest movement run completed at 2026-09-03 11:14:13",
     "movement_regression": {
       "status": "passed",
-      "test": "bfs_movement.sharkVerticalRouteFollowsDolphinWithoutOrbit",
+      "test": "bfs_movement.sharkVerticalRouteFollowsDolphinWithoutOrbit and bfs_movement.sharkDescendingRouteFollowsDolphinWithoutOrbit",
       "command": "./gradlew :forge:GameTestServer --no-daemon --rerun-tasks",
       "observed": "The shark followed the same smooth constant vertical route as the Bottlenose Dolphin reference without repeated direction reversal or circular horizontal orbiting.",
       "implementation": "SharkSwimmingMoveControl now uses SmoothSwimmingMoveControl with the Dolphin parameters and preserves yaw during vertical-only targets.",
-      "required_test_count": 4,
-      "completed_at": "2026-09-03 11:05:06",
+      "required_test_count": 5,
+      "completed_at": "2026-09-03 11:14:13",
       "repeat_runs": [
-        "2026-09-03 11:04:02",
-        "2026-09-03 11:04:42",
-        "2026-09-03 11:05:06"
+        "2026-09-03 11:13:04",
+        "2026-09-03 11:13:46",
+        "2026-09-03 11:14:13"
       ]
     },
     "forge_build": {
       "status": "passed",
       "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
-      "size": 1751700,
-      "sha256": "83f507089d4dd04a9700b6a3c1865bf4e3cc1c0cac43830f6131e853c41aba7e",
-      "sha512": "0539d079169cac92d41c74a64fff4a105d6b434a4aae30cf9c8634e452632f38d3b82a2f686d276bfe1bef5c23332611a85447bf129564ae271e238629b4ecc5",
+      "size": 1751970,
+      "sha256": "5b1c2899e7d186e8f28e8c89599c8e4ef4458e403408bbd9edc3edfd9309c4fb",
+      "sha512": "aae1ad9ca1951c5908249e8dc466ea5923529cb2d5d29318df2d400449d7d03a56cd60d7021a71601309e9d508421acb5969ce5ae37dcd8aaea5f81cceff2350",
       "zip_integrity": "passed"
     },
     "dedicated_server": {
