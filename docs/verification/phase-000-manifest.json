@@ -216,9 +216,13 @@
       "evidence": "docs/verification/phase-000-eula-session.md"
     },
     "client_loading": {
-      "status": "bounded_smoke_passed",
-      "observed": "OpenGL 4.5 llvmpipe, Forge loading, resource reload, texture atlas completion, and OpenAL initialization on the recorded evidence artifact; bounded process exit code 124",
-      "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
+      "status": "bounded_smoke_passed_current_revision",
+      "source_revision": "ce4918ab3784e308fb639863dbff52f23b00f801",
+      "observed": "OpenGL 4.5 llvmpipe, Forge loading, resource reload, texture atlas completion, and OpenAL initialization completed for the current Phase 000 source. The disposable client was terminated with controlled Ctrl-C after reaching the title screen and an integrated world.",
+      "candidate_artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+      "log": "forge/run/logs/latest.log",
+      "run_command": "DISPLAY=:101 LIBGL_ALWAYS_SOFTWARE=1 ./gradlew :forge:Client --no-daemon --args='--username Dev'",
+      "mod_error_scan": "no mod-specific exception or error observed",
       "visual_acceptance": "not_proven"
     },
     "client_interactive": {
