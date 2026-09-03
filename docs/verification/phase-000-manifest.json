@@ -386,6 +386,65 @@
           "duration_seconds": 5,
           "captured_at": "2026-09-03T13:54:37-05:00",
           "observed": "The current Atlantic Cod Forge entity was held in a water fixture with NoAI and NoGravity, and its labeled idle control remained centered and stable for the five second capture. This is an idle-state control only and does not close the full fish animation matrix."
+        },
+        {
+          "id": "client-salmon-spin-close-current",
+          "kind": "video",
+          "sha256": "60b131446d22271f4297a190833ca027213d84e09bcce0b1100764c4c4734bd0",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "source_revision": "5dfade3cd29c7e8623608b4422e5e7ca59500536",
+          "profile": "phase000_animation_current",
+          "dimensions": "1280x720",
+          "duration_seconds": 8,
+          "captured_at": "2026-09-03T13:58:35-05:00",
+          "observed": "The current Atlantic Salmon Forge entity with the exact custom name Spin remained centered in a close stationary-camera water fixture. Sampled frames show repeated silhouette and orientation changes. This is a stronger current-artifact Spin control, not the complete fish state matrix."
+        },
+        {
+          "id": "client-salmon-spin-close-frame-01",
+          "sha256": "9fd1d1a5eb26a796295a563a93744be465ee27cc1b03acf43b9e361a33815548",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Initial sampled frame from the current close Spin Salmon control, with the exact Spin label visible."
+        },
+        {
+          "id": "client-salmon-spin-close-frame-02",
+          "sha256": "ff61f82ef5b9fb9846d6b0d4a9e65e55e024125b6bf22e51b7038fc94a194be9",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Middle sampled frame from the current close Spin Salmon control, showing a changed silhouette and orientation."
+        },
+        {
+          "id": "client-salmon-spin-close-frame-03",
+          "sha256": "0cb9b6b9a34c7b8a2b5fac6b60fae31b8ceef9c6fd8a6078280fe0ab1219b640",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Final sampled frame from the current close Spin Salmon control, showing another orientation while the label remains visible."
+        },
+        {
+          "id": "client-salmon-flop-current-labeled",
+          "kind": "video",
+          "sha256": "de292b9c0b86debdd633436c44f1e9c95911f07495812a62987a158cc438bd11",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "source_revision": "5dfade3cd29c7e8623608b4422e5e7ca59500536",
+          "profile": "phase000_animation_current",
+          "dimensions": "1280x720",
+          "duration_seconds": 5,
+          "captured_at": "2026-09-03T13:59:22-05:00",
+          "observed": "The current Atlantic Salmon Forge entity with a non-Spin custom name was placed on a dry stone platform outside the water fixture. The labeled land control remained visible and stable, providing a current-artifact flop-state control without claiming full displacement or death evidence."
+        },
+        {
+          "id": "client-salmon-flop-current-frame-01",
+          "sha256": "9db4d3905739ed27285a95655ccb371feb5b7118b5c9186afdbaea3b2bda6853",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Initial sampled frame from the current labeled Salmon flop control on the dry platform."
+        },
+        {
+          "id": "client-salmon-flop-current-frame-03",
+          "sha256": "db29ba269188233908d74ce07f749f0929aa5fbfad137b3563ee55aca49bd8aa",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Final sampled frame from the current labeled Salmon flop control, still visible on the dry platform."
         }
       ],
       "limitations": "command-assisted disposable fixtures; fish, Tiger Shark, and Oceanic Whitetip probes are exploratory and do not replace the required state, damage, recovery, multiplayer, completion-path, or advancement-display matrices"
