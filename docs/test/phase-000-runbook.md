@@ -38,7 +38,7 @@ Run the server side GameTest harness after data generation and before packaging:
 ./gradlew :forge:GameTestServer
 ```
 
-The task copies the empty fixture into the development run directory, starts a clean Forge GameTest server, and requires every registered test to pass. The current harness verifies algae placement retains a full water fluid state, has no collision, survives with water support, and can be replaced with water cleanly.
+The task copies the empty fixture into the development run directory, starts a clean Forge GameTest server, and requires every registered test to pass. The current harness verifies algae placement retains a full water fluid state, has no collision, survives with water support, and can be replaced with water cleanly. It also verifies Tiger Shark edible item pursuit, delayed bite damage with cooldown and target loss recovery, Oceanic Whitetip grab damage and timed passenger release, and shark vertical routes against the Bottlenose Dolphin reference for both ascent and descent without circular orbiting.
 
 ## Runtime checks
 
