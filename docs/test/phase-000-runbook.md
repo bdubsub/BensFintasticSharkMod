@@ -18,6 +18,12 @@ The stable default branch is `1.20.1` and the 0.24 work branch is `envy/0.24`.
 
 For phase execution, use a separate worktree and a branch such as `envy/0.24-phase-000` created from the verified canonical `origin/1.20.1` tip when that tip is newer than `origin/envy/0.24`. Do not create or rename `main` or `master`, and do not stage the protected `build.gradle`, generated `.cache`, or `Content/` paths.
 
+## Host allocation
+
+`node-1` is a headless build and server host. It may run Gradle compilation, deterministic verification, data generation, packaging, and dedicated server tasks. Do not start `./gradlew :forge:Client`, Xvfb, windowed GameTests, or any other game process that requires a window on `node-1`.
+
+Run client rendering, interactive visual review, and windowed GameTest sessions on EnVy’s Linux laptop. When a client needs a server, start the dedicated server on `node-1` with an unused port and connect from the laptop. Record the host, port, client display, and connection path in the evidence record. Keep the disposable EULA target on `node-1` limited to the owner authorized server session.
+
 ## Deterministic checks
 
 Run these checks in order after a clean source or resource change:

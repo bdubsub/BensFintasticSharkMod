@@ -194,25 +194,26 @@
       "zip_integrity": "passed"
     },
     "dedicated_server": {
-      "status": "historical_passed_ext001_stale",
+      "status": "passed_ext001_current",
       "worktree": "/mnt/hermes/projects/BFSMOD-phase-000",
       "branch": "envy/0.24-phase-000",
-      "revision": "5118a6fbdf173d962e02df49f79c3d0350bc4c8d",
+      "revision": "5dfade3cd29c7e8623608b4422e5e7ca59500536",
+      "evidence_commit": "0e81b10d8d8aa26d2b1e76a95c1340ce3fc9c8a",
       "runbook": "docs/test/phase-000-runbook.md",
-      "runbook_sha256": "f8eb15d81cc984acfabb79fc571cb9a1efc578b486aef4e1c5e42cbe4c02ce89",
+      "runbook_sha256": "5d6898aa44424cc5a0e3054476b243f1d2a1c357863d5cdda1b59ebb2536bf86",
       "target": "forge/run/eula.txt",
       "pre_state": "absent",
       "temporary_sha256": "ee27072e4a23e088522f740ddaab0c7c4145c186969e90a86254faa3a5ec5ce6",
       "command": "timeout --kill-after=15s 90s ./gradlew :forge:Server --no-daemon --args='--port 25576 --nogui'",
-      "ready_marker": "2026-09-03 10:28:34.237 Done (13.024s)!",
+      "ready_marker": "2026-09-03 14:21:33.147 Done (2.585s)!",
       "exit_code": 124,
-      "termination": "clean server stop and all dimensions saved before timeout",
+      "termination": "clean server stop and all dimensions saved before timeout at 2026-09-03 14:22:41.569",
       "port_closed": true,
       "process_cleared": true,
       "rollback": "target deleted and absent post-state restored",
       "eula_changed": true,
       "authorization_consumed": true,
-      "freshness": "invalidated by the common SharkSwimmingMoveControl change after the authorized run; a fresh exact EXT-001 session is required for the current candidate",
+      "freshness": "current candidate evidence after fresh owner EULA authorization; source behavior matches the tested movement revision",
       "evidence": "docs/verification/phase-000-eula-session.md"
     },
     "client_loading": {
@@ -645,11 +646,11 @@
     "DEF-024-005": "blocked, generated graph and fresh tree load pass but fresh profile completion capture is missing",
     "DEF-024-006": "positively_disproved for deterministic copy and captured tooltip paths; complete fresh visual review remains open",
     "DEF-024-007": "blocked, exact icon paths and partial fresh tree display pass but complete interactive advancement display capture is missing",
-    "DEF-024-008": "blocked, registration, placement and survival smoke, and fixed-seed natural generation pass; historical isolated dedicated-server readiness is stale after the common movement change, and natural collection, loot, client, fresh server, and final merged-artifact evidence remain"
+    "DEF-024-008": "blocked, registration, placement and survival smoke, fixed-seed natural generation, and current isolated dedicated-server readiness pass; natural collection, loot, client, sustained-population, and final merged-artifact evidence remain"
   },
   "phase_exit": "open",
   "phase_exit_blockers": [
-    "fresh EXT-001 dedicated-server readiness evidence for the current common movement revision",
+    "natural collection, loot, client, and sustained-population evidence for algae",
     "interactive client visual evidence",
     "sustained population evidence",
     "fresh-profile completion and advancement-display evidence"
