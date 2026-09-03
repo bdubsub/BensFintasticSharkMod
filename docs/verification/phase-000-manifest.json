@@ -196,6 +196,18 @@
       "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
       "captures": [
         {
+          "id": "client-fresh-advancement-tree",
+          "sha256": "f895c0032e530334a9ffd6d164ccf626ea5a4ce605c66c2a4ca97239452eeab2",
+          "dimensions": "1280x720",
+          "observed": "Fresh profile displayed the Ben's Fintastic Sharks advancement root and child icon column"
+        },
+        {
+          "id": "client-fresh-root-tooltip",
+          "sha256": "c79d4c16a11f34b4b50565b3f95f0574e12ba092bacae3843e50c5adad26488d",
+          "dimensions": "1280x720",
+          "observed": "Ben's Fintastic Sharks root tooltip rendered Achievement granted when logging in with the mod."
+        },
+        {
           "id": "client-fresh-captains-heir-tooltip",
           "sha256": "77515e770a79375ba2ab19b62d39c4541efe604e1e8ebdbe21abcb7e57ca3eb1",
           "dimensions": "1280x720",
@@ -212,9 +224,9 @@
     "DEF-024-002": "blocked, baked clip motion passes but interactive state capture is missing",
     "DEF-024-003": "blocked, structural clip and controller checks pass but interactive transition and damage capture are missing",
     "DEF-024-004": "blocked, three-run GameTest proves reachable edible item movement; vertical pursuit, damage, recovery, and interactive capture remain missing",
-    "DEF-024-005": "blocked, generated graph passes but fresh profile completion capture is missing",
-    "DEF-024-006": "positively_disproved for the deterministic copy path; fresh visual review remains open",
-    "DEF-024-007": "blocked, exact icon paths pass but interactive advancement display capture is missing",
+    "DEF-024-005": "blocked, generated graph and fresh tree load pass but fresh profile completion capture is missing",
+    "DEF-024-006": "positively_disproved for deterministic copy and captured tooltip paths; complete fresh visual review remains open",
+    "DEF-024-007": "blocked, exact icon paths and partial fresh tree display pass but complete interactive advancement display capture is missing",
     "DEF-024-008": "blocked, registration and placement smoke checks pass but fixed-seed generation and visual capture are missing"
   },
   "phase_exit": "open",
