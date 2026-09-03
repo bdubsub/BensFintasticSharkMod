@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
+    "phase_commit": "3c552bde11de07940125f0e7c3be1cef1ba426ad",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
@@ -186,7 +186,8 @@
     },
     "client_loading": {
       "status": "bounded_smoke_passed",
-      "observed": "OpenGL 4.5 llvmpipe, Forge loading, resource reload, texture atlas completion, and OpenAL initialization",
+      "observed": "OpenGL 4.5 llvmpipe, Forge loading, resource reload, texture atlas completion, and OpenAL initialization on the recorded evidence artifact; bounded process exit code 124",
+      "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
       "visual_acceptance": "not_proven"
     },
     "secret_scan": "passed",
