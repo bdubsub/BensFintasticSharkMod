@@ -214,6 +214,12 @@
           "observed": "El Capitán's Legacy tooltip rendered Obtain Capitán Ben's Hat."
         },
         {
+          "id": "client-fresh-advancement-mod-tree-reloaded",
+          "sha256": "b218310e2e4fd76c41ff0a8c089a5386c80ab27f29500907abd1405167d7ffc6",
+          "dimensions": "1280x720",
+          "observed": "After relaunch, the fresh disposable profile displayed the Ben's Fintastic Sharks tab with its title tooltip, root, and child icon column. The profile had received command-assisted advancement progress, so this capture does not prove natural completion or complete seven-icon coverage."
+        },
+        {
           "id": "client-fish-controlled-start",
           "sha256": "58b2563682c28074d3ff98acc2cca656f6cc139c479a74ff3e120316444a1e33",
           "dimensions": "1280x720",
