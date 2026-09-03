@@ -170,19 +170,50 @@
     "forge_test": "passed",
     "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
     "forge_data": "passed, 302 generated files, no generated JSON drift",
-    "forge_gametest": "passed on three consecutive runs, bfs_baseline batch, 3 required tests including Tiger Shark reachable edible item pursuit",
+    "forge_gametest": "passed on three consecutive runs, bfs_baseline and bfs_movement batches, 4 required tests including Tiger Shark reachable edible item pursuit and Dolphin parity vertical movement; the latest movement run completed at 2026-09-03 11:05:06",
+    "movement_regression": {
+      "status": "passed",
+      "test": "bfs_movement.sharkVerticalRouteFollowsDolphinWithoutOrbit",
+      "command": "./gradlew :forge:GameTestServer --no-daemon --rerun-tasks",
+      "observed": "The shark followed the same smooth constant vertical route as the Bottlenose Dolphin reference without repeated direction reversal or circular horizontal orbiting.",
+      "implementation": "SharkSwimmingMoveControl now uses SmoothSwimmingMoveControl with the Dolphin parameters and preserves yaw during vertical-only targets.",
+      "required_test_count": 4,
+      "completed_at": "2026-09-03 11:05:06",
+      "repeat_runs": [
+        "2026-09-03 11:04:02",
+        "2026-09-03 11:04:42",
+        "2026-09-03 11:05:06"
+      ]
+    },
     "forge_build": {
       "status": "passed",
       "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
-      "size": 1749629,
-      "sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
-      "sha512": "b0408394d34b553db53c08fd2b823746424ad58138cd138c4c1eccade1caf73d92197023019bfbb06bcb89cf63b69d5d9842806bae06c58cec36ddd107e89cc5",
+      "size": 1751700,
+      "sha256": "83f507089d4dd04a9700b6a3c1865bf4e3cc1c0cac43830f6131e853c41aba7e",
+      "sha512": "0539d079169cac92d41c74a64fff4a105d6b434a4aae30cf9c8634e452632f38d3b82a2f686d276bfe1bef5c23332611a85447bf129564ae271e238629b4ecc5",
       "zip_integrity": "passed"
     },
     "dedicated_server": {
-      "status": "blocked",
-      "reason": "forge/run/eula.txt contains eula=false; the server stopped at the Minecraft EULA gate before readiness",
-      "eula_changed": false
+      "status": "historical_passed_ext001_stale",
+      "worktree": "/mnt/hermes/projects/BFSMOD-phase-000",
+      "branch": "envy/0.24-phase-000",
+      "revision": "5118a6fbdf173d962e02df49f79c3d0350bc4c8d",
+      "runbook": "docs/test/phase-000-runbook.md",
+      "runbook_sha256": "f8eb15d81cc984acfabb79fc571cb9a1efc578b486aef4e1c5e42cbe4c02ce89",
+      "target": "forge/run/eula.txt",
+      "pre_state": "absent",
+      "temporary_sha256": "ee27072e4a23e088522f740ddaab0c7c4145c186969e90a86254faa3a5ec5ce6",
+      "command": "timeout --kill-after=15s 90s ./gradlew :forge:Server --no-daemon --args='--port 25576 --nogui'",
+      "ready_marker": "2026-09-03 10:28:34.237 Done (13.024s)!",
+      "exit_code": 124,
+      "termination": "clean server stop and all dimensions saved before timeout",
+      "port_closed": true,
+      "process_cleared": true,
+      "rollback": "target deleted and absent post-state restored",
+      "eula_changed": true,
+      "authorization_consumed": true,
+      "freshness": "invalidated by the common SharkSwimmingMoveControl change after the authorized run; a fresh exact EXT-001 session is required for the current candidate",
+      "evidence": "docs/verification/phase-000-eula-session.md"
     },
     "client_loading": {
       "status": "bounded_smoke_passed",
@@ -463,15 +494,15 @@
     "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",
     "DEF-024-002": "blocked, baked clip motion passes but interactive state capture is missing",
     "DEF-024-003": "blocked, structural clip and controller checks pass but interactive transition and damage capture are missing",
-    "DEF-024-004": "blocked, three-run GameTest proves reachable edible item movement; vertical pursuit, damage, recovery, and interactive capture remain missing",
+    "DEF-024-004": "blocked, GameTest now proves reachable edible item movement and Dolphin parity vertical movement without orbiting; attack damage, recovery, and interactive capture remain missing",
     "DEF-024-005": "blocked, generated graph and fresh tree load pass but fresh profile completion capture is missing",
     "DEF-024-006": "positively_disproved for deterministic copy and captured tooltip paths; complete fresh visual review remains open",
     "DEF-024-007": "blocked, exact icon paths and partial fresh tree display pass but complete interactive advancement display capture is missing",
-    "DEF-024-008": "blocked, registration, placement smoke, and fixed-seed natural generation pass; survival, loot, dedicated-server, client, and final merged-artifact evidence remain"
+    "DEF-024-008": "blocked, registration, placement smoke, and fixed-seed natural generation pass; historical isolated dedicated-server readiness is stale after the common movement change, and survival, loot, client, fresh server, and final merged-artifact evidence remain"
   },
   "phase_exit": "open",
   "phase_exit_blockers": [
-    "dedicated server EULA authorization and ready-state capture",
+    "fresh EXT-001 dedicated-server readiness evidence for the current common movement revision",
     "interactive client visual evidence",
     "sustained population evidence",
     "fresh-profile completion and advancement-display evidence"
