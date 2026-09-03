@@ -248,6 +248,20 @@
           "observed": "The named Spin Salmon silhouette and orientation varied across sampled frames. This is a positive control for the named state, not a complete animation matrix."
         },
         {
+          "id": "client-salmon-spin-spectator-start",
+          "sha256": "9c8bbc8c46b35e8baf71c4b63bde96ac64ab00a6a1fbdf63b797f023898e855b",
+          "dimensions": "1280x720",
+          "observed": "A named Spin Salmon was held in a fixed water fixture and centered from a stationary spectator camera before the state capture."
+        },
+        {
+          "id": "client-salmon-spin-spectator-video",
+          "kind": "video",
+          "sha256": "f5f0ae0d90eefcd8542b3249f16be362400ebd835bfbe942d2c90e54d2d427c9",
+          "dimensions": "1280x720",
+          "duration_seconds": 8,
+          "observed": "The stationary-camera capture keeps the named Spin Salmon in frame and shows repeated silhouette and orientation changes across sampled one-second frames. This is a stronger positive control for the named state, not a complete animation matrix."
+        },
+        {
           "id": "client-salmon-flop-start",
           "sha256": "4fd70237c3153333b586df55cc899f0f1a7a141606225c1415fc23c0f74c7069",
           "dimensions": "1280x720",

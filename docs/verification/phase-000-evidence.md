@@ -72,6 +72,8 @@ The fresh disposable client profile also provided valid advancement display and 
 
 Additional command-assisted probes used the same artifact in bounded disposable fixtures. The Cod and Salmon run is identified by `client-fish-controlled-start` and `client-fish-controlled-video`; the named `Spin` and land `flop` controls are identified by `client-salmon-spin-start`, `client-salmon-spin-video`, `client-salmon-flop-start`, and `client-salmon-flop-video`. The Tiger Shark curiosity run is identified by `client-tiger-curiosity-start` and `client-tiger-curiosity-video`. The Oceanic Whitetip chase used a live Cod health control and is identified by `client-whitetip-cod-health-start`, `client-whitetip-cod-health-video`, and `client-whitetip-cod-health-after`. The machine-readable manifest records each SHA 256, video duration, observed result, and limitation. These captures show that the runtime fixtures and render paths can display the actors, but they do not establish every required animation state, bite timing, damage event, vertical pursuit, or cleanup postcondition.
 
+A later stationary spectator-camera control is identified by `client-salmon-spin-spectator-start` and `client-salmon-spin-spectator-video`. The eight-second capture keeps the named `Spin` Salmon centered and shows repeated silhouette and orientation changes at one-second samples. It strengthens the positive control for the named state while leaving the complete Cod and Salmon state matrix open.
+
 ## Defect baseline status
 
 | Defect | Current evidence | Status | Closing evidence still required |
