@@ -97,7 +97,7 @@ dependencies {
 
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-$minecraft_version:$geckolib")
     implementation fg.deobf("net.tslat.smartbrainlib:SmartBrainLib-forge-$minecraft_version:$sbl")
-    testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.14.4"
 }
 
 test {
