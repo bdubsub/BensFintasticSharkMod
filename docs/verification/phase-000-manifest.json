@@ -166,6 +166,7 @@
     }
   },
   "verification": {
+    "asset_mapping": "passed, all supplied Cod, Salmon, fish item, and seven advancement icon destinations matched; geometry comparison passed after the documented Cod identifier correction",
     "forge_test": "passed",
     "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
     "forge_data": "passed, 302 generated files, no generated JSON drift",
