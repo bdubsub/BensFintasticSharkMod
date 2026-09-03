@@ -212,9 +212,85 @@
           "sha256": "77515e770a79375ba2ab19b62d39c4541efe604e1e8ebdbe21abcb7e57ca3eb1",
           "dimensions": "1280x720",
           "observed": "El Capitán's Legacy tooltip rendered Obtain Capitán Ben's Hat."
+        },
+        {
+          "id": "client-fish-controlled-start",
+          "sha256": "58b2563682c28074d3ff98acc2cca656f6cc139c479a74ff3e120316444a1e33",
+          "dimensions": "1280x720",
+          "observed": "A command-assisted bounded water fixture displayed Atlantic Cod and Atlantic Salmon together before capture."
+        },
+        {
+          "id": "client-fish-controlled-video",
+          "kind": "video",
+          "sha256": "d5622e2a92ff2e7cc95276c218bafbb4bd27d8468996e8e89f452e228b5251de",
+          "dimensions": "1280x720",
+          "duration_seconds": 8,
+          "observed": "Cod and Salmon remained visible through the bounded capture. The sampled frames do not establish every required state transition or an unambiguous swim transform."
+        },
+        {
+          "id": "client-salmon-spin-start",
+          "sha256": "05d5f1a4a430562672a91663d38bea8b741d8ba01c8279320f565d6d2ef20d4e",
+          "dimensions": "1280x720",
+          "observed": "The named Spin Salmon control and a Cod control were present in the water fixture."
+        },
+        {
+          "id": "client-salmon-spin-video",
+          "kind": "video",
+          "sha256": "1e8eb4e07fa4f946ad0e5c1adbd49aef7fd0c7e2f60e029de582fbe5d69a8304",
+          "dimensions": "1280x720",
+          "duration_seconds": 6,
+          "observed": "The named Spin Salmon silhouette and orientation varied across sampled frames. This is a positive control for the named state, not a complete animation matrix."
+        },
+        {
+          "id": "client-salmon-flop-start",
+          "sha256": "4fd70237c3153333b586df55cc899f0f1a7a141606225c1415fc23c0f74c7069",
+          "dimensions": "1280x720",
+          "observed": "The Salmon flop control was placed on a dry stone platform."
+        },
+        {
+          "id": "client-salmon-flop-video",
+          "kind": "video",
+          "sha256": "6cd8d091cd3f28bc1d2f5e2dd1675192e370c0e7b6f7f94f22314e38c4e738c1",
+          "dimensions": "1280x720",
+          "duration_seconds": 6,
+          "observed": "The land flop control remained visible, but the sampled frames do not provide strong visual displacement proof."
+        },
+        {
+          "id": "client-tiger-curiosity-start",
+          "sha256": "4590967aa04aba832ca8f2cc912757d40b4bb00c6cb5bdfe9c4df6e53fe6db56",
+          "dimensions": "1280x720",
+          "observed": "A Tiger Shark and floating edible Cod item were displayed in the water fixture before the curiosity capture."
+        },
+        {
+          "id": "client-tiger-curiosity-video",
+          "kind": "video",
+          "sha256": "43af598a24396c62d6d7c9a5c57608a19a7a902870854520fffc0d854cccffb7",
+          "dimensions": "1280x720",
+          "duration_seconds": 8,
+          "observed": "The Tiger Shark changed visible position relative to the floating item. The capture does not prove vertical pursuit, contact, damage, or recovery."
+        },
+        {
+          "id": "client-whitetip-cod-health-start",
+          "sha256": "28e77b44c716df75eca6894d55be4bf42543b8bfb23fbe1227bfc123987c53ab",
+          "dimensions": "1280x720",
+          "observed": "A live Cod was present with a command-reported health of 3.0f before the bounded Oceanic Whitetip chase."
+        },
+        {
+          "id": "client-whitetip-cod-health-video",
+          "kind": "video",
+          "sha256": "a82159dbf1c4f733956679c3f40d821a97fdd361c2e25f3e85a850fe494b844a",
+          "dimensions": "1280x720",
+          "duration_seconds": 10,
+          "observed": "The Oceanic Whitetip and Cod were captured in the bounded chase fixture."
+        },
+        {
+          "id": "client-whitetip-cod-health-after",
+          "sha256": "85e80a66383e8012894a0b381d82829367998d7bbf4a562b182a01cbc6da0e72",
+          "dimensions": "1280x720",
+          "observed": "The post-capture command found no Cod entity. This establishes an observed disappearance after the chase, but not a clean damage timeline or bite-state visual oracle."
         }
       ],
-      "limitations": "command-assisted hat grant; full animation, multiplayer, completion-path, and advancement-display matrices remain open"
+      "limitations": "command-assisted disposable fixtures; fish, Tiger Shark, and Oceanic Whitetip probes are exploratory and do not replace the required state, damage, recovery, multiplayer, completion-path, or advancement-display matrices"
     },
     "secret_scan": "passed",
     "diff_check": "passed"
