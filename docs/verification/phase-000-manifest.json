@@ -312,6 +312,150 @@
       ],
       "limitations": "command-assisted disposable fixtures; fish, Tiger Shark, and Oceanic Whitetip probes are exploratory and do not replace the required state, damage, recovery, multiplayer, completion-path, or advancement-display matrices"
     },
+    "fixed_seed_worldgen": {
+      "status": "passed",
+      "seed": 240024,
+      "dimension": "minecraft:overworld",
+      "sample_chunks": {
+        "x_min": 0,
+        "x_max": 15,
+        "z_min": 0,
+        "z_max": 15,
+        "count": 256
+      },
+      "generated_chunks": 256,
+      "missing_chunks": 0,
+      "region_file": "forge/run/saves/phase000-seed-240024/region/r.0.0.mca",
+      "region_sha256": "8aabdb937094c5c044d2fb8f092ac450bdbb9406017d0baeeeec9b29c87154b3",
+      "level_dat": "forge/run/saves/phase000-seed-240024/level.dat",
+      "level_dat_sha256": "ab66295f9be55e21965e6effd190648278e37a1a5294b568e6d031d8e8a24c44",
+      "counts": {
+        "bensfintasticsharks:algae_block": 35,
+        "bensfintasticsharks:large_green_algae": 28,
+        "bensfintasticsharks:large_red_algae": 48,
+        "minecraft:seagrass": 3116,
+        "minecraft:tall_seagrass": 5340
+      },
+      "bfs_total": 111,
+      "vanilla_seagrass_total": 8456,
+      "nonzero_bfs_chunks": 92,
+      "first_positions": [
+        {
+          "id": "bensfintasticsharks:algae_block",
+          "x": 78,
+          "y": 34,
+          "z": 12,
+          "chunk": [4, 0],
+          "fluid": "minecraft:water",
+          "biome": "minecraft:cold_ocean",
+          "capture_id": "fixed-seed-algae-view2"
+        },
+        {
+          "id": "bensfintasticsharks:large_green_algae",
+          "x": 212,
+          "y": 48,
+          "z": 2,
+          "chunk": [13, 0],
+          "fluid": "minecraft:water",
+          "biome": "minecraft:deep_cold_ocean",
+          "capture_id": "fixed-seed-large-green-f3"
+        },
+        {
+          "id": "bensfintasticsharks:large_red_algae",
+          "x": 101,
+          "y": 55,
+          "z": 1,
+          "chunk": [6, 0],
+          "fluid": "minecraft:water",
+          "biome": "minecraft:deep_cold_ocean",
+          "capture_id": "fixed-seed-large-red-f3"
+        }
+      ],
+      "captures": [
+        {
+          "id": "fixed-seed-algae-view2",
+          "sha256": "86b2b63ef62b22d26f31023174d8e85dd6c202a4e0c81d06e5a9d69ae5614cae",
+          "dimensions": "1280x720",
+          "observed": "F3 targeted block at 78,34,12 as bensfintasticsharks:algae_block; targeted fluid water; biome cold_ocean."
+        },
+        {
+          "id": "fixed-seed-large-green-f3",
+          "sha256": "f76b77ffa7eb0434f3b5fe3f2e5e2577956cc85f6ccd01c0a25384fb1c949620",
+          "dimensions": "1280x720",
+          "observed": "F3 targeted block at 212,48,2 as bensfintasticsharks:large_green_algae; targeted fluid water; biome deep_cold_ocean."
+        },
+        {
+          "id": "fixed-seed-large-red-f3",
+          "sha256": "ad2d18a006a53ff72e6d21639915c2f51100d57f22f5f97721c03b2aac225f08",
+          "dimensions": "1280x720",
+          "observed": "F3 targeted block at 101,55,1 as bensfintasticsharks:large_red_algae; targeted fluid water; biome deep_cold_ocean."
+        },
+        {
+          "id": "fixed-seed-algae-clean",
+          "sha256": "1f3fc5585d4baa27cfbf87369ab09496a5cc7bacdc0620ca332f97003d114f9e",
+          "dimensions": "1280x720",
+          "observed": "Clean spectator view of the naturally generated algae sample."
+        },
+        {
+          "id": "fixed-seed-algae-day-f3",
+          "sha256": "93127e51991f39fb9e6c97b9d3aa82025279222616b6b1e76c7b30f7b6650d67",
+          "dimensions": "1280x720",
+          "observed": "Daylight F3 view of the naturally generated algae sample."
+        }
+      ],
+      "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
+      "method": "Minecraft RegionFile and NbtIo scan after natural terrain generation; cheats were limited to spectator travel and inspection and no blocks were placed or removed"
+    },
+    "multiplayer_reconnect": {
+      "status": "passed",
+      "world": "phase000-seed-240024",
+      "host_username": "Dev",
+      "guest_username": "Guest",
+      "port": 46641,
+      "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
+      "events": [
+        {
+          "event": "host_started",
+          "log": "Started serving on 46641"
+        },
+        {
+          "event": "guest_joined",
+          "log": "Guest joined the game",
+          "time": "23:51:24"
+        },
+        {
+          "event": "guest_left",
+          "log": "Guest left the game",
+          "time": "23:51:44"
+        },
+        {
+          "event": "guest_rejoined",
+          "log": "Guest joined the game",
+          "time": "23:51:58"
+        }
+      ],
+      "captures": [
+        {
+          "id": "multiplayer-guest-joined",
+          "sha256": "3049c1d47d05aaf50838d797d2cc7c1b685ef27c4abd48afbed70a7e77830aeb",
+          "dimensions": "1280x720",
+          "observed": "Guest is in the hosted modded world and the join advancement toast is visible."
+        },
+        {
+          "id": "multiplayer-guest-disconnected",
+          "sha256": "b0ae719dccb635f65422d22f1836e87451c5279d3513906da15a2aaf62eae574",
+          "dimensions": "1280x720",
+          "observed": "Guest returned to the multiplayer server list while the LAN world remained discoverable."
+        },
+        {
+          "id": "multiplayer-guest-reconnected",
+          "sha256": "91562219768a4be49f077fdd2957dc1781fa7dac5c6364f8f00747aae0cf2342",
+          "dimensions": "1280x720",
+          "observed": "Guest reentered the hosted modded world after reconnecting through the LAN server list."
+        }
+      ],
+      "limitations": "integrated LAN protocol only; dedicated-server readiness, sustained population, and full gameplay synchronization remain separate gates"
+    },
     "secret_scan": "passed",
     "diff_check": "passed"
   },
@@ -323,15 +467,13 @@
     "DEF-024-005": "blocked, generated graph and fresh tree load pass but fresh profile completion capture is missing",
     "DEF-024-006": "positively_disproved for deterministic copy and captured tooltip paths; complete fresh visual review remains open",
     "DEF-024-007": "blocked, exact icon paths and partial fresh tree display pass but complete interactive advancement display capture is missing",
-    "DEF-024-008": "blocked, registration and placement smoke checks pass but fixed-seed generation and visual capture are missing"
+    "DEF-024-008": "blocked, registration, placement smoke, and fixed-seed natural generation pass; survival, loot, dedicated-server, client, and final merged-artifact evidence remain"
   },
   "phase_exit": "open",
   "phase_exit_blockers": [
     "dedicated server EULA authorization and ready-state capture",
     "interactive client visual evidence",
-    "multiplayer and reconnect evidence",
     "sustained population evidence",
-    "fixed-seed world-generation density evidence",
     "fresh-profile completion and advancement-display evidence"
   ]
 }
