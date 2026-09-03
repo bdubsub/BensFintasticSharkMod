@@ -12,6 +12,10 @@
     "main_branch_present": false,
     "master_branch_present": false
   },
+  "host_policy": {
+    "node-1": "headless build, deterministic verification, packaging, and dedicated server tasks only; no windowed game sessions",
+    "linux_laptop": "required host for client rendering, interactive visual review, and windowed GameTest sessions"
+  },
   "protected_dirty_state": {
     "original_worktree": {
       "build.gradle": {
@@ -195,6 +199,8 @@
     },
     "dedicated_server": {
       "status": "passed_ext001_current",
+      "host": "node-1",
+      "connection_endpoint": "node-1.tail28d8bf.ts.net:25576",
       "worktree": "/mnt/hermes/projects/BFSMOD-phase-000",
       "branch": "envy/0.24-phase-000",
       "revision": "5dfade3cd29c7e8623608b4422e5e7ca59500536",
@@ -217,19 +223,23 @@
       "evidence": "docs/verification/phase-000-eula-session.md"
     },
     "client_loading": {
-      "status": "bounded_smoke_passed_current_revision",
+      "status": "historical_headless_smoke_not_admissible_under_laptop_only_policy",
+      "host": "node-1",
       "source_revision": "ce4918ab3784e308fb639863dbff52f23b00f801",
       "observed": "OpenGL 4.5 llvmpipe, Forge loading, resource reload, texture atlas completion, and OpenAL initialization completed for the current Phase 000 source. The disposable client was terminated with controlled Ctrl-C after reaching the title screen and an integrated world.",
       "candidate_artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
       "log": "forge/run/logs/latest.log",
       "run_command": "DISPLAY=:101 LIBGL_ALWAYS_SOFTWARE=1 ./gradlew :forge:Client --no-daemon --args='--username Dev'",
       "mod_error_scan": "no mod-specific exception or error observed",
-      "visual_acceptance": "not_proven"
+      "visual_acceptance": "not_proven",
+      "admissibility": "retained for diagnostic history only; rerun on the Linux laptop before phase closure"
     },
     "client_interactive": {
-      "status": "exploratory_baseline_captured",
+      "status": "historical_node1_capture_not_admissible_under_laptop_only_policy",
+      "host": "node-1",
       "profile": "fresh disposable Demo World profile",
       "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
+      "admissibility": "retained for diagnostic history only; all windowed acceptance captures must be collected on the Linux laptop",
       "captures": [
         {
           "id": "client-fresh-advancement-tree",
