@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "d427b22b18305bb66d798f0b57ced5d19df017ed",
+    "phase_commit": "0550d3694211a03ea7b443608c13ce38aa0955c7",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
@@ -170,27 +170,27 @@
     "forge_test": "passed",
     "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
     "forge_data": "passed, 302 generated files, no generated JSON drift",
-    "forge_gametest": "passed on three consecutive runs, bfs_baseline and bfs_movement batches, 5 required tests including Tiger Shark reachable edible item pursuit and Dolphin parity vertical movement for ascent and descent; the latest movement run completed at 2026-09-03 11:14:13",
+    "forge_gametest": "passed on three consecutive current runs, bfs_combat, bfs_baseline, and bfs_movement batches, 7 required tests covering algae placement and removal, Tiger Shark item pursuit, delayed bite damage, bite cooldown, target loss recovery, Oceanic Whitetip grab damage and release, and Dolphin parity vertical movement for ascent and descent; the latest run completed at 2026-09-03 11:33:59",
     "movement_regression": {
       "status": "passed",
       "test": "bfs_movement.sharkVerticalRouteFollowsDolphinWithoutOrbit and bfs_movement.sharkDescendingRouteFollowsDolphinWithoutOrbit",
       "command": "./gradlew :forge:GameTestServer --no-daemon --rerun-tasks",
       "observed": "The shark followed the same smooth constant vertical route as the Bottlenose Dolphin reference without repeated direction reversal or circular horizontal orbiting.",
       "implementation": "SharkSwimmingMoveControl now uses SmoothSwimmingMoveControl with the Dolphin parameters and preserves yaw during vertical-only targets.",
-      "required_test_count": 5,
-      "completed_at": "2026-09-03 11:14:13",
+      "required_test_count": 7,
+      "completed_at": "2026-09-03 11:33:59",
       "repeat_runs": [
-        "2026-09-03 11:13:04",
-        "2026-09-03 11:13:46",
-        "2026-09-03 11:14:13"
+        "2026-09-03 11:29:24",
+        "2026-09-03 11:29:56",
+        "2026-09-03 11:33:59"
       ]
     },
     "forge_build": {
       "status": "passed",
       "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
-      "size": 1751970,
-      "sha256": "5b1c2899e7d186e8f28e8c89599c8e4ef4458e403408bbd9edc3edfd9309c4fb",
-      "sha512": "aae1ad9ca1951c5908249e8dc466ea5923529cb2d5d29318df2d400449d7d03a56cd60d7021a71601309e9d508421acb5969ce5ae37dcd8aaea5f81cceff2350",
+      "size": 1753884,
+      "sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+      "sha512": "defa9955e0822c0f987d25195e6cbcb0fedf653e271034710bbd83566c3522ed45c5ff96624087b20670a15012b61aa0e265e321ab3620ec11a90a918ab512cf",
       "zip_integrity": "passed"
     },
     "dedicated_server": {
@@ -493,12 +493,12 @@
   "defects": {
     "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",
     "DEF-024-002": "blocked, baked clip motion passes but interactive state capture is missing",
-    "DEF-024-003": "blocked, structural clip and controller checks pass but interactive transition and damage capture are missing",
-    "DEF-024-004": "blocked, GameTest now proves reachable edible item movement and Dolphin parity vertical movement without orbiting; attack damage, recovery, and interactive capture remain missing",
+    "DEF-024-003": "blocked, structural clip and controller checks pass and GameTest proves Oceanic Whitetip passenger grab, thrash damage, timer expiry, and passenger release; interactive transition, bite timing, and complete cleanup capture remain missing",
+    "DEF-024-004": "blocked, GameTests prove reachable edible item movement, delayed bite damage, bite cooldown, target loss recovery, and Dolphin parity vertical movement without orbiting; interactive pursuit and combat capture remain missing",
     "DEF-024-005": "blocked, generated graph and fresh tree load pass but fresh profile completion capture is missing",
     "DEF-024-006": "positively_disproved for deterministic copy and captured tooltip paths; complete fresh visual review remains open",
     "DEF-024-007": "blocked, exact icon paths and partial fresh tree display pass but complete interactive advancement display capture is missing",
-    "DEF-024-008": "blocked, registration, placement smoke, and fixed-seed natural generation pass; historical isolated dedicated-server readiness is stale after the common movement change, and survival, loot, client, fresh server, and final merged-artifact evidence remain"
+    "DEF-024-008": "blocked, registration, placement and survival smoke, and fixed-seed natural generation pass; historical isolated dedicated-server readiness is stale after the common movement change, and natural collection, loot, client, fresh server, and final merged-artifact evidence remain"
   },
   "phase_exit": "open",
   "phase_exit_blockers": [
