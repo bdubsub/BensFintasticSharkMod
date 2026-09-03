@@ -2,7 +2,7 @@
 
 Phase 000 establishes the evidence baseline for the Forge 1.20.1 0.24 work. The canonical default and integration branch is `1.20.1`. The 0.24 work branch is `envy/0.24`. No `main` or `master` branch is used.
 
-This record is bound to the isolated Phase 000 checkout at commit `3c552bde11de07940125f0e7c3be1cef1ba426ad` on `envy/0.24-phase-000`, created from `origin/1.20.1`. The existing `origin/envy/0.24` tip is `a4d4e41511ab47a05f27d72387075e21a5ef3cb5` and is an ancestor of this phase branch point. The phase pull request must bring the canonical tip and the phase evidence into `envy/0.24`; neither branch may be renamed, reset, recreated, or rewritten.
+This record is bound to the isolated Phase 000 checkout at commit `d427b22b18305bb66d798f0b57ced5d19df017ed` on `envy/0.24-phase-000`, created from `origin/1.20.1`. The existing `origin/envy/0.24` tip is `a4d4e41511ab47a05f27d72387075e21a5ef3cb5` and is an ancestor of this phase branch point. The phase pull request must bring the canonical tip and the phase evidence into `envy/0.24`; neither branch may be renamed, reset, recreated, or rewritten.
 
 ## Input and repository identity
 
