@@ -6,11 +6,13 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
+import tfar.bensfintasticsharks.entity.OceanicWhitetipSharkEntity;
 import tfar.bensfintasticsharks.entity.TigerSharkEntity;
 import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
@@ -71,6 +73,79 @@ public final class BfsGameTests {
             helper.assertTrue(shark.distanceToSqr(item) < startDistance,
                     "tiger shark must reduce distance to a reachable edible item");
             helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 100)
+    public static void tigerBiteLandsOnceAndRecoversAfterTargetLoss(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(4, 3, 3));
+        Mob prey = helper.spawn(EntityType.DROWNED, new BlockPos(5, 3, 3));
+        shark.getBrain().removeAllBehaviors();
+        prey.setNoAi(true);
+        shark.setTarget(prey);
+        shark.setSharkState(TigerSharkEntity.SharkState.HOSTILE);
+        shark.setStateTimer(100);
+        float startHealth = prey.getHealth();
+
+        helper.runAfterDelay(5, () -> {
+            helper.assertTrue(prey.getHealth() == startHealth,
+                    "scheduled bite must not damage the target before its impact frame");
+            helper.runAfterDelay(10, () -> {
+                float afterImpactHealth = prey.getHealth();
+                helper.assertTrue(afterImpactHealth < startHealth,
+                        "tiger shark must land one server-authoritative bite");
+                helper.runAfterDelay(8, () -> {
+                    helper.assertTrue(prey.getHealth() == afterImpactHealth,
+                            "tiger shark must not apply duplicate damage inside the bite cooldown");
+                    prey.kill();
+                    helper.runAfterDelay(2, () -> {
+                        helper.assertTrue(shark.getTarget() == null,
+                                "tiger shark must clear a dead target");
+                        helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.IDLE,
+                                "tiger shark must return to idle after target loss");
+                        helper.succeed();
+                    });
+                });
+            });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 140)
+    public static void oceanicWhitetipGrabDamagesAndReleasesPassenger(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
+                new BlockPos(4, 3, 3));
+        Mob prey = helper.spawn(EntityType.DROWNED, new BlockPos(5, 3, 3));
+        shark.getBrain().removeAllBehaviors();
+        prey.setNoAi(true);
+        shark.setTarget(prey);
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(shark.getTarget() == prey,
+                    "oceanic whitetip fixture must retain its target identity");
+            helper.assertTrue(shark.isInWaterOrBubble(),
+                    "oceanic whitetip fixture must place the shark in water");
+            helper.assertTrue(!prey.isPassenger(),
+                    "oceanic whitetip fixture target must start without a vehicle");
+            shark.grabMob(prey);
+            shark.setTarget(null);
+            float startHealth = prey.getHealth();
+
+            helper.assertTrue(prey.isPassenger() && shark.getPassengers().contains(prey),
+                    "oceanic whitetip must attach a live target as a passenger");
+            helper.assertTrue(shark.getGrabTimer() > 0,
+                    "oceanic whitetip must expose an active grab timer");
+            helper.runAfterDelay(12, () -> {
+                helper.assertTrue(prey.getHealth() < startHealth,
+                        "oceanic whitetip thrash must deal server-authoritative damage");
+                helper.runAfterDelay(95, () -> {
+                    helper.assertTrue(shark.getGrabTimer() == 0,
+                            "oceanic whitetip grab timer must expire");
+                    helper.assertTrue(!prey.isPassenger() && shark.getPassengers().isEmpty(),
+                            "oceanic whitetip must release its passenger when the grab expires");
+                    helper.succeed();
+                });
+            });
         });
     }
 
