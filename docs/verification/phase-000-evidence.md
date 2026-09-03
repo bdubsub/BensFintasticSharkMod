@@ -17,6 +17,8 @@ This record is bound to the isolated Phase 000 checkout at commit `3c552bde11de0
 
 The original worktree remains protected. Its pre-existing `build.gradle` line ending change, nine generated `.cache` changes, plan authoring changes, and untracked `Content/` directory were not staged or modified by this phase. The phase worktree also has the inherited line ending and cache changes, and they remain unstaged and excluded from the phase diff.
 
+A post-capture protection recheck compared both archive hashes and all 22 loose algae hashes with the manifest. The 0.23 archive remains `1dcfd0db544184bffd467255ba294b57f0a1376b06023f10034f380b9e5d0eaa`, the 0.24 archive remains `25290e8d019339aff68c8ba168bd750d5c445aa915720d249aeed5700c9f3274`, and every loose input matched. The original and phase worktrees still show only the recorded protected paths and phase evidence changes.
+
 ## Archive and loose asset checks
 
 | Input | SHA 256 | Entries or files | Result |
