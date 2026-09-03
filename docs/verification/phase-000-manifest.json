@@ -374,6 +374,18 @@
           "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
           "dimensions": "1280x720",
           "observed": "Final sampled frame from the current labeled fish control, showing changed actor positions and the named Spin Salmon still visible."
+        },
+        {
+          "id": "client-cod-idle-labeled-current",
+          "kind": "video",
+          "sha256": "aba6494077f56389832ea7d8967eb8414bdf2fad09afd23836bb2291223eddd0",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "source_revision": "5dfade3cd29c7e8623608b4422e5e7ca59500536",
+          "profile": "phase000_animation_current",
+          "dimensions": "1280x720",
+          "duration_seconds": 5,
+          "captured_at": "2026-09-03T13:54:37-05:00",
+          "observed": "The current Atlantic Cod Forge entity was held in a water fixture with NoAI and NoGravity, and its labeled idle control remained centered and stable for the five second capture. This is an idle-state control only and does not close the full fish animation matrix."
         }
       ],
       "limitations": "command-assisted disposable fixtures; fish, Tiger Shark, and Oceanic Whitetip probes are exploratory and do not replace the required state, damage, recovery, multiplayer, completion-path, or advancement-display matrices"
