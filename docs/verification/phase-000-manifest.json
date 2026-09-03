@@ -190,11 +190,25 @@
       "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
       "visual_acceptance": "not_proven"
     },
+    "client_interactive": {
+      "status": "exploratory_baseline_captured",
+      "profile": "fresh disposable Demo World profile",
+      "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
+      "captures": [
+        {
+          "id": "client-fresh-captains-heir-tooltip",
+          "sha256": "77515e770a79375ba2ab19b62d39c4541efe604e1e8ebdbe21abcb7e57ca3eb1",
+          "dimensions": "1280x720",
+          "observed": "El Capitán's Legacy tooltip rendered Obtain Capitán Ben's Hat."
+        }
+      ],
+      "limitations": "command-assisted hat grant; full animation, multiplayer, completion-path, and advancement-display matrices remain open"
+    },
     "secret_scan": "passed",
     "diff_check": "passed"
   },
   "defects": {
-    "DEF-024-001": "blocked, deterministic copy passes but fresh tooltip capture is missing",
+    "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",
     "DEF-024-002": "blocked, baked clip motion passes but interactive state capture is missing",
     "DEF-024-003": "blocked, structural clip and controller checks pass but interactive transition and damage capture are missing",
     "DEF-024-004": "blocked, three-run GameTest proves reachable edible item movement; vertical pursuit, damage, recovery, and interactive capture remain missing",
@@ -210,6 +224,6 @@
     "multiplayer and reconnect evidence",
     "sustained population evidence",
     "fixed-seed world-generation density evidence",
-    "fresh-profile advancement evidence"
+    "fresh-profile completion and advancement-display evidence"
   ]
 }
