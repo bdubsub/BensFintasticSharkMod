@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "8b63360c2c9d95df12ac8d024508dd199ee3fd01",
+    "phase_commit": "dab04c9914bc751a838a5aa2b31e28734b9409d1",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
@@ -174,19 +174,21 @@
     "forge_test": "passed",
     "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
     "forge_data": "passed, 302 generated files, no generated JSON drift",
-    "forge_gametest": "passed on three consecutive current runs, bfs_combat, bfs_baseline, and bfs_movement batches, 7 required tests covering algae placement and removal, Tiger Shark item pursuit, delayed bite damage, bite cooldown, target loss recovery, Oceanic Whitetip grab damage and release, and Dolphin parity vertical movement for ascent and descent; the latest run completed at 2026-09-03 11:33:59",
+    "forge_gametest": "passed on the latest two runs with 8 required tests across bfs_combat, bfs_baseline, and bfs_movement, including algae placement and removal, Tiger Shark item pursuit, delayed bite damage, bite cooldown, target loss recovery, Oceanic Whitetip grab damage and release, Dolphin parity vertical movement for ascent and descent, and Atlantic Cod scaled pitch; an earlier 2026-09-04 00:59:34 run exposed a fixed single-sample timing race in the Tiger item fixture",
     "movement_regression": {
       "status": "passed",
       "test": "bfs_movement.sharkVerticalRouteFollowsDolphinWithoutOrbit and bfs_movement.sharkDescendingRouteFollowsDolphinWithoutOrbit",
       "command": "./gradlew :forge:GameTestServer --no-daemon --rerun-tasks",
       "observed": "The shark followed the same smooth constant vertical route as the Bottlenose Dolphin reference without repeated direction reversal or circular horizontal orbiting.",
       "implementation": "SharkSwimmingMoveControl now uses SmoothSwimmingMoveControl with the Dolphin parameters and preserves yaw during vertical-only targets.",
-      "required_test_count": 7,
-      "completed_at": "2026-09-03 11:33:59",
+      "required_test_count": 8,
+      "completed_at": "2026-09-04 01:04:52",
       "repeat_runs": [
         "2026-09-03 11:29:24",
         "2026-09-03 11:29:56",
-        "2026-09-03 11:33:59"
+        "2026-09-03 11:33:59",
+        "2026-09-04 01:02:10",
+        "2026-09-04 01:04:52"
       ]
     },
     "forge_build": {
@@ -195,6 +197,15 @@
       "size": 1753884,
       "sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
       "sha512": "defa9955e0822c0f987d25195e6cbcb0fedf653e271034710bbd83566c3522ed45c5ff96624087b20670a15012b61aa0e265e321ab3620ec11a90a918ab512cf",
+      "zip_integrity": "passed"
+    },
+    "forge_build_latest": {
+      "status": "passed",
+      "source_revision": "dab04c9914bc751a838a5aa2b31e28734b9409d1",
+      "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "size": 1760671,
+      "sha256": "80c6cadf1b8dc849e95cb084c15feaf2df01fe7dc3e6c2c7fd4e8c8dfa89c1df",
+      "sha512": "3ebde56dbc84bb0ae506762677ae654dfe7195ec00002e21b57a1dc0ced3f47faf43d8788eabde833705d70d8e3ce218ec53b1c602b2ad3b466c0698b5ac3858",
       "zip_integrity": "passed"
     },
     "dedicated_server": {
