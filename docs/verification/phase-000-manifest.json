@@ -282,9 +282,22 @@
           "sha256": "740d1db3fc8eb05b44a3060cc1226b30c2719c4020ff1b1868229f40b5a41107",
           "dimensions": "3800x2290",
           "observed": "The laptop client rendered the RCON-built glass tank with Cod, Salmon, Oceanic Whitetip, and Bottlenose Dolphin fixtures."
+        },
+        {
+          "id": "mp-dedicated-rcon-control-probe",
+          "sha256": "db5a52a14b0e0a28510b82f2094c1e8881c9fba1dffba14f80e9288cd2ac20bc",
+          "dimensions": "3800x2290",
+          "observed": "A command issued through node 1 RCON changed the connected laptop player to spectator mode and sent the dedicated server control probe message; the client log received the message while the hidden window stayed on workspace 3."
         }
       ],
-      "observed": "The node 1 dedicated server accepted the laptop client over Tailscale, RCON commands changed the disposable world and appeared in the laptop chat, and the laptop rendered the resulting entities on the NVIDIA GeForce RTX 5090 Laptop GPU.",
+      "rcon_control_probe": {
+        "command": "say dedicated server control probe passed",
+        "server_log_marker": "[Rcon] dedicated server control probe passed",
+        "client_log_marker": "[System] [CHAT] [Rcon] dedicated server control probe passed",
+        "server_log_sha256": "25829b164093ee3d77b0ca417c65652034d159ea357f1fbc7828a6bfee17705b",
+        "client_log_sha256": "9a815f8dc8817a09312e7ba3eeddb8b044400e70548e117993484ef9a89d3765"
+      },
+      "observed": "The node 1 dedicated server accepted the laptop client over Tailscale, RCON commands changed the disposable world and appeared in the laptop chat, and the laptop rendered the resulting entities on the NVIDIA GeForce RTX 5090 Laptop GPU. The control probe also confirmed a server command reached the connected client without a singleplayer world.",
       "admissibility": "admissible for dedicated-server-to-laptop multiplayer setup and hidden-window render transport; controlled fixtures do not close animation, combat, cleanup, or sustained-population matrices"
     },
     "client_laptop_window": {
