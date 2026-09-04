@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "5dfade3cd29c7e8623608b4422e5e7ca59500536",
+    "phase_commit": "8b63360c2c9d95df12ac8d024508dd199ee3fd01",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
@@ -552,6 +552,68 @@
           }
         ],
         "limitations": "This run proves the headless node 1 server, Tailscale client connection, RCON fixture control, laptop rendering, and workspace-safe capture. Controlled state frames do not close the interactive per-clip animation, continuous body and nose orientation, combat, cleanup, or sustained-population gates."
+      },
+      "latest_candidate_8b63360": {
+        "status": "passed_dedicated_server_to_laptop_movement_capture",
+        "source_revision": "8b63360c2c9d95df12ac8d024508dd199ee3fd01",
+        "phase_branch": "envy/0.24-phase-000",
+        "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+        "artifact_size": 1760495,
+        "artifact_sha256": "6887ee5ddf22457193933e56faff1060bad8a767624703061be522fb8851abbc",
+        "artifact_sha512": "afe7d2c5aae62552081bc35f91b509974dbbfe2be33fc4ca03ada70fe061a1d5168cfbe600e27b664dead46cbaaee3c561384cdc95380b4c129ff3253cdff54a",
+        "server_host": "node-1",
+        "server_port": 25578,
+        "rcon_port": 25579,
+        "client_host": "linux_laptop",
+        "client_endpoint": "100.76.164.109:25578",
+        "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+        "configuration": {
+          "eula": true,
+          "online_mode": false,
+          "gamemode": "spectator",
+          "do_mob_spawning": false,
+          "pause_on_lost_focus": false
+        },
+        "server_ready_marker": "2026-09-04 00:28:44.556 Done (12.386s)!",
+        "server_join_marker": "2026-09-04 00:44:57.286 EnVy joined the game",
+        "client_connect_markers": [
+          "2026-09-04 00:44:57.281 Connected to a modded server.",
+          "2026-09-04 00:44:57.767 Loaded 57 advancements"
+        ],
+        "rcon_markers": [
+          "2026-09-04 00:50:14.617 [Rcon] MP_MULTIPLAYER_FIXTURE_VISUAL_PASS",
+          "2026-09-04 00:51:08.930 [Rcon] MP_MULTIPLAYER_RCON_TRACE_PASS"
+        ],
+        "server_log_sha256": "47c217be422ab5170ecc775d548f124868968bedfc2a4755352a57d83e0acec6",
+        "client_log_sha256": "bdfaffc12fd4c1ee849c65fe6aa615951fb3636c067f5a57a5ab3dfd717cf5f5",
+        "window_transport": {
+          "display": "Xwayland :1 on wayland-1",
+          "active_workspace_before": 2,
+          "active_workspace_after": 2,
+          "window_workspace": 3,
+          "capture_method": "remote import of the laptop Minecraft X11 window without workspace switching",
+          "window_geometry": "3800x2290"
+        },
+        "captures": [
+          {
+            "id": "mp-movement-fixture-live3",
+            "kind": "image",
+            "sha256": "c8553a855b0fe4e73f32f2643cb537dc16cf019994b0449b3d70448501439d8c",
+            "dimensions": "3800x2290",
+            "observed": "The laptop client rendered the RCON-controlled water tank with Atlantic Cod, Atlantic Salmon, Tiger Shark, Oceanic Whitetip, and Bottlenose Dolphin fixtures."
+          },
+          {
+            "id": "mp-movement-rcon-trace",
+            "kind": "text",
+            "sha256": "ebaa610d2d1db8247a643e313644f8067bd31be360c1c4322d264550b2570f7b",
+            "samples": 12,
+            "actors": ["mp_dolphin", "mp_cod", "mp_salmon", "mp_tiger", "mp_oceanic"],
+            "fields": ["Pos", "Rotation"],
+            "interval_seconds": 0.25,
+            "observed": "Twelve server-side RCON samples recorded position and yaw and pitch for every labeled fixture while the laptop client was connected."
+          }
+        ],
+        "limitations": "This run proves current source attribution, dedicated-server to laptop transport, server-side fixture control, connected-client rendering, and a server-side movement trace. It does not close the complete authored per-clip animation, continuous body and nose orientation, combat, cleanup, or sustained-population matrices."
       },
       "observed": "The node 1 dedicated server accepted the laptop client over Tailscale, RCON commands changed the disposable world and appeared in the laptop chat, and the laptop rendered the resulting entities on the NVIDIA GeForce RTX 5090 Laptop GPU. The control probe also confirmed a server command reached the connected client without a singleplayer world.",
       "admissibility": "admissible for dedicated-server-to-laptop multiplayer setup and hidden-window render transport; controlled fixtures do not close animation, combat, cleanup, or sustained-population matrices"
