@@ -985,6 +985,110 @@
       "ports_closed": true,
       "limitations": "This run proves the node 1 headless server to laptop client topology, RCON control, visible connected rendering, forced disconnect, reconnect, and command-driven passenger cleanup. It does not close the full animation, Tiger and Dolphin comparison, population, natural algae, or remaining multiplayer cleanup matrices."
     },
+    "dedicated_multiplayer_population_20260904": {
+      "status": "passed",
+      "runtime_source_revision": "8b63360c2c9d95df12ac8d024508dd199ee3fd01",
+      "phase_branch": "envy/0.24-phase-000",
+      "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "artifact_sha256": "80c6cadf1b8dc849e95cb084c15feaf2df01fe7dc3e6c2c7fd4e8c8dfa89c1df",
+      "seed": 240024,
+      "sample_center": [560, 72, 400],
+      "force_loaded_chunks": {
+        "min": [31, 21],
+        "max": [38, 28],
+        "count": 64
+      },
+      "server_host": "node-1",
+      "client_host": "linux_laptop",
+      "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "client_endpoint_base": "100.76.164.109",
+      "runs": {
+        "replace_vanilla_mobs_true": {
+          "world": "phase000-population-true-20260904",
+          "server_port": 25580,
+          "rcon_port": 25581,
+          "configuration": {
+            "eula": true,
+            "online_mode": false,
+            "do_mob_spawning": true,
+            "replace_vanilla_mobs": true,
+            "player": "EnVy"
+          },
+          "server_ready_marker": "2026-09-04 02:02:44.154 Done (13.821s)!",
+          "server_join_marker": "2026-09-04 02:06:01 EnVy joined the game",
+          "completion_marker": "BFS_POP_TRUE_PASS",
+          "server_shutdown": "2026-09-04 02:29:33.687 all dimensions saved and RCON listener stopped",
+          "server_log_sha256": "9c8d1b73738b7b0049f1492641f58e2c8aeec01a8493dbb065346a4cc7e17e9a",
+          "sampler_log": "/tmp/bfsm-population-true-24k.txt",
+          "sampler_log_sha256": "a26c78553db82507133dd0a75512a383e3f0d1f9fe1cf79bd0db8b1ff00fc935",
+          "client_log": "/tmp/bfsm-phase000-population-client-true.log",
+          "client_log_sha256": "4abadd3ca7b25c0ebaa0001fc20347da618321ecabcc62e1db5e1f56a5e64cc7",
+          "client_endpoint": "100.76.164.109:25580",
+          "client_connect_markers": [
+            "Connecting to 100.76.164.109, 25580",
+            "Connected to a modded server.",
+            "Loaded 58 advancements"
+          ],
+          "sample_ticks": {
+            "start": 7661,
+            "end": 31748,
+            "elapsed": 24087,
+            "count": 21,
+            "interval": 1200
+          },
+          "counts": {
+            "minecraft:cod": {"min": 0, "max": 0},
+            "minecraft:salmon": {"min": 0, "max": 0},
+            "bensfintasticsharks:atlantic_cod": {"min": 14, "max": 23},
+            "bensfintasticsharks:atlantic_salmon": {"min": 0, "max": 7}
+          },
+          "ports_closed": true
+        },
+        "replace_vanilla_mobs_false": {
+          "world": "phase000-population-false-20260904",
+          "server_port": 25582,
+          "rcon_port": 25583,
+          "configuration": {
+            "eula": true,
+            "online_mode": false,
+            "do_mob_spawning": true,
+            "replace_vanilla_mobs": false,
+            "player": "EnVy"
+          },
+          "server_ready_marker": "2026-09-04 02:30:59.478 Done (13.057s)!",
+          "server_join_marker": "2026-09-04 02:31:26 EnVy joined the game",
+          "completion_marker": "BFS_POP_FALSE_PASS",
+          "server_shutdown": "2026-09-04 02:37:31.780 all dimensions saved and RCON listener stopped",
+          "server_log_sha256": "56ae8890202e84a1fe280dc70705119a59789d402e032647797f55c4bd335309",
+          "sampler_log": "/tmp/bfsm-population-false-6k.txt",
+          "sampler_log_sha256": "c9e03c8dbaff645c1b8ea21d88dae73650d1d8a5d483623ebd06374ad172c730",
+          "client_log": "/tmp/bfsm-phase000-population-client-false.log",
+          "client_log_sha256": "a9234e06f3b43f4859bc831a84c01840f1632255db566ca7f44e4967bd29edf8",
+          "client_endpoint": "100.76.164.109:25582",
+          "client_connect_markers": [
+            "Connecting to 100.76.164.109, 25582",
+            "Connected to a modded server.",
+            "Loaded 47 advancements"
+          ],
+          "sample_ticks": {
+            "start": 1422,
+            "end": 7470,
+            "elapsed": 6048,
+            "count": 6,
+            "interval": 1200
+          },
+          "counts": {
+            "minecraft:cod": {"min": 3, "max": 12},
+            "minecraft:salmon": {"min": 0, "max": 0},
+            "bensfintasticsharks:atlantic_cod": {"min": 8, "max": 15},
+            "bensfintasticsharks:atlantic_salmon": {"min": 0, "max": 8}
+          },
+          "ports_closed": true
+        }
+      },
+      "result": "The replacement-enabled 24000 tick sample remained bounded with vanilla cod and salmon at zero. The replacement-disabled comparison kept vanilla cod present alongside a separate bounded Atlantic fish population.",
+      "limitations": "Counts are direct entity-type samples across the forced-loaded disposable ocean rectangle. This closes the sustained population comparison evidence but does not close unrelated animation, combat, algae, progression, visual, or final-artifact gates."
+    },
     "fresh_profile_progression": {
       "status": "sharks_galore_natural_trigger_passed_with_controlled_fixture",
       "world": "forge/run/saves/phase000-fresh-advancements",
