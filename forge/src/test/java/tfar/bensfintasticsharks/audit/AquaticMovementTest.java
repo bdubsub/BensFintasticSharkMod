@@ -22,4 +22,15 @@ class AquaticMovementTest {
         assertEquals(0.0, AquaticMovement.affectedPitch(10.0, 0.0, 0.0), 0.00001);
         assertTrue(Float.isFinite(AquaticMovement.affectedPitch(0.0, 0.0, 0.0)));
     }
+
+    @Test
+    void verticalControlEasesTowardTargetAndThroughReversal() {
+        double first = AquaticMovement.smoothVerticalVelocity(0.0, 1.0);
+        double second = AquaticMovement.smoothVerticalVelocity(first, 1.0);
+        double reversal = AquaticMovement.smoothVerticalVelocity(second, -1.0);
+
+        assertTrue(first > 0.0 && first < 1.0);
+        assertTrue(second > first && second < 1.0);
+        assertTrue(reversal < second && reversal > -1.0);
+    }
 }

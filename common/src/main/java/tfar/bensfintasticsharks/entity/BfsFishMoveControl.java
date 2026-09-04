@@ -14,6 +14,7 @@ import net.minecraft.world.entity.animal.AbstractFish;
 public final class BfsFishMoveControl extends MoveControl {
 
     private final AbstractFish fish;
+    private double smoothedVerticalImpulse;
 
     public BfsFishMoveControl(AbstractFish fish) {
         super(fish);
@@ -22,10 +23,7 @@ public final class BfsFishMoveControl extends MoveControl {
 
     @Override
     public void tick() {
-        if (fish.isEyeInFluid(FluidTags.WATER)) {
-            fish.setDeltaMovement(fish.getDeltaMovement().add(0.0, 0.005, 0.0));
-        }
-
+        double targetVerticalImpulse = 0.0;
         float previousPitch = fish.getXRot();
         if (this.operation == Operation.MOVE_TO) {
             float targetSpeed = (float) (this.speedModifier
@@ -39,8 +37,8 @@ public final class BfsFishMoveControl extends MoveControl {
 
             if (distance > 0.5) {
                 if (Math.abs(dy) > 1.0e-8) {
-                    fish.setDeltaMovement(fish.getDeltaMovement().add(
-                            0.0, fish.getSpeed() * dy / distance * AquaticMovement.VERTICAL_SPEED_RATIO, 0.0));
+                    targetVerticalImpulse = fish.getSpeed() * dy / distance
+                            * AquaticMovement.VERTICAL_SPEED_RATIO;
                 }
 
                 if (Math.abs(dx) > 1.0e-8 || Math.abs(dz) > 1.0e-8) {
@@ -60,6 +58,15 @@ public final class BfsFishMoveControl extends MoveControl {
         } else {
             fish.setSpeed(0.0F);
             fish.setXRot(this.rotlerp(previousPitch, 0.0F, 5.0F));
+        }
+
+        if (fish.isEyeInFluid(FluidTags.WATER)) {
+            smoothedVerticalImpulse = AquaticMovement.smoothVerticalVelocity(
+                    smoothedVerticalImpulse, targetVerticalImpulse);
+            fish.setDeltaMovement(fish.getDeltaMovement().add(
+                    0.0, 0.005 + smoothedVerticalImpulse, 0.0));
+        } else {
+            smoothedVerticalImpulse = 0.0;
         }
     }
 }

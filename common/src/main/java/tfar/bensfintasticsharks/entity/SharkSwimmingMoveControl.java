@@ -18,6 +18,7 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
     private static final double VERTICAL_TARGET_EPSILON = 1.0e-6;
     private static final double VERTICAL_ROUTE_HORIZONTAL_TOLERANCE_SQR = 0.25;
     private final boolean trackPitch;
+    private double smoothedVerticalInput;
 
     public SharkSwimmingMoveControl(Mob mob, float inWaterSpeedModifier) {
         this(mob, inWaterSpeedModifier, true);
@@ -55,20 +56,33 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
 
         super.tick();
 
-        if (!moving) {
-            if (trackPitch && this.mob.isInWater()) {
-                this.mob.setXRot(this.rotlerp(previousPitch, 0.0F, 5.0F));
-            }
-            return;
-        }
-
         if (trackPitch) {
+            float targetVerticalInput = 0.0F;
+            if (moving) {
+                double targetDistance = Math.sqrt(routeDx * routeDx + routeDy * routeDy + routeDz * routeDz);
+                if (verticalOnly && targetDistance > VERTICAL_TARGET_EPSILON) {
+                    targetVerticalInput = (float) (this.mob.getSpeed() * routeDy / targetDistance
+                            * AquaticMovement.VERTICAL_SPEED_RATIO);
+                } else {
+                    targetVerticalInput = (float) (this.mob.yya * AquaticMovement.VERTICAL_SPEED_RATIO);
+                }
+            }
+            smoothedVerticalInput = AquaticMovement.smoothVerticalVelocity(
+                    smoothedVerticalInput, targetVerticalInput);
+            this.mob.setYya((float) smoothedVerticalInput);
+
+            if (!moving) {
+                if (this.mob.isInWater()) {
+                    this.mob.setXRot(this.rotlerp(previousPitch, 0.0F, 5.0F));
+                }
+                return;
+            }
+
             double targetDistance = Math.sqrt(routeDx * routeDx + routeDy * routeDy + routeDz * routeDz);
-            if (verticalOnly && targetDistance > VERTICAL_TARGET_EPSILON) {
-                this.mob.setYya((float) (this.mob.getSpeed() * routeDy / targetDistance
-                        * AquaticMovement.VERTICAL_SPEED_RATIO));
+            if (verticalOnly && targetDistance <= VERTICAL_TARGET_EPSILON) {
+                this.mob.setYya(0.0F);
             } else {
-                this.mob.setYya((float) (this.mob.yya * AquaticMovement.VERTICAL_SPEED_RATIO));
+                this.mob.setYya((float) smoothedVerticalInput);
             }
             this.mob.setXRot(this.rotlerp(previousPitch,
                     AquaticMovement.affectedPitch(verticalOnly ? routeDx : dx,

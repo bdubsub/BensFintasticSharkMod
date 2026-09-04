@@ -23,4 +23,13 @@ public final class AquaticMovement {
         }
         return (float) -(Math.atan2(dy * VERTICAL_SPEED_RATIO, horizontalDistance) * Mth.RAD_TO_DEG);
     }
+
+    /**
+     * Eases a vertical control value toward its target using the same one-eighth response already
+     * used by the vanilla fish speed controller. Keeping the response shared prevents a target
+     * reversal from becoming an instantaneous vertical impulse on one aquatic species only.
+     */
+    public static double smoothVerticalVelocity(double current, double target) {
+        return Mth.lerp(0.125d, current, target);
+    }
 }
