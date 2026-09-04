@@ -64,7 +64,8 @@ public final class BfsFishMoveControl extends MoveControl {
                 }
 
                 fish.setXxa(0.0F);
-                fish.setZza(0.0F);
+                double horizontalDistanceSqr = dx * dx + dz * dz;
+                fish.setZza(horizontalDistanceSqr > 0.25 ? 1.0F : 0.0F);
 
                 fish.setXRot(this.rotlerp(previousPitch,
                         AquaticMovement.affectedPitch(dx, dy, dz, upwardPitchLimit, downwardPitchLimit),
