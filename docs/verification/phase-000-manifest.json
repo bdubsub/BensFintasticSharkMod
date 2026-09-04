@@ -174,7 +174,7 @@
     "forge_test": "passed",
     "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
     "forge_data": "passed, 302 generated files, no generated JSON drift",
-    "forge_gametest": "passed on the latest two runs with 8 required tests across bfs_combat, bfs_baseline, and bfs_movement, including algae placement and removal, Tiger Shark item pursuit, delayed bite damage, bite cooldown, target loss recovery, Oceanic Whitetip grab damage and release, Dolphin parity vertical movement for ascent and descent, and Atlantic Cod scaled pitch; an earlier 2026-09-04 00:59:34 run exposed a fixed single-sample timing race in the Tiger item fixture",
+    "forge_gametest": "passed on the latest two runs with 8 required tests across bfs_combat, bfs_baseline, and bfs_movement, including algae placement and removal, Tiger Shark item pursuit, delayed bite damage, bite cooldown, target loss recovery, Oceanic Whitetip grab damage and release, Dolphin parity vertical movement for ascent and descent, and Atlantic Cod scaled pitch at 2026-09-04 01:04:52 and 2026-09-04 01:10:22; an earlier 2026-09-04 00:59:34 run exposed a fixed single-sample timing race in the Tiger item fixture",
     "movement_regression": {
       "status": "passed",
       "test": "bfs_movement.sharkVerticalRouteFollowsDolphinWithoutOrbit and bfs_movement.sharkDescendingRouteFollowsDolphinWithoutOrbit",
@@ -182,13 +182,13 @@
       "observed": "The shark followed the same smooth constant vertical route as the Bottlenose Dolphin reference without repeated direction reversal or circular horizontal orbiting.",
       "implementation": "SharkSwimmingMoveControl now uses SmoothSwimmingMoveControl with the Dolphin parameters and preserves yaw during vertical-only targets.",
       "required_test_count": 8,
-      "completed_at": "2026-09-04 01:04:52",
+      "completed_at": "2026-09-04 01:10:22",
       "repeat_runs": [
         "2026-09-03 11:29:24",
         "2026-09-03 11:29:56",
         "2026-09-03 11:33:59",
-        "2026-09-04 01:02:10",
-        "2026-09-04 01:04:52"
+        "2026-09-04 01:04:52",
+        "2026-09-04 01:10:22"
       ]
     },
     "forge_build": {
