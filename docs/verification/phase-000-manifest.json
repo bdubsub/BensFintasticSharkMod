@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "0f5f07148844119c46592a00d325ec639cb845e4",
+    "phase_commit": "14257d188a9340da17095c3f6d914269aba10c37",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
@@ -174,16 +174,54 @@
     "forge_test": "passed",
     "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
     "forge_data": "passed, 302 generated files, no generated JSON drift",
-    "forge_gametest": "passed on three consecutive isolated runs with 8 required tests across bfs_combat, bfs_baseline, and bfs_movement, including algae placement and removal, Tiger Shark item pursuit, delayed bite damage, bite cooldown, target loss recovery, Oceanic Whitetip grab damage and release, Dolphin parity vertical movement for ascent and descent, and Atlantic Cod scaled pitch at 2026-09-04 03:38:47, 2026-09-04 03:39:28, and 2026-09-04 03:40:02; the Dolphin reference fixture is outside the Tiger predator-flee radius and the monotonicity assertion records sampled heights and offsets; earlier runs exposed and fixed a single-sample Tiger item timing race and predator-flee interference",
+    "forge_gametest": "passed on three consecutive isolated runs with 9 required tests across bfs_combat, bfs_baseline, and bfs_movement, including algae placement, survival, removal, and direct self-drop loot, Tiger Shark item pursuit, delayed bite damage, bite cooldown, target loss recovery, Oceanic Whitetip grab damage and release, Dolphin parity vertical movement for ascent and descent, and Atlantic Cod scaled pitch at 2026-09-04 03:57:13, 2026-09-04 03:57:49, and 2026-09-04 03:58:26; the Dolphin reference fixture is outside the Tiger predator-flee radius and the monotonicity assertion records sampled heights and offsets; the algae loot fixture uses the server-level drop-enabled destroy path; earlier runs exposed and fixed a single-sample Tiger item timing race, predator-flee interference, and a drop-suppression mistake",
+    "algae_loot_gametest": {
+      "status": "passed",
+      "test": "bfs_baseline.algaeBreakDropsTheBrokenForm",
+      "command": "./gradlew :forge:GameTestServer --no-daemon --rerun-tasks",
+      "source_revision": "14257d188a9340da17095c3f6d914269aba10c37",
+      "required_suite_test_count": 9,
+      "fixture": "The test places ModBlocks.ALGAE_BLOCK in the prepared water column, destroys it through ServerLevel.destroyBlock with drops enabled, and asserts the actual ModBlocks.ALGAE_BLOCK item entity within two blocks.",
+      "calibration": {
+        "log": "/tmp/bfsm-phase000-gametest-algae-loot-1-20260904.log",
+        "observed": "The initial helper.destroyBlock calibration failed with the expected missing-item assertion because GameTestHelper suppresses drops.",
+        "counted_as_passing": false
+      },
+      "isolated_runs": [
+        {
+          "completed_at": "2026-09-04 03:57:13",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-2-20260904.log",
+          "log_sha256": "7e47400834299ed581eb3d32d0a56c8a166edbf00f156752bc16d93fc6c45d81",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        },
+        {
+          "completed_at": "2026-09-04 03:57:49",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-3-20260904.log",
+          "log_sha256": "7b44d11ac07aaf6fbf94911ed9243b0a3b7f6c4fafbbf176cb48394d8c7eee3b",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        },
+        {
+          "completed_at": "2026-09-04 03:58:26",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-4-20260904.log",
+          "log_sha256": "8d84b87aee48853ae378a73a107d19e504b73f77de1cb426ca1f6d24976d0194",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        }
+      ],
+      "result": "The corrected server-level drop path produced the expected algae item entity in all three independent suite runs."
+    },
     "movement_regression": {
       "status": "passed",
       "test": "bfs_movement.sharkVerticalRouteFollowsDolphinWithoutOrbit and bfs_movement.sharkDescendingRouteFollowsDolphinWithoutOrbit",
       "command": "./gradlew :forge:GameTestServer --no-daemon --rerun-tasks",
       "observed": "The shark followed the same smooth constant vertical route as the Bottlenose Dolphin reference without repeated direction reversal or circular horizontal orbiting.",
       "implementation": "SharkSwimmingMoveControl now uses SmoothSwimmingMoveControl with the Dolphin parameters and preserves yaw during vertical-only targets.",
-      "required_test_count": 8,
-      "source_revision": "0f5f07148844119c46592a00d325ec639cb845e4",
-      "completed_at": "2026-09-04 03:40:02",
+      "required_test_count": 9,
+      "source_revision": "14257d188a9340da17095c3f6d914269aba10c37",
+      "implementation_revision": "0f5f07148844119c46592a00d325ec639cb845e4",
+      "completed_at": "2026-09-04 03:58:26",
       "repeat_runs": [
         "2026-09-03 11:29:24",
         "2026-09-03 11:29:56",
@@ -192,9 +230,12 @@
         "2026-09-04 01:10:22",
         "2026-09-04 03:38:47",
         "2026-09-04 03:39:28",
-        "2026-09-04 03:40:02"
+        "2026-09-04 03:40:02",
+        "2026-09-04 03:57:13",
+        "2026-09-04 03:57:49",
+        "2026-09-04 03:58:26"
       ],
-      "isolated_runs": [
+      "historical_isolated_runs": [
         {
           "completed_at": "2026-09-04 03:38:47",
           "log": "/tmp/bfsm-phase000-gametest-20260904-isolation1.log",
@@ -214,6 +255,29 @@
           "exit_code": 0
         }
       ],
+      "isolated_runs": [
+        {
+          "completed_at": "2026-09-04 03:57:13",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-2-20260904.log",
+          "log_sha256": "7e47400834299ed581eb3d32d0a56c8a166edbf00f156752bc16d93fc6c45d81",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        },
+        {
+          "completed_at": "2026-09-04 03:57:49",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-3-20260904.log",
+          "log_sha256": "7b44d11ac07aaf6fbf94911ed9243b0a3b7f6c4fafbbf176cb48394d8c7eee3b",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        },
+        {
+          "completed_at": "2026-09-04 03:58:26",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-4-20260904.log",
+          "log_sha256": "8d84b87aee48853ae378a73a107d19e504b73f77de1cb426ca1f6d24976d0194",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        }
+      ],
       "fixture_isolation": "The Dolphin reference starts at x=20 while the Tiger route remains at x=4, keeping the reference beyond the 12 block apex predator flee scan and preserving the same four block vertical route.",
       "failure_diagnostics": "The Dolphin monotonicity assertion includes direction, arrival sample, sample count, sampled heights, horizontal offsets, position, and target."
     },
@@ -227,14 +291,14 @@
     },
     "forge_build_latest": {
       "status": "passed",
-      "source_revision": "0f5f07148844119c46592a00d325ec639cb845e4",
+      "source_revision": "14257d188a9340da17095c3f6d914269aba10c37",
       "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
-      "size": 1760583,
-      "sha256": "e3a06a0a6a7574df6f0f48fa704a2b0506509c327b1633172d327f7247d687b1",
-      "sha512": "843e9fc2a23b2ad62797624b719125a091cddeff5dcbfecb1ca1a6760f2497149920111b9fd67a6a58f2c5c03c03da30871611480cc4aba8a3818710f9cab944",
+      "size": 1760792,
+      "sha256": "9adbaea9e69eb507df6f0935573869ecb72123cb4538203166c829227e2ee8ea",
+      "sha512": "96050d56f185f98e8fad39de12f30829ea956b72d985fc6e9a66b5d8961ef60ab623feb4589bb7ae0502a2368150a059c0fd720c624aa5b5e736d97e8dc2b257a",
       "zip_integrity": "passed",
-      "verification_log": "/tmp/bfsm-phase000-postfixture-test-build-20260904.log",
-      "verification_log_sha256": "a54c3e98819f3a15f93da647fd193e78304e52a078001da6f9b3f22566504e66"
+      "verification_log": "/tmp/bfsm-phase000-postalgae-test-build-20260904.log",
+      "verification_log_sha256": "69836023dde8d84d8afd8e1e648efe4c90b1fc380588a534cf8a18ac0df0c1a4"
     },
     "dedicated_server": {
       "status": "passed_ext001_current",
@@ -1371,11 +1435,11 @@
     "DEF-024-005": "blocked, generated graph and fresh tree load pass but fresh profile completion capture is missing",
     "DEF-024-006": "positively_disproved for deterministic copy and captured tooltip paths; complete fresh visual review remains open",
     "DEF-024-007": "blocked, exact icon paths and partial fresh tree display pass but complete interactive advancement display capture is missing",
-    "DEF-024-008": "blocked, registration, placement and survival smoke, fixed-seed natural generation, current fish population comparison, and current isolated dedicated-server readiness pass; natural algae collection, algae loot, algae client and population evidence, and final merged-artifact evidence remain"
+    "DEF-024-008": "blocked, registration, placement and survival smoke, direct algae self-drop loot, fixed-seed natural generation, current fish population comparison, and current isolated dedicated-server readiness pass; natural algae collection, algae client and population evidence, and final merged-artifact evidence remain"
   },
   "phase_exit": "open",
   "phase_exit_blockers": [
-    "natural collection, loot, client, and sustained-population evidence for algae",
+    "natural collection, client, and sustained-population evidence for algae",
     "interactive client visual evidence",
     "algae population evidence",
     "fresh-profile completion and advancement-display evidence"
