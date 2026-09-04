@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "dab04c9914bc751a838a5aa2b31e28734b9409d1",
+    "phase_commit": "0f5f07148844119c46592a00d325ec639cb845e4",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
@@ -174,7 +174,7 @@
     "forge_test": "passed",
     "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
     "forge_data": "passed, 302 generated files, no generated JSON drift",
-    "forge_gametest": "passed on the latest two runs with 8 required tests across bfs_combat, bfs_baseline, and bfs_movement, including algae placement and removal, Tiger Shark item pursuit, delayed bite damage, bite cooldown, target loss recovery, Oceanic Whitetip grab damage and release, Dolphin parity vertical movement for ascent and descent, and Atlantic Cod scaled pitch at 2026-09-04 01:04:52 and 2026-09-04 01:10:22; an earlier 2026-09-04 00:59:34 run exposed a fixed single-sample timing race in the Tiger item fixture",
+    "forge_gametest": "passed on three consecutive isolated runs with 8 required tests across bfs_combat, bfs_baseline, and bfs_movement, including algae placement and removal, Tiger Shark item pursuit, delayed bite damage, bite cooldown, target loss recovery, Oceanic Whitetip grab damage and release, Dolphin parity vertical movement for ascent and descent, and Atlantic Cod scaled pitch at 2026-09-04 03:38:47, 2026-09-04 03:39:28, and 2026-09-04 03:40:02; the Dolphin reference fixture is outside the Tiger predator-flee radius and the monotonicity assertion records sampled heights and offsets; earlier runs exposed and fixed a single-sample Tiger item timing race and predator-flee interference",
     "movement_regression": {
       "status": "passed",
       "test": "bfs_movement.sharkVerticalRouteFollowsDolphinWithoutOrbit and bfs_movement.sharkDescendingRouteFollowsDolphinWithoutOrbit",
@@ -182,14 +182,40 @@
       "observed": "The shark followed the same smooth constant vertical route as the Bottlenose Dolphin reference without repeated direction reversal or circular horizontal orbiting.",
       "implementation": "SharkSwimmingMoveControl now uses SmoothSwimmingMoveControl with the Dolphin parameters and preserves yaw during vertical-only targets.",
       "required_test_count": 8,
-      "completed_at": "2026-09-04 01:10:22",
+      "source_revision": "0f5f07148844119c46592a00d325ec639cb845e4",
+      "completed_at": "2026-09-04 03:40:02",
       "repeat_runs": [
         "2026-09-03 11:29:24",
         "2026-09-03 11:29:56",
         "2026-09-03 11:33:59",
         "2026-09-04 01:04:52",
-        "2026-09-04 01:10:22"
-      ]
+        "2026-09-04 01:10:22",
+        "2026-09-04 03:38:47",
+        "2026-09-04 03:39:28",
+        "2026-09-04 03:40:02"
+      ],
+      "isolated_runs": [
+        {
+          "completed_at": "2026-09-04 03:38:47",
+          "log": "/tmp/bfsm-phase000-gametest-20260904-isolation1.log",
+          "log_sha256": "b65171e12ff717cfe5e5f0c4d6f85920c328668b3dec948106e5a24e10827b39",
+          "exit_code": 0
+        },
+        {
+          "completed_at": "2026-09-04 03:39:28",
+          "log": "/tmp/bfsm-phase000-gametest-20260904-isolation2.log",
+          "log_sha256": "876d149b18514bc13a1e183c6f0ccb2e307769b51a6d8564aff29bf6d6126368",
+          "exit_code": 0
+        },
+        {
+          "completed_at": "2026-09-04 03:40:02",
+          "log": "/tmp/bfsm-phase000-gametest-20260904-isolation3.log",
+          "log_sha256": "387f3ee75207bbf3d7f424c643090207ff31cd6d3b6af2163408c6781ba7ea81",
+          "exit_code": 0
+        }
+      ],
+      "fixture_isolation": "The Dolphin reference starts at x=20 while the Tiger route remains at x=4, keeping the reference beyond the 12 block apex predator flee scan and preserving the same four block vertical route.",
+      "failure_diagnostics": "The Dolphin monotonicity assertion includes direction, arrival sample, sample count, sampled heights, horizontal offsets, position, and target."
     },
     "forge_build": {
       "status": "passed",
@@ -201,12 +227,14 @@
     },
     "forge_build_latest": {
       "status": "passed",
-      "source_revision": "dab04c9914bc751a838a5aa2b31e28734b9409d1",
+      "source_revision": "0f5f07148844119c46592a00d325ec639cb845e4",
       "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
-      "size": 1760671,
-      "sha256": "80c6cadf1b8dc849e95cb084c15feaf2df01fe7dc3e6c2c7fd4e8c8dfa89c1df",
-      "sha512": "3ebde56dbc84bb0ae506762677ae654dfe7195ec00002e21b57a1dc0ced3f47faf43d8788eabde833705d70d8e3ce218ec53b1c602b2ad3b466c0698b5ac3858",
-      "zip_integrity": "passed"
+      "size": 1760583,
+      "sha256": "e3a06a0a6a7574df6f0f48fa704a2b0506509c327b1633172d327f7247d687b1",
+      "sha512": "843e9fc2a23b2ad62797624b719125a091cddeff5dcbfecb1ca1a6760f2497149920111b9fd67a6a58f2c5c03c03da30871611480cc4aba8a3818710f9cab944",
+      "zip_integrity": "passed",
+      "verification_log": "/tmp/bfsm-phase000-postfixture-test-build-20260904.log",
+      "verification_log_sha256": "a54c3e98819f3a15f93da647fd193e78304e52a078001da6f9b3f22566504e66"
     },
     "dedicated_server": {
       "status": "passed_ext001_current",
