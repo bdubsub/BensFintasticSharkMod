@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "14257d188a9340da17095c3f6d914269aba10c37",
+    "phase_commit": "88580315554384f00578d4d619928730e4de3f69",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
@@ -1426,6 +1426,38 @@
     },
     "secret_scan": "passed",
     "diff_check": "passed"
+  },
+  "latest_client_session": {
+    "status": "partial_interactive_transport_pass",
+    "source_revision": "88580315554384f00578d4d619928730e4de3f69",
+    "server_host": "node-1",
+    "server_port": 25584,
+    "rcon_port": 25585,
+    "server_mode": "offline isolated disposable development server",
+    "client_host": "envision",
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "driver": "610.57.04",
+    "display": "Xwayland :1 on wayland-1",
+    "active_workspace_observed": 2,
+    "window_workspace_observed": 2,
+    "captures": [
+      {
+        "id": "p000-live-movement-fixture",
+        "sha256": "738d8325d7cc99b94d3d98e15f341e55618d17b5e3819e2f9984db2358253ac",
+        "dimensions": "1890x2290",
+        "observed": "The connected laptop rendered the disposable water fixture with Oceanic Whitetip, Cod, and Salmon entities."
+      },
+      {
+        "id": "p000-live-fish-pitch-trace",
+        "sha256": "51b0afafee2e0526e1ff937b179f71262029fdeed7edff829c2192e63c25fac1",
+        "samples": 24,
+        "interval_seconds": 0.25,
+        "actors": ["atlantic_cod", "atlantic_salmon"],
+        "fields": ["Pos", "Rotation"],
+        "observed": "The server trace recorded bounded Cod and Salmon pitch transitions while the laptop client was connected."
+      }
+    ],
+    "limitations": "The client was closed before the final fish visual frame. The trace and transport capture do not close the complete interactive animation, body and nose orientation, Oceanic Whitetip, combat, cleanup, or fresh profile matrices."
   },
   "defects": {
     "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",

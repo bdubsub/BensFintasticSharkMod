@@ -204,3 +204,13 @@ On 2026-09-04, the pitch-bound movement patch was rerun from phase branch `envy/
 | Forge artifact | `./gradlew :forge:build --no-daemon --rerun-tasks`, followed by `unzip -tqq` | Passed. The evidence JAR SHA 256 was `fdb9481c60e7050922ee086554b462875bdd14ae6b5ae5f13280c85c3a44b801` and SHA 512 was `fe69272babdb7cea297308fdfdb5a88222a3565920c44bbc1e28d211c90c3dfb1c13acaa0733986c48a1c329fd42d281a97fe5a76e8f4f7bf968c36a384c4a7b`. |
 
 This rerun closes the affected deterministic and server-side movement regressions, but it does not close the remaining interactive fish and Oceanic Whitetip state matrix or laptop visual acceptance gates.
+
+## Latest laptop reconnect and pitch trace
+
+On 2026-09-04, the current phase source revision `88580315554384f00578d4d619928730e4de3f69` was launched through a disposable Forge client checkout on the Linux laptop. Node 1 ran only the headless dedicated server at `100.76.164.109:25584`, with a disposable RCON listener on `25585`. The laptop client connected with the same phase source and rendered through the NVIDIA GeForce RTX 5090 Laptop GPU using driver `610.57.04`. The client log recorded `Connected to a modded server.` and the server log recorded `EnVy joined the game`.
+
+The first connected fixture capture was taken from the laptop Xwayland window with `DISPLAY=:1 import -window <minecraft_window_id>`. It is `1890x2290` with SHA 256 `738d8325d7cc99b94d3d98e15f341e55618d17b5e3819e2f9984db2358253ac`. The active Hyprland workspace observed during the session was `2`, and the Minecraft window was also observed on workspace `2`; no workspace dispatch or switch was issued.
+
+The server then replaced the fixture with Atlantic Cod and Atlantic Salmon and sampled `Pos` and `Rotation` through RCON 24 times at 0.25 second intervals. The sanitized trace SHA 256 is `51b0afafee2e0526e1ff937b179f71262029fdeed7edff829c2192e63c25fac1`. The Cod pitch stayed within the approved 8 degree profile and the Salmon pitch stayed within the approved 10 degree profile in the sampled route. The observed transitions were gradual rather than an unrestricted vertical pose. The raw disposable client, server, screenshot, and trace files were removed after hashing.
+
+The client was closed before the final fish visual frame, so this session is admissible for current-source multiplayer transport, laptop GPU rendering, and bounded movement trace evidence only. It does not close the complete interactive animation, continuous body and nose orientation, Oceanic Whitetip, combat, cleanup, fresh profile, or final visual acceptance matrices.
