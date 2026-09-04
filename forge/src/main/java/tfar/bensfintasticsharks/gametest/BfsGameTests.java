@@ -59,6 +59,17 @@ public final class BfsGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 40)
+    public static void algaeBreakDropsTheBrokenForm(GameTestHelper helper) {
+        prepareWaterColumn(helper);
+        helper.setBlock(ALGAE_POS, ModBlocks.ALGAE_BLOCK.defaultBlockState());
+        helper.runAfterDelay(1, () -> {
+            helper.getLevel().destroyBlock(helper.absolutePos(ALGAE_POS), true, null);
+            helper.assertItemEntityPresent(ModBlocks.ALGAE_BLOCK.asItem(), ALGAE_POS, 2.0);
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 220)
     public static void tigerSharkPursuesReachableEdibleItem(GameTestHelper helper) {
         prepareWaterVolume(helper);
