@@ -80,6 +80,10 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         return (float) AquaticMovement.VERTICAL_SPEED_RATIO;
     }
 
+    /** Maximum nose pitch while powered swimming upward or downward. */
+    protected float upwardPitchLimitDegrees() { return AquaticMovement.DEFAULT_UPWARD_PITCH_LIMIT; }
+    protected float downwardPitchLimitDegrees() { return AquaticMovement.DEFAULT_DOWNWARD_PITCH_LIMIT; }
+
     @Override
     protected boolean usesPitchDrivenVerticalMovement() {
         return true;

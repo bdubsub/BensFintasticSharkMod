@@ -307,7 +307,7 @@ public final class BfsGameTests {
             helper.assertTrue(peakPitch < -1.0F,
                     "atlantic cod must pitch its nose toward the elevated target, peakPitch=" + peakPitch
                             + ", finalPitch=" + cod.getXRot());
-            helper.assertTrue(maxPitchStep(pitches) <= 5.0001F,
+            helper.assertTrue(maxPitchStep(pitches) <= AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK + 0.0001F,
                     "atlantic cod pitch must transition smoothly, maxStep=" + maxPitchStep(pitches));
             helper.assertTrue(AquaticMovement.VERTICAL_SPEED_RATIO == 0.10D,
                     "affected aquatic vertical ratio must remain the approved oracle");

@@ -11,7 +11,8 @@ public class AtlanticCodEntity extends Cod {
 
     protected AtlanticCodEntity(EntityType<? extends Cod> type, Level level) {
         super(type, level);
-        this.moveControl = new BfsFishMoveControl(this);
+        this.moveControl = new BfsFishMoveControl(this,
+                AquaticMovement.COD_PITCH_LIMIT, AquaticMovement.COD_PITCH_LIMIT);
         this.lookControl = new BfsFishLookControl(this);
     }
 

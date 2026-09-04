@@ -12,10 +12,19 @@ import net.minecraft.world.phys.Vec3;
 public final class BfsFishMoveControl extends MoveControl {
 
     private final AbstractFish fish;
+    private final float upwardPitchLimit;
+    private final float downwardPitchLimit;
 
     public BfsFishMoveControl(AbstractFish fish) {
+        this(fish, AquaticMovement.DEFAULT_UPWARD_PITCH_LIMIT,
+                AquaticMovement.DEFAULT_DOWNWARD_PITCH_LIMIT);
+    }
+
+    public BfsFishMoveControl(AbstractFish fish, float upwardPitchLimit, float downwardPitchLimit) {
         super(fish);
         this.fish = fish;
+        this.upwardPitchLimit = upwardPitchLimit;
+        this.downwardPitchLimit = downwardPitchLimit;
     }
 
     /**
@@ -54,16 +63,26 @@ public final class BfsFishMoveControl extends MoveControl {
                     fish.yHeadRot = fish.getYRot();
                 }
 
+                fish.setXxa(0.0F);
+                fish.setZza(0.0F);
+
                 fish.setXRot(this.rotlerp(previousPitch,
-                        AquaticMovement.affectedPitch(dx, dy, dz), 5.0F));
+                        AquaticMovement.affectedPitch(dx, dy, dz, upwardPitchLimit, downwardPitchLimit),
+                        AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
             } else {
                 this.operation = Operation.WAIT;
                 fish.setSpeed(0.0F);
-                fish.setXRot(this.rotlerp(previousPitch, 0.0F, 5.0F));
+                fish.setXxa(0.0F);
+                fish.setZza(0.0F);
+                fish.setXRot(this.rotlerp(previousPitch, 0.0F,
+                        AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
             }
         } else {
             fish.setSpeed(0.0F);
-            fish.setXRot(this.rotlerp(previousPitch, 0.0F, 5.0F));
+            fish.setXxa(0.0F);
+            fish.setZza(0.0F);
+            fish.setXRot(this.rotlerp(previousPitch, 0.0F,
+                    AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
         }
 
         if (fish.isEyeInFluid(FluidTags.WATER)) {

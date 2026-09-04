@@ -72,7 +72,8 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
 
             if (!moving) {
                 if (this.mob.isInWater()) {
-                    this.mob.setXRot(this.rotlerp(previousPitch, 0.0F, 5.0F));
+                    this.mob.setXRot(this.rotlerp(previousPitch, 0.0F,
+                            AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
                 }
                 return;
             }
@@ -86,7 +87,9 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
             this.mob.setXRot(this.rotlerp(previousPitch,
                     AquaticMovement.affectedPitch(verticalOnly ? routeDx : dx,
                             verticalOnly ? routeDy : dy,
-                            verticalOnly ? routeDz : dz), 5.0F));
+                            verticalOnly ? routeDz : dz,
+                            pitchUpLimit(), pitchDownLimit()),
+                    AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
         }
 
         if (verticalOnly) {
@@ -98,5 +101,15 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
             Vec3 delta = this.mob.getDeltaMovement();
             this.mob.setDeltaMovement(0.0, delta.y, 0.0);
         }
+    }
+
+    private float pitchUpLimit() {
+        return this.mob instanceof AbstractSharkEntity<?> shark
+                ? shark.upwardPitchLimitDegrees() : AquaticMovement.DEFAULT_UPWARD_PITCH_LIMIT;
+    }
+
+    private float pitchDownLimit() {
+        return this.mob instanceof AbstractSharkEntity<?> shark
+                ? shark.downwardPitchLimitDegrees() : AquaticMovement.DEFAULT_DOWNWARD_PITCH_LIMIT;
     }
 }
