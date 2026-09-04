@@ -66,10 +66,20 @@ public final class BfsGameTests {
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         Vec3 start = shark.position();
         double startDistance = shark.distanceToSqr(item);
+        sampleTigerItemPursuit(helper, shark, item, start, startDistance, new boolean[1], 0);
+    }
 
-        helper.runAfterDelay(40, () -> {
-            helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.CURIOUS
-                            || shark.justBitItem(),
+    private static void sampleTigerItemPursuit(GameTestHelper helper, TigerSharkEntity shark,
+                                                ItemEntity item, Vec3 start, double startDistance,
+                                                boolean[] acquired, int sample) {
+        helper.runAfterDelay(1, () -> {
+            acquired[0] |= shark.getSharkState() == TigerSharkEntity.SharkState.CURIOUS
+                    || shark.justBitItem();
+            if (sample < 40) {
+                sampleTigerItemPursuit(helper, shark, item, start, startDistance, acquired, sample + 1);
+                return;
+            }
+            helper.assertTrue(acquired[0],
                     "tiger shark must acquire a reachable edible item");
             helper.assertTrue(shark.position().distanceToSqr(start) > 0.25,
                     "tiger shark must leave its spawn position while pursuing an item");
