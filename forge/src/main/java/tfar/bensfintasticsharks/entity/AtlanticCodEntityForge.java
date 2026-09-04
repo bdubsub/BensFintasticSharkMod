@@ -11,6 +11,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class AtlanticCodEntityForge extends AtlanticCodEntity implements GeoEntity {
 
+    private static final double SWIM_MOVEMENT_EPSILON = 1.0e-6;
+
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.atlantic_cod.idle");
     private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.atlantic_cod.swim");
     private static final RawAnimation FAST_SWIM = RawAnimation.begin().thenLoop("animation.atlantic_cod.swim_fast");
@@ -26,8 +28,9 @@ public class AtlanticCodEntityForge extends AtlanticCodEntity implements GeoEnti
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
             if (!isInWaterOrBubble()) return event.setAndContinue(FLOP);
-            if (getDeltaMovement().horizontalDistanceSqr() > 0.0225) return event.setAndContinue(FAST_SWIM);
-            return event.setAndContinue(event.isMoving() ? SWIM : IDLE);
+            double horizontalMovement = getDeltaMovement().horizontalDistanceSqr();
+            if (horizontalMovement > 0.0225) return event.setAndContinue(FAST_SWIM);
+            return event.setAndContinue(horizontalMovement > SWIM_MOVEMENT_EPSILON ? SWIM : IDLE);
         }));
     }
 
