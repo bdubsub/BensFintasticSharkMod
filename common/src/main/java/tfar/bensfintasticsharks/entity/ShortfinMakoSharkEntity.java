@@ -16,7 +16,6 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.level.Level;
@@ -73,7 +72,6 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
 
 
         this.moveControl = new SharkSwimmingMoveControl(this, 1 / 8f);
-        this.lookControl = new SmoothSwimmingLookControl(this, 10);
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(ShortfinMakoSharkEntity.class, EntityDataSerializers.INT);

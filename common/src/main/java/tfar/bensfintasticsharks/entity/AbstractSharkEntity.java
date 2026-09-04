@@ -72,6 +72,17 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         super(type, level);
         this.params = params;
         this.moveControl = new SharkSwimmingMoveControl(this, 1f / 8f);
+        this.lookControl = new BfsSharkLookControl(this);
+    }
+
+    @Override
+    protected float verticalSwimSpeedMultiplier() {
+        return (float) AquaticMovement.VERTICAL_SPEED_RATIO;
+    }
+
+    @Override
+    protected boolean usesPitchDrivenVerticalMovement() {
+        return true;
     }
 
     /**
@@ -828,7 +839,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         boolean fleeing = !hasPassenger && isFleeing();
         float scale = shallowWaterSpeedScale();
         if (chasing || fleeing) scale *= chaseAccelBoost();
-        Vec3 effectiveInput = braking ? Vec3.ZERO : movementInput;
+        Vec3 effectiveInput = braking ? Vec3.ZERO : scaleVerticalSwimInput(movementInput);
         float accel = useSwimMultiplier
                 ? this.getSpeed() * swimSpeedMultiplier() * scale
                 : this.getSpeed() * scale;
@@ -845,7 +856,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         } else {
             applyChaseFloor(movementInput);
         }
-        if (this.getTarget() == null) {
+        if (this.getTarget() == null && !usesPitchDrivenVerticalMovement()) {
             this.setDeltaMovement(this.getDeltaMovement().add(0.0, -idleSink, 0.0));
         }
         dampBackslide();

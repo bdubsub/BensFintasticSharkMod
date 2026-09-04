@@ -61,10 +61,9 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
             if (moving) {
                 double targetDistance = Math.sqrt(routeDx * routeDx + routeDy * routeDy + routeDz * routeDz);
                 if (verticalOnly && targetDistance > VERTICAL_TARGET_EPSILON) {
-                    targetVerticalInput = (float) (this.mob.getSpeed() * routeDy / targetDistance
-                            * AquaticMovement.VERTICAL_SPEED_RATIO);
+                    targetVerticalInput = (float) (this.mob.getSpeed() * routeDy / targetDistance);
                 } else {
-                    targetVerticalInput = (float) (this.mob.yya * AquaticMovement.VERTICAL_SPEED_RATIO);
+                    targetVerticalInput = this.mob.yya;
                 }
             }
             smoothedVerticalInput = AquaticMovement.smoothVerticalVelocity(

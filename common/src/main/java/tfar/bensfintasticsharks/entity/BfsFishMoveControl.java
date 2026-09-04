@@ -5,20 +5,28 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.animal.AbstractFish;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.phys.Vec3;
 
-/**
- * Fish movement control retaining vanilla's gentle vertical thrust while adding smooth pitch.
- * Vanilla fish already use a ten percent vertical component, but only rotate their yaw. This
- * control keeps that movement contract and points the whole model along the same scaled vector.
- */
+/** Fish movement control with the vanilla fish response and an explicit three dimensional pitch. */
 public final class BfsFishMoveControl extends MoveControl {
 
     private final AbstractFish fish;
-    private double smoothedVerticalImpulse;
 
     public BfsFishMoveControl(AbstractFish fish) {
         super(fish);
         this.fish = fish;
+    }
+
+    /**
+     * Mirrors AbstractFish water travel without its unconditional idle sink. Vertical velocity
+     * is supplied by this controller, so a fish can only rise or dive while its nose is moving
+     * toward that same target vector.
+     */
+    static void travel(AbstractFish fish, Vec3 movementInput) {
+        fish.moveRelative(0.01F, new Vec3(movementInput.x, 0.0, movementInput.z));
+        fish.move(MoverType.SELF, fish.getDeltaMovement());
+        fish.setDeltaMovement(fish.getDeltaMovement().scale(0.9));
     }
 
     @Override
@@ -36,10 +44,8 @@ public final class BfsFishMoveControl extends MoveControl {
             double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
             if (distance > 0.5) {
-                if (Math.abs(dy) > 1.0e-8) {
-                    targetVerticalImpulse = fish.getSpeed() * dy / distance
-                            * AquaticMovement.VERTICAL_SPEED_RATIO;
-                }
+                targetVerticalImpulse = AquaticMovement.affectedVerticalVelocity(
+                        fish.getSpeed(), dx, dy, dz);
 
                 if (Math.abs(dx) > 1.0e-8 || Math.abs(dz) > 1.0e-8) {
                     float desiredYaw = (float) (Mth.atan2(dz, dx) * Mth.RAD_TO_DEG) - 90.0F;
@@ -61,12 +67,12 @@ public final class BfsFishMoveControl extends MoveControl {
         }
 
         if (fish.isEyeInFluid(FluidTags.WATER)) {
-            smoothedVerticalImpulse = AquaticMovement.smoothVerticalVelocity(
-                    smoothedVerticalImpulse, targetVerticalImpulse);
-            fish.setDeltaMovement(fish.getDeltaMovement().add(
-                    0.0, 0.005 + smoothedVerticalImpulse, 0.0));
-        } else {
-            smoothedVerticalImpulse = 0.0;
+            double verticalSpeedLimit = fish.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO;
+            double verticalVelocity = AquaticMovement.smoothVerticalVelocity(
+                    fish.getDeltaMovement().y, targetVerticalImpulse);
+            verticalVelocity = Mth.clamp(verticalVelocity, -verticalSpeedLimit, verticalSpeedLimit);
+            fish.setDeltaMovement(fish.getDeltaMovement().x, verticalVelocity,
+                    fish.getDeltaMovement().z);
         }
     }
 }

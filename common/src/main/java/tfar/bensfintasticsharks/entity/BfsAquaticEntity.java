@@ -136,6 +136,17 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
 
     /** Per-species multiplier for the moveRelative acceleration. Smaller = slower. */
     protected float swimSpeedMultiplier() { return 0.18f; }
+    /** Per-species multiplier for the vertical component of controlled swimming. */
+    protected float verticalSwimSpeedMultiplier() { return 1.0f; }
+    /** Whether vertical motion is owned by the movement pitch instead of idle buoyancy. */
+    protected boolean usesPitchDrivenVerticalMovement() { return false; }
+    /** Applies the species vertical multiplier to movement input while preserving X and Z. */
+    protected Vec3 scaleVerticalSwimInput(Vec3 movementInput) {
+        float multiplier = verticalSwimSpeedMultiplier();
+        return multiplier == 1.0f
+                ? movementInput
+                : new Vec3(movementInput.x, movementInput.y * multiplier, movementInput.z);
+    }
     /** Hard cap on horizontal velocity in blocks/tick. Catches runaway acceleration. */
     protected float maxHorizontalSpeed() { return 0.45f; }
     /** Lock the entity's visual pitch (xRot) to 0 so it doesn't tilt when swimming up/down. */
@@ -152,7 +163,7 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
             // Scale moveRelative so MOVEMENT_SPEED attributes don't compound into mach-10
             // swimming. Vanilla water mobs effectively run with friction-bounded terminal
             // velocities around 0.3-0.5 b/t — we match that.
-            this.moveRelative(this.getSpeed() * swimSpeedMultiplier(), movementInput);
+            this.moveRelative(this.getSpeed() * swimSpeedMultiplier(), scaleVerticalSwimInput(movementInput));
             this.move(MoverType.SELF, this.getDeltaMovement());
             this.setDeltaMovement(this.getDeltaMovement().scale(this.wasTouchingWater ? 0.82 : 0.25));
             // Hard cap on horizontal speed so bad pathing or stacked impulses can't break it.
@@ -163,7 +174,7 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
                 double s = cap / horiz;
                 this.setDeltaMovement(dm.x * s, dm.y, dm.z * s);
             }
-            if (this.getTarget() == null) {
+            if (this.getTarget() == null && !usesPitchDrivenVerticalMovement()) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.002, 0.0));
             }
         } else {

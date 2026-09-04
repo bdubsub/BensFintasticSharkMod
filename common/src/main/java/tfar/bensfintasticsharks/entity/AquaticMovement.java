@@ -25,6 +25,19 @@ public final class AquaticMovement {
     }
 
     /**
+     * Returns the affected entity's vertical control component for one target vector. Keeping
+     * this beside {@link #affectedPitch(double, double, double)} makes the pitch and vertical
+     * movement use the same scaled three dimensional direction.
+     */
+    public static double affectedVerticalVelocity(double speed, double dx, double dy, double dz) {
+        double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (distance <= 1.0e-8) {
+            return 0.0d;
+        }
+        return speed * dy / distance * VERTICAL_SPEED_RATIO;
+    }
+
+    /**
      * Eases a vertical control value toward its target using the same one-eighth response already
      * used by the vanilla fish speed controller. Keeping the response shared prevents a target
      * reversal from becoming an instantaneous vertical impulse on one aquatic species only.

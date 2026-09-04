@@ -5,6 +5,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class AtlanticCodEntity extends Cod {
 
@@ -16,5 +17,14 @@ public class AtlanticCodEntity extends Cod {
 
     public static AttributeSupplier.Builder createAttributes() {
         return AbstractFish.createAttributes();
+    }
+
+    @Override
+    public void travel(Vec3 movementInput) {
+        if (isEffectiveAi() && isInWater()) {
+            BfsFishMoveControl.travel(this, movementInput);
+        } else {
+            super.travel(movementInput);
+        }
     }
 }

@@ -24,6 +24,14 @@ class AquaticMovementTest {
     }
 
     @Test
+    void affectedVerticalVelocityUsesTheApprovedRatio() {
+        assertEquals(1.0, AquaticMovement.affectedVerticalVelocity(10.0, 0.0, 10.0, 0.0), 0.00001);
+        assertEquals(-1.0, AquaticMovement.affectedVerticalVelocity(10.0, 0.0, -10.0, 0.0), 0.00001);
+        assertEquals(0.0, AquaticMovement.affectedVerticalVelocity(10.0, 10.0, 0.0, 0.0), 0.00001);
+        assertEquals(0.0, AquaticMovement.affectedVerticalVelocity(10.0, 0.0, 0.0, 0.0), 0.00001);
+    }
+
+    @Test
     void verticalControlEasesTowardTargetAndThroughReversal() {
         double first = AquaticMovement.smoothVerticalVelocity(0.0, 1.0);
         double second = AquaticMovement.smoothVerticalVelocity(first, 1.0);
