@@ -222,6 +222,118 @@
       "freshness": "current candidate evidence after fresh owner EULA authorization; source behavior matches the tested movement revision",
       "evidence": "docs/verification/phase-000-eula-session.md"
     },
+    "dedicated_server_multiplayer": {
+      "status": "passed_current_candidate_transport",
+      "server_host": "node-1",
+      "server_port": 25578,
+      "rcon_port": 25579,
+      "client_host": "linux_laptop",
+      "client_endpoint": "100.76.164.109:25578",
+      "server_source_revision": "be677cb999437a0dec1c407f92f5cec70da67f92",
+      "client_source_revision": "be677cb999437a0dec1c407f92f5cec70da67f92",
+      "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+      "server_command": "./gradlew :forge:Server --no-daemon --args='--port 25578 --nogui'",
+      "client_command": "./gradlew :forge:Client --no-daemon --args='--username Dev7 --quickPlayMultiplayer 100.76.164.109:25578'",
+      "configuration": {
+        "eula": true,
+        "online_mode": false,
+        "force_gamemode": true,
+        "gamemode": "creative",
+        "enable_command_block": true,
+        "do_daylight_cycle": false,
+        "do_weather_cycle": false,
+        "do_mob_spawning": false
+      },
+      "server_ready_marker": "Done (2.406s)!",
+      "server_log_sha256": "411b85e0e934404d60158449790f4cd9833f276cd1ed991bdc63d8eb58ba9eaf",
+      "client_log_sha256": "359f1324e6cc41be69b6e0b432106395c2254862b590cb84256b048af66ba244",
+      "client_connect_markers": [
+        "Connecting to 100.76.164.109, 25578",
+        "Connected to a modded server.",
+        "Loaded 56 advancements"
+      ],
+      "rcon_setup": [
+        "time set noon",
+        "weather clear",
+        "gamerule doDaylightCycle false",
+        "gamerule doWeatherCycle false",
+        "gamerule doMobSpawning false",
+        "gamerule commandBlockOutput false",
+        "glass and water tank fixture",
+        "player teleport and night vision",
+        "labeled Cod, Salmon, Oceanic Whitetip, and Bottlenose Dolphin summons"
+      ],
+      "window_transport": {
+        "display": "Xwayland :1 on wayland-1",
+        "active_workspace_before": 2,
+        "active_workspace_after": 2,
+        "window_workspace": 3,
+        "capture_command": "DISPLAY=:1 import -window <minecraft_window_id> <capture_path>"
+      },
+      "captures": [
+        {
+          "id": "mp-dedicated-connected-world",
+          "sha256": "3528a1a6e0f9caef3aa3216098f2e848be1d5d87b306b29652c3be57d7726fee",
+          "dimensions": "3800x2290",
+          "observed": "The laptop client rendered the connected dedicated-server world while the window remained hidden on workspace 3."
+        },
+        {
+          "id": "mp-dedicated-entity-fixture",
+          "sha256": "740d1db3fc8eb05b44a3060cc1226b30c2719c4020ff1b1868229f40b5a41107",
+          "dimensions": "3800x2290",
+          "observed": "The laptop client rendered the RCON-built glass tank with Cod, Salmon, Oceanic Whitetip, and Bottlenose Dolphin fixtures."
+        }
+      ],
+      "observed": "The node 1 dedicated server accepted the laptop client over Tailscale, RCON commands changed the disposable world and appeared in the laptop chat, and the laptop rendered the resulting entities on the NVIDIA GeForce RTX 5090 Laptop GPU.",
+      "admissibility": "admissible for dedicated-server-to-laptop multiplayer setup and hidden-window render transport; controlled fixtures do not close animation, combat, cleanup, or sustained-population matrices"
+    },
+    "client_laptop_window": {
+      "status": "passed_laptop_render_and_hidden_window_capture",
+      "host": "linux_laptop",
+      "source_revision": "be677cb999437a0dec1c407f92f5cec70da67f92",
+      "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+      "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "driver": "610.57.04",
+      "display": "Xwayland :1 on wayland-1",
+      "active_workspace_before": 2,
+      "active_workspace_after": 2,
+      "window_workspace": 3,
+      "window_geometry": "3840x2290 capture from a 1920x1145 floating Minecraft window",
+      "capture_command": "DISPLAY=:1 import -window <minecraft_window_id> <capture_path>",
+      "captures": [
+        {
+          "id": "client-laptop-workspace3-hidden-final",
+          "sha256": "d2d84d84af35e01a726d6f0bde5e9d6980698ffb5ca58a1a7ae854ec9e3cee3f",
+          "dimensions": "3840x2290",
+          "observed": "Current Forge client rendered the disposable ocean fixture and BFS entities while the Minecraft window remained on workspace 3."
+        },
+        {
+          "id": "client-laptop-workspace3-hidden-frame-01",
+          "sha256": "ebcf09ec30c3d16a7d50b5b029a43926a49c55d95e8cecb9ca7892246f12e606",
+          "dimensions": "3840x2290",
+          "observed": "Direct hidden-window capture completed from workspace 3 without changing the active workspace."
+        },
+        {
+          "id": "client-laptop-workspace3-hidden-frame-02",
+          "sha256": "74674f45d9c2f64a1bc356c1a0a63c0ce80a7082f5020bd54f22dcf1c25cb09f",
+          "dimensions": "3840x2290",
+          "observed": "Second direct hidden-window capture completed with active workspace still 2."
+        },
+        {
+          "id": "client-laptop-workspace3-hidden-frame-03",
+          "sha256": "585102d29dd9485e7a375cfa99b2da2b868c4549c19dc98e259755a98268deb0",
+          "dimensions": "3840x2290",
+          "observed": "Third direct hidden-window capture completed with active workspace still 2."
+        },
+        {
+          "id": "client-laptop-workspace3-hidden-frame-04",
+          "sha256": "a16b921f2b7c3e34d318ffe71cf78e9efbbed01f2d11b2d230f2eb01fb84f73d",
+          "dimensions": "3840x2290",
+          "observed": "Fourth direct hidden-window capture completed with active workspace still 2."
+        }
+      ],
+      "admissibility": "admissible for laptop client loading and capture transport; does not close the per-state animation, advancement, algae, population, or multiplayer matrices"
+    },
     "client_loading": {
       "status": "historical_headless_smoke_not_admissible_under_laptop_only_policy",
       "host": "node-1",
