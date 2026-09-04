@@ -194,13 +194,13 @@ Both runs used the clean candidate Forge artifact SHA 256 `80c6cadf1b8dc849e95cb
 
 ## Latest pitch and route regression
 
-On 2026-09-04, the pitch-bound movement patch was rerun from phase branch `envy/0.24-phase-000` at source commit `d7c082074d9beb42ea136be5dd7bd903a4791625`. The checks ran in disposable directory `/tmp/bfsm-p000-test-ufZ3Ur` with Java 17 and the shared Gradle dependency cache. The directory and generated runtime were removed after inspection.
+On 2026-09-04, the pitch-bound movement patch was rerun from phase branch `envy/0.24-phase-000` at source commit `114b226bfb05e0da8cc7c2f533a964d019958fa1`. The checks ran in disposable directory `/tmp/bfsm-p000-test-IINoMy` with Java 17 and the shared Gradle dependency cache. The directory and generated runtime were removed after inspection.
 
 | Check | Command or boundary | Result |
 | --- | --- | --- |
 | Pitch unit regression | `./gradlew :forge:test --tests tfar.bensfintasticsharks.audit.AquaticMovementTest --no-daemon` | Passed. Direct vertical vectors use the shallow angle implied by the approved 10 percent vertical ratio, fish and shark pitch profiles remain bounded, and the shared transition limit is 0.30 degrees per tick. |
 | Forge unit and contract tests | `./gradlew :forge:test --no-daemon` | Passed. |
 | Headless movement GameTests | `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks` | Passed. All 9 required tests passed, including ascending and descending shark routes and Atlantic Cod monotonic vertical travel. The exact disposable runtime EULA was verified as `eula=true` before launch. |
-| Forge artifact | `./gradlew :forge:test :forge:build --no-daemon`, followed by `unzip -tqq` | Passed. The evidence JAR SHA 256 was `0b7e7aaa534f6cfc206aaca87ac982dcc8e1bea35938f2d6a0f0330752887979` and SHA 512 was `b113ec20294aa55cc0da60de6c5b3d3643559e38e9c3cf1021b32598d1a19743829fd0695e42ef0b77dd21814cb7cf17d91b40adaf0b9565feead410f26dffaf`. |
+| Forge artifact | `./gradlew :forge:build --no-daemon --rerun-tasks`, followed by `unzip -tqq` | Passed. The evidence JAR SHA 256 was `fdb9481c60e7050922ee086554b462875bdd14ae6b5ae5f13280c85c3a44b801` and SHA 512 was `fe69272babdb7cea297308fdfdb5a88222a3565920c44bbc1e28d211c90c3dfb1c13acaa0733986c48a1c329fd42d281a97fe5a76e8f4f7bf968c36a384c4a7b`. |
 
 This rerun closes the affected deterministic and server-side movement regressions, but it does not close the remaining interactive fish and Oceanic Whitetip state matrix or laptop visual acceptance gates.
