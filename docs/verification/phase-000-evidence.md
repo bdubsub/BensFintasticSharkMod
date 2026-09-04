@@ -194,7 +194,7 @@ Both runs used the clean candidate Forge artifact SHA 256 `80c6cadf1b8dc849e95cb
 
 ## Latest pitch and route regression
 
-On 2026-09-04, the pitch-bound movement patch was rerun from phase branch `envy/0.24-phase-000` at source base commit `c3975d04f24eb2b8aa8a07cb55c47ec2f2c08afd` plus the uncommitted movement changes. The checks ran in disposable directory `/tmp/bfsm-p000-test-5Uia7z` with Java 17 and the shared Gradle dependency cache. The directory and generated runtime were removed after inspection.
+On 2026-09-04, the pitch-bound movement patch was rerun from phase branch `envy/0.24-phase-000` at source commit `d7c082074d9beb42ea136be5dd7bd903a4791625`. The checks ran in disposable directory `/tmp/bfsm-p000-test-ufZ3Ur` with Java 17 and the shared Gradle dependency cache. The directory and generated runtime were removed after inspection.
 
 | Check | Command or boundary | Result |
 | --- | --- | --- |
