@@ -20,4 +20,11 @@ public class AtlanticCodRenderer extends GeoEntityRenderer<AtlanticCodEntityForg
     public @NotNull ResourceLocation getTextureLocation(AtlanticCodEntityForge entity) {
         return TEXTURE;
     }
+
+    @Override
+    protected void applyRotations(AtlanticCodEntityForge entity, com.mojang.blaze3d.vertex.PoseStack poseStack,
+                                  float ageInTicks, float rotationYaw, float partialTick) {
+        super.applyRotations(entity, poseStack, ageInTicks, rotationYaw, partialTick);
+        AquaticRenderTransforms.applySwimPitch(poseStack, entity, partialTick);
+    }
 }

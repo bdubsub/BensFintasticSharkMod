@@ -11,21 +11,25 @@ final class AquaticRenderTransforms {
     }
 
     /**
-     * Smoothly angles a swimming shark toward its vertical travel direction. Vanilla's
-     * {@code SmoothSwimmingMoveControl} already updates entity X rotation, but a GeckoLib
-     * model otherwise consumes that value only as head-pitch data and leaves the body level.
+     * Applies the entity pitch to the whole GeckoLib model. The pitch is authored by the logical
+     * movement controller and interpolated here between server-synchronized entity rotations.
      */
-    static void applySharkPitch(PoseStack poseStack, LivingEntity shark, float partialTick) {
-        if (!shark.isAlive() || !shark.isInWaterOrBubble()) return;
+    static void applySwimPitch(PoseStack poseStack, LivingEntity swimmer, float partialTick) {
+        if (!swimmer.isAlive() || !swimmer.isInWaterOrBubble()) return;
 
-        float pitch = Mth.clamp(Mth.lerp(partialTick, shark.xRotO, shark.getXRot()), -35f, 35f);
-        if (Math.abs(pitch) < 0.25f) return;
+        float pitch = Mth.lerp(partialTick, swimmer.xRotO, swimmer.getXRot());
+        if (pitch == 0.0F) return;
 
-        // Shark geometry faces -Z, so negate vanilla's look pitch: negative X rotation
+        // Aquatic models face -Z, so negate vanilla's look pitch: negative X rotation
         // (target above) becomes a positive model rotation (nose up).
-        float pivot = shark.getBbHeight() * 0.5f;
+        float pivot = swimmer.getBbHeight() * 0.5f;
         poseStack.translate(0, pivot, 0);
         poseStack.mulPose(Axis.XP.rotationDegrees(-pitch));
         poseStack.translate(0, -pivot, 0);
+    }
+
+    /** Compatibility name retained for existing shark renderers. */
+    static void applySharkPitch(PoseStack poseStack, LivingEntity shark, float partialTick) {
+        applySwimPitch(poseStack, shark, partialTick);
     }
 }

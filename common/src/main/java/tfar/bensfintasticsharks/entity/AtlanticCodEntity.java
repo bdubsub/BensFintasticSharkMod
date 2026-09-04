@@ -10,6 +10,8 @@ public class AtlanticCodEntity extends Cod {
 
     protected AtlanticCodEntity(EntityType<? extends Cod> type, Level level) {
         super(type, level);
+        this.moveControl = new BfsFishMoveControl(this);
+        this.lookControl = new BfsFishLookControl(this);
     }
 
     public static AttributeSupplier.Builder createAttributes() {

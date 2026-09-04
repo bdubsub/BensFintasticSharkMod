@@ -10,6 +10,8 @@ public class AtlanticSalmonEntity extends Salmon {
 
     protected AtlanticSalmonEntity(EntityType<? extends Salmon> type, Level level) {
         super(type, level);
+        this.moveControl = new BfsFishMoveControl(this);
+        this.lookControl = new BfsFishLookControl(this);
     }
 
     public static AttributeSupplier.Builder createAttributes() {

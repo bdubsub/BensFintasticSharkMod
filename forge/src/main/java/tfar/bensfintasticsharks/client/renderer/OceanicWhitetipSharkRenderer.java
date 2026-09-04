@@ -44,6 +44,6 @@ public class OceanicWhitetipSharkRenderer extends GeoEntityRenderer<OceanicWhite
     @Override
     protected void applyRotations(OceanicWhitetipSharkEntityForge animatable, com.mojang.blaze3d.vertex.PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
         super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
-        AquaticRenderTransforms.applySharkPitch(poseStack, animatable, partialTick);
+        AquaticRenderTransforms.applySwimPitch(poseStack, animatable, partialTick);
     }
 }

@@ -11,7 +11,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class AtlanticSalmonEntityForge extends AtlanticSalmonEntity implements GeoEntity {
 
-    private static final double SWIM_MOVEMENT_EPSILON = 1.0e-6;
+    private static final double SWIM_MOVEMENT_EPSILON = 1.0e-4;
 
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.atlantic_salmon.idle");
     private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.atlantic_salmon.swim");
@@ -30,9 +30,9 @@ public class AtlanticSalmonEntityForge extends AtlanticSalmonEntity implements G
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
             if (isNamedSpin()) return event.setAndContinue(SPIN);
             if (!isInWaterOrBubble()) return event.setAndContinue(FLOP);
-            double horizontalMovement = getDeltaMovement().horizontalDistanceSqr();
-            if (horizontalMovement > 0.0225) return event.setAndContinue(FAST_SWIM);
-            return event.setAndContinue(horizontalMovement > SWIM_MOVEMENT_EPSILON ? SWIM : IDLE);
+            double movement = getDeltaMovement().lengthSqr();
+            if (movement > 0.0225) return event.setAndContinue(FAST_SWIM);
+            return event.setAndContinue(movement > SWIM_MOVEMENT_EPSILON ? SWIM : IDLE);
         }));
     }
 

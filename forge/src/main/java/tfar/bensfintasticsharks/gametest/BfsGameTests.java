@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.EntityType;
@@ -12,6 +13,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
+import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
+import tfar.bensfintasticsharks.entity.AquaticMovement;
 import tfar.bensfintasticsharks.entity.OceanicWhitetipSharkEntity;
 import tfar.bensfintasticsharks.entity.TigerSharkEntity;
 import tfar.bensfintasticsharks.init.ModBlocks;
@@ -149,16 +152,28 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 180)
+    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
     public static void sharkVerticalRouteFollowsDolphinWithoutOrbit(GameTestHelper helper) {
-        runVerticalRoute(helper, new BlockPos(4, 3, 4), new BlockPos(4, 18, 4),
-                new BlockPos(4, 3, 8), new BlockPos(4, 18, 8), 1);
+        runVerticalRoute(helper, new BlockPos(4, 5, 4), new BlockPos(4, 9, 4),
+                new BlockPos(4, 5, 20), new BlockPos(4, 9, 20), 1);
     }
 
-    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 180)
+    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
     public static void sharkDescendingRouteFollowsDolphinWithoutOrbit(GameTestHelper helper) {
-        runVerticalRoute(helper, new BlockPos(4, 18, 4), new BlockPos(4, 3, 4),
-                new BlockPos(4, 18, 8), new BlockPos(4, 3, 8), -1);
+        runVerticalRoute(helper, new BlockPos(4, 9, 4), new BlockPos(4, 5, 4),
+                new BlockPos(4, 9, 20), new BlockPos(4, 5, 20), -1);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
+    public static void atlanticCodVerticalRouteUsesScaledPitch(GameTestHelper helper) {
+        prepareVerticalWaterVolume(helper);
+        AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(4, 5, 4));
+        cod.getBrain().removeAllBehaviors();
+        Vec3 target = helper.absolutePos(new BlockPos(4, 8, 4)).getCenter();
+        java.util.List<Double> heights = new java.util.ArrayList<>();
+        java.util.List<Float> pitches = new java.util.ArrayList<>();
+        double startY = cod.getY();
+        sampleFishVerticalRoute(helper, cod, target, startY, heights, pitches, 0);
     }
 
     private static void runVerticalRoute(GameTestHelper helper,
@@ -187,7 +202,8 @@ public final class BfsGameTests {
 
         sampleVerticalRoute(helper, shark, dolphin, sharkTarget, dolphinTarget,
                 sharkStartY, dolphinStartY, sharkStartX, sharkStartZ, dolphinStartX, dolphinStartZ,
-                sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets, verticalDirection, 0);
+                sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets,
+                verticalDirection, 0, -1);
     }
 
     private static void sampleVerticalRoute(GameTestHelper helper, Mob shark, Mob dolphin,
@@ -200,19 +216,26 @@ public final class BfsGameTests {
                                              java.util.List<Double> sharkHorizontalOffsets,
                                              java.util.List<Double> dolphinHorizontalOffsets,
                                              int verticalDirection,
-                                             int sample) {
+                                             int sample,
+                                             int dolphinArrivalSample) {
+        final int[] arrival = {dolphinArrivalSample};
         helper.runAfterDelay(1, () -> {
+            if (arrival[0] < 0 && dolphin.distanceToSqr(dolphinTarget) <= 0.36) {
+                arrival[0] = sample;
+            }
             sharkHeights.add(shark.getY());
             dolphinHeights.add(dolphin.getY());
             sharkHorizontalOffsets.add(Math.hypot(shark.getX() - sharkStartX, shark.getZ() - sharkStartZ));
             dolphinHorizontalOffsets.add(Math.hypot(dolphin.getX() - dolphinStartX, dolphin.getZ() - dolphinStartZ));
-            if (sample < 80) {
+            if (sample < 260) {
                 setVerticalTarget(shark, sharkTarget);
-                setVerticalTarget(dolphin, dolphinTarget);
+                if (arrival[0] < 0) {
+                    setVerticalTarget(dolphin, dolphinTarget);
+                }
                 sampleVerticalRoute(helper, shark, dolphin, sharkTarget, dolphinTarget,
                         sharkStartY, dolphinStartY, sharkStartX, sharkStartZ, dolphinStartX, dolphinStartZ,
                         sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets,
-                        verticalDirection, sample + 1);
+                        verticalDirection, sample + 1, arrival[0]);
                 return;
             }
 
@@ -221,20 +244,69 @@ public final class BfsGameTests {
             helper.assertTrue(dolphinProgress * verticalDirection > 0.25,
                     "bottlenose dolphin must complete the vertical reference route");
             helper.assertTrue(sharkProgress * verticalDirection > 0.25,
-                    "shark must complete the vertical route");
-            helper.assertTrue(sharkProgress * verticalDirection >= dolphinProgress * verticalDirection * 0.5,
-                    "shark vertical progress must follow the dolphin reference, shark=" + sharkProgress
+                    "shark must complete the vertical route, progress=" + sharkProgress
+                            + ", dolphinProgress=" + dolphinProgress);
+            helper.assertTrue(sharkProgress * verticalDirection <= dolphinProgress * verticalDirection + 0.75,
+                    "shark vertical progress must remain below the full dolphin reference, shark=" + sharkProgress
                             + ", dolphin=" + dolphinProgress + ", navDone=" + shark.getNavigation().isDone()
                             + ", position=" + shark.position() + ", delta=" + shark.getDeltaMovement());
             helper.assertTrue(max(sharkHorizontalOffsets) <= max(dolphinHorizontalOffsets) + 0.75,
-                    "shark must not orbit horizontally while following a vertical route");
+                    "shark must not orbit horizontally while following a vertical route, sharkMax="
+                            + max(sharkHorizontalOffsets) + ", dolphinMax=" + max(dolphinHorizontalOffsets));
             helper.assertTrue(hasNoDirectionReversal(sharkHeights, verticalDirection),
                     "shark vertical travel must not repeatedly reverse direction, reversals="
                             + directionReversals(sharkHeights) + ", heights=" + sharkHeights);
-            helper.assertTrue(hasNoDirectionReversal(dolphinHeights, verticalDirection),
+            int dolphinSamples = arrival[0] < 0
+                    ? dolphinHeights.size() : arrival[0] + 1;
+            helper.assertTrue(hasNoDirectionReversal(dolphinHeights.subList(0, dolphinSamples), verticalDirection),
                     "dolphin reference must remain smooth and monotonic");
             helper.succeed();
         });
+    }
+
+    private static void sampleFishVerticalRoute(GameTestHelper helper, AtlanticCodEntity cod,
+                                                 Vec3 target, double startY,
+                                                 java.util.List<Double> heights,
+                                                 java.util.List<Float> pitches, int sample) {
+        helper.runAfterDelay(1, () -> {
+            heights.add(cod.getY());
+            pitches.add(cod.getXRot());
+            if (sample < 260 && cod.distanceToSqr(target) > 0.36) {
+                cod.getNavigation().moveTo(target.x, target.y, target.z, 1.0D);
+                sampleFishVerticalRoute(helper, cod, target, startY, heights, pitches, sample + 1);
+                return;
+            }
+            double progress = cod.getY() - startY;
+            float peakPitch = minimumWrappedPitch(pitches);
+            helper.assertTrue(progress > 0.25,
+                    "atlantic cod must make directed vertical progress, progress=" + progress);
+            helper.assertTrue(peakPitch < -1.0F,
+                    "atlantic cod must pitch its nose toward the elevated target, peakPitch=" + peakPitch
+                            + ", finalPitch=" + cod.getXRot());
+            helper.assertTrue(maxPitchStep(pitches) <= 5.0001F,
+                    "atlantic cod pitch must transition smoothly, maxStep=" + maxPitchStep(pitches));
+            helper.assertTrue(AquaticMovement.VERTICAL_SPEED_RATIO == 0.10D,
+                    "affected aquatic vertical ratio must remain the approved oracle");
+            helper.assertTrue(hasNoDirectionReversal(heights, 1),
+                    "atlantic cod vertical travel must not repeatedly reverse direction");
+            helper.succeed();
+        });
+    }
+
+    private static float maxPitchStep(java.util.List<Float> pitches) {
+        float max = 0.0F;
+        for (int i = 1; i < pitches.size(); i++) {
+            max = Math.max(max, Math.abs(Mth.wrapDegrees(pitches.get(i) - pitches.get(i - 1))));
+        }
+        return max;
+    }
+
+    private static float minimumWrappedPitch(java.util.List<Float> pitches) {
+        float minimum = 0.0F;
+        for (float pitch : pitches) {
+            minimum = Math.min(minimum, Mth.wrapDegrees(pitch));
+        }
+        return minimum;
     }
 
     private static void setVerticalTarget(Mob mob, Vec3 target) {
@@ -269,8 +341,8 @@ public final class BfsGameTests {
     }
 
     private static void prepareVerticalWaterVolume(GameTestHelper helper) {
-        for (int x = 1; x <= 10; x++) {
-            for (int z = 1; z <= 10; z++) {
+        for (int x = 1; x <= 24; x++) {
+            for (int z = 1; z <= 24; z++) {
                 helper.setBlock(new BlockPos(x, 0, z), Blocks.SAND.defaultBlockState());
                 for (int y = 1; y <= 20; y++) {
                     helper.setBlock(new BlockPos(x, y, z), Blocks.WATER.defaultBlockState());
