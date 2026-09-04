@@ -914,6 +914,77 @@
       ],
       "limitations": "command-assisted disposable fixtures; fish, Tiger Shark, and Oceanic Whitetip probes are exploratory and do not replace the required state, damage, recovery, multiplayer, completion-path, or advancement-display matrices"
     },
+    "current_dedicated_multiplayer_session_20260904": {
+      "status": "passed_transport_and_cleanup_probe",
+      "source_revision": "8b63360c2c9d95df12ac8d024508dd199ee3fd01",
+      "phase_branch": "envy/0.24-phase-000",
+      "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "artifact_sha256": "6887ee5ddf22457193933e56faff1060bad8a767624703061be522fb8851abbc",
+      "server_host": "node-1",
+      "server_port": 25578,
+      "rcon_port": 25579,
+      "world": "phase000-matrix-20260904",
+      "client_host": "linux_laptop",
+      "client_endpoint": "100.76.164.109:25578",
+      "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "server_ready_marker": "2026-09-04 01:23:22.494 Done (13.512s)!",
+      "server_log_sha256": "d13bf8d502e8fc84df62785a4b4482e5dd70e39c1e3c3503b6e91048856354d4",
+      "client_log_sha256": "5f08c11e40b79896d27bda5bdc299c4a4d7580e62d348594bcb80284d9465c20",
+      "client_connect_markers": [
+        "Connecting to 100.76.164.109, 25578",
+        "Connected to a modded server.",
+        "Loaded 57 advancements",
+        "[Rcon] BFS_MATRIX_RECONNECT_PASS"
+      ],
+      "configuration": {
+        "eula": true,
+        "online_mode": false,
+        "gamemode": "spectator",
+        "do_mob_spawning": false,
+        "pause_on_lost_focus": false
+      },
+      "window_transport": {
+        "display": "Xwayland :1",
+        "active_workspace_before": 2,
+        "active_workspace_after": 2,
+        "window_workspace": 3,
+        "capture_method": "remote import of the laptop Minecraft X11 window without workspace switching"
+      },
+      "captures": [
+        {
+          "id": "mp-matrix-cod-idle-20260904",
+          "kind": "video",
+          "sha256": "f09336735dccb87ad5b854fdd002cd827cb66eb5e0640a1e095e29419645d03d",
+          "duration_seconds": 4.0,
+          "observed": "A server-held zero-motion Cod fixture rendered on the connected laptop client."
+        },
+        {
+          "id": "mp-matrix-cod-natural-swim-20260904",
+          "kind": "video",
+          "sha256": "2185d935399792b3b87ad8eb26ad8e2a617b8cfe36a9dcdfcd3a6faa4c4313dd",
+          "duration_seconds": 8.0,
+          "observed": "A normal-AI Cod moved through the bounded server-built water fixture during the laptop capture."
+        },
+        {
+          "id": "mp-matrix-disconnect-screen-20260904",
+          "kind": "image",
+          "sha256": "0bcc2479560cfedb522add535b351d716532318d69b3f906b45ef5218256c2d3",
+          "dimensions": "3800x2290",
+          "observed": "The laptop displayed the server-issued connection-loss reason BFS_MATRIX_DISCONNECT."
+        }
+      ],
+      "cleanup_markers": [
+        "BFS_MATRIX_CLEANUP_MOUNTED",
+        "BFS_MATRIX_CLEANUP_DISMOUNTED",
+        "BFS_MATRIX_CLEANUP_ENTITY_REMOVED",
+        "BFS_MATRIX_DISCONNECT",
+        "BFS_MATRIX_RECONNECT_PASS",
+        "BFS_MATRIX_SESSION_END"
+      ],
+      "server_shutdown": "2026-09-04 01:53:08.236 all dimensions saved and RCON listener stopped",
+      "ports_closed": true,
+      "limitations": "This run proves the node 1 headless server to laptop client topology, RCON control, visible connected rendering, forced disconnect, reconnect, and command-driven passenger cleanup. It does not close the full animation, Tiger and Dolphin comparison, population, natural algae, or remaining multiplayer cleanup matrices."
+    },
     "fresh_profile_progression": {
       "status": "sharks_galore_natural_trigger_passed_with_controlled_fixture",
       "world": "forge/run/saves/phase000-fresh-advancements",
