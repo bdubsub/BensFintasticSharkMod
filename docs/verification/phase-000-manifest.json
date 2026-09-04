@@ -469,6 +469,90 @@
         },
         "limitations": "All probes are disposable RCON-controlled multiplayer fixtures. They strengthen current-candidate attribution and server-client synchronization, but the complete per-clip sample table, continuous body and nose orientation trace, Tiger and Dolphin comparison, sustained population, and cleanup matrix remain open."
       },
+      "latest_candidate_725bab6": {
+        "status": "passed_dedicated_server_to_laptop_capture",
+        "source_revision": "725bab666d38cd3f05e8e618f02fc96a6b84d7c7",
+        "phase_branch": "envy/0.24-phase-000",
+        "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+        "artifact_size": 1754085,
+        "artifact_sha256": "d478700bd3ea6faab6393e7d658fbdb9c2ecb4a50404d1349c617089dc5579f3",
+        "artifact_sha512": "2077a5f8f4d42f9e2f5de87dbee3288fdb3cf8e47f58da90682a9037ff6850b08821648493e0afb648f6dc447724e199237fbd42b56aa4d82824c379e74dd3d6",
+        "server_host": "node-1",
+        "server_port": 25578,
+        "rcon_port": 25579,
+        "server_worktree": "/mnt/hermes/projects/BFSMOD-phase-000",
+        "server_runtime_path": "/tmp/bfsm-phase000-final-server.r4d6Ox",
+        "world": "phase000-mp-final-2",
+        "client_host": "linux_laptop",
+        "client_endpoint": "100.76.164.109:25578",
+        "client_runtime_path": "/tmp/bfsm-laptop-phase000-mp-src.LmQVw0",
+        "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+        "client_driver": "610.57.04",
+        "configuration": {
+          "eula": true,
+          "online_mode": false,
+          "difficulty": "normal",
+          "do_mob_spawning": false,
+          "spawn_animals": true,
+          "spawn_monsters": true,
+          "pause_on_lost_focus": false
+        },
+        "server_ready_marker": "2026-09-03 23:09:13.050 Done (13.002s)!",
+        "server_join_marker": "2026-09-03 23:20:49.392 Dev7 joined the game",
+        "client_connect_markers": [
+          "2026-09-03 23:20:49.384 Connected to a modded server.",
+          "2026-09-03 23:20:49.877 Loaded 56 advancements"
+        ],
+        "rcon_control_probe": {
+          "command": "say phase 000 multiplayer animation capture complete",
+          "server_log_marker": "2026-09-03 23:24:40.790 [Rcon] phase 000 multiplayer animation capture complete",
+          "client_log_marker": "2026-09-03 23:24:40.807 [System] [CHAT] [Rcon] phase 000 multiplayer animation capture complete"
+        },
+        "server_log_sha256": "1b870fd4ac097ef2317faf864b2e58c8ff4ec5dee6183b0ebc648e16421765d0",
+        "client_log_sha256": "b581ec0f0e381742637fc36e367b2e426e6aa3c319303fb72d5a0349b0e434ea",
+        "window_transport": {
+          "display": "Xwayland :1",
+          "active_workspace_before": 2,
+          "active_workspace_after": 2,
+          "window_workspace": 3,
+          "capture_method": "remote import of the laptop Minecraft X11 window without workspace switching",
+          "window_geometry": "3800x2290"
+        },
+        "captures": [
+          {
+            "id": "mp-final-fixtures",
+            "kind": "image",
+            "sha256": "c8744c966a2217f9d2d2c7c353a15443b7c8bdba452660adccd3b2ff5aa6ff1e",
+            "dimensions": "3800x2290",
+            "observed": "The connected laptop client rendered the RCON-built water tank with labeled Oceanic Whitetip and Bottlenose Dolphin fixtures."
+          },
+          {
+            "id": "mp-final-state-a",
+            "kind": "image",
+            "sha256": "73009fa8b52a2b4bf1a9294f7e062c73a9a4bf2a4c04614e7b730365b52862f5",
+            "dimensions": "3800x2290",
+            "server_state": "Oceanic Whitetip at -6,65,0 and Bottlenose Dolphin at 6,65,0 before the capture",
+            "observed": "Both labeled actors rendered in the connected world."
+          },
+          {
+            "id": "mp-final-state-b",
+            "kind": "image",
+            "sha256": "5c8c78679211f6ef44d22b869d90184ad62901faf3049e074f68ed50d9fdefcd",
+            "dimensions": "3800x2290",
+            "server_state": "Oceanic Whitetip at -1,68,0 and Bottlenose Dolphin at 1,62,0 before the capture",
+            "observed": "The second server-controlled state rendered with a different vertical placement and orientation."
+          },
+          {
+            "id": "mp-final-oceanic-dolphin-transport",
+            "kind": "video",
+            "sha256": "77ca225ec607145f7b4024b4e4b8ce92bc619fb1d4408fc502b2279c39fcf77e",
+            "duration_seconds": 12.05,
+            "size_bytes": 31298,
+            "observed": "Laptop X11 transport capture completed; repeated hidden-window backing frames make this transport evidence only, not a continuous motion oracle."
+          }
+        ],
+        "limitations": "This run proves the headless node 1 server, Tailscale client connection, RCON fixture control, laptop rendering, and workspace-safe capture. Controlled state frames do not close the interactive per-clip animation, continuous body and nose orientation, combat, cleanup, or sustained-population gates."
+      },
       "observed": "The node 1 dedicated server accepted the laptop client over Tailscale, RCON commands changed the disposable world and appeared in the laptop chat, and the laptop rendered the resulting entities on the NVIDIA GeForce RTX 5090 Laptop GPU. The control probe also confirmed a server command reached the connected client without a singleplayer world.",
       "admissibility": "admissible for dedicated-server-to-laptop multiplayer setup and hidden-window render transport; controlled fixtures do not close animation, combat, cleanup, or sustained-population matrices"
     },
@@ -941,6 +1025,64 @@
         }
       ],
       "limitations": "integrated LAN protocol only; dedicated-server readiness, sustained population, and full gameplay synchronization remain separate gates"
+    },
+    "animation_sample_equivalence": {
+      "status": "passed",
+      "implementation_revision": "725bab666d38cd3f05e8e618f02fc96a6b84d7c7",
+      "baker": "tools/bake_molang_animations.py",
+      "baker_sha256": "0e62f807b3fb8c2a712f9e2703f19bae4fa14baf2188de01373a788ba873ad50",
+      "source_archive": {
+        "path": "Content/BFS 0.23 Content.zip",
+        "sha256": "1dcfd0db544184bffd467255ba294b57f0a1376b06023f10034f380b9e5d0eaa"
+      },
+      "source_members": [
+        {
+          "path": "BFS 0.23 Content/Atlantic Cod/atlantic_cod.animation.json",
+          "sha256": "efd3e6231ca130f5b28d0e87225960e7877b85cc1fb0407e6d7404cc3c4a04ad",
+          "destination": "common/src/main/resources/assets/bensfintasticsharks/animations/entity/atlantic_cod.animation.json",
+          "destination_sha256": "ffa889ee5418b1439e4b1f6865404b02c4adfd5a6a03cc7e9df6f4b363c125ab"
+        },
+        {
+          "path": "BFS 0.23 Content/Atlatnic Salmon/atlantic_salmon.animation.json",
+          "sha256": "19a5463fb83ce1fd9329125365f733a0ff715abdb5f06c6de5e7f1ccfff18648",
+          "destination": "common/src/main/resources/assets/bensfintasticsharks/animations/entity/atlantic_salmon.animation.json",
+          "destination_sha256": "f7670f1eb24182309c536e032a412da69f6ddea57748c62f93dae8d1e4d6faed"
+        },
+        {
+          "path": "BFS 0.23 Content/Oceanic Whitetip Animations New/oceanicwhitetipshark.animation.json",
+          "sha256": "dece327b4655f89d1f79ae463f05a6a3d3683cc2f7eb9550205e8b199d700e86",
+          "destination": "common/src/main/resources/assets/bensfintasticsharks/animations/entity/oceanic_whitetip_shark.animation.json",
+          "destination_sha256": "d9e5f9e82b8124024800c86be81af12f5597ac10050f5db718121ca40384bfb0"
+        }
+      ],
+      "sample_points": [0.0, 0.25, 0.5, 0.75, 1.0],
+      "absolute_tolerance": 0.0001,
+      "endpoint_policy": "Authored endpoints are retained when a loop period does not divide cleanly at the baked precision, including Oceanic Whitetip swim_new at 1.7083 seconds.",
+      "bone_mapping": {
+        "oceanic_whitetip_shark": {
+          "leftFin": "Fin2",
+          "rightFin": "Fin"
+        }
+      },
+      "clips": [
+        {"name": "animation.atlantic_cod.idle", "length_seconds": 4.0, "total_channels": 16, "molang_channels": 16, "static_or_keyed_channels": 0, "sample_vectors": 80, "max_abs_delta": 0.00000403784439, "max_interior_delta": 0.00000403784439, "max_endpoint_delta": 0.00000403784439, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_cod.swim", "length_seconds": 2.0, "total_channels": 16, "molang_channels": 16, "static_or_keyed_channels": 0, "sample_vectors": 80, "max_abs_delta": 0.00000490538903, "max_interior_delta": 0.00000490538903, "max_endpoint_delta": 0.00000403784439, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_cod.swim_fast", "length_seconds": 1.0, "total_channels": 16, "molang_channels": 16, "static_or_keyed_channels": 0, "sample_vectors": 80, "max_abs_delta": 0.00000484541326, "max_interior_delta": 0.00000484541326, "max_endpoint_delta": 0.00000403784439, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_cod.flop", "length_seconds": 0.5, "total_channels": 17, "molang_channels": 0, "static_or_keyed_channels": 17, "sample_vectors": 0},
+        {"name": "animation.atlantic_salmon.spin", "length_seconds": 0.5, "total_channels": 9, "molang_channels": 0, "static_or_keyed_channels": 9, "sample_vectors": 0},
+        {"name": "animation.atlantic_salmon.idle", "length_seconds": 4.0, "total_channels": 12, "molang_channels": 12, "static_or_keyed_channels": 0, "sample_vectors": 60, "max_abs_delta": 0.00000378864668, "max_interior_delta": 0.00000378864668, "max_endpoint_delta": 0.00000378864668, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_salmon.swim", "length_seconds": 2.0, "total_channels": 13, "molang_channels": 13, "static_or_keyed_channels": 0, "sample_vectors": 65, "max_abs_delta": 0.00000403784439, "max_interior_delta": 0.00000403784439, "max_endpoint_delta": 0.00000403784439, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_salmon.swim_fast", "length_seconds": 1.0, "total_channels": 14, "molang_channels": 14, "static_or_keyed_channels": 0, "sample_vectors": 70, "max_abs_delta": 0.00000484541326, "max_interior_delta": 0.00000484541326, "max_endpoint_delta": 0.00000484541326, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_salmon.flop", "length_seconds": 0.5, "total_channels": 15, "molang_channels": 0, "static_or_keyed_channels": 15, "sample_vectors": 0},
+        {"name": "animation.oceanicwhitetipshark.idle", "length_seconds": 4.0, "total_channels": 10, "molang_channels": 10, "static_or_keyed_channels": 0, "sample_vectors": 50, "max_abs_delta": 0.00000484541326, "max_interior_delta": 0.00000484541326, "max_endpoint_delta": 0.00000484541326, "representative_moving_bone": "Body"},
+        {"name": "animation.oceanicwhitetipshark.swim_new", "length_seconds": 1.7083, "total_channels": 10, "molang_channels": 10, "static_or_keyed_channels": 0, "sample_vectors": 50, "max_abs_delta": 0.00000486971982, "max_interior_delta": 0.00000466967608, "max_endpoint_delta": 0.00000486971982, "representative_moving_bone": "Body"},
+        {"name": "animation.oceanicwhitetipshark.swim_fast_new", "length_seconds": 0.75, "total_channels": 11, "molang_channels": 11, "static_or_keyed_channels": 0, "sample_vectors": 55, "max_abs_delta": 0.00000378864668, "max_interior_delta": 0.00000378864668, "max_endpoint_delta": 0.00000378864668, "representative_moving_bone": "Body"},
+        {"name": "animation.oceanicwhitetipshark.bite_new", "length_seconds": 0.75, "total_channels": 13, "molang_channels": 0, "static_or_keyed_channels": 13, "sample_vectors": 0},
+        {"name": "animation.oceanicwhitetipshark.death", "length_seconds": 3.0, "total_channels": 13, "molang_channels": 0, "static_or_keyed_channels": 13, "sample_vectors": 0},
+        {"name": "animation.oceanicwhitetipshark.beached", "length_seconds": null, "comparison_length_seconds": 4.0, "total_channels": 13, "molang_channels": 4, "static_or_keyed_channels": 9, "sample_vectors": 20, "max_abs_delta": 0.00000334816167, "max_interior_delta": 0.00000334816167, "max_endpoint_delta": 0.00000270189222, "representative_moving_bone": "Body"},
+        {"name": "animation.oceanicwhitetipshark.thrash", "length_seconds": 3.25, "total_channels": 13, "molang_channels": 0, "static_or_keyed_channels": 13, "sample_vectors": 0}
+      ],
+      "result": "All sampled MoLang channels, including the five-point Oceanic Whitetip swim_new endpoint check, are below the absolute tolerance. Static and already-keyed clip channels remain explicitly represented in the table and were not treated as numeric MoLang samples."
     },
     "secret_scan": "passed",
     "diff_check": "passed"
