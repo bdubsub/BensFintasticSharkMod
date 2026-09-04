@@ -67,10 +67,12 @@ def _round(v):
 
 
 def _fmt_time(t):
-    t = round(t, 5)
+    # Keep enough time precision for quarter samples of clips whose authored
+    # length does not divide cleanly at five decimal places.
+    t = round(t, 6)
     if t == int(t):
         return f"{int(t)}.0"
-    return f"{t:.5f}".rstrip("0")
+    return f"{t:.6f}".rstrip("0")
 
 
 def _is_molang_vector(vec):
@@ -93,16 +95,18 @@ def _is_molang_wrapper(value):
 def _bake_channel(value, length, close_loop=False):
     """value is a MoLang vector (>=1 string component). Return a keyframe map dict.
 
-    close_loop: for a loop:true clip, force the final keyframe (t=length) to equal the
-    first (t=0) so the loop is seamless even when the source formula's period doesn't
-    divide the clip length (e.g. sin(anim_time*540) over 1.5s = 2.25 cycles, which would
-    otherwise snap 5°->0° every loop). No-op for channels whose endpoints already match."""
+    close_loop: for a loop:true clip, preserve the authored endpoint unless it already
+    matches the authored start within the output tolerance. This keeps non-dividing
+    authored periods faithful instead of silently replacing their final sample."""
     out = {}
     for i in range(STEPS + 1):
         t = length * i / STEPS
         out[_fmt_time(t)] = [_round(_eval_component(c, t)) for c in value]
     if close_loop and STEPS >= 1:
-        out[_fmt_time(length)] = list(out[_fmt_time(0.0)])
+        first = out[_fmt_time(0.0)]
+        endpoint = [_round(_eval_component(c, length)) for c in value]
+        if max(abs(a - b) for a, b in zip(endpoint, first)) <= 0.0001:
+            out[_fmt_time(length)] = list(first)
     return out
 
 
