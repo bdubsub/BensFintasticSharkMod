@@ -165,13 +165,13 @@ public final class BfsGameTests {
     @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
     public static void sharkVerticalRouteFollowsDolphinWithoutOrbit(GameTestHelper helper) {
         runVerticalRoute(helper, new BlockPos(4, 5, 4), new BlockPos(4, 9, 4),
-                new BlockPos(4, 5, 20), new BlockPos(4, 9, 20), 1);
+                new BlockPos(20, 5, 20), new BlockPos(20, 9, 20), 1);
     }
 
     @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
     public static void sharkDescendingRouteFollowsDolphinWithoutOrbit(GameTestHelper helper) {
         runVerticalRoute(helper, new BlockPos(4, 9, 4), new BlockPos(4, 5, 4),
-                new BlockPos(4, 9, 20), new BlockPos(4, 5, 20), -1);
+                new BlockPos(20, 9, 20), new BlockPos(20, 5, 20), -1);
     }
 
     @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
@@ -269,7 +269,10 @@ public final class BfsGameTests {
             int dolphinSamples = arrival[0] < 0
                     ? dolphinHeights.size() : arrival[0] + 1;
             helper.assertTrue(hasNoDirectionReversal(dolphinHeights.subList(0, dolphinSamples), verticalDirection),
-                    "dolphin reference must remain smooth and monotonic");
+                    "dolphin reference must remain smooth and monotonic, direction=" + verticalDirection
+                            + ", arrivalSample=" + arrival[0] + ", samples=" + dolphinSamples
+                            + ", heights=" + dolphinHeights + ", horizontalOffsets=" + dolphinHorizontalOffsets
+                            + ", position=" + dolphin.position() + ", target=" + dolphinTarget);
             helper.succeed();
         });
     }
