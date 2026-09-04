@@ -317,6 +317,158 @@
         "server_log_sha256": "666d95aed6c036f860ed44c415914a3baf65b27b67261444ca3209fff09ca933",
         "client_log_sha256": "df61c525cc78b81aabe7d3b59d28e727472a74b11b077f01471e6f8425f117fe"
       },
+      "current_candidate_state_probes": {
+        "source_revision": "58c3271833dbfae04655925466f1c999541ebaa5",
+        "phase_branch": "envy/0.24-phase-000",
+        "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+        "artifact_size": 1754031,
+        "artifact_sha256": "31b9166489d50e516d5c8df9eb7b8cd3534fc156eabce54e3385c66249538163",
+        "server_host": "node-1",
+        "server_port": 25578,
+        "server_log_sha256": "afc164aabea7b208985d32d60c991cb6b4a054757f26a0ea7da35b57a29aaf6a",
+        "client_host": "linux_laptop",
+        "client_endpoint": "100.76.164.109:25578",
+        "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+        "client_log_sha256": "6586e0cddc02862276622af57bf4ac8830e2fd099bcabd25bd25294b0553999e",
+        "window_transport": {
+          "display": "Xwayland :1 on wayland-1",
+          "active_workspace_before": 2,
+          "active_workspace_after": 2,
+          "window_workspace": 3,
+          "capture_method": "remote import of the laptop Minecraft window without workspace switching"
+        },
+        "captures": [
+          {
+            "id": "mp-cod-idle-clean-current",
+            "kind": "image",
+            "sha256": "3f9101856d71d432a65d9ce07b5dde794bbaca8ee44def7b49d895aa42758e4d",
+            "observed": "The current Cod fixture rendered in the connected laptop client during an idle control."
+          },
+          {
+            "id": "mp-cod-swim-static-clean-current",
+            "kind": "video",
+            "sha256": "b6ecd16a27e3329febdb9ad370ac5f83531af687a5c7827b6924c31b1687740c",
+            "duration_seconds": 6.0,
+            "motion": [0.04, 0.004, 0.01],
+            "observed": "A clean server-issued Cod swim vector was reapplied during the connected-client capture."
+          },
+          {
+            "id": "mp-salmon-idle-current",
+            "kind": "video",
+            "sha256": "c843d49fab114ce1333b41cfae63a8eb9fc8948ed72723f8e30ccbcb036cb98e",
+            "duration_seconds": 5.0,
+            "observed": "The current Atlantic Salmon idle fixture rendered on the laptop client."
+          },
+          {
+            "id": "mp-salmon-swim-clean-current",
+            "kind": "video",
+            "sha256": "b6c76ed087e73b127a75100c09a857f099221a3a03bc97680834dbfcccfd238d",
+            "duration_seconds": 6.125,
+            "motion": [0.04, 0.004, 0.01],
+            "observed": "The current Salmon swim fixture received a repeated server-issued swim vector while rendered by the laptop client."
+          },
+          {
+            "id": "mp-salmon-fast-current",
+            "kind": "video",
+            "sha256": "a080de4f0f6e46fa88e79298c708d79f67d161fa34f2e6de6dd5af8b66035cac",
+            "duration_seconds": 6.125,
+            "motion": [0.2, 0.02, 0.04],
+            "observed": "The current Salmon fast-swim fixture rendered with the higher server-issued horizontal vector."
+          },
+          {
+            "id": "mp-salmon-spin-current",
+            "kind": "video",
+            "sha256": "9ed0c43971980ee4c7312d0441c109f9255b1a14718ef7382ed84ae0fc2599af",
+            "duration_seconds": 8.125,
+            "observed": "The exact custom name Spin control changed visible Salmon silhouette and orientation across sampled frames."
+          },
+          {
+            "id": "mp-salmon-rename-recovery-current",
+            "kind": "video",
+            "sha256": "a31fb8c383b86be595b307cb8bfd23f9973853eef5b01a65b9944bd0a41cc777",
+            "duration_seconds": 4.0,
+            "observed": "After the Spin name was replaced, the current Salmon returned to the ordinary named state control."
+          },
+          {
+            "id": "mp-salmon-flop-current",
+            "kind": "video",
+            "sha256": "96a704cbc05366d8a73bd959746d0149f8015e198f88ab862460f940e9d504db",
+            "duration_seconds": 5.0,
+            "observed": "The current Salmon land control rendered on a dry stone platform."
+          },
+          {
+            "id": "mp-salmon-death-current",
+            "kind": "video",
+            "sha256": "8b9a034e6c7d5ea18082cb96b2fb1f45c8add04ad3470baa20850f64ede34526",
+            "duration_seconds": 4.125,
+            "observed": "The current Salmon death control was followed by the server damage event and entity removal."
+          },
+          {
+            "id": "mp-oceanic-idle-current",
+            "kind": "video",
+            "sha256": "ed52160bf85e963f179b1e54b229b20794a9027d8e0ef1015a22acacad0f8bcd",
+            "duration_seconds": 6.0,
+            "observed": "The current Oceanic Whitetip idle controller rendered on the laptop client."
+          },
+          {
+            "id": "mp-oceanic-swim-new-current",
+            "kind": "video",
+            "sha256": "92ca2d33b9fd3da48441673687ffd3806c5ef6336e79568f10a3f1a6ad301d37",
+            "duration_seconds": 6.0,
+            "motion": [0.04, 0.004, 0.01],
+            "observed": "The current Oceanic Whitetip swim_new fixture rendered while RCON reapplied the server-issued swim vector."
+          },
+          {
+            "id": "mp-oceanic-fast-target-current",
+            "kind": "video",
+            "sha256": "8b1c5de767e0150184b0db2b0586590aec413307cd96259fd056322354f4ea17",
+            "duration_seconds": 7.125,
+            "observed": "The Oceanic Whitetip fast-target probe reached the Cod fixture and stopped at contact. This is a target-control probe, not a standalone fast-state oracle."
+          },
+          {
+            "id": "mp-oceanic-bite-new-current",
+            "kind": "video",
+            "sha256": "166e3b2136a43b87f03f4e6dd43bbdf7a59ad526246e66a78335cfdbccd4e0ea",
+            "duration_seconds": 10.0,
+            "server_trace": "Cod health decreased from 33.0 to 15.5 during the bounded bite capture while the shark remained at the controlled contact position.",
+            "observed": "The current bite_new fixture has a synchronized server damage timeline and laptop render."
+          },
+          {
+            "id": "mp-oceanic-death-current",
+            "kind": "video",
+            "sha256": "73f2914e9934d730b6e2673bb65bc24aead8a105f49671974fc54c6330ff666d",
+            "duration_seconds": 5.125,
+            "observed": "The current Oceanic Whitetip death control rendered the death pose and was removed after the server damage event."
+          },
+          {
+            "id": "mp-oceanic-beached-current",
+            "kind": "video",
+            "sha256": "433b6ec65e97bb47f30a89231bee10a35f0319ba78e0244ee17e22db0b55f1bf",
+            "duration_seconds": 5.0,
+            "observed": "The current Oceanic Whitetip beached control rendered on the dry stone platform with OnGround true."
+          },
+          {
+            "id": "mp-oceanic-real-grab-current",
+            "kind": "video",
+            "sha256": "9b031ade642c2e1b76d08c40aeb98b85f2ded22e89c13544548b94a767848d44",
+            "duration_seconds": 22.125,
+            "server_trace": "Natural bite contact attached the Cod at 8.10 seconds, passenger damage continued during the grab, and the passenger was released at 13.05 seconds. Cod health decreased from 179.0 at attachment to 160.0 at release.",
+            "observed": "The current connected-client thrash probe proves natural grab, passenger attachment, bounded damage, timer release, and post-release continuation."
+          },
+          {
+            "id": "mp-oceanic-real-grab-final",
+            "kind": "image",
+            "sha256": "89127cd7743290f0aa1d04e22f880f11267e830dc5a8721826c39b4288ae6c09",
+            "observed": "Final laptop hidden-window capture after the natural grab and release probe, collected without changing the active workspace."
+          }
+        ],
+        "motion_ratio": {
+          "normal_swim_vertical_to_horizontal_x": 0.1,
+          "fast_swim_vertical_to_horizontal_x": 0.1,
+          "interpretation": "The command fixtures use the requested approximately 0.10 vertical component ratio. The fixtures establish transport and render attribution; they do not replace per-tick authored-transform and nose-pitch proof."
+        },
+        "limitations": "All probes are disposable RCON-controlled multiplayer fixtures. They strengthen current-candidate attribution and server-client synchronization, but the complete per-clip sample table, continuous body and nose orientation trace, Tiger and Dolphin comparison, sustained population, and cleanup matrix remain open."
+      },
       "observed": "The node 1 dedicated server accepted the laptop client over Tailscale, RCON commands changed the disposable world and appeared in the laptop chat, and the laptop rendered the resulting entities on the NVIDIA GeForce RTX 5090 Laptop GPU. The control probe also confirmed a server command reached the connected client without a singleplayer world.",
       "admissibility": "admissible for dedicated-server-to-laptop multiplayer setup and hidden-window render transport; controlled fixtures do not close animation, combat, cleanup, or sustained-population matrices"
     },
