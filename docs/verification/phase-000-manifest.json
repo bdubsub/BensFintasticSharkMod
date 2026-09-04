@@ -297,6 +297,26 @@
         "server_log_sha256": "25829b164093ee3d77b0ca417c65652034d159ea357f1fbc7828a6bfee17705b",
         "client_log_sha256": "9a815f8dc8817a09312e7ba3eeddb8b044400e70548e117993484ef9a89d3765"
       },
+      "current_candidate_reconnect": {
+        "source_revision": "58c3271833dbfae04655925466f1c999541ebaa5",
+        "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+        "artifact_size": 1754031,
+        "artifact_sha256": "31b9166489d50e516d5c8df9eb7b8cd3534fc156eabce54e3385c66249538163",
+        "server_ready_marker": "2026-09-03 21:40:08.001 Done (2.841s)!",
+        "server_join_marker": "2026-09-03 21:41:21.995 Dev7 joined the game",
+        "client_connect_markers": [
+          "2026-09-03 21:41:20.181 Connecting to 100.76.164.109, 25578",
+          "2026-09-03 21:41:21.937 Connected to a modded server.",
+          "2026-09-03 21:41:22.460 Loaded 57 advancements"
+        ],
+        "probe_command": "say dedicated server current candidate probe passed",
+        "probe_server_log_marker": "[Not Secure] [Rcon] dedicated server current candidate probe passed",
+        "probe_client_log_marker": "[System] [CHAT] [Rcon] dedicated server current candidate probe passed",
+        "probe_capture_sha256": "c4c788209a8a0876c4f73b09c15b3a920afced0eeb7ce7c938bea448639117b",
+        "probe_capture_dimensions": "3800x2290",
+        "server_log_sha256": "666d95aed6c036f860ed44c415914a3baf65b27b67261444ca3209fff09ca933",
+        "client_log_sha256": "df61c525cc78b81aabe7d3b59d28e727472a74b11b077f01471e6f8425f117fe"
+      },
       "observed": "The node 1 dedicated server accepted the laptop client over Tailscale, RCON commands changed the disposable world and appeared in the laptop chat, and the laptop rendered the resulting entities on the NVIDIA GeForce RTX 5090 Laptop GPU. The control probe also confirmed a server command reached the connected client without a singleplayer world.",
       "admissibility": "admissible for dedicated-server-to-laptop multiplayer setup and hidden-window render transport; controlled fixtures do not close animation, combat, cleanup, or sustained-population matrices"
     },

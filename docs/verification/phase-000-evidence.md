@@ -6,6 +6,8 @@ This record preserves historical Phase 000 captures and keeps each capture bound
 
 Host policy is explicit. `node-1` is limited to headless builds, deterministic verification, packaging, and dedicated server tasks. Client rendering, interactive visual review, and windowed GameTest sessions must run on EnVy’s Linux laptop. The earlier node 1 client captures below remain diagnostic history and are not admissible windowed acceptance evidence.
 
+The server control probe was repeated after a clean restart from source revision `58c3271833dbfae04655925466f1c999541ebaa5`. The fresh node 1 server reached `Done (2.841s)!`, the laptop reconnected through `--quickPlayMultiplayer 100.76.164.109:25578`, and the rebuilt current candidate artifact is `31b9166489d50e516d5c8df9eb7b8cd3534fc156eabce54e3385c66249538163` with 1,754,031 bytes. The server logged `Dev7 joined the game`, the laptop logged `Connected to a modded server.` and `Loaded 57 advancements`, and the RCON command `say dedicated server current candidate probe passed` arrived in the laptop chat. The fresh server and laptop log hashes are `666d95aed6c036f860ed44c415914a3baf65b27b67261444ca3209fff09ca933` and `df61c525cc78b81aabe7d3b59d28e727472a74b11b077f01471e6f8425f117fe`. This is the current multiplayer evidence path and does not create or use a singleplayer world.
+
 ## Input and repository identity
 
 | Check | Command or source | Result |
