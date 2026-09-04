@@ -508,7 +508,7 @@
           "server_log_marker": "2026-09-03 23:24:40.790 [Rcon] phase 000 multiplayer animation capture complete",
           "client_log_marker": "2026-09-03 23:24:40.807 [System] [CHAT] [Rcon] phase 000 multiplayer animation capture complete"
         },
-        "server_log_sha256": "1b870fd4ac097ef2317faf864b2e58c8ff4ec5dee6183b0ebc648e16421765d0",
+        "server_log_sha256": "98be9a44c11aba062f8ef7e51f4a7629dff535387e7479278f6844cbc738ded5",
         "client_log_sha256": "b581ec0f0e381742637fc36e367b2e426e6aa3c319303fb72d5a0349b0e434ea",
         "window_transport": {
           "display": "Xwayland :1",
