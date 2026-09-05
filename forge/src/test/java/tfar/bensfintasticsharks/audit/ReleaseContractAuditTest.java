@@ -16,11 +16,13 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** Deterministic checks for the supplied 0.24 release contract. */
 class ReleaseContractAuditTest {
 
+    private static final double TRANSFORM_TOLERANCE = 0.0001D;
+    private static final List<Double> NORMALIZED_SAMPLE_POINTS = List.of(0.0D, 0.25D, 0.5D, 0.75D, 1.0D);
     private static final Path ROOT = findProjectRoot();
     private static final Path GENERATED = ROOT.resolve("common/src/generated/resources");
     private static final Path SOURCE_ASSETS = ROOT.resolve("common/src/main/resources/assets/bensfintasticsharks");
@@ -123,20 +127,20 @@ class ReleaseContractAuditTest {
     }
 
     @Test
-    void fishAndWhitetipClipsContainTransformMotion() throws IOException {
-        assertClipHasMotion("atlantic_cod.animation.json", "animation.atlantic_cod.idle");
-        assertClipHasMotion("atlantic_cod.animation.json", "animation.atlantic_cod.swim");
-        assertClipHasMotion("atlantic_cod.animation.json", "animation.atlantic_cod.swim_fast");
-        assertClipHasMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.idle");
-        assertClipHasMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.swim");
-        assertClipHasMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.swim_fast");
-        assertClipHasMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.idle");
-        assertClipHasMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.swim_new");
-        assertClipHasMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.swim_fast_new");
-        assertClipHasMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.bite_new");
-        assertClipHasMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.death");
-        assertClipHasMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.beached");
-        assertClipHasMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.thrash");
+    void fishAndWhitetipClipsHaveDistinctFivePointTransformSamples() throws IOException {
+        assertClipHasFivePointMotion("atlantic_cod.animation.json", "animation.atlantic_cod.idle");
+        assertClipHasFivePointMotion("atlantic_cod.animation.json", "animation.atlantic_cod.swim");
+        assertClipHasFivePointMotion("atlantic_cod.animation.json", "animation.atlantic_cod.swim_fast");
+        assertClipHasFivePointMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.idle");
+        assertClipHasFivePointMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.swim");
+        assertClipHasFivePointMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.swim_fast");
+        assertClipHasFivePointMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.idle");
+        assertClipHasFivePointMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.swim_new");
+        assertClipHasFivePointMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.swim_fast_new");
+        assertClipHasFivePointMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.bite_new");
+        assertClipHasFivePointMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.death");
+        assertClipHasFivePointMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.beached");
+        assertClipHasFivePointMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.thrash");
     }
 
     @Test
@@ -263,25 +267,95 @@ class ReleaseContractAuditTest {
         assertEquals(9, biomes.getAsJsonArray("values").size());
     }
 
-    private static void assertClipHasMotion(String fileName, String clipName) throws IOException {
+    private static void assertClipHasFivePointMotion(String fileName, String clipName) throws IOException {
         JsonObject animations = readJson(SOURCE_ASSETS.resolve("animations/entity/" + fileName)).getAsJsonObject("animations");
         assertTrue(animations.has(clipName), clipName);
-        List<Double> values = new ArrayList<>();
-        collectNumbers(animations.getAsJsonObject(clipName).getAsJsonObject("bones"), values);
-        assertTrue(values.size() > 3, clipName);
-        assertTrue(values.stream().distinct().count() > 1, clipName);
-    }
+        JsonObject clip = animations.getAsJsonObject(clipName);
+        double length = clip.get("animation_length").getAsDouble();
+        assertTrue(length > 0.0D, clipName);
 
-    private static void collectNumbers(JsonElement element, List<Double> values) {
-        if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
-            values.add(element.getAsDouble());
-        } else if (element.isJsonArray()) {
-            for (JsonElement child : element.getAsJsonArray()) collectNumbers(child, values);
-        } else if (element.isJsonObject()) {
-            for (Map.Entry<String, JsonElement> entry : element.getAsJsonObject().entrySet()) {
-                if (!entry.getKey().equals("animation_length")) collectNumbers(entry.getValue(), values);
+        List<String> sampledChannels = new ArrayList<>();
+        for (Map.Entry<String, JsonElement> boneEntry : clip.getAsJsonObject("bones").entrySet()) {
+            for (Map.Entry<String, JsonElement> channelEntry : boneEntry.getValue().getAsJsonObject().entrySet()) {
+                List<List<Double>> samples = new ArrayList<>();
+                boolean complete = true;
+                for (double normalizedTime : NORMALIZED_SAMPLE_POINTS) {
+                    Optional<List<Double>> sample = sampleKeyframedVector(channelEntry.getValue(), length * normalizedTime);
+                    if (sample.isEmpty()) {
+                        complete = false;
+                        break;
+                    }
+                    samples.add(sample.get());
+                }
+                if (complete && hasDistinctVectors(samples)) {
+                    sampledChannels.add(boneEntry.getKey() + "." + channelEntry.getKey() + "=" + samples);
+                }
             }
         }
+        assertFalse(sampledChannels.isEmpty(), clipName + " has no moving transform at start, quarter, half, three-quarter, and end");
+    }
+
+    private static Optional<List<Double>> sampleKeyframedVector(JsonElement channel, double time) {
+        if (!channel.isJsonObject()) return Optional.empty();
+        List<Keyframe> keyframes = new ArrayList<>();
+        for (Map.Entry<String, JsonElement> entry : channel.getAsJsonObject().entrySet()) {
+            try {
+                Optional<List<Double>> vector = readVector(entry.getValue());
+                if (vector.isPresent()) keyframes.add(new Keyframe(Double.parseDouble(entry.getKey()), vector.get()));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        keyframes.sort(Comparator.comparingDouble(Keyframe::time));
+        if (keyframes.isEmpty() || time < keyframes.get(0).time() - TRANSFORM_TOLERANCE
+                || time > keyframes.get(keyframes.size() - 1).time() + TRANSFORM_TOLERANCE) return Optional.empty();
+
+        Keyframe previous = keyframes.get(0);
+        for (Keyframe current : keyframes) {
+            if (Math.abs(time - current.time()) <= TRANSFORM_TOLERANCE) return Optional.of(current.vector());
+            if (current.time() > time) return Optional.of(interpolate(previous, current, time));
+            previous = current;
+        }
+        return Optional.of(previous.vector());
+    }
+
+    private static Optional<List<Double>> readVector(JsonElement frame) {
+        JsonElement vector = frame;
+        if (frame.isJsonObject()) {
+            JsonObject object = frame.getAsJsonObject();
+            vector = object.has("post") ? object.getAsJsonObject("post").get("vector") : object.get("vector");
+        }
+        if (vector == null || !vector.isJsonArray()) return Optional.empty();
+        List<Double> values = new ArrayList<>();
+        for (JsonElement component : vector.getAsJsonArray()) {
+            if (!component.isJsonPrimitive() || !component.getAsJsonPrimitive().isNumber()) return Optional.empty();
+            values.add(component.getAsDouble());
+        }
+        return values.isEmpty() ? Optional.empty() : Optional.of(values);
+    }
+
+    private static List<Double> interpolate(Keyframe start, Keyframe end, double time) {
+        assertEquals(start.vector().size(), end.vector().size());
+        double fraction = (time - start.time()) / (end.time() - start.time());
+        List<Double> result = new ArrayList<>();
+        for (int index = 0; index < start.vector().size(); index++) {
+            result.add(start.vector().get(index) + (end.vector().get(index) - start.vector().get(index)) * fraction);
+        }
+        return result;
+    }
+
+    private static boolean hasDistinctVectors(List<List<Double>> samples) {
+        for (List<Double> first : samples) {
+            for (List<Double> second : samples) {
+                if (first.size() != second.size()) continue;
+                for (int index = 0; index < first.size(); index++) {
+                    if (Math.abs(first.get(index) - second.get(index)) > TRANSFORM_TOLERANCE) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private record Keyframe(double time, List<Double> vector) {
     }
 
     private static void assertTexture(Path path, int width, int height) throws IOException {
