@@ -35,6 +35,8 @@ The local client command is separate from the server command:
 /bfs debug client off
 ```
 
+Use the local command only after the laptop client has joined the exact disposable dedicated server. Keep the client on a nonactive Hyprland workspace with `pauseOnLostFocus:false`, identify its exact `hyprctl clients -j` row, and mute only the corresponding PipeWire stream before collecting a trace. Record the client PID, `stableId`, workspace, class, title, capture hash, and active workspace before and after every image capture. On the current Hyprland session, use `grim -T <stableId> <capture.png>` for an owned inactive window. It captures the target foreign toplevel without moving the user to that workspace. Do not use `DISPLAY=:1 import -window` for an inactive Xwayland client because it captures the active desktop instead. Do not automate portal selection.
+
 It is registered through Forge's client command API and never sends a command or diagnostic payload to the server. It selects up to 32 loaded BFS living entities within 128 blocks of the local player, expires after 1,200 client ticks or 90 seconds, and writes only under the local game directory at `logs/bfs-debug/client/`. Presentation samples run after entity rendering at most once every four client ticks. They include interpolated position, yaw, pitch, partial tick, and available GeckoLib controller state. It is for client state comparison after the server side evidence identifies a question that needs rendering or input verification. Run it only on EnVy's Linux laptop, never on `node-1`.
 
 ## Offline analysis
