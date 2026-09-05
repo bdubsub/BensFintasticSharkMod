@@ -139,6 +139,83 @@ public final class BfsGameTests {
         }
     }
 
+    @GameTest(template = "empty", batch = "bfs_debug_cod_movement", timeoutTicks = 120)
+    public static void serverDebugCaptureCodDepthFixture(GameTestHelper helper) {
+        captureAquaticDepthMovement(helper, ModEntityTypes.ATLANTIC_COD,
+                "bensfintasticsharks:atlantic_cod");
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_salmon_movement", timeoutTicks = 120)
+    public static void serverDebugCaptureSalmonDepthFixture(GameTestHelper helper) {
+        captureAquaticDepthMovement(helper, ModEntityTypes.ATLANTIC_SALMON,
+                "bensfintasticsharks:atlantic_salmon");
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_dolphin_movement", timeoutTicks = 120)
+    public static void serverDebugCaptureDolphinDepthFixture(GameTestHelper helper) {
+        captureAquaticDepthMovement(helper, ModEntityTypes.BOTTLENOSE_DOLPHIN,
+                "bensfintasticsharks:bottlenose_dolphin");
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_oceanic_movement", timeoutTicks = 120)
+    public static void serverDebugCaptureOceanicWhitetipDepthFixture(GameTestHelper helper) {
+        captureAquaticDepthMovement(helper, ModEntityTypes.OCEANIC_WHITETIP_SHARK,
+                "bensfintasticsharks:oceanic_whitetip_shark");
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_tiger_movement", timeoutTicks = 120)
+    public static void serverDebugCaptureTigerDepthFixture(GameTestHelper helper) {
+        captureAquaticDepthMovement(helper, ModEntityTypes.TIGER_SHARK,
+                "bensfintasticsharks:tiger_shark");
+    }
+
+    private static void captureAquaticDepthMovement(GameTestHelper helper, EntityType<? extends Mob> type,
+                                                     String entityId) {
+        prepareVerticalWaterVolume(helper);
+        Mob aquatic = helper.spawn(type, new BlockPos(11, 3, 11));
+        aquatic.getBrain().removeAllBehaviors();
+        Vec3 target = aquatic.position().add(0.0D, 9.0D, 0.0D);
+        aquatic.getNavigation().moveTo(target.x, target.y, target.z, 1.0D);
+
+        BfsDebugManager.stop("gametest_setup");
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(aquatic.position())
+                .withPermission(4);
+        try {
+            String command = "bfs debug on movement 70 @e[type=" + entityId + ",distance=..4,limit=1]";
+            server.getCommands().getDispatcher().execute(command, source);
+            helper.assertTrue(BfsDebugManager.status().active(),
+                    "depth fixture must begin a real server diagnostic capture");
+            helper.assertTrue(BfsDebugManager.status().session().targetCount() == 1,
+                    "depth fixture must capture only its selected aquatic entity");
+            driveAquaticDepthTarget(helper, server, source, aquatic, target, 60);
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+            helper.fail("BFS depth diagnostic start command failed: " + exception.getMessage());
+        }
+    }
+
+    private static void driveAquaticDepthTarget(GameTestHelper helper, net.minecraft.server.MinecraftServer server,
+                                                net.minecraft.commands.CommandSourceStack source, Mob aquatic,
+                                                Vec3 target, int remainingTicks) {
+        helper.runAfterDelay(1, () -> {
+            aquatic.getNavigation().moveTo(target.x, target.y, target.z, 1.0D);
+            if (remainingTicks > 1) {
+                driveAquaticDepthTarget(helper, server, source, aquatic, target, remainingTicks - 1);
+                return;
+            }
+            try {
+                server.getCommands().getDispatcher().execute("bfs debug off", source);
+                helper.assertTrue(!BfsDebugManager.status().active(),
+                        "depth fixture must release the diagnostic session after sampling");
+                helper.succeed();
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+                helper.fail("BFS depth diagnostic stop command failed: " + exception.getMessage());
+            }
+        });
+    }
+
     @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 220)
     public static void tigerSharkPursuesReachableEdibleItem(GameTestHelper helper) {
         prepareWaterVolume(helper);

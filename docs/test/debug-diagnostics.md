@@ -17,7 +17,7 @@ The server command requires permission level 2. It also works from the dedicated
 
 Each server owns at most one session. A second `on` command reports the existing session without resetting its limits. A session ends at its requested tick duration, its wall time deadline, an explicit `off`, a source dimension loss, or server shutdown. The wall deadline is twice the requested tick duration at 20 ticks per second plus 30 seconds. Queue overflow, oversized records, write failure, source loss, and server shutdown mark the capture incomplete.
 
-Server captures are written under the server game directory at `logs/bfs-debug/bfs-debug-<timestamp>-<session>.jsonl`. The writer runs outside the logical server tick. It accepts at most 8,192 queued records, limits each record to 16 KiB, limits a session to 32 MiB, and retains no more than 256 MiB of server capture files. Capture files have a `bfs-debug-v1` JSONL header, samples or event records, and exactly one terminal record when they finish cleanly.
+Server captures are written under the server game directory at `logs/bfs-debug/bfs-debug-<timestamp>-<session>.jsonl`. The writer runs outside the logical server tick. It accepts at most 8,192 queued records, limits each record to 16 KiB, limits a session to 32 MiB, and retains no more than 256 MiB of server capture files. Capture files have a `bfs-debug-v2` JSONL header, samples or event records, and exactly one terminal record when they finish cleanly. Every record includes a monotonic sequence, UTC timestamp, and elapsed monotonic time so a trace can be rejected when ordering is corrupted.
 
 ## Local client capture
 
@@ -75,3 +75,9 @@ JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64 \
 ```
 
 Confirm the server process exits, retain only the required sanitized evidence, then remove the exact disposable runtime. Do not delete or alter `forge/run`, a personal instance, an existing world, or a shared dependency cache.
+
+## Depth route baseline fixture
+
+`BfsGameTests` runs isolated 60 tick movement captures for Atlantic Cod, Atlantic Salmon, Bottlenose Dolphin, Oceanic Whitetip Shark, and Tiger Shark. Each fixture selects its one spawned entity with a bounded server selector, reissues the same elevated navigation target each tick, and stops the diagnostic session cleanly. This keeps captures from other GameTest batches out of the trace while exercising the same route continuation used by the vertical movement checks.
+
+Use the analyzer on each resulting JSONL file before interpreting movement values. The baseline fixture establishes observed behavior only. It does not supply speed, pitch, route winding, or vertical displacement thresholds, because those belong in the explicit candidate profile used by the later movement phase.
