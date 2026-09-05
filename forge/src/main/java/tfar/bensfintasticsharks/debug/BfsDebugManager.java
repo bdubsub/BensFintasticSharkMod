@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.AdvancementEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -80,6 +81,7 @@ public final class BfsDebugManager {
     });
 
     private static volatile Session session;
+    private static volatile StopSummary lastStop = StopSummary.none();
 
     private BfsDebugManager() {
     }
@@ -87,6 +89,7 @@ public final class BfsDebugManager {
     public static void register(IEventBus eventBus) {
         eventBus.addListener(BfsDebugManager::onServerTick);
         eventBus.addListener(BfsDebugManager::onEntityJoin);
+        eventBus.addListener(BfsDebugManager::onEntityLeave);
         eventBus.addListener(BfsDebugManager::onLivingHurt);
         eventBus.addListener(BfsDebugManager::onAdvancement);
         eventBus.addListener(BfsDebugManager::onBlockBreak);
@@ -150,12 +153,12 @@ public final class BfsDebugManager {
 
         long startTick = level.getGameTime();
         long wallDeadlineMillis = System.currentTimeMillis() + durationTicks * 100L + 30_000L;
-        Session created = new Session(UUID.randomUUID(), parsedCategory, level.dimension(), selected, eligible, excluded,
-                startTick, startTick + durationTicks, wallDeadlineMillis, outputDirectory);
+        Session created = new Session(UUID.randomUUID(), source.getServer(), parsedCategory, level.dimension(), selected,
+                eligible, excluded, startTick, startTick + durationTicks, wallDeadlineMillis, outputDirectory);
         session = created;
         enqueue(created, header(created));
         BensFintasticSharks.LOG.info("BFS debug capture {} started. category={}, targets={}, output={}",
-                created.id, created.category.id, created.targets.size(), created.outputPath);
+                created.id, created.category.id, created.targetCount(), created.outputPath);
         return StartResult.success(created, requestedTargets.isEmpty());
     }
 
@@ -164,19 +167,13 @@ public final class BfsDebugManager {
         if (active == null) {
             return StopResult.noSession();
         }
-        if (session == active) {
-            session = null;
-        }
-        active.closed.set(true);
-        enqueue(active, endRecord(active, reason));
-        BensFintasticSharks.LOG.info("BFS debug capture {} stopped. reason={}, records={}, dropped={}, incomplete={}, output={}",
-                active.id, reason, active.accepted.get(), active.dropped.get(), active.incomplete.get(), active.outputPath);
+        finish(active, reason);
         return StopResult.stopped(active);
     }
 
     public static Status status() {
         Session active = session;
-        return active == null ? Status.inactive() : Status.active(active);
+        return active == null ? Status.inactive(lastStop) : Status.active(active);
     }
 
     private static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -196,6 +193,7 @@ public final class BfsDebugManager {
             return;
         }
         long tick = level.getGameTime();
+        active.lastTick = tick;
         if (tick >= active.endTick) {
             stop("duration_elapsed");
             return;
@@ -208,10 +206,10 @@ public final class BfsDebugManager {
         if (!active.category.capturesMovement()) {
             return;
         }
-        for (UUID targetId : active.targets) {
+        for (UUID targetId : active.trackedTargets()) {
             Entity target = level.getEntity(targetId);
             if (target == null) {
-                active.missingTargets.add(targetId);
+                releaseTarget(active, level, targetId, "entity_unavailable_in_source_dimension");
                 continue;
             }
             enqueue(active, movementRecord(active, level, target, tick));
@@ -228,6 +226,15 @@ public final class BfsDebugManager {
         }
     }
 
+    private static void onEntityLeave(EntityLeaveLevelEvent event) {
+        Session active = session;
+        if (active == null || event.getLevel().isClientSide || !event.getLevel().dimension().equals(active.dimension)) {
+            return;
+        }
+        Entity entity = event.getEntity();
+        releaseTarget(active, event.getLevel(), entity.getUUID(), "entity_left_level", entity);
+    }
+
     private static void onLivingHurt(LivingHurtEvent event) {
         Session active = session;
         if (active == null || !active.category.capturesCombat() || event.getEntity().level().isClientSide) {
@@ -236,7 +243,7 @@ public final class BfsDebugManager {
         Entity victim = event.getEntity();
         Entity attacker = event.getSource().getEntity();
         if (!victim.level().dimension().equals(active.dimension)
-                || (!active.targets.contains(victim.getUUID()) && (attacker == null || !active.targets.contains(attacker.getUUID())))) {
+                || (!active.tracks(victim.getUUID()) && (attacker == null || !active.tracks(attacker.getUUID())))) {
             return;
         }
         JsonObject record = baseRecord(active, "combat", victim.level().getGameTime());
@@ -291,10 +298,35 @@ public final class BfsDebugManager {
         }
     }
 
+    private static void releaseTarget(Session active, Level level, UUID targetId, String reason) {
+        releaseTarget(active, level, targetId, reason, null);
+    }
+
+    private static void releaseTarget(Session active, Level level, UUID targetId, String reason, @Nullable Entity entity) {
+        if (!active.releaseTarget(targetId)) {
+            return;
+        }
+        active.previousPositions.remove(targetId);
+        active.previousSampleNanos.remove(targetId);
+        active.previousYaw.remove(targetId);
+        active.previousPitch.remove(targetId);
+        JsonObject record = baseRecord(active, "target_lifecycle", level.getGameTime());
+        record.addProperty("entityUuid", targetId.toString());
+        record.addProperty("entityType", entity == null ? "unavailable:entity_not_loaded" : entityId(entity));
+        if (entity == null) {
+            record.addProperty("runtimeId", "unavailable:entity_not_loaded");
+        } else {
+            record.addProperty("runtimeId", entity.getId());
+        }
+        record.addProperty("reason", reason);
+        enqueue(active, record);
+    }
+
     private static JsonObject movementRecord(Session active, ServerLevel level, Entity entity, long tick) {
         JsonObject record = baseRecord(active, "movement", tick);
         record.addProperty("entityUuid", entity.getUUID().toString());
         record.addProperty("entityType", entityId(entity));
+        record.addProperty("runtimeId", entity.getId());
         record.addProperty("x", entity.getX());
         record.addProperty("y", entity.getY());
         record.addProperty("z", entity.getZ());
@@ -304,14 +336,25 @@ public final class BfsDebugManager {
         addPositionDelta(active, record, entity);
         record.addProperty("yaw", entity.getYRot());
         record.addProperty("pitch", entity.getXRot());
+        addAngularDeltas(active, record, entity);
         record.addProperty("lookX", entity.getLookAngle().x);
         record.addProperty("lookY", entity.getLookAngle().y);
         record.addProperty("lookZ", entity.getLookAngle().z);
         record.addProperty("inWater", entity.isInWaterOrBubble());
         record.addProperty("onGround", entity.onGround());
+        record.addProperty("horizontalCollision", entity.horizontalCollision);
+        record.addProperty("verticalCollision", entity.verticalCollision);
+        record.addProperty("gravityEnabled", !entity.isNoGravity());
         record.addProperty("alive", entity.isAlive());
         record.addProperty("routeAttemptId", "unavailable:navigation_attempt_identity_not_exposed");
         record.addProperty("desiredPitch", "unavailable:movement_controller_target_pitch_not_exposed");
+        record.addProperty("selectedWaypoint", "unavailable:navigation_waypoint_not_exposed");
+        record.addProperty("routeProgress", "unavailable:navigation_attempt_identity_not_exposed");
+        record.addProperty("arrivalReason", "unavailable:navigation_attempt_identity_not_exposed");
+        record.addProperty("locomotionMode", "unavailable:species_locomotion_mode_not_exposed");
+        record.addProperty("scalarPropulsionSpeed", "unavailable:movement_controller_scalar_speed_not_exposed");
+        record.addProperty("motionWriter", entity instanceof Mob mob ? mob.getMoveControl().getClass().getName()
+                : "unavailable:not_a_mob");
         addTrajectoryPitch(record, entity.getDeltaMovement());
         if (entity instanceof Mob mob) {
             record.addProperty("moveControl", mob.getMoveControl().getClass().getName());
@@ -331,8 +374,11 @@ public final class BfsDebugManager {
     private static void addPositionDelta(Session active, JsonObject record, Entity entity) {
         Vec3 current = entity.position();
         Vec3 previous = active.previousPositions.put(entity.getUUID(), current);
+        long now = System.nanoTime();
+        Long previousNanos = active.previousSampleNanos.put(entity.getUUID(), now);
         if (previous == null) {
             record.addProperty("positionDelta", "unavailable:no_previous_sample");
+            record.addProperty("elapsedBlocksPerSecond", "unavailable:no_previous_sample");
             return;
         }
         Vec3 delta = current.subtract(previous);
@@ -344,6 +390,23 @@ public final class BfsDebugManager {
         record.addProperty("signedVerticalBlocksPerTick", delta.y);
         record.addProperty("totalBlocksPerTick", delta.length());
         record.addProperty("nominalBlocksPerSecond", delta.length() * 20.0D);
+        if (previousNanos == null || now <= previousNanos) {
+            record.addProperty("elapsedBlocksPerSecond", "unavailable:invalid_elapsed_sample_window");
+            return;
+        }
+        record.addProperty("elapsedBlocksPerSecond", delta.length() / ((now - previousNanos) / 1_000_000_000.0D));
+    }
+
+    private static void addAngularDeltas(Session active, JsonObject record, Entity entity) {
+        Float previousYaw = active.previousYaw.put(entity.getUUID(), entity.getYRot());
+        Float previousPitch = active.previousPitch.put(entity.getUUID(), entity.getXRot());
+        if (previousYaw == null || previousPitch == null) {
+            record.addProperty("yawDeltaDegrees", "unavailable:no_previous_sample");
+            record.addProperty("pitchDeltaDegrees", "unavailable:no_previous_sample");
+            return;
+        }
+        record.addProperty("yawDeltaDegrees", net.minecraft.util.Mth.wrapDegrees(entity.getYRot() - previousYaw));
+        record.addProperty("pitchDeltaDegrees", net.minecraft.util.Mth.wrapDegrees(entity.getXRot() - previousPitch));
     }
 
     private static void addTrajectoryPitch(JsonObject record, Vec3 velocity) {
@@ -377,11 +440,20 @@ public final class BfsDebugManager {
         record.addProperty("schema", SCHEMA_VERSION);
         record.addProperty("side", "server");
         record.addProperty("category", active.category.id);
+        record.addProperty("hostRole", active.server.isDedicatedServer() ? "dedicated_server" : "integrated_server");
+        record.addProperty("scenarioId", "unavailable:provided_by_candidate_manifest");
+        record.addProperty("requirementId", "unavailable:provided_by_candidate_manifest");
         record.addProperty("requestedTicks", active.endTick - active.startTick);
         record.addProperty("eligibleTargets", active.eligibleTargets);
-        record.addProperty("selectedTargets", active.targets.size());
+        record.addProperty("selectedTargets", active.selectedTargetCount());
         record.addProperty("excludedTargets", active.excludedTargets);
         record.addProperty("targetLimit", MAX_TARGETS);
+        record.addProperty("queueLimit", MAX_QUEUE_RECORDS);
+        record.addProperty("recordByteLimit", MAX_RECORD_BYTES);
+        record.addProperty("sessionByteLimit", MAX_SESSION_BYTES);
+        record.addProperty("directoryByteLimit", MAX_DIRECTORY_BYTES);
+        record.addProperty("nominalTicksPerSecond", 20);
+        record.addProperty("units", "blocks, blocks_per_tick, blocks_per_second, degrees, nanoseconds");
         record.addProperty("modId", BensFintasticSharks.MOD_ID);
         record.addProperty("modVersion", loadedModVersion(BensFintasticSharks.MOD_ID));
         record.addProperty("minecraftVersion", SharedConstants.getCurrentVersion().getName());
@@ -394,17 +466,19 @@ public final class BfsDebugManager {
         record.addProperty("motionProfileVersion", "unavailable:phase_002_profile_not_implemented");
         record.addProperty("artifactSha256", "unavailable:not_bound_to_a_packaged_artifact");
         record.addProperty("configuration", "unavailable:runtime_configuration_snapshot_not_yet_bound");
+        record.addProperty("dataPackFingerprint", "unavailable:runtime_datapack_snapshot_not_yet_bound");
         return record;
     }
 
     private static JsonObject endRecord(Session active, String reason) {
-        JsonObject record = baseRecord(active, "end", active.endTick);
+        JsonObject record = baseRecord(active, "end", active.lastTick);
         record.addProperty("reason", reason);
         record.addProperty("recordsAccepted", active.accepted.get());
         record.addProperty("recordsDropped", active.dropped.get());
         record.addProperty("incomplete", active.incomplete.get());
         record.addProperty("incompleteReason", active.incompleteReason);
         record.addProperty("missingTargets", active.missingTargets.size());
+        record.addProperty("remainingTargets", active.targetCount());
         return record;
     }
 
@@ -419,17 +493,23 @@ public final class BfsDebugManager {
         record.addProperty("dimension", active.dimension.location().toString());
         record.addProperty("timestamp", Instant.now().toString());
         record.addProperty("monotonicElapsedNanos", System.nanoTime() - active.startNanos);
+        record.addProperty("samplingPoint", "server_tick_end_or_event_callback");
         return record;
     }
 
     private static void enqueue(Session active, JsonObject record) {
+        if (active.closed.get()) {
+            return;
+        }
         String line = GSON.toJson(record);
         if (line.getBytes(StandardCharsets.UTF_8).length > MAX_RECORD_BYTES) {
             active.drop("record exceeded the maximum size");
+            finish(active, "record_byte_limit");
             return;
         }
         if (!active.records.offer(line)) {
             active.drop("writer queue reached its capacity");
+            finish(active, "queue_limit");
             return;
         }
         active.accepted.incrementAndGet();
@@ -450,14 +530,17 @@ public final class BfsDebugManager {
                 String line;
                 while ((line = active.records.poll()) != null) {
                     byte[] bytes = line.getBytes(StandardCharsets.UTF_8);
-                    if (active.writtenBytes + bytes.length + 1L > MAX_SESSION_BYTES) {
+                    if (active.writtenBytes + bytes.length + 1L > MAX_SESSION_BYTES - MAX_RECORD_BYTES) {
                         active.drop("session output reached the maximum size");
-                        continue;
+                        finish(active, "session_byte_limit");
+                        active.records.clear();
+                        break;
                     }
                     writer.write(line);
                     writer.newLine();
                     active.writtenBytes += bytes.length + 1L;
                 }
+                writeTerminalRecord(writer, active);
             }
         } catch (IOException exception) {
             active.markIncomplete("writer failure: " + exception.getClass().getSimpleName());
@@ -468,6 +551,37 @@ public final class BfsDebugManager {
                 scheduleWriter(active);
             }
         }
+    }
+
+    private static void writeTerminalRecord(BufferedWriter writer, Session active) throws IOException {
+        String terminal = active.terminalRecord;
+        if (terminal == null || active.terminalWritten.get()) {
+            return;
+        }
+        byte[] bytes = terminal.getBytes(StandardCharsets.UTF_8);
+        if (active.writtenBytes + bytes.length + 1L > MAX_SESSION_BYTES) {
+            active.markIncomplete("terminal record exceeds reserved session output budget");
+            return;
+        }
+        writer.write(terminal);
+        writer.newLine();
+        active.writtenBytes += bytes.length + 1L;
+        active.terminalWritten.set(true);
+    }
+
+    private static void finish(Session active, String reason) {
+        if (!active.closed.compareAndSet(false, true)) {
+            return;
+        }
+        if (session == active) {
+            session = null;
+        }
+        active.stopReason = reason;
+        active.terminalRecord = GSON.toJson(endRecord(active, reason));
+        lastStop = StopSummary.from(active);
+        scheduleWriter(active);
+        BensFintasticSharks.LOG.info("BFS debug capture {} stopped. reason={}, records={}, dropped={}, incomplete={}, output={}",
+                active.id, reason, active.accepted.get(), active.dropped.get(), active.incomplete.get(), active.outputPath);
     }
 
     private static void ensureDirectoryBudget(Path directory) throws IOException {
@@ -592,20 +706,34 @@ public final class BfsDebugManager {
         }
     }
 
-    public record Status(boolean active, @Nullable Session session) {
-        private static Status inactive() {
-            return new Status(false, null);
+    public record Status(boolean active, @Nullable Session session, StopSummary lastStop) {
+        private static Status inactive(StopSummary lastStop) {
+            return new Status(false, null, lastStop);
         }
 
         private static Status active(Session session) {
-            return new Status(true, session);
+            return new Status(true, session, StopSummary.none());
+        }
+    }
+
+    public record StopSummary(String reason, long accepted, long dropped, boolean incomplete,
+                              String incompleteReason, Path outputPath) {
+        private static StopSummary none() {
+            return new StopSummary("none", 0L, 0L, false, "none", Path.of("unavailable:no_completed_capture"));
+        }
+
+        private static StopSummary from(Session session) {
+            return new StopSummary(session.stopReason, session.accepted.get(), session.dropped.get(),
+                    session.incomplete.get(), session.incompleteReason, session.outputPath);
         }
     }
 
     public static final class Session {
         private final UUID id;
+        private final MinecraftServer server;
         private final DebugCategory category;
         private final ResourceKey<Level> dimension;
+        private final Set<UUID> selectedTargets;
         private final Set<UUID> targets;
         private final int eligibleTargets;
         private final int excludedTargets;
@@ -623,21 +751,32 @@ public final class BfsDebugManager {
         private final AtomicLong sequence = new AtomicLong();
         private final Set<UUID> missingTargets = new LinkedHashSet<>();
         private final Map<UUID, Vec3> previousPositions = new HashMap<>();
+        private final Map<UUID, Long> previousSampleNanos = new HashMap<>();
+        private final Map<UUID, Float> previousYaw = new HashMap<>();
+        private final Map<UUID, Float> previousPitch = new HashMap<>();
         private final long startNanos = System.nanoTime();
         private volatile String incompleteReason = "none";
         private volatile long writtenBytes;
+        private volatile long lastTick;
+        private volatile String stopReason = "none";
+        @Nullable
+        private volatile String terminalRecord;
+        private final AtomicBoolean terminalWritten = new AtomicBoolean();
 
-        private Session(UUID id, DebugCategory category, ResourceKey<Level> dimension, Set<UUID> targets,
+        private Session(UUID id, MinecraftServer server, DebugCategory category, ResourceKey<Level> dimension, Set<UUID> targets,
                         int eligibleTargets, int excludedTargets, long startTick, long endTick,
                         long wallDeadlineMillis, Path outputDirectory) {
             this.id = id;
+            this.server = server;
             this.category = category;
             this.dimension = dimension;
-            this.targets = java.util.Collections.unmodifiableSet(new LinkedHashSet<>(targets));
+            this.selectedTargets = java.util.Collections.unmodifiableSet(new LinkedHashSet<>(targets));
+            this.targets = new LinkedHashSet<>(targets);
             this.eligibleTargets = eligibleTargets;
             this.excludedTargets = excludedTargets;
             this.startTick = startTick;
             this.endTick = endTick;
+            this.lastTick = startTick;
             this.wallDeadlineMillis = wallDeadlineMillis;
             this.outputDirectory = outputDirectory;
             this.outputPath = outputDirectory.resolve("bfs-debug-" + FILE_TIME.format(Instant.now()) + "-" + id + ".jsonl");
@@ -651,8 +790,12 @@ public final class BfsDebugManager {
             return category.id;
         }
 
-        public int targetCount() {
+        public synchronized int targetCount() {
             return targets.size();
+        }
+
+        public int selectedTargetCount() {
+            return selectedTargets.size();
         }
 
         public int eligibleTargets() {
@@ -708,7 +851,23 @@ public final class BfsDebugManager {
         }
 
         private boolean serverMatches(MinecraftServer server) {
-            return server.getLevel(dimension) != null;
+            return this.server == server;
+        }
+
+        private synchronized List<UUID> trackedTargets() {
+            return List.copyOf(targets);
+        }
+
+        private synchronized boolean tracks(UUID targetId) {
+            return targets.contains(targetId);
+        }
+
+        private synchronized boolean releaseTarget(UUID targetId) {
+            if (!targets.remove(targetId)) {
+                return false;
+            }
+            missingTargets.add(targetId);
+            return true;
         }
     }
 }

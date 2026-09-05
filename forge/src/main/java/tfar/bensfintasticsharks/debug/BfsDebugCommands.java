@@ -89,6 +89,15 @@ public final class BfsDebugCommands {
         BfsDebugManager.Status status = BfsDebugManager.status();
         if (!status.active()) {
             context.getSource().sendSuccess(() -> Component.literal("BFS debug capture: inactive").withStyle(ChatFormatting.GRAY), false);
+            BfsDebugManager.StopSummary lastStop = status.lastStop();
+            if (!"none".equals(lastStop.reason())) {
+                context.getSource().sendSuccess(() -> Component.literal("  Last stop: " + lastStop.reason() + ". Records: "
+                        + lastStop.accepted() + " accepted, " + lastStop.dropped() + " dropped. Incomplete: "
+                        + lastStop.incomplete() + ". Reason: " + lastStop.incompleteReason() + ".")
+                        .withStyle(lastStop.incomplete() ? ChatFormatting.YELLOW : ChatFormatting.GREEN), false);
+                context.getSource().sendSuccess(() -> Component.literal("  Output: " + lastStop.outputPath())
+                        .withStyle(ChatFormatting.GRAY), false);
+            }
             return 0;
         }
         BfsDebugManager.Session session = status.session();
