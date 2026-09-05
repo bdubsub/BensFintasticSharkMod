@@ -200,10 +200,10 @@ On 2026-09-04, the pitch-bound movement patch was rerun from phase branch `envy/
 | --- | --- | --- |
 | Pitch unit regression | `./gradlew :forge:test --tests tfar.bensfintasticsharks.audit.AquaticMovementTest --no-daemon` | Passed. Direct vertical vectors use the shallow angle implied by the approved 10 percent vertical ratio, fish and shark pitch profiles remain bounded, and the shared transition limit is 0.30 degrees per tick. |
 | Forge unit and contract tests | `./gradlew :forge:test --no-daemon` | Passed. |
-| Headless movement GameTests | `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks` | Passed. All 9 required tests passed, including ascending and descending shark routes and Atlantic Cod monotonic vertical travel. The exact disposable runtime EULA was verified as `eula=true` before launch. |
+| Headless movement GameTests | `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks` | Historical nine-test runs passed, but the current isolated rerun at source commit `11576d8f99ecde114f45be1afa51cd9a4fe72fd0` failed `bfsgametests.atlanticcodverticalrouteusesscaledpitch`. The Cod route recorded four direction reversals after its ascent. The temporary runtime EULA was verified as `eula=true`; its logs, JSONL traces, analysis output, world, and configuration were removed after inspection. This is an open Phase 002 behavior failure, not passing regression evidence. |
 | Forge artifact | `./gradlew :forge:build --no-daemon --rerun-tasks`, followed by `unzip -tqq` | Passed. The evidence JAR SHA 256 was `fdb9481c60e7050922ee086554b462875bdd14ae6b5ae5f13280c85c3a44b801` and SHA 512 was `fe69272babdb7cea297308fdfdb5a88222a3565920c44bbc1e28d211c90c3dfb1c13acaa0733986c48a1c329fd42d281a97fe5a76e8f4f7bf968c36a384c4a7b`. |
 
-This rerun closes the affected deterministic and server-side movement regressions, but it does not close the remaining interactive fish and Oceanic Whitetip state matrix or laptop visual acceptance gates.
+The unit and analyzer layers passed at the current source revision, but the isolated server GameTest makes the Cod vertical-route regression open. Per Phase 000 ownership, the failing new behavior assertion stays assigned to Phase 002. It does not close the remaining interactive fish and Oceanic Whitetip state matrix or laptop visual acceptance gates.
 
 ## Latest laptop reconnect and pitch trace
 
