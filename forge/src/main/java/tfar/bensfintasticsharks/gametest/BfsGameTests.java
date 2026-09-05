@@ -71,7 +71,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_debug", timeoutTicks = 80)
+    @GameTest(template = "empty", batch = "bfs_debug_lifecycle", timeoutTicks = 80)
     public static void serverDebugCommandStartsAndStopsBoundedCapture(GameTestHelper helper) {
         prepareWaterVolume(helper);
         helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 3, 3));
@@ -100,6 +100,42 @@ public final class BfsGameTests {
             });
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
             helper.fail("BFS debug start command failed: " + exception.getMessage());
+        }
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_permissions", timeoutTicks = 80)
+    public static void serverDebugCommandKeepsOneSessionAndRejectsUntrustedSources(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 3, 3));
+        BfsDebugManager.stop("gametest_setup");
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        net.minecraft.commands.CommandSourceStack operator = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(helper.absolutePos(new BlockPos(3, 3, 3)).getCenter())
+                .withPermission(4);
+        net.minecraft.commands.CommandSourceStack untrusted = operator.withPermission(0);
+        try {
+            server.getCommands().getDispatcher().execute("bfs debug on movement 20", operator);
+            BfsDebugManager.Session original = BfsDebugManager.status().session();
+            helper.assertTrue(original != null, "operator command must create the diagnostic session");
+            int repeated = server.getCommands().getDispatcher().execute("bfs debug on movement 20", operator);
+            BfsDebugManager.Session current = BfsDebugManager.status().session();
+            helper.assertTrue(repeated == 1, "repeated operator command must report the existing session");
+            helper.assertTrue(current != null && current.id().equals(original.id())
+                            && current.startTick() == original.startTick(),
+                    "repeated enable must not replace or reset the active session");
+            try {
+                server.getCommands().getDispatcher().execute("bfs debug status", untrusted);
+                helper.fail("untrusted sources must not access the server debug command");
+                return;
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) {
+                // Permission-gated literal nodes are intentionally invisible to untrusted sources.
+            }
+            server.getCommands().getDispatcher().execute("bfs debug off", operator);
+            helper.assertTrue(!BfsDebugManager.status().active(), "operator stop must release the session after a repeat");
+            helper.succeed();
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+            helper.fail("BFS debug command test failed: " + exception.getMessage());
         }
     }
 

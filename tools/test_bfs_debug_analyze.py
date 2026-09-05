@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import math
 import sys
 import tempfile
 import unittest
@@ -16,8 +17,9 @@ import bfs_debug_analyze
 
 def record(event: str, tick: int, **values: object) -> dict[str, object]:
     return {
-        "schema": "bfs-debug-v1",
+        "schema": "bfs-debug-v2",
         "sessionId": "session",
+        "sequence": tick,
         "side": "server",
         "event": event,
         "tick": tick,
@@ -102,6 +104,21 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         analysis = bfs_debug_analyze.validate(records, errors, {})
         self.assertEqual("invalid", analysis["verdict"])
         self.assertTrue(any("not valid JSON" in error for error in analysis["errors"]))
+
+    def test_arriving_helical_route_is_rejected_when_declared(self) -> None:
+        records = [record("header", 1)]
+        for tick, angle in enumerate((0.0, 1.8, 3.6, 5.4, 6.4), start=2):
+            records.append(record("movement", tick, entityUuid="fish", x=10.0 * math.cos(angle),
+                                  y=float(tick), z=10.0 * math.sin(angle), velocityX=0.0,
+                                  velocityY=0.1, velocityZ=0.1, yaw=0.0, pitch=-5.0))
+        records.append(record("end", 7, incomplete=False, recordsDropped=0))
+        analysis = bfs_debug_analyze.validate(records, [], {
+            "entities": {"fish": {"routeShape": {
+                "target": {"x": 0.0, "z": 0.0}, "maximumHorizontalWindingTurns": 0.5
+            }}}
+        })
+        self.assertEqual("invalid", analysis["verdict"])
+        self.assertTrue(any("route winding" in error for error in analysis["errors"]))
 
 
 if __name__ == "__main__":

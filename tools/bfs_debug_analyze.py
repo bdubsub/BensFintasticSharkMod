@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-SCHEMA = "bfs-debug-v1"
+SCHEMA = "bfs-debug-v2"
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -82,6 +82,7 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
         errors.append("header side must be server or client")
 
     previous_ticks: dict[str, int] = {}
+    previous_sequences: dict[str, int] = {}
     movement_history: dict[str, list[dict[str, Any]]] = defaultdict(list)
     events: defaultdict[str, int] = defaultdict(int)
     end_records: list[dict[str, Any]] = []
@@ -90,6 +91,14 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
             errors.append(f"record {index} has an incompatible schema")
         if session_id and record.get("sessionId") != session_id:
             errors.append(f"record {index} has a different sessionId")
+        sequence = record.get("sequence")
+        if not isinstance(sequence, int) or sequence < 1:
+            errors.append(f"record {index} has no positive integer sequence")
+        elif session_id:
+            previous_sequence = previous_sequences.get(session_id)
+            if previous_sequence is not None and sequence != previous_sequence + 1:
+                errors.append(f"record {index} has a sequence gap: {sequence} after {previous_sequence}")
+            previous_sequences[session_id] = sequence
         event = record.get("event")
         if not isinstance(event, str):
             errors.append(f"record {index} has no event")
@@ -126,7 +135,7 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
         if int_or_zero(end.get("recordsDropped")) > 0:
             warnings.append(f"capture dropped {end.get('recordsDropped')} records")
 
-    metrics = movement_metrics(movement_history)
+    metrics = movement_metrics(movement_history, errors)
     apply_manifest_checks(header, metrics, manifest, errors)
     verdict = "invalid" if errors else "incomplete" if warnings else "complete"
     return result(verdict, errors, warnings, metrics, records, manifest, dict(events))
@@ -139,7 +148,7 @@ def validate_finite_coordinates(record: dict[str, Any], index: int, errors: list
             errors.append(f"movement record {index} has non-finite {field}")
 
 
-def movement_metrics(history: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
+def movement_metrics(history: dict[str, list[dict[str, Any]]], errors: list[str]) -> dict[str, Any]:
     entities: dict[str, Any] = {}
     for entity_id, samples in history.items():
         max_vertical_speed = max((abs(float(sample["velocityY"])) for sample in samples
@@ -147,6 +156,9 @@ def movement_metrics(history: dict[str, list[dict[str, Any]]]) -> dict[str, Any]
         max_pitch_step = 0.0
         coordinate_steps: list[float] = []
         for previous, current in zip(samples, samples[1:]):
+            if current.get("tick") != previous.get("tick", 0) + 1:
+                errors.append(f"entity {entity_id} has a missing required movement tick between "
+                              f"{previous.get('tick')} and {current.get('tick')}")
             if all(isinstance(sample.get(field), (int, float))
                    for sample in (previous, current) for field in ("x", "y", "z", "pitch")):
                 coordinate_steps.append(math.dist(
@@ -201,6 +213,44 @@ def apply_manifest_checks(header: dict[str, Any], metrics: dict[str, Any], manif
         maximum_pitch_step = expectation.get("maximumPitchStepDegrees")
         if isinstance(maximum_pitch_step, (int, float)) and measured["maxPitchStepDegrees"] > maximum_pitch_step:
             errors.append(f"entity {entity_id} exceeded the declared pitch transition limit")
+        route = expectation.get("routeShape")
+        if isinstance(route, dict):
+            apply_route_shape_check(entity_id, measured["history"], route, errors)
+
+
+def apply_route_shape_check(entity_id: str, samples: list[dict[str, Any]], route: dict[str, Any],
+                            errors: list[str]) -> None:
+    """Reject winding only when the candidate manifest declares the route target and limit."""
+    target = route.get("target")
+    maximum_turns = route.get("maximumHorizontalWindingTurns")
+    if not isinstance(target, dict) or not isinstance(maximum_turns, (int, float)):
+        errors.append(f"entity {entity_id} routeShape must declare target and maximumHorizontalWindingTurns")
+        return
+    target_x = target.get("x")
+    target_z = target.get("z")
+    if not isinstance(target_x, (int, float)) or not isinstance(target_z, (int, float)):
+        errors.append(f"entity {entity_id} routeShape target requires finite x and z")
+        return
+    angles: list[float] = []
+    for sample in samples:
+        x, z = sample.get("x"), sample.get("z")
+        if not isinstance(x, (int, float)) or not isinstance(z, (int, float)):
+            continue
+        horizontal_distance = math.hypot(float(x) - float(target_x), float(z) - float(target_z))
+        if horizontal_distance > 0.0:
+            angles.append(math.atan2(float(z) - float(target_z), float(x) - float(target_x)))
+    if len(angles) < 2:
+        return
+    winding = 0.0
+    previous = angles[0]
+    for current in angles[1:]:
+        delta = (current - previous + math.pi) % (2.0 * math.pi) - math.pi
+        winding += delta
+        previous = current
+    winding_turns = abs(winding) / (2.0 * math.pi)
+    if winding_turns > float(maximum_turns):
+        errors.append(f"entity {entity_id} exceeded declared horizontal route winding limit "
+                      f"with {winding_turns:.6f} turns")
 
 
 def wrapped_degrees(value: float) -> float:

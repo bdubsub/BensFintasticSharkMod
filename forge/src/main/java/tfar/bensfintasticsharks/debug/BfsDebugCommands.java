@@ -46,6 +46,11 @@ public final class BfsDebugCommands {
         CommandSourceStack source = context.getSource();
         BfsDebugManager.StartResult result = BfsDebugManager.start(source, category, ticks, targets);
         if (!result.started()) {
+            if (result.activeSession() != null) {
+                source.sendSuccess(() -> Component.literal("BFS debug capture is already active. Current session status follows.")
+                        .withStyle(ChatFormatting.YELLOW), false);
+                return status(context);
+            }
             source.sendFailure(Component.literal(result.message()));
             return 0;
         }
