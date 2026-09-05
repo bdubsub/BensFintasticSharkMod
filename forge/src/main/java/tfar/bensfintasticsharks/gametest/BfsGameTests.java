@@ -17,6 +17,7 @@ import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
 import tfar.bensfintasticsharks.entity.AquaticMovement;
 import tfar.bensfintasticsharks.entity.OceanicWhitetipSharkEntity;
 import tfar.bensfintasticsharks.entity.TigerSharkEntity;
+import tfar.bensfintasticsharks.debug.BfsDebugManager;
 import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 
@@ -68,6 +69,38 @@ public final class BfsGameTests {
             helper.assertItemEntityPresent(ModBlocks.ALGAE_BLOCK.asItem(), ALGAE_POS, 2.0);
             helper.succeed();
         });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug", timeoutTicks = 80)
+    public static void serverDebugCommandStartsAndStopsBoundedCapture(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 3, 3));
+        BfsDebugManager.stop("gametest_setup");
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(helper.absolutePos(new BlockPos(3, 3, 3)).getCenter())
+                .withPermission(4);
+        try {
+            int started = server.getCommands().getDispatcher().execute("bfs debug on movement 20", source);
+            helper.assertTrue(started >= 0, "operator command must accept bounded BFS debug capture");
+            BfsDebugManager.Status active = BfsDebugManager.status();
+            helper.assertTrue(active.active(), "debug command must create one active server session");
+            helper.assertTrue(active.session().targetCount() <= BfsDebugManager.MAX_TARGETS,
+                    "debug target selection must remain bounded");
+            helper.runAfterDelay(3, () -> {
+                try {
+                    int stopped = server.getCommands().getDispatcher().execute("bfs debug off", source);
+                    helper.assertTrue(stopped == 1, "operator command must stop the active BFS debug capture");
+                    helper.assertTrue(!BfsDebugManager.status().active(), "debug command must clear the active server session");
+                    helper.succeed();
+                } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+                    helper.fail("BFS debug stop command failed: " + exception.getMessage());
+                }
+            });
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+            helper.fail("BFS debug start command failed: " + exception.getMessage());
+        }
     }
 
     @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 220)

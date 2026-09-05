@@ -26,11 +26,12 @@ Install Forge, place the mod and its required dependencies in the `mods` directo
 * Atlantic Cod and Atlantic Salmon replace only vanilla Cod and Salmon by default, including natural spawns and the two vanilla spawn eggs. Replacements share vanilla's water ambient population ceiling, and a server config switch restores separate vanilla and BFS spawn sources.
 * Optional suppression of other natural vanilla aquatic spawning for packs that want BFS wildlife to fill the oceans.
 * Creative showcase commands, including a guaranteed trade villager and detailed species information.
+* Bounded server and local client diagnostics for movement, behavior, combat, population, advancement, and algae investigations.
 * Shark tools, armor, a Prismarine armor set fitted to swimming poses, Captain Ben's Hat, collectible items, and advancements.
 * The Shark Codex and the Sunken Trove ocean structure.
 * Three permanent algae blocks with animated large green and red variants and ocean biome generation.
 
-Full gameplay, configuration, command, architecture, and troubleshooting details are in [DOCUMENTATION.md](DOCUMENTATION.md). Release changes are in [CHANGELOG.md](CHANGELOG.md), and the documentation index is in [docs/README.md](docs/README.md). The 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md).
+The documentation index is in [docs/README.md](docs/README.md). The 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md). Diagnostic command and parser instructions are in [docs/test/debug-diagnostics.md](docs/test/debug-diagnostics.md).
 
 ## Development
 
@@ -70,7 +71,7 @@ Keep generated resources synchronized by running `:forge:Data` after changing ad
 
 Server configuration is stored in `config/bensfintasticsharks-common.toml`. Existing configuration files retain old values when defaults change. The 0.23 release adds `[spawning] replace_vanilla_mobs`, which defaults to `true`. With the default, natural vanilla Cod and Salmon and their vanilla spawn eggs produce the matching Atlantic fish. Version `0.23-emergency-fix` corrects their population category so replacements count toward the same water ambient ceiling as the vanilla fish they replace. Tropical Fish, Pufferfish, and every other mob are excluded. Set the option to `false` to retain vanilla Cod and Salmon and enable the Atlantic fish's separate biome spawn sources. The separate `disable_vanilla_aquatic_spawns` option defaults to `false` and requires a game or dedicated server restart after it changes.
 
-The mod targets Forge 47.2.0 on Minecraft 1.20.1 only. Eclipse and Fabric are not supported. See [DOCUMENTATION.md](DOCUMENTATION.md#20-troubleshooting) before reporting a spawn, data, or startup problem.
+The mod targets Forge 47.2.0 on Minecraft 1.20.1 only. Eclipse and Fabric are not supported. Include the matching mod and dependency versions, configuration, reproduction steps, and a completed BFS debug capture when reporting a movement, behavior, combat, population, advancement, or algae issue.
 
 ## License
 

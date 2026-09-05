@@ -15,6 +15,10 @@ mixin {
     config("${mod_id}.forge.mixins.json")
 }
 
+def bfsGameTestRunDirectory = providers.gradleProperty('bfsGameTestRunDir')
+        .map { file(it) }
+        .getOrElse(file('run'))
+
 minecraft {
     mappings channel: 'parchment', version: parch_mapping+"-"+minecraft_version
 
@@ -57,7 +61,7 @@ minecraft {
         }
 
         gameTestServer {
-            workingDirectory project.file('run')
+            workingDirectory bfsGameTestRunDirectory
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'GameTestServer'
             property 'forge.enabledGameTestNamespaces', mod_id
@@ -124,7 +128,7 @@ tasks.configureEach {
     doFirst {
         copy {
             from file("src/main/resources/gameteststructures")
-            into file("run/gameteststructures")
+            into file("${bfsGameTestRunDirectory}/gameteststructures")
         }
     }
     }

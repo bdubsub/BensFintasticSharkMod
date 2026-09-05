@@ -62,6 +62,7 @@ public class BensFintasticSharksForge {
         MinecraftForge.EVENT_BUS.addListener(this::onEntityJoin);
         MinecraftForge.EVENT_BUS.register(new tfar.bensfintasticsharks.spawn.MobCapManager());
         WaterDisturbanceListeners.register(MinecraftForge.EVENT_BUS);
+        tfar.bensfintasticsharks.debug.BfsDebugManager.register(MinecraftForge.EVENT_BUS);
         bus.addListener(this::onCommonSetup);
         tfar.bensfintasticsharks.config.BfsConfig.register();
         tfar.bensfintasticsharks.worldgen.ModFeatures.register(bus);

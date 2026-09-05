@@ -1,0 +1,108 @@
+#!/usr/bin/env python3
+"""Focused parser tests for tools/bfs_debug_analyze.py."""
+
+from __future__ import annotations
+
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import bfs_debug_analyze
+
+
+def record(event: str, tick: int, **values: object) -> dict[str, object]:
+    return {
+        "schema": "bfs-debug-v1",
+        "sessionId": "session",
+        "side": "server",
+        "event": event,
+        "tick": tick,
+        "dimension": "minecraft:overworld",
+        "timestamp": "2026-09-05T00:00:00Z",
+        **values,
+    }
+
+
+class BfsDebugAnalyzerTest(unittest.TestCase):
+    def test_complete_capture_preserves_history(self) -> None:
+        records = [
+            record("header", 1),
+            record("movement", 2, entityUuid="fish", x=0.0, y=1.0, z=0.0,
+                   velocityX=0.0, velocityY=0.01, velocityZ=0.1, yaw=0.0, pitch=-1.0),
+            record("movement", 3, entityUuid="fish", x=0.0, y=1.01, z=0.1,
+                   velocityX=0.0, velocityY=0.01, velocityZ=0.1, yaw=0.0, pitch=-2.0),
+            record("end", 4, incomplete=False, recordsDropped=0),
+        ]
+        analysis = bfs_debug_analyze.validate(records, [], {"profile": "candidate"})
+        self.assertEqual("complete", analysis["verdict"])
+        history = analysis["metrics"]["entities"]["fish"]["history"]
+        self.assertEqual(2, len(history))
+        self.assertEqual(1.0, analysis["metrics"]["entities"]["fish"]["maxPitchStepDegrees"])
+
+    def test_missing_end_is_invalid(self) -> None:
+        analysis = bfs_debug_analyze.validate([record("header", 1)], [], {})
+        self.assertEqual("invalid", analysis["verdict"])
+        self.assertIn("capture must contain exactly one end record", analysis["errors"])
+
+    def test_incomplete_capture_is_not_complete(self) -> None:
+        analysis = bfs_debug_analyze.validate([
+            record("header", 1),
+            record("end", 2, incomplete=True, incompleteReason="writer queue reached its capacity", recordsDropped=4),
+        ], [], {})
+        self.assertEqual("incomplete", analysis["verdict"])
+        self.assertTrue(analysis["warnings"])
+
+    def test_non_finite_and_tick_reversal_are_invalid(self) -> None:
+        analysis = bfs_debug_analyze.validate([
+            record("header", 4),
+            record("movement", 3, entityUuid="fish", x=float("nan"), y=1.0, z=1.0,
+                   velocityX=0.0, velocityY=0.0, velocityZ=0.0, yaw=0.0, pitch=0.0),
+            record("end", 5, incomplete=False, recordsDropped=0),
+        ], [], {})
+        self.assertEqual("invalid", analysis["verdict"])
+        self.assertTrue(any("moves backward" in error for error in analysis["errors"]))
+        self.assertTrue(any("non-finite x" in error for error in analysis["errors"]))
+
+    def test_manifest_rejects_static_and_discontinuous_motion(self) -> None:
+        static = [
+            record("header", 1, artifactSha256="candidate"),
+            record("movement", 2, entityUuid="fish", x=0.0, y=1.0, z=0.0,
+                   velocityX=0.0, velocityY=0.0, velocityZ=0.0, yaw=0.0, pitch=0.0),
+            record("movement", 3, entityUuid="fish", x=5.0, y=1.0, z=0.0,
+                   velocityX=0.0, velocityY=0.0, velocityZ=0.0, yaw=0.0, pitch=0.0),
+            record("end", 4, incomplete=False, recordsDropped=0),
+        ]
+        manifest = {
+            "artifactSha256": "candidate",
+            "entities": {"fish": {"minimumSamples": 3, "minimumNetVerticalDisplacement": 0.25,
+                                  "maximumCoordinateStep": 1.0}},
+        }
+        analysis = bfs_debug_analyze.validate(static, [], manifest)
+        self.assertEqual("invalid", analysis["verdict"])
+        self.assertTrue(any("net vertical" in error for error in analysis["errors"]))
+        self.assertTrue(any("continuity" in error for error in analysis["errors"]))
+
+    def test_manifest_rejects_wrong_artifact(self) -> None:
+        analysis = bfs_debug_analyze.validate([
+            record("header", 1, artifactSha256="wrong"),
+            record("end", 2, incomplete=False, recordsDropped=0),
+        ], [], {"artifactSha256": "candidate"})
+        self.assertEqual("invalid", analysis["verdict"])
+        self.assertIn("header artifactSha256 does not match the candidate manifest", analysis["errors"])
+
+    def test_bad_json_is_invalid(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "capture.jsonl"
+            path.write_text("not-json\n", encoding="utf-8")
+            records, errors = bfs_debug_analyze.load_capture(path)
+        analysis = bfs_debug_analyze.validate(records, errors, {})
+        self.assertEqual("invalid", analysis["verdict"])
+        self.assertTrue(any("not valid JSON" in error for error in analysis["errors"]))
+
+
+if __name__ == "__main__":
+    unittest.main()
