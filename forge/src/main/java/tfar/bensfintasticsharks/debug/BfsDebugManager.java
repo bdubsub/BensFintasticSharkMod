@@ -315,8 +315,15 @@ public final class BfsDebugManager {
         record.addProperty("entityType", entity == null ? "unavailable:entity_not_loaded" : entityId(entity));
         if (entity == null) {
             record.addProperty("runtimeId", "unavailable:entity_not_loaded");
+            record.addProperty("wasRemoved", "unavailable:entity_not_loaded");
+            record.addProperty("removalReason", "unavailable:entity_not_loaded");
         } else {
             record.addProperty("runtimeId", entity.getId());
+            record.addProperty("wasRemoved", entity.isRemoved());
+            Entity.RemovalReason removalReason = entity.getRemovalReason();
+            record.addProperty("removalReason", removalReason == null
+                    ? "unavailable:entity_left_without_removal_reason"
+                    : removalReason.name().toLowerCase(Locale.ROOT));
         }
         record.addProperty("reason", reason);
         enqueue(active, record);
