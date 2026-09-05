@@ -458,7 +458,10 @@ public final class BfsGameTests {
             helper.assertTrue(AquaticMovement.VERTICAL_SPEED_RATIO == 0.10D,
                     "affected aquatic vertical ratio must remain the approved oracle");
             helper.assertTrue(hasNoDirectionReversal(heights, 1),
-                    "atlantic cod vertical travel must not repeatedly reverse direction");
+                    "atlantic cod vertical travel must not repeatedly reverse direction, reversals="
+                            + directionReversals(heights) + ", heights=" + heights + ", pitches=" + pitches
+                            + ", position=" + cod.position() + ", delta=" + cod.getDeltaMovement()
+                            + ", target=" + target);
             helper.succeed();
         });
     }
