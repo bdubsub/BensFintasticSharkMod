@@ -50,6 +50,31 @@ class ReleaseContractAuditTest {
             Map.entry("zippy_pixel_art.png", "4f54793625dc71ab456ca58de55b6bfe015f586c81930d11b72d5a3d6942595d")
     ));
 
+    private static final List<SpeciesPresentation> LIVING_SPECIES = List.of(
+            new SpeciesPresentation("great_white_shark", "GREAT_WHITE_SHARK"),
+            new SpeciesPresentation("great_hammerhead_shark", "GREAT_HAMMERHEAD_SHARK"),
+            new SpeciesPresentation("common_thresher_shark", "COMMON_THRESHER_SHARK"),
+            new SpeciesPresentation("shortfin_mako_shark", "SHORTFIN_MAKO_SHARK"),
+            new SpeciesPresentation("tiger_shark", "TIGER_SHARK"),
+            new SpeciesPresentation("oceanic_whitetip_shark", "OCEANIC_WHITETIP_SHARK"),
+            new SpeciesPresentation("sandtiger_shark", "SANDTIGER_SHARK"),
+            new SpeciesPresentation("blacktip_reef_shark", "BLACKTIP_REEF_SHARK"),
+            new SpeciesPresentation("orca", "ORCA"),
+            new SpeciesPresentation("bottlenose_dolphin", "BOTTLENOSE_DOLPHIN"),
+            new SpeciesPresentation("common_octopus", "COMMON_OCTOPUS"),
+            new SpeciesPresentation("caribbean_reef_octopus", "CARIBBEAN_REEF_OCTOPUS"),
+            new SpeciesPresentation("nautilus", "NAUTILUS"),
+            new SpeciesPresentation("giant_moray_eel", "GIANT_MORAY_EEL"),
+            new SpeciesPresentation("green_sea_turtle", "GREEN_SEA_TURTLE"),
+            new SpeciesPresentation("american_lobster", "AMERICAN_LOBSTER"),
+            new SpeciesPresentation("common_stingray", "COMMON_STINGRAY"),
+            new SpeciesPresentation("harbor_seal", "HARBOR_SEAL"),
+            new SpeciesPresentation("black_sea_nettle_jellyfish", "BLACK_SEA_NETTLE_JELLYFISH"),
+            new SpeciesPresentation("cannonball_jellyfish", "CANNONBALL_JELLYFISH"),
+            new SpeciesPresentation("atlantic_cod", "ATLANTIC_COD"),
+            new SpeciesPresentation("atlantic_salmon", "ATLANTIC_SALMON")
+    );
+
     @Test
     void suppliedAdvancementCopyAndPunctuationAreStable() throws IOException {
         JsonObject language = readJson(GENERATED.resolve("assets/bensfintasticsharks/lang/en_us.json"));
@@ -212,6 +237,23 @@ class ReleaseContractAuditTest {
     }
 
     @Test
+    void everyLivingSpeciesHasActionAndPresentationInventoryEntries() throws IOException {
+        assertEquals(22, LIVING_SPECIES.size());
+        String entityTypes = Files.readString(ROOT.resolve(
+                "common/src/main/java/tfar/bensfintasticsharks/init/ModEntityTypes.java"));
+        String speciesInfo = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/command/BfsSpeciesInfo.java"));
+        String rendererRegistration = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/client/ModClientForge.java"));
+
+        for (SpeciesPresentation species : LIVING_SPECIES) {
+            assertTrue(entityTypes.contains(" " + species.entityField() + " ="), species.id());
+            assertTrue(speciesInfo.contains("Map.entry(\"" + species.id() + "\""), species.id());
+            assertTrue(rendererRegistration.contains("ModEntityTypes." + species.entityField()), species.id());
+        }
+    }
+
+    @Test
     void grabbersUseAuthoritativeBoundedCleanup() throws IOException {
         for (String file : List.of("GreatWhiteSharkEntity.java", "GreatHammerheadSharkEntity.java",
                 "ShortfinMakoSharkEntity.java", "OceanicWhitetipSharkEntity.java",
@@ -356,6 +398,9 @@ class ReleaseContractAuditTest {
     }
 
     private record Keyframe(double time, List<Double> vector) {
+    }
+
+    private record SpeciesPresentation(String id, String entityField) {
     }
 
     private static void assertTexture(Path path, int width, int height) throws IOException {

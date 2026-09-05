@@ -66,9 +66,10 @@ The tracked release checksum and SBOM files describe the earlier `bfs-0.24-final
 * one terminal punctuation mark for every generated advancement description,
 * retirement of `shark_whisperer` and direct `sharks_galore` parents for `marine_biologist` and `apex_of_apex`,
 * exact 16 by 16 supplied icon hashes,
-* nonstatic transform values in the Cod, Salmon, and Oceanic Whitetip clips,
+* five point transform vectors in the Cod, Salmon, and Oceanic Whitetip clips, with at least one vector pair per clip differing by more than `0.0001`,
 * Oceanic controller clip and bone references,
 * retained Atlantic fish inheritance, fishing loot, cooking recipes, and exact `Spin` behavior,
+* all 22 living species with entity, `/bfs info`, and renderer bindings,
 * authoritative grab cleanup seams, and
 * permanent algae dimensions, animation frame order, cutout models, loot, tags, and bounded placed feature settings.
 
