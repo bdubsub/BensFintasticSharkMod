@@ -71,6 +71,23 @@ public final class BfsGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_debug_lifecycle", timeoutTicks = 20)
+    public static void geckoLibNetworkChannelIsRegistered(GameTestHelper helper) {
+        try {
+            java.lang.reflect.Method buildChannelVersions = net.minecraftforge.network.NetworkRegistry.class
+                    .getDeclaredMethod("buildChannelVersions");
+            buildChannelVersions.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            java.util.Map<net.minecraft.resources.ResourceLocation, String> channels =
+                    (java.util.Map<net.minecraft.resources.ResourceLocation, String>) buildChannelVersions.invoke(null);
+            helper.assertTrue("1".equals(channels.get(new net.minecraft.resources.ResourceLocation("geckolib", "main"))),
+                    "GeckoLib must register its geckolib:main protocol channel with version 1");
+            helper.succeed();
+        } catch (ReflectiveOperationException exception) {
+            helper.fail("unable to inspect registered Forge network channels: " + exception.getMessage());
+        }
+    }
+
     @GameTest(template = "empty", batch = "bfs_debug_lifecycle", timeoutTicks = 80)
     public static void serverDebugCommandStartsAndStopsBoundedCapture(GameTestHelper helper) {
         prepareWaterVolume(helper);
@@ -133,10 +150,74 @@ public final class BfsGameTests {
             }
             server.getCommands().getDispatcher().execute("bfs debug off", operator);
             helper.assertTrue(!BfsDebugManager.status().active(), "operator stop must release the session after a repeat");
+            int repeatedStop = server.getCommands().getDispatcher().execute("bfs debug off", operator);
+            helper.assertTrue(repeatedStop == 1,
+                    "operator stop must be idempotent after the diagnostic session is already inactive");
+            helper.assertTrue(!BfsDebugManager.status().active(),
+                    "idempotent operator stop must leave the diagnostic session inactive");
             helper.succeed();
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
             helper.fail("BFS debug command test failed: " + exception.getMessage());
         }
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_parity", timeoutTicks = 140)
+    public static void serverDebugCaptureLeavesPairedPhysicsUnchanged(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        AtlanticCodEntity captured = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(4, 5, 4));
+        AtlanticCodEntity control = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(7, 5, 4));
+        captured.setNoAi(true);
+        control.setNoAi(true);
+        captured.setNoGravity(true);
+        control.setNoGravity(true);
+        Vec3 capturedStart = captured.position();
+        Vec3 controlStart = control.position();
+
+        BfsDebugManager.stop("gametest_setup");
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(capturedStart)
+                .withPermission(4);
+        try {
+            int started = server.getCommands().getDispatcher().execute(
+                    "bfs debug on movement 70 @e[type=bensfintasticsharks:atlantic_cod,distance=..4,limit=1]", source);
+            helper.assertTrue(started == 1, "diagnostic parity fixture must select only its captured Cod");
+            sampleDiagnosticParity(helper, server, source, captured, control, capturedStart, controlStart, 20);
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+            helper.fail("BFS diagnostic parity start command failed: " + exception.getMessage());
+        }
+    }
+
+    private static void sampleDiagnosticParity(GameTestHelper helper, net.minecraft.server.MinecraftServer server,
+                                               net.minecraft.commands.CommandSourceStack source,
+                                               AtlanticCodEntity captured, AtlanticCodEntity control,
+                                               Vec3 capturedStart, Vec3 controlStart, int remainingTicks) {
+        helper.runAfterDelay(1, () -> {
+            captured.move(net.minecraft.world.entity.MoverType.SELF, new Vec3(0.02D, 0.0D, 0.0D));
+            control.move(net.minecraft.world.entity.MoverType.SELF, new Vec3(0.02D, 0.0D, 0.0D));
+            if (remainingTicks > 1) {
+                sampleDiagnosticParity(helper, server, source, captured, control, capturedStart, controlStart,
+                        remainingTicks - 1);
+                return;
+            }
+            try {
+                server.getCommands().getDispatcher().execute("bfs debug off", source);
+                Vec3 capturedDisplacement = captured.position().subtract(capturedStart);
+                Vec3 controlDisplacement = control.position().subtract(controlStart);
+                helper.assertTrue(capturedDisplacement.lengthSqr() > 1.0e-4D,
+                        "paired physics fixture must apply observable scripted movement");
+                helper.assertTrue(capturedDisplacement.distanceTo(controlDisplacement) <= 1.0e-4D,
+                        "diagnostic capture must not change paired deterministic physics, captured="
+                                + capturedDisplacement + ", control=" + controlDisplacement);
+                BfsDebugManager.StopSummary stop = BfsDebugManager.status().lastStop();
+                helper.assertTrue(stop.dropped() == 0 && !stop.incomplete(),
+                        "diagnostic parity capture must finish without dropped or incomplete records");
+                helper.succeed();
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+                helper.fail("BFS diagnostic parity stop command failed: " + exception.getMessage());
+            }
+        });
     }
 
     @GameTest(template = "empty", batch = "bfs_debug_cod_movement", timeoutTicks = 120)
@@ -250,7 +331,7 @@ public final class BfsGameTests {
     public static void tigerBiteLandsOnceAndRecoversAfterTargetLoss(GameTestHelper helper) {
         prepareWaterVolume(helper);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(4, 3, 3));
-        Mob prey = helper.spawn(EntityType.DROWNED, new BlockPos(5, 3, 3));
+        Mob prey = helper.spawn(EntityType.DROWNED, new BlockPos(4, 3, 3));
         shark.getBrain().removeAllBehaviors();
         prey.setNoAi(true);
         shark.setTarget(prey);
@@ -340,6 +421,7 @@ public final class BfsGameTests {
         java.util.List<Double> heights = new java.util.ArrayList<>();
         java.util.List<Float> pitches = new java.util.ArrayList<>();
         double startY = cod.getY();
+        cod.getNavigation().moveTo(target.x, target.y, target.z, 1.0D);
         sampleFishVerticalRoute(helper, cod, target, startY, heights, pitches, 0);
     }
 
@@ -458,7 +540,7 @@ public final class BfsGameTests {
             helper.assertTrue(AquaticMovement.VERTICAL_SPEED_RATIO == 0.10D,
                     "affected aquatic vertical ratio must remain the approved oracle");
             helper.assertTrue(hasNoDirectionReversal(heights, 1),
-                    "atlantic cod vertical travel must not repeatedly reverse direction, reversals="
+                    "atlantic cod vertical travel must not reverse direction, reversals="
                             + directionReversals(heights) + ", heights=" + heights + ", pitches=" + pitches
                             + ", position=" + cod.position() + ", delta=" + cod.getDeltaMovement()
                             + ", target=" + target);

@@ -175,6 +175,9 @@ Every `/bfs` command needs op permission (level 2). Species names and disturbanc
 | `/bfs cap reset <species>` | Clears that species runtime override |
 | `/bfs cap reset` | Clears every runtime override |
 | `/bfs disturbance <type>` | Fires a test light, heavy, or blood disturbance at your position. Reports how many sharks are in range to react |
+| `/bfs debug on [category] [ticks] [targets]` | Starts one bounded server diagnostic capture. Categories are all, movement, brain, combat, population, advancement, and algae. Bare `on` uses all for 1,200 ticks |
+| `/bfs debug status` | Reports the active or last server capture, including limits, output path, and any incomplete reason |
+| `/bfs debug off` | Stops the active server diagnostic capture. It is safe to repeat after the capture is already inactive. |
 | `/bfs reload` | Re reads config values without restart |
 
 `/bfs cap set` is runtime only. Restart the server and your edits are gone. To make changes permanent, edit the config file.
@@ -203,6 +206,12 @@ The villager is level 5 with 250 XP. It rolls up to two ordinary Fisherman offer
 When a runtime override is active, `/bfs cap list` shows it in gold and tells you what the config default is.
 
 `/bfs disturbance` will also tell you, after firing, how many sharks were inside its diagnostic radius. If it reports zero, the system is fine; you just don't have any sharks nearby to respond. Spawn or find some first.
+
+### Diagnostic support captures
+
+Use diagnostics for server-observable movement, behavior, combat, population, advancement, and algae failures before requesting a client session. The command requires level 2 permission and is available from the trusted dedicated-server console without a connected player. It records one bounded JSONL capture under the exact runtime's `logs/bfs-debug/` directory and does not alter gameplay.
+
+For client-only rendering, interpolation, controller, or resource questions, use the separate local command `/bfs debug client on`, `/bfs debug client status`, and `/bfs debug client off` on the affected laptop. It is local only. The server cannot start it or inspect its files. Full command syntax, limits, artifact binding, parser invocation, privacy rules, and recovery for incomplete captures are in [BFS debug diagnostics](docs/test/debug-diagnostics.md).
 
 ## 6. Water disturbance system
 
@@ -591,7 +600,7 @@ gradlew.bat :forge:Client
 gradlew.bat :forge:Server
 ```
 
-Server backed interactive verification uses a dedicated Forge server on `node-1` and a matching windowed client on the Linux laptop. Start the server with `./gradlew :forge:Server --no-daemon --args='--port <port> --nogui'` on `node-1`, then connect the laptop client with `./gradlew :forge:Client --no-daemon --args='--username Dev7 --quickPlayMultiplayer <tailscale-server-ip>:<port>'`. Use the server console or authenticated RCON for fixture setup and cleanup. Never run a windowed client, Xvfb, or rendering workload on `node-1`. For hidden laptop capture, keep the Minecraft window on a nonactive Hyprland workspace, set `pauseOnLostFocus:false`, and request it with `DISPLAY=:1 import -window <minecraft-window-id> <capture-path>` while verifying that the active workspace is unchanged.
+Server backed interactive verification uses a dedicated Forge server on `node-1` and a matching windowed client on the Linux laptop. Start the server with `./gradlew :forge:Server --no-daemon --args='--port <port> --nogui'` on `node-1`, then connect the laptop client with `./gradlew :forge:Client --no-daemon --args='--username Dev7 --quickPlayMultiplayer <tailscale-server-ip>:<port>'`. Use the server console or authenticated RCON for fixture setup and cleanup. Never run a windowed client, Xvfb, or rendering workload on `node-1`. For a hidden laptop capture, keep the Minecraft window on a nonactive Hyprland workspace and set `pauseOnLostFocus:false`, then validate the capture method against the owned Minecraft window before accepting an image. On the current Wayland session, `DISPLAY=:1 import -window <minecraft-window-id>` captures the active desktop instead of an inactive Xwayland workspace, so it is not admissible evidence. A portal capture requires explicit human selection; do not automate that selection. Verify that the active workspace is unchanged before and after any valid capture.
 
 The `Data` task writes to `common/src/generated/resources`. Run it after changing any provider, then inspect the generated diff. The distributable artifact is written to `forge/build/libs`. Inspect the JAR for `META-INF/mods.toml`, the `bensfintasticsharks` assets and data namespaces, mixin configuration, and required embedded metadata before release.
 

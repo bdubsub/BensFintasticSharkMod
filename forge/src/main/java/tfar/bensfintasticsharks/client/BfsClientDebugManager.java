@@ -12,16 +12,22 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.fml.ModList;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationProcessor;
 import tfar.bensfintasticsharks.BensFintasticSharks;
 
 import java.io.BufferedWriter;
@@ -51,6 +57,7 @@ public final class BfsClientDebugManager {
 
     private static final int MAX_TARGETS = 32;
     private static final int DEFAULT_DURATION_TICKS = 1_200;
+    private static final int PRESENTATION_SAMPLE_INTERVAL_TICKS = 4;
     private static final long WALL_DURATION_MILLIS = 90_000L;
     private static final int MAX_QUEUE_RECORDS = 8_192;
     private static final int MAX_RECORD_BYTES = 16 * 1024;
@@ -75,6 +82,7 @@ public final class BfsClientDebugManager {
     public static void register(IEventBus eventBus) {
         eventBus.addListener(BfsClientDebugManager::onRegisterCommands);
         eventBus.addListener(BfsClientDebugManager::onClientTick);
+        eventBus.addListener(BfsClientDebugManager::onRenderLevelStage);
     }
 
     private static void onRegisterCommands(RegisterClientCommandsEvent event) {
@@ -138,8 +146,9 @@ public final class BfsClientDebugManager {
     private static int stop(CommandContext<CommandSourceStack> context) {
         Session active = session;
         if (active == null) {
-            context.getSource().sendFailure(Component.literal("No local BFS debug capture is active."));
-            return 0;
+            context.getSource().sendSuccess(() -> Component.literal("Local BFS debug capture is already inactive.")
+                    .withStyle(ChatFormatting.GRAY), false);
+            return 1;
         }
         finish(active, "operator_requested");
         context.getSource().sendSuccess(() -> Component.literal("Local BFS debug capture stopped. Output is finalizing at "
@@ -232,6 +241,8 @@ public final class BfsClientDebugManager {
         record.addProperty("requirementId", "unavailable:provided_by_candidate_manifest");
         record.addProperty("requestedTicks", DEFAULT_DURATION_TICKS);
         record.addProperty("wallDurationSeconds", WALL_DURATION_MILLIS / 1_000L);
+        record.addProperty("presentationSampleIntervalTicks", PRESENTATION_SAMPLE_INTERVAL_TICKS);
+        record.addProperty("presentationSamplingPoint", "after_entities_render");
         record.addProperty("eligibleTargets", active.eligibleTargets);
         record.addProperty("selectedTargets", active.selectedTargetCount());
         record.addProperty("excludedTargets", active.excludedTargets);
@@ -249,11 +260,16 @@ public final class BfsClientDebugManager {
         record.addProperty("javaVersion", System.getProperty("java.version", "unavailable:java_version_property_missing"));
         record.addProperty("geckoLibVersion", loadedModVersion("geckolib"));
         record.addProperty("smartBrainLibVersion", loadedModVersion("smartbrainlib"));
-        record.addProperty("sourceRevision", "unavailable:development_classpath_revision_not_bound");
-        record.addProperty("motionProfileVersion", "unavailable:phase_002_profile_not_implemented");
-        record.addProperty("artifactSha256", "unavailable:not_bound_to_a_packaged_artifact");
-        record.addProperty("configuration", "unavailable:runtime_configuration_snapshot_not_yet_bound");
-        record.addProperty("dataPackFingerprint", "unavailable:client_data_pack_snapshot_not_yet_bound");
+        record.addProperty("sourceRevision", runtimeBinding("bfs.source.revision",
+                "unavailable:development_classpath_revision_not_bound"));
+        record.addProperty("motionProfileVersion", runtimeBinding("bfs.motion.profile.version",
+                "unavailable:phase_002_profile_not_implemented"));
+        record.addProperty("artifactSha256", runtimeBinding("bfs.artifact.sha256",
+                "unavailable:not_bound_to_a_packaged_artifact"));
+        record.addProperty("configuration", runtimeBinding("bfs.configuration.fingerprint",
+                "unavailable:runtime_configuration_snapshot_not_yet_bound"));
+        record.addProperty("dataPackFingerprint", runtimeBinding("bfs.datapack.fingerprint",
+                "unavailable:client_data_pack_snapshot_not_yet_bound"));
         return record;
     }
 
@@ -278,6 +294,84 @@ public final class BfsClientDebugManager {
         record.addProperty("inWater", entity.isInWaterOrBubble());
         record.addProperty("onGround", entity.onGround());
         record.addProperty("renderPosition", "unavailable:client_tick_snapshot_has_no_partial_render_frame");
+        return record;
+    }
+
+    private static void onRenderLevelStage(RenderLevelStageEvent event) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
+            return;
+        }
+        Session active = session;
+        if (active == null || active.closed.get()) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        ClientLevel level = minecraft.level;
+        if (level == null || !level.dimension().location().toString().equals(active.dimension)) {
+            return;
+        }
+        long tick = level.getGameTime();
+        if (!active.claimPresentationTick(tick)) {
+            return;
+        }
+        for (Map.Entry<UUID, Integer> target : active.trackedTargets()) {
+            Entity entity = level.getEntity(target.getValue());
+            if (entity == null || !entity.getUUID().equals(target.getKey())) {
+                releaseTarget(active, level, target.getKey(), target.getValue(), "entity_unavailable_during_client_render");
+                continue;
+            }
+            enqueue(active, presentationRecord(active, entity, tick, event.getPartialTick()));
+        }
+    }
+
+    private static JsonObject presentationRecord(Session active, Entity entity, long tick, float partialTick) {
+        JsonObject record = baseRecord(active, "presentation", tick);
+        record.addProperty("samplingPoint", "after_entities_render");
+        record.addProperty("entityUuid", entity.getUUID().toString());
+        record.addProperty("entityType", BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString());
+        record.addProperty("runtimeId", entity.getId());
+        record.addProperty("partialTick", partialTick);
+        record.addProperty("interpolatedX", Mth.lerp(partialTick, entity.xo, entity.getX()));
+        record.addProperty("interpolatedY", Mth.lerp(partialTick, entity.yo, entity.getY()));
+        record.addProperty("interpolatedZ", Mth.lerp(partialTick, entity.zo, entity.getZ()));
+        record.addProperty("interpolatedYaw", Mth.rotLerp(partialTick, entity.yRotO, entity.getYRot()));
+        record.addProperty("interpolatedPitch", Mth.lerp(partialTick, entity.xRotO, entity.getXRot()));
+        record.addProperty("interpolationSource", "client_previous_and_current_entity_state");
+        addControllerSnapshot(record, entity);
+        return record;
+    }
+
+    private static void addControllerSnapshot(JsonObject record, Entity entity) {
+        if (!(entity instanceof GeoAnimatable animatable)) {
+            record.addProperty("animationControllers", "unavailable:not_a_gecko_animatable");
+            return;
+        }
+        try {
+            AnimatableManager<?> manager = animatable.getAnimatableInstanceCache().getManagerForId(entity.getId());
+            JsonObject controllers = new JsonObject();
+            manager.getAnimationControllers().forEach((name, controller) ->
+                    controllers.add(name, controllerSnapshot(controller)));
+            record.addProperty("animationControllerCount", controllers.size());
+            record.add("animationControllers", controllers);
+        } catch (RuntimeException exception) {
+            record.addProperty("animationControllers", "unavailable:"
+                    + exception.getClass().getSimpleName());
+        }
+    }
+
+    private static JsonObject controllerSnapshot(AnimationController<?> controller) {
+        JsonObject record = new JsonObject();
+        record.addProperty("state", controller.getAnimationState().name());
+        record.addProperty("speed", controller.getAnimationSpeed());
+        record.addProperty("triggered", controller.isPlayingTriggeredAnimation());
+        AnimationProcessor.QueuedAnimation current = controller.getCurrentAnimation();
+        if (current == null) {
+            record.addProperty("currentAnimation", "unavailable:no_current_animation");
+        } else {
+            record.addProperty("currentAnimation", current.animation().name());
+            record.addProperty("loopType", current.loopType().toString());
+            record.addProperty("animationLengthSeconds", current.animation().length());
+        }
         return record;
     }
 
@@ -409,10 +503,12 @@ public final class BfsClientDebugManager {
             }
         } catch (IOException exception) {
             active.markIncomplete("writer failure: " + exception.getClass().getSimpleName());
+            finish(active, "writer_failure");
+            active.records.clear();
             BensFintasticSharks.LOG.error("BFS client debug capture writer failed for {}", active.id, exception);
         } finally {
             active.writerScheduled.set(false);
-            if (!active.records.isEmpty()) {
+            if (!active.closed.get() && !active.records.isEmpty()) {
                 scheduleWriter(active);
             }
         }
@@ -476,6 +572,11 @@ public final class BfsClientDebugManager {
                 .orElse("unavailable:mod_not_loaded");
     }
 
+    private static String runtimeBinding(String property, String unavailable) {
+        String value = System.getProperty(property);
+        return value == null || value.isBlank() ? unavailable : value;
+    }
+
     private static final class StopSummary {
         private final String reason;
         private final long accepted;
@@ -532,6 +633,7 @@ public final class BfsClientDebugManager {
         private volatile String incompleteReason = "none";
         private volatile long writtenBytes;
         private volatile long lastTick;
+        private long lastPresentationTick = Long.MIN_VALUE;
         private volatile String stopReason = "none";
         private volatile String terminalRecord;
         private final AtomicBoolean terminalWritten = new AtomicBoolean();
@@ -574,6 +676,15 @@ public final class BfsClientDebugManager {
 
         private synchronized List<Map.Entry<UUID, Integer>> trackedTargets() {
             return List.copyOf(targets.entrySet());
+        }
+
+        private synchronized boolean claimPresentationTick(long tick) {
+            if (lastPresentationTick != Long.MIN_VALUE
+                    && tick - lastPresentationTick < PRESENTATION_SAMPLE_INTERVAL_TICKS) {
+                return false;
+            }
+            lastPresentationTick = tick;
+            return true;
         }
 
         private synchronized boolean releaseTarget(UUID targetId) {

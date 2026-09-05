@@ -76,8 +76,9 @@ public final class BfsDebugCommands {
     private static int stop(CommandContext<CommandSourceStack> context) {
         BfsDebugManager.StopResult result = BfsDebugManager.stop("operator_requested");
         if (!result.stopped()) {
-            context.getSource().sendFailure(Component.literal("No BFS debug capture is active."));
-            return 0;
+            context.getSource().sendSuccess(() -> Component.literal("BFS debug capture is already inactive.")
+                    .withStyle(ChatFormatting.GRAY), false);
+            return 1;
         }
         BfsDebugManager.Session session = result.stoppedSession();
         context.getSource().sendSuccess(() -> Component.literal("BFS debug capture stopped. Output is finalizing at ")

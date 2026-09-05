@@ -440,7 +440,7 @@ public final class BfsDebugManager {
         record.addProperty("schema", SCHEMA_VERSION);
         record.addProperty("side", "server");
         record.addProperty("category", active.category.id);
-        record.addProperty("hostRole", active.server.isDedicatedServer() ? "dedicated_server" : "integrated_server");
+        record.addProperty("hostRole", hostRole(active.server));
         record.addProperty("scenarioId", "unavailable:provided_by_candidate_manifest");
         record.addProperty("requirementId", "unavailable:provided_by_candidate_manifest");
         record.addProperty("requestedTicks", active.endTick - active.startTick);
@@ -460,13 +460,18 @@ public final class BfsDebugManager {
         record.addProperty("forgeVersion", loadedModVersion("forge"));
         record.addProperty("javaVersion", System.getProperty("java.version", "unavailable:java_version_property_missing"));
         record.addProperty("geckoLibVersion", loadedModVersion("geckolib"));
+        record.addProperty("geckoLibNetworkProtocol", geckoLibNetworkProtocol());
         record.addProperty("smartBrainLibVersion", loadedModVersion("smartbrainlib"));
-        record.addProperty("sourceRevision", System.getProperty("bfs.source.revision",
+        record.addProperty("sourceRevision", runtimeBinding("bfs.source.revision",
                 "unavailable:development_classpath_revision_not_bound"));
-        record.addProperty("motionProfileVersion", "unavailable:phase_002_profile_not_implemented");
-        record.addProperty("artifactSha256", "unavailable:not_bound_to_a_packaged_artifact");
-        record.addProperty("configuration", "unavailable:runtime_configuration_snapshot_not_yet_bound");
-        record.addProperty("dataPackFingerprint", "unavailable:runtime_datapack_snapshot_not_yet_bound");
+        record.addProperty("motionProfileVersion", runtimeBinding("bfs.motion.profile.version",
+                "unavailable:phase_002_profile_not_implemented"));
+        record.addProperty("artifactSha256", runtimeBinding("bfs.artifact.sha256",
+                "unavailable:not_bound_to_a_packaged_artifact"));
+        record.addProperty("configuration", runtimeBinding("bfs.configuration.fingerprint",
+                "unavailable:runtime_configuration_snapshot_not_yet_bound"));
+        record.addProperty("dataPackFingerprint", runtimeBinding("bfs.datapack.fingerprint",
+                "unavailable:runtime_datapack_snapshot_not_yet_bound"));
         return record;
     }
 
@@ -544,10 +549,12 @@ public final class BfsDebugManager {
             }
         } catch (IOException exception) {
             active.markIncomplete("writer failure: " + exception.getClass().getSimpleName());
+            finish(active, "writer_failure");
+            active.records.clear();
             BensFintasticSharks.LOG.error("BFS debug capture writer failed for {}", active.id, exception);
         } finally {
             active.writerScheduled.set(false);
-            if (!active.records.isEmpty()) {
+            if (!active.closed.get() && !active.records.isEmpty()) {
                 scheduleWriter(active);
             }
         }
@@ -606,6 +613,33 @@ public final class BfsDebugManager {
         return ModList.get().getModContainerById(modId)
                 .map(container -> container.getModInfo().getVersion().toString())
                 .orElse("unavailable:mod_not_loaded");
+    }
+
+    private static String runtimeBinding(String property, String unavailable) {
+        String value = System.getProperty(property);
+        return value == null || value.isBlank() ? unavailable : value;
+    }
+
+    private static String geckoLibNetworkProtocol() {
+        try {
+            java.lang.reflect.Method channelVersions = net.minecraftforge.network.NetworkRegistry.class
+                    .getDeclaredMethod("buildChannelVersions");
+            channelVersions.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            java.util.Map<net.minecraft.resources.ResourceLocation, String> versions =
+                    (java.util.Map<net.minecraft.resources.ResourceLocation, String>) channelVersions.invoke(null);
+            return versions.getOrDefault(new net.minecraft.resources.ResourceLocation("geckolib", "main"),
+                    "unavailable:channel_not_registered");
+        } catch (ReflectiveOperationException exception) {
+            return "unavailable:" + exception.getClass().getSimpleName();
+        }
+    }
+
+    private static String hostRole(net.minecraft.server.MinecraftServer server) {
+        if (server instanceof net.minecraft.gametest.framework.GameTestServer) {
+            return "gametest_server";
+        }
+        return server.isDedicatedServer() ? "dedicated_server" : "integrated_server";
     }
 
     private static Path outputDirectory() {
