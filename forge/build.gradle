@@ -18,6 +18,9 @@ mixin {
 def bfsGameTestRunDirectory = providers.gradleProperty('bfsGameTestRunDir')
         .map { file(it) }
         .getOrElse(file('run'))
+def bfsClientRunDirectory = providers.gradleProperty('bfsClientRunDir')
+        .map { file(it) }
+        .getOrElse(file('run'))
 
 minecraft {
     mappings channel: 'parchment', version: parch_mapping+"-"+minecraft_version
@@ -33,7 +36,7 @@ minecraft {
 
     runs {
         client {
-            workingDirectory project.file('run')
+            workingDirectory bfsClientRunDirectory
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'Client'
             property 'mixin.env.remapRefMap', 'true'
