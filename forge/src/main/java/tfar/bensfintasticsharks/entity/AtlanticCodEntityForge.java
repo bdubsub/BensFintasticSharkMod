@@ -29,7 +29,7 @@ public class AtlanticCodEntityForge extends AtlanticCodEntity implements GeoEnti
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
             if (!isInWaterOrBubble()) return event.setAndContinue(FLOP);
             double movement = getDeltaMovement().lengthSqr();
-            if (movement > 0.0225) return event.setAndContinue(FAST_SWIM);
+            if (isFastSwim()) return event.setAndContinue(FAST_SWIM);
             return event.setAndContinue(movement > SWIM_MOVEMENT_EPSILON ? SWIM : IDLE);
         }));
     }

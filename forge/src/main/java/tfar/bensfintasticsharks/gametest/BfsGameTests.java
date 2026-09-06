@@ -17,6 +17,7 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
 import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
+import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
 import tfar.bensfintasticsharks.entity.AquaticMovement;
 import tfar.bensfintasticsharks.entity.OceanicWhitetipSharkEntity;
 import tfar.bensfintasticsharks.entity.TigerSharkEntity;
@@ -220,6 +221,35 @@ public final class BfsGameTests {
             } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
                 helper.fail("BFS diagnostic parity stop command failed: " + exception.getMessage());
             }
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_lifecycle", timeoutTicks = 40)
+    public static void fishFastSwimStateSynchronizesFromServerMotion(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 3, 3));
+        AtlanticSalmonEntity salmon = helper.spawn(ModEntityTypes.ATLANTIC_SALMON, new BlockPos(5, 3, 3));
+        cod.setNoAi(true);
+        salmon.setNoAi(true);
+        cod.setNoGravity(true);
+        salmon.setNoGravity(true);
+        cod.setDeltaMovement(0.2D, 0.0D, 0.0D);
+        salmon.setDeltaMovement(0.2D, 0.0D, 0.0D);
+
+        helper.runAfterDelay(1, () -> {
+            helper.assertTrue(cod.isFastSwim(),
+                    "cod fast swim state must be set from server movement above the fast threshold");
+            helper.assertTrue(salmon.isFastSwim(),
+                    "salmon fast swim state must be set from server movement above the fast threshold");
+            cod.setDeltaMovement(Vec3.ZERO);
+            salmon.setDeltaMovement(Vec3.ZERO);
+            helper.runAfterDelay(1, () -> {
+                helper.assertTrue(!cod.isFastSwim(),
+                        "cod fast swim state must clear when server movement returns below the threshold");
+                helper.assertTrue(!salmon.isFastSwim(),
+                        "salmon fast swim state must clear when server movement returns below the threshold");
+                helper.succeed();
+            });
         });
     }
 
