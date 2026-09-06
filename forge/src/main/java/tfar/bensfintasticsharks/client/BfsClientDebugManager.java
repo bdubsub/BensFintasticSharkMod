@@ -382,6 +382,13 @@ public final class BfsClientDebugManager {
         Long previousNanos = active.previousSampleNanos.put(entity.getUUID(), now);
         if (previous == null) {
             record.addProperty("positionDelta", "unavailable:no_previous_sample");
+            record.addProperty("positionDeltaX", "unavailable:no_previous_sample");
+            record.addProperty("positionDeltaY", "unavailable:no_previous_sample");
+            record.addProperty("positionDeltaZ", "unavailable:no_previous_sample");
+            record.addProperty("horizontalBlocksPerTick", "unavailable:no_previous_sample");
+            record.addProperty("signedVerticalBlocksPerTick", "unavailable:no_previous_sample");
+            record.addProperty("totalBlocksPerTick", "unavailable:no_previous_sample");
+            record.addProperty("nominalBlocksPerSecond", "unavailable:no_previous_sample");
             record.addProperty("elapsedBlocksPerSecond", "unavailable:no_previous_sample");
             return;
         }
