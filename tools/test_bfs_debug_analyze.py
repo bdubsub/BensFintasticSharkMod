@@ -104,6 +104,24 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         self.assertEqual("invalid", analysis["verdict"])
         self.assertTrue(any("unavailable required field routeAttemptId" in error for error in analysis["errors"]))
 
+    def test_manifest_allows_first_sample_derivative_without_history(self) -> None:
+        analysis = bfs_debug_analyze.validate([
+            record("header", 1),
+            record("movement", 2, entityUuid="fish", x=0.0, y=1.0, z=0.0,
+                   velocityX=0.0, velocityY=0.01, velocityZ=0.1, yaw=0.0, pitch=-1.0,
+                   positionDeltaX="unavailable:no_previous_sample",
+                   positionDeltaY="unavailable:no_previous_sample",
+                   positionDeltaZ="unavailable:no_previous_sample"),
+            record("movement", 3, entityUuid="fish", x=0.0, y=1.01, z=0.1,
+                   velocityX=0.0, velocityY=0.01, velocityZ=0.1, yaw=0.0, pitch=-2.0,
+                   positionDeltaX=0.0, positionDeltaY=0.01, positionDeltaZ=0.1),
+            record("end", 4, incomplete=False, recordsDropped=0),
+        ], [], {
+            "requiredMovementFields": ["positionDeltaX", "positionDeltaY", "positionDeltaZ"],
+            "entities": {"fish": {"minimumSamples": 2}},
+        })
+        self.assertEqual("complete", analysis["verdict"])
+
     def test_manifest_rejects_wrong_artifact(self) -> None:
         analysis = bfs_debug_analyze.validate([
             record("header", 1, artifactSha256="wrong"),

@@ -13,6 +13,19 @@ from typing import Any
 
 
 SCHEMA = "bfs-debug-v2"
+FIRST_SAMPLE_DERIVED_FIELDS = {
+    "positionDelta",
+    "positionDeltaX",
+    "positionDeltaY",
+    "positionDeltaZ",
+    "horizontalBlocksPerTick",
+    "signedVerticalBlocksPerTick",
+    "totalBlocksPerTick",
+    "nominalBlocksPerSecond",
+    "elapsedBlocksPerSecond",
+    "yawDeltaDegrees",
+    "pitchDeltaDegrees",
+}
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -299,6 +312,9 @@ def validate_required_fields(entity_id: str, samples: list[dict[str, Any]], requ
             value = sample.get(field)
             if value is None:
                 errors.append(f"entity {entity_id} movement sample {sample_index} is missing required field {field}")
+            elif (sample_index == 1 and field in FIRST_SAMPLE_DERIVED_FIELDS
+                  and value == "unavailable:no_previous_sample"):
+                continue
             elif isinstance(value, str) and value.startswith("unavailable:"):
                 errors.append(f"entity {entity_id} movement sample {sample_index} has unavailable required field {field}")
 
