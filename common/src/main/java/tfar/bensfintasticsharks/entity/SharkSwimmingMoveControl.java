@@ -18,7 +18,7 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
     private static final double VERTICAL_TARGET_EPSILON = 1.0e-6;
     private static final double VERTICAL_ROUTE_HORIZONTAL_TOLERANCE_SQR = 0.25;
     private final boolean trackPitch;
-    private double smoothedVerticalInput;
+    private double smoothedVerticalVelocity;
 
     public SharkSwimmingMoveControl(Mob mob, float inWaterSpeedModifier) {
         this(mob, inWaterSpeedModifier, true);
@@ -57,37 +57,30 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
         super.tick();
 
         if (trackPitch) {
-            float targetVerticalInput = 0.0F;
-            if (moving) {
-                double targetDistance = Math.sqrt(routeDx * routeDx + routeDy * routeDy + routeDz * routeDz);
-                if (verticalOnly && targetDistance > VERTICAL_TARGET_EPSILON) {
-                    targetVerticalInput = (float) (this.mob.getSpeed() * routeDy / targetDistance);
-                } else {
-                    targetVerticalInput = this.mob.yya;
-                }
-            }
-            smoothedVerticalInput = AquaticMovement.smoothVerticalVelocity(
-                    smoothedVerticalInput, targetVerticalInput);
-            this.mob.setYya((float) smoothedVerticalInput);
+            double verticalDx = verticalOnly ? routeDx : dx;
+            double verticalDy = verticalOnly ? routeDy : dy;
+            double verticalDz = verticalOnly ? routeDz : dz;
+            double targetVerticalVelocity = moving
+                    ? AquaticMovement.affectedVerticalVelocity(
+                            this.mob.getSpeed(), verticalDx, verticalDy, verticalDz)
+                    : 0.0D;
+            smoothedVerticalVelocity = AquaticMovement.smoothVerticalVelocity(
+                    this.mob.getDeltaMovement().y, targetVerticalVelocity);
+            this.mob.setDeltaMovement(this.mob.getDeltaMovement().x,
+                    smoothedVerticalVelocity, this.mob.getDeltaMovement().z);
 
             if (!moving) {
                 if (this.mob.isInWater()) {
                     this.mob.setXRot(this.rotlerp(previousPitch, 0.0F,
                             AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
                 }
+                this.mob.setYya(0.0F);
                 return;
             }
 
-            double targetDistance = Math.sqrt(routeDx * routeDx + routeDy * routeDy + routeDz * routeDz);
-            if (verticalOnly && targetDistance <= VERTICAL_TARGET_EPSILON) {
-                this.mob.setYya(0.0F);
-            } else {
-                this.mob.setYya((float) smoothedVerticalInput);
-            }
+            this.mob.setYya(0.0F);
             this.mob.setXRot(this.rotlerp(previousPitch,
-                    AquaticMovement.affectedPitch(verticalOnly ? routeDx : dx,
-                            verticalOnly ? routeDy : dy,
-                            verticalOnly ? routeDz : dz,
+                    AquaticMovement.affectedPitch(verticalDx, verticalDy, verticalDz,
                             pitchUpLimit(), pitchDownLimit()),
                     AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
         }
