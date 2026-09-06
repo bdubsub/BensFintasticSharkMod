@@ -55,6 +55,9 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
+            if (this.isDeadOrDying()) {
+                return event.setAndContinue(DEATH);
+            }
             if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(BEACHED);
             }
