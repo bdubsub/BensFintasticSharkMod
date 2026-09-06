@@ -1501,6 +1501,51 @@
         "teleport_assisted": false
       }
     ],
+    "follow_up_source_revision": "c3536e0",
+    "follow_up_evidence_document": "docs/verification/phase-000-evidence-follow-up-20260906.md",
+    "follow_up_server_port": 25586,
+    "follow_up_rcon_port": 25587,
+    "follow_up_captures": [
+      {
+        "id": "p000-client-fixture-idle-065048",
+        "sha256": "85344feb80939103e7e5d81385729f62c02384c69f33a27c7b079b0edb75572a",
+        "records": 26282,
+        "movement_samples": 21019,
+        "presentation_samples": 5260,
+        "dropped_records": 0,
+        "terminal_record": true,
+        "verdict": "complete",
+        "verdict_sha256": "fc533dea0c7e896952a7631f421e83a2a0f8a55baf478a957b3b2dd78a983368",
+        "summary_sha256": "906844f112cf038b5a2927a55654c6a919205ecf10134c7f69c19313495626dd",
+        "observed_states": "Cod idle, Salmon Spin, Bottlenose Dolphin idle, and Oceanic Whitetip idle"
+      },
+      {
+        "id": "p000-client-fixture-transitions-065739",
+        "sha256": "b2fd8896f6004397248f897d65f852968ce37a21b237e883c8e80027ae525765",
+        "records": 26984,
+        "movement_samples": 21582,
+        "presentation_samples": 5400,
+        "dropped_records": 0,
+        "terminal_record": true,
+        "verdict": "complete",
+        "verdict_sha256": "43a0a0eebc62a9d8374d9f6e5c841a6f3424afb7194fd20851b465bd140a12d2",
+        "summary_sha256": "794b0366afa6c810e3701d516333c509573d50f85095e6807b83be3494762621",
+        "observed_states": "Cod flop, Salmon Spin, and Oceanic Whitetip thrash; Dolphin remained idle"
+      },
+      {
+        "id": "p000-client-oceanic-route-070121",
+        "sha256": "ef746c46784ccc502197c7a1d8d3ccf6ae3b0687b8daa628e60c7320bcd429b7",
+        "records": 23369,
+        "movement_samples": 18688,
+        "presentation_samples": 4677,
+        "dropped_records": 0,
+        "terminal_record": true,
+        "verdict": "complete",
+        "verdict_sha256": "fbb9dbc99c71584d63bda590b70368b54728e054884ed4d644bff906f3097668",
+        "summary_sha256": "0571a67a083a7084c0f58370c4159add52de9e9f500c558aff04b6dbafe7889c",
+        "observed_states": "Oceanic Whitetip swim_new, swim_fast_new, bite_new, beached, and idle; no death controller state observed"
+      }
+    ],
     "limitations": "The captures close client cadence and bounded state presentation evidence but do not close the authored five-point bone-transform table, bite timing, Oceanic vertical locomotion, fresh advancement profile, algae collection and population, complete combat and cleanup, final artifact, review, merge, ancestry, or signed phase tag gates."
   },
   "defects": {

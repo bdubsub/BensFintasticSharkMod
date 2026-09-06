@@ -6,6 +6,7 @@
 * [Active development plan](general/plan.md)
 * [0.24 asset ledger](verification/asset-ledger.md)
 * [Phase 000 evidence](verification/phase-000-evidence.md)
+* [Phase 000 evidence follow up](verification/phase-000-evidence-follow-up-20260906.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
 * [Phase 000 test runbook](test/phase-000-runbook.md)
