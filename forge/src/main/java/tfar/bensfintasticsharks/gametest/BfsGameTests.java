@@ -358,10 +358,19 @@ public final class BfsGameTests {
                 entity -> entity.isInWater() && !(entity instanceof Player)).forEach(LivingEntity::discard);
     }
 
+    private static void clearUnexpectedAquaticFixtureEntities(GameTestHelper helper,
+                                                               TigerSharkEntity shark, ItemEntity item) {
+        AABB fixtureArea = shark.getBoundingBox().minmax(item.getBoundingBox()).inflate(4.0D);
+        helper.getLevel().getEntitiesOfClass(LivingEntity.class, fixtureArea,
+                entity -> entity != shark && entity.isInWater() && !(entity instanceof Player))
+                .forEach(LivingEntity::discard);
+    }
+
     private static void sampleTigerItemPursuit(GameTestHelper helper, TigerSharkEntity shark,
                                                 ItemEntity item, Vec3 start, double startDistance,
                                                 boolean[] acquired, int sample) {
         helper.runAfterDelay(1, () -> {
+            clearUnexpectedAquaticFixtureEntities(helper, shark, item);
             acquired[0] |= shark.getSharkState() == TigerSharkEntity.SharkState.CURIOUS
                     || shark.justBitItem();
             if (sample < 40) {
