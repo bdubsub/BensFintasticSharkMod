@@ -13,6 +13,7 @@ from typing import Any
 
 
 SCHEMA = "bfs-debug-v2"
+COMPARISON_EPSILON = 1.0e-6
 FIRST_SAMPLE_DERIVED_FIELDS = {
     "positionDelta",
     "positionDeltaX",
@@ -289,12 +290,12 @@ def apply_manifest_checks(header: dict[str, Any], metrics: dict[str, Any], manif
         if isinstance(minimum_moving_transitions, int):
             limit_report["minimumMovingSampleTransitions"] = minimum_moving_transitions
         maximum_step = expectation.get("maximumCoordinateStep")
-        if isinstance(maximum_step, (int, float)) and measured["maxCoordinateStep"] > maximum_step:
+        if isinstance(maximum_step, (int, float)) and exceeds_limit(measured["maxCoordinateStep"], maximum_step):
             errors.append(f"entity {entity_id} exceeded the declared coordinate continuity limit")
         if isinstance(maximum_step, (int, float)):
             limit_report["maximumCoordinateStep"] = maximum_step
         maximum_pitch_step = expectation.get("maximumPitchStepDegrees")
-        if isinstance(maximum_pitch_step, (int, float)) and measured["maxPitchStepDegrees"] > maximum_pitch_step:
+        if isinstance(maximum_pitch_step, (int, float)) and exceeds_limit(measured["maxPitchStepDegrees"], maximum_pitch_step):
             errors.append(f"entity {entity_id} exceeded the declared pitch transition limit")
         if isinstance(maximum_pitch_step, (int, float)):
             limit_report["maximumPitchStepDegrees"] = maximum_pitch_step
@@ -317,6 +318,11 @@ def validate_required_fields(entity_id: str, samples: list[dict[str, Any]], requ
                 continue
             elif isinstance(value, str) and value.startswith("unavailable:"):
                 errors.append(f"entity {entity_id} movement sample {sample_index} has unavailable required field {field}")
+
+
+def exceeds_limit(value: float, limit: float) -> bool:
+    tolerance = COMPARISON_EPSILON * max(1.0, abs(limit))
+    return value - limit > tolerance
 
 
 def apply_route_shape_check(entity_id: str, samples: list[dict[str, Any]], route: dict[str, Any],
@@ -353,7 +359,7 @@ def apply_route_shape_check(entity_id: str, samples: list[dict[str, Any]], route
     winding_turns = abs(winding) / (2.0 * math.pi)
     report["horizontalWindingTurns"] = winding_turns
     report["maximumHorizontalWindingTurns"] = float(maximum_turns)
-    if winding_turns > float(maximum_turns):
+    if exceeds_limit(winding_turns, float(maximum_turns)):
         errors.append(f"entity {entity_id} exceeded declared horizontal route winding limit "
                       f"with {winding_turns:.6f} turns")
         return report

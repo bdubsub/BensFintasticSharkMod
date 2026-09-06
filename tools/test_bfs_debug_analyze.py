@@ -213,6 +213,21 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         self.assertIn("## Observed Extrema", summary)
         self.assertIn("## Route Verdicts", summary)
 
+    def test_manifest_limit_allows_float_rounding_at_declared_pitch_step(self) -> None:
+        analysis = bfs_debug_analyze.validate([
+            record("header", 1, artifactSha256="candidate"),
+            record("movement", 2, entityUuid="fish", x=0.0, y=1.0, z=0.0,
+                   velocityX=0.0, velocityY=0.0, velocityZ=0.0, yaw=0.0, pitch=0.0),
+            record("movement", 3, entityUuid="fish", x=0.0, y=1.0, z=0.0,
+                   velocityX=0.0, velocityY=0.0, velocityZ=0.0, yaw=0.0,
+                   pitch=0.3000004),
+            record("end", 4, incomplete=False, recordsDropped=0),
+        ], [], {
+            "artifactSha256": "candidate",
+            "entities": {"fish": {"maximumPitchStepDegrees": 0.3}},
+        })
+        self.assertEqual("complete", analysis["verdict"])
+
 
 if __name__ == "__main__":
     unittest.main()

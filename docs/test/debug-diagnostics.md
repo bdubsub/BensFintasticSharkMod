@@ -96,6 +96,8 @@ Bind a packaged candidate before capture with JVM properties. Supply only finger
 
 The analyzer binds its required `--scenario` and `--requirement` arguments to matching `scenarioId` and `requirementId` values in the candidate manifest. A capture header may intentionally report those two fields as `unavailable:provided_by_candidate_manifest`, but it cannot disagree with the manifest. Current development captures explicitly report unavailable bindings until these properties and the manifest are supplied. Do not use an unbound development capture as release evidence.
 
+Numeric upper limits use a bounded `1e-6` comparison tolerance to absorb floating point serialization roundoff at the declared boundary. The tolerance does not replace a candidate threshold or permit a measurable excursion beyond that bound.
+
 ## Headless verification and cleanup
 
 Run server side GameTests on `node-1` only in an isolated runtime. Use Java 17 and set the exact disposable runtime's `eula.txt` to `eula=true` before launch. The `bfsGameTestRunDir` Gradle property prevents a GameTest run from touching a personal development world:
