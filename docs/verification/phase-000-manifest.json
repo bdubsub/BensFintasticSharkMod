@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "b780a7c5202f391cf9ff895db946e63300fbad81",
+    "phase_commit": "767bf50e55d8db7a6bbfd8b2d5f9ed5f84493c37",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
