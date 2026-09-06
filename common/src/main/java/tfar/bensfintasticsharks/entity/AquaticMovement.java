@@ -76,4 +76,14 @@ public final class AquaticMovement {
     public static double smoothVerticalVelocity(double current, double target) {
         return Mth.lerp(0.125d, current, target);
     }
+
+    /**
+     * Eases a controlled vertical value without allowing a stale or externally supplied impulse
+     * to exceed the approved fraction of the entity speed.
+     */
+    public static double smoothAndLimitVerticalVelocity(double current, double target, double speed) {
+        double eased = smoothVerticalVelocity(current, target);
+        double limit = Math.abs(speed) * VERTICAL_SPEED_RATIO;
+        return Mth.clamp(eased, -limit, limit);
+    }
 }

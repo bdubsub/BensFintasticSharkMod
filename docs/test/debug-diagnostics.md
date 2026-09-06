@@ -58,6 +58,14 @@ The parser preserves the raw sample history and writes `verdict.json` and `summa
 
 The candidate manifest supplies the scenario and requirement identity plus the only acceptance thresholds applied by the parser. For example, a scenario can bind an expected artifact hash and entity-specific sample count, moving transitions, net vertical displacement, coordinate continuity, pitch transition limits, required implemented fields, and route-shape limits. A field with an `unavailable:` reason is valid telemetry only when no current claim requires it. The analyzer reports measured peaks and complete history instead of inventing limits.
 
+For the current fish and shark vertical profile, server movement captures must also be
+checked against the approved ten percent vertical speed ratio. Cod, Salmon, and shark
+fixtures are expected to remain within `abs(vertical velocity) <= speed * 0.10`, with
+the transition eased from the controller's prior controlled value. Bottlenose Dolphin
+remains the qualitative smoothness reference and is not included in that fish and
+shark cap assertion. A first tick must not inherit the full unscaled vanilla vertical
+impulse.
+
 The first movement sample for each selected entity has no prior position or orientation sample. Its derived deltas, rates, and angular differences therefore use the explicit `unavailable:no_previous_sample` value. The analyzer accepts that reason only on the first sample for those derived fields. Later samples must contain finite values whenever the field is part of the selected candidate manifest.
 
 ```json

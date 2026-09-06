@@ -325,3 +325,22 @@ The rebuilt Forge artifact `BensFintasticSharks-forge-1.20.1-0.24.jar` is 1,824,
 The exact artifact ran on the node 1 dedicated server at `100.76.164.109:25579` and the laptop client rendered through the NVIDIA GeForce RTX 5090 Laptop GPU. The owned client window remained on Hyprland workspace `3`; the active workspace was unchanged before and after the screenshot, and only its exact PipeWire stream was muted. The packaged client connected to the modded server and completed capture session `23e49239-c8bc-400a-bb6a-3e43ff9935a3`. The retained JSONL capture SHA-256 is `c622c7a584161dfa8211ad69163531ff123a449d50231da008812519e0ae7b35`. The capture contains 4,499 records, 3,597 movement samples for three entities, 900 presentation samples, zero dropped records, one clean terminal record, and no analyzer errors or warnings under the candidate manifest `phase000-packaged-client-fixture-20260906` for `BFS-REQ-022`. The analyzer observed maximum pitch step `0.468750` degrees and maximum vertical speed `0.180000` blocks per tick for the dolphin fixture; these are observations, not new acceptance thresholds.
 
 The hidden-window tank screenshot was captured with `grim -T` for stable window ID `1800058b`, without changing workspace, and has SHA-256 `36303f286b0bfc1ccc017f7fae043af9c9540b7a2aab8a552a795572ab81fceb`. It shows the packaged tank fixture and live aquatic entities. This closes the packaged client diagnostic schema and transport evidence for this revision. Phase 000 remains open for the required authored animation state matrix, advancement and fresh-profile checks, natural algae proof, sustained population, combat and cleanup matrix, final release artifact audit, review, merge, ancestry, and signed tag.
+
+### Vertical impulse cap regression rerun
+
+On 2026-09-06, the aquatic movement controllers were corrected so shark vertical
+easing starts from the controller's controlled value rather than the full unscaled
+vanilla impulse written earlier in the tick. The shared helper now eases and clamps
+vertical velocity to the approved ten percent speed ratio. Fish controllers use the
+same helper. A focused unit test covers stale full impulses and sign changes, and the
+GameTest movement fixture asserts the cap for Cod, Salmon, and sharks while keeping
+Bottlenose Dolphin as the qualitative smoothness reference.
+
+The Java 17 headless Forge GameTest run completed all 20 registered tests. The fresh
+development-classpath captures completed with zero dropped records and one terminal
+record per session. Maximum absolute vertical velocities were `0.0370248` for Salmon,
+`0.0116949` for Tiger Shark, and `0.0097458` for Oceanic Whitetip Shark. These values
+are runtime regression evidence for the cap and easing fix, not packaged release
+evidence. Phase 000 remains open for the authored animation matrix, advancement and
+algae acceptance, sustained population and multiplayer cleanup, final artifact audit,
+review, merge, ancestry, and signed phase tag.

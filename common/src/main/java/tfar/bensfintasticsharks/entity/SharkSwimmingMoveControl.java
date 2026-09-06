@@ -68,8 +68,11 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
                     ? AquaticMovement.affectedVerticalVelocity(
                             this.mob.getSpeed(), verticalDx, verticalDy, verticalDz)
                     : 0.0D;
-            smoothedVerticalVelocity = AquaticMovement.smoothVerticalVelocity(
-                    this.mob.getDeltaMovement().y, targetVerticalVelocity);
+            // Do not smooth from the full vertical impulse that SmoothSwimmingMoveControl writes
+            // above. That impulse is the unscaled vanilla value and caused a first tick elevator
+            // burst before the approved ten percent profile took effect.
+            smoothedVerticalVelocity = AquaticMovement.smoothAndLimitVerticalVelocity(
+                    smoothedVerticalVelocity, targetVerticalVelocity, this.mob.getSpeed());
             // A path target may be refreshed to an adjacent block while descending or rising.
             // Do not let the previous velocity carry the body across zero and create a visible
             // depth reversal before the new target direction is established.

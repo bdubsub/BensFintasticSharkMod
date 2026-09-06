@@ -93,10 +93,8 @@ public final class BfsFishMoveControl extends MoveControl {
         }
 
         if (fish.isEyeInFluid(FluidTags.WATER)) {
-            double verticalSpeedLimit = fish.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO;
-            double verticalVelocity = AquaticMovement.smoothVerticalVelocity(
-                    fish.getDeltaMovement().y, targetVerticalImpulse);
-            verticalVelocity = Mth.clamp(verticalVelocity, -verticalSpeedLimit, verticalSpeedLimit);
+            double verticalVelocity = AquaticMovement.smoothAndLimitVerticalVelocity(
+                    fish.getDeltaMovement().y, targetVerticalImpulse, fish.getSpeed());
             fish.setDeltaMovement(fish.getDeltaMovement().x, verticalVelocity,
                     fish.getDeltaMovement().z);
         }

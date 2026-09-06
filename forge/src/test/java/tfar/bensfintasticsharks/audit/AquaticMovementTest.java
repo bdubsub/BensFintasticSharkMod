@@ -51,4 +51,13 @@ class AquaticMovementTest {
         assertTrue(second > first && second < 1.0);
         assertTrue(reversal < second && reversal > -1.0);
     }
+
+    @Test
+    void verticalControlCapsAStaleFullImpulseToTheApprovedFraction() {
+        double limited = AquaticMovement.smoothAndLimitVerticalVelocity(4.0, 0.4, 4.0);
+
+        assertEquals(0.4, limited, 0.00001);
+        assertEquals(-0.4,
+                AquaticMovement.smoothAndLimitVerticalVelocity(-4.0, -0.4, 4.0), 0.00001);
+    }
 }

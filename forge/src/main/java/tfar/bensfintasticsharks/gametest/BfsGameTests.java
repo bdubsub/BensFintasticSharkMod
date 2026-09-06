@@ -18,6 +18,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
 import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
 import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
+import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
 import tfar.bensfintasticsharks.entity.AquaticMovement;
 import tfar.bensfintasticsharks.entity.OceanicWhitetipSharkEntity;
 import tfar.bensfintasticsharks.entity.TigerSharkEntity;
@@ -315,6 +316,14 @@ public final class BfsGameTests {
                                                 Vec3 target, int remainingTicks) {
         helper.runAfterDelay(1, () -> {
             aquatic.getNavigation().moveTo(target.x, target.y, target.z, 1.0D);
+            if (aquatic instanceof AbstractSharkEntity<?> || aquatic instanceof AtlanticCodEntity
+                    || aquatic instanceof AtlanticSalmonEntity) {
+                double verticalLimit = aquatic.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO + 1.0e-5D;
+                helper.assertTrue(Math.abs(aquatic.getDeltaMovement().y) <= verticalLimit,
+                        "depth movement must stay within the approved ten percent vertical profile, "
+                                + "entity=" + aquatic.getType() + ", vertical=" + aquatic.getDeltaMovement().y
+                                + ", limit=" + verticalLimit);
+            }
             if (remainingTicks > 1) {
                 driveAquaticDepthTarget(helper, server, source, aquatic, target, remainingTicks - 1);
                 return;
