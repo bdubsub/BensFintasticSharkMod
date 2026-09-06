@@ -17,9 +17,10 @@ class AquaticMovementTest {
 
     @Test
     void verticalOnlyAndLevelVectorsRemainFiniteAndDirectional() {
-        double shallowAngle = Math.toDegrees(Math.atan(AquaticMovement.VERTICAL_SPEED_RATIO));
-        assertEquals(-shallowAngle, AquaticMovement.affectedPitch(0.0, 10.0, 0.0), 0.00001);
-        assertEquals(shallowAngle, AquaticMovement.affectedPitch(0.0, -10.0, 0.0), 0.00001);
+        assertEquals(AquaticMovement.VERTICAL_UPWARD_PITCH,
+                AquaticMovement.affectedPitch(0.0, 10.0, 0.0), 0.00001);
+        assertEquals(AquaticMovement.VERTICAL_DOWNWARD_PITCH,
+                AquaticMovement.affectedPitch(0.0, -10.0, 0.0), 0.00001);
         assertEquals(0.0, AquaticMovement.affectedPitch(10.0, 0.0, 0.0), 0.00001);
         assertTrue(Float.isFinite(AquaticMovement.affectedPitch(0.0, 0.0, 0.0)));
     }

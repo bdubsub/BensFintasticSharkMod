@@ -20,6 +20,10 @@ public final class AquaticMovement {
     /** Six degrees per second at the nominal 20 tick server rate. */
     public static final float MAX_PITCH_STEP_DEGREES_PER_TICK = 0.30f;
 
+    /** A directly vertical route requires the body to reach a true sky or ground pose. */
+    public static final float VERTICAL_UPWARD_PITCH = -90.0f;
+    public static final float VERTICAL_DOWNWARD_PITCH = 90.0f;
+
     private AquaticMovement() {
     }
 
@@ -34,9 +38,9 @@ public final class AquaticMovement {
 
     /**
      * Returns a bounded nose pitch for the supplied target vector. A target directly above or
-     * below has no horizontal direction from which to derive an attitude, so use the shallow
-     * angle implied by the approved vertical ratio instead of ever pointing the model straight
-     * up or down.
+     * below has no horizontal direction from which to derive an attitude. A direct vertical route
+     * therefore uses the full sky or ground pose, while every route with a horizontal component
+     * remains bounded by its species routine profile.
      */
     public static float affectedPitch(double dx, double dy, double dz,
                                       float upwardLimit, float downwardLimit) {
@@ -44,11 +48,8 @@ public final class AquaticMovement {
         if (horizontalDistance <= 1.0e-8 && Math.abs(dy) <= 1.0e-8) {
             return 0.0f;
         }
-        double shallowAngle = Math.atan(VERTICAL_SPEED_RATIO) * Mth.RAD_TO_DEG;
         if (horizontalDistance <= 1.0e-8) {
-            float limit = dy > 0.0 ? upwardLimit : downwardLimit;
-            float pitch = (float) (dy > 0.0 ? -shallowAngle : shallowAngle);
-            return Mth.clamp(pitch, -Math.abs(limit), Math.abs(limit));
+            return dy > 0.0 ? VERTICAL_UPWARD_PITCH : VERTICAL_DOWNWARD_PITCH;
         }
         float pitch = (float) -(Math.atan2(dy * VERTICAL_SPEED_RATIO, horizontalDistance) * Mth.RAD_TO_DEG);
         return Mth.clamp(pitch, -Math.abs(upwardLimit), Math.abs(downwardLimit));
