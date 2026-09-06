@@ -417,6 +417,8 @@ public final class BfsGameTests {
         prepareVerticalWaterVolume(helper);
         AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(4, 5, 4));
         cod.getBrain().removeAllBehaviors();
+        cod.goalSelector.removeAllGoals(goal -> true);
+        cod.targetSelector.removeAllGoals(goal -> true);
         Vec3 target = helper.absolutePos(new BlockPos(4, 8, 4)).getCenter();
         java.util.List<Double> heights = new java.util.ArrayList<>();
         java.util.List<Float> pitches = new java.util.ArrayList<>();

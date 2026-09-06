@@ -1,5 +1,6 @@
 package tfar.bensfintasticsharks.entity;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -50,11 +51,16 @@ public final class BfsFishMoveControl extends MoveControl {
             double dx = this.wantedX - fish.getX();
             double dy = this.wantedY - fish.getY();
             double dz = this.wantedZ - fish.getZ();
+            BlockPos routeTargetPos = fish.getNavigation().getTargetPos();
+            double routeDy = dy;
+            if (routeTargetPos != null) {
+                routeDy = Vec3.atCenterOf(routeTargetPos).y - fish.getY();
+            }
             double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
             if (distance > 0.5) {
                 targetVerticalImpulse = AquaticMovement.affectedVerticalVelocity(
-                        fish.getSpeed(), dx, dy, dz);
+                        fish.getSpeed(), dx, routeDy, dz);
 
                 if (Math.abs(dx) > 1.0e-8 || Math.abs(dz) > 1.0e-8) {
                     float desiredYaw = (float) (Mth.atan2(dz, dx) * Mth.RAD_TO_DEG) - 90.0F;
@@ -68,7 +74,7 @@ public final class BfsFishMoveControl extends MoveControl {
                 fish.setZza(horizontalDistanceSqr > 0.25 ? 1.0F : 0.0F);
 
                 fish.setXRot(this.rotlerp(previousPitch,
-                        AquaticMovement.affectedPitch(dx, dy, dz, upwardPitchLimit, downwardPitchLimit),
+                        AquaticMovement.affectedPitch(dx, routeDy, dz, upwardPitchLimit, downwardPitchLimit),
                         AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
             } else {
                 this.operation = Operation.WAIT;
