@@ -342,3 +342,20 @@ This closes the final-artifact Spin activation baseline for `P000-TASK-005`. It 
 After the final death-predicate change, `./gradlew :forge:compileJava :forge:compileTestJava :forge:test :forge:build --no-daemon --console=plain` passed on node 1 with Java `17.0.19`. The resulting Forge artifact was `BensFintasticSharks-forge-1.20.1-0.24.jar` with SHA 256 `a2fa69f3aad605e62f8a1affae2f43e68725e93574430b2069e5fcf6e271d75e`.
 
 The isolated `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-p000-final-gametest-vRMRB3` run used no client or renderer and passed all `21` required tests, including debug parity, fish, shark, combat, algae, permission, lifecycle, and strict movement batches. The latest log SHA 256 was `0719e0c9278b6777300ebe4235722675836db3f7f01b082f82a5b57c9d893234`. The disposable runtime and world were removed after verification and cleanup was confirmed.
+
+## Final artifact client state matrix continuation
+
+On 2026-09-06, the exact packaged Forge artifact from source revision `747ade6efff127e7533467598a05643b892c0ba6` was exercised again through the headless dedicated server on `node-1` and the muted Prism client on EnVy's NVIDIA RTX 5090 laptop. The artifact SHA 256 was `a2fa69f3aad605e62f8a1affae2f43e68725e93574430b2069e5fcf6e271d75e`, with Minecraft `1.20.1`, Forge `47.2.0`, Java `17`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration `p000-task005-matrix-20260906`, motion profile `phase-000-baseline`, and data pack `phase-000-generated`.
+
+The fresh client capture session `66a1d05a-f265-41b8-aa55-d7d22ca22402` has SHA 256 `c48086c9017137343903664f43a54c9bf9e9e34aee86e5310305d328126e00bb`. It contains `7,496` accepted records, including `5,995` movement records and `1,500` presentation records, with zero dropped records, zero missing targets, and a clean `duration_elapsed` terminal record. The five selected targets remained bounded for the full 60 second capture.
+
+The controlled presentation results were:
+
+| Fixture | UUID | Presentation result |
+| --- | --- | --- |
+| Cod dry control | `89987add-ed7c-4509-966e-b0f92d5b3128` | `300` samples of `animation.atlantic_cod.flop` |
+| Salmon dry control | `b4c0d20a-d588-4094-b8c5-501ff5961966` | `300` samples of `animation.atlantic_salmon.flop` |
+| Oceanic Whitetip hostile pursuit | `191960c0-a5a2-4c28-868b-d7835586032c` | `120` `swim_fast_new`, `30` transition, `120` `bite_new`, and `30` bite transition samples |
+| Cod prey control | `12ccf319-0341-4c00-b742-97b46b4f9422` | `300` samples of `animation.atlantic_cod.idle` |
+
+This is current final-artifact client evidence for both fish flop routes and the Oceanic hostile to bite presentation transition. It closes the previously missing dry-fixture rows and strengthens the bite timing baseline without using raw NBT name mutation or a client on `node-1`. The authored transform table, supported-name recovery transition, natural combat and target-loss recovery, fresh advancement and icon review, algae survival and loot interaction, sustained population, multiplayer reconnect cleanup, final `1.0-rc.1` metadata audit, independent review, pull request merge into canonical `1.20.1`, ancestry proof, and signed Phase 000 tag remain open. Phase 001 is still sequentially blocked.
