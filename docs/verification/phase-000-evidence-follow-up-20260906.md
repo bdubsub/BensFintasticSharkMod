@@ -269,6 +269,28 @@ The ordinary Salmon capture `f48666a7-3744-4dc0-ad6a-3e5526cfb812` has SHA 256 `
 
 The bounded fast Salmon capture `53cd5d52-a988-4bc8-8468-eb7843092259` has SHA 256 `c416428b87a9a9345ee9b51fe858da7138098c04ae82c2080c918719a527b73e`. A no AI diagnostic fixture refreshed the documented horizontal movement predicate during capture. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`; all 300 samples selected `animation.atlantic_salmon.swim_fast`.
 
+The fresh pre-join exact-name Salmon control `777b9f4d-980b-4947-860a-a356895f2de7` has SHA 256 `598430b9c3277a3963a93430b99fb6b40b84a63077116207fb43481a047602e7`. The named `Spin` entity was present before the client joined. The capture contains 1,501 records, 300 presentation samples, zero dropped records, and `incomplete=false`; all 300 controller samples report `animation.atlantic_salmon.spin`. This positively controls the Spin route and reclassifies the earlier post-join miss as a fixture timing failure.
+
 The exact-name Salmon probe `1418ec86-ce6a-420f-96bb-993a4a6d13d0` has SHA 256 `8adcb884f79b6de9c3a3837f55dd9dffa1ecc35e968fa8dc2f35d6835c6f013e`. The server confirmed the entity custom name was `Spin`, but the client controller reported `unavailable:no_current_animation` for all 300 samples in this fixture. This is a reproducible fixture or runtime activation gap for the Spin row, not a passing result, and it remains open for a fresh visible capture before P000-TASK-005 can close.
 
 These probes advance the current artifact state matrix and confirm the debug capture path is useful for remote verification. They do not close Cod and Salmon flop, the complete exact-name Spin activation, Oceanic swim, fast swim, bite timing, death, beached, and thrash coverage, authored transform samples, or the remaining Phase 000 exit gates.
+
+## Current exact artifact special-state follow-up
+
+On 2026-09-06, the same source-bound artifact `d542ee74733f2e209572f9e86a39db8cd6f9a342f8365daf8fa46e9aa1704a1e` was used for additional bounded laptop captures. The dedicated server remained headless on `node-1`, the client remained on the NVIDIA laptop without a workspace switch, and the owned Java playback stream stayed muted and process matched.
+
+The Cod air-chamber capture `3682a888-f867-415f-a56a-68391b92ca31` has SHA 256 `0cdcb15ea890429e4e2856c89f6186442d569a6e06d7c6062f5886b7c3d9b43f`. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`. The movement records report `inWater=false` and the controller reports `animation.atlantic_cod.flop` for all 300 presentation samples.
+
+The Salmon air-chamber capture `dd8e565e-3931-4c93-a419-2ca399fd8b77` has SHA 256 `885e2a375f2ff9edefc4156afd60e382c87c18db2c95aba279a142339a791aee`. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`. The movement records report `inWater=false` and the controller reports `animation.atlantic_salmon.flop` for all 300 presentation samples.
+
+The Oceanic long-range prey capture `4739af67-f79d-4cc9-8a44-9957aac4ca1b` has SHA 256 `a926609045095f06ba216e75260b7b55985c1dcb1ed887e6148738f9839f4876`. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`; all 300 samples report `animation.oceanicwhitetipshark.swim_fast_new` while the shark pursues an invulnerable prey target.
+
+The Oceanic invulnerable-prey bite capture `072f9ef8-880f-46ef-8e93-bb1290bc85e4` has SHA 256 `4250f973fcce487e48392efeba260b06b238246aec50b939669c0b13030fcaed`. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`; all 300 controller samples report `animation.oceanicwhitetipshark.bite_new` with the trigger active.
+
+The passenger capture `922bef5c-c1b2-443f-8635-92269f866833` has SHA 256 `1f5dc6051cfdf070dfd9600c14226c3f772445585dd257c95f98a44beab886cc`. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`; the Oceanic `thrash_controller` reports `animation.oceanicwhitetipshark.thrash` for all 300 samples while a Cod passenger is mounted.
+
+The fresh death probe `b5ed39ff-8781-4126-8294-cac952158d67` has SHA 256 `7f66c518b35b7010bace24e69727eedf495dc3b97da332ac80fe4f628c0c7df3`. A one-health Oceanic fixture received lethal damage and was removed during the capture. The client produced 279 records before target removal, but no `animation.oceanicwhitetipshark.death` presentation sample; the controller remained on idle before the entity disappeared. This reproduces the missing client death presentation and keeps that row open.
+
+The grounded probe `4b4e93f4-5f2c-42eb-8f9a-ca1e9c922802` has SHA 256 `a6b4154ea45ac7ba33c2dcd443a50ecfb12bf365fc51a4595cb3e8a1ad2d4f33`. Its movement records report `inWater=false` but also `onGround=false`, so the `beached` predicate was not validly exercised; the controller reported `swim_new`. This is rejected as a beached result and leaves the beached fixture open rather than misclassifying it.
+
+These captures close the current packaged fish flop rows and fresh Oceanic fast, bite, and thrash rows for the diagnostic baseline. Oceanic death and beached activation, authored transform review, complete natural combat and recovery, and the remaining Phase 000 exit and integration gates remain open.
