@@ -200,3 +200,21 @@ JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64 ./gradlew :forge:GameTestServer --no
 ```
 
 The server reported `All 20 required tests passed`, with zero failed tests. The eight diagnostic captures each ended with `incomplete=false` and zero dropped records. The five relevant movement captures recorded maximum absolute vertical speeds of `0.000000` for the stationary Cod control, `0.041137` for Salmon, `0.014994` for Tiger Shark, `0.012495` for Oceanic Whitetip Shark, and `0.014412` for Bottlenose Dolphin. These are headless server regression and fixture-isolation results only. The runtime, worlds, logs, configurations, and captures were retained until this evidence update and must be removed after the commit is verified. This rerun does not close the client animation matrix, natural Tiger combat and recovery, fresh advancement review, algae acceptance, final artifact binding, or Phase 000 integration gates.
+
+## Current paired client presentation matrix follow up
+
+On 2026-09-06, the exact packaged artifact from phase tip `de0e2dbfbd7e8c207ca9761c9256eb3055c69ca7` was captured again on the Linux laptop against the disposable dedicated server. The Forge artifact was `BensFintasticSharks-forge-1.20.1-0.24.jar` with SHA 256 `182ef55edad165e9c3f53b0bc6322b197b61d94f20154dfbcca1546d2ba1f4c6`. The client header bound Forge `47.2.0`, Minecraft `1.20.1`, Java `17.0.15`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, motion profile `phase-000-baseline`, configuration `phase-000-task005-client-matrix-e8`, and data pack `phase-000-generated`.
+
+The local client session was `f60ea7fd-ad0a-4593-89b6-5e284b757928`. Its JSONL capture was copied to `/tmp/bfsm-p000-task005-client-matrix-e8.jsonl` for analysis and has SHA 256 `18a5eca2c1d9bdafd009b687bdcaa1928f5b5d2a399d2ced1e0dd732f6a02a96`. It contains 5,995 movement records, 1,500 presentation records, one header, one terminal record, zero dropped records, and `incomplete=false`. The capture ran for the requested 1,200 client ticks and selected five targets without exclusions. The owned Prism client remained on Hyprland workspace `3`; its exact Java stream was muted and verified before capture.
+
+Presentation state coverage in this run was:
+
+| Entity | Fresh controller states observed |
+| --- | --- |
+| Atlantic Cod fixture one | `animation.atlantic_cod.idle`, `animation.atlantic_cod.swim` |
+| Atlantic Cod fixture two | `animation.atlantic_cod.idle`, `animation.atlantic_cod.swim`, `animation.atlantic_cod.swim_fast` |
+| Atlantic Salmon named Spin fixture | `animation.atlantic_salmon.spin` |
+| Bottlenose Dolphin | `animation.bottlenose_dolphin.idle`, `animation.bottlenose_dolphin.swim` |
+| Oceanic Whitetip Shark | `animation.oceanicwhitetipshark.idle` |
+
+The capture confirms the earlier salmon and dolphin `no_current_animation` result is not universal for this exact artifact and fixture setup. It does not close the full authored matrix. Salmon ordinary swim, fast swim, and flop, Oceanic swim, fast swim, bite, thrash, beached, damage, and death, and movement driven pitch and vertical transition samples still require dedicated state captures. Because these fixtures used bounded diagnostic movement and client state sampling, this record is presentation evidence only and does not replace the required natural movement and action acceptance gates.
