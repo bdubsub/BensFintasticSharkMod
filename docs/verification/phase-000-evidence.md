@@ -344,3 +344,39 @@ are runtime regression evidence for the cap and easing fix, not packaged release
 evidence. Phase 000 remains open for the authored animation matrix, advancement and
 algae acceptance, sustained population and multiplayer cleanup, final artifact audit,
 review, merge, ancestry, and signed phase tag.
+
+### Current artifact debug rerun
+
+On 2026-09-06, the current signed phase revision `e66f2fa3db5f3e8c2dfde5ed1ea69b90eeb99398`
+was rebuilt as `BensFintasticSharks-forge-1.20.1-0.24.jar` with SHA-256
+`039ec4598363faf4c6b6503190cf8f17740b607f27df986e1ee092d34f24fe90`. Node 1 ran only
+the disposable headless dedicated server. The matching laptop Prism instance used the
+same artifact, Forge `47.2.0`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration
+fingerprint `fish-fast-sync-e66f2fa`, and data pack fingerprint `phase-000-generated`.
+The client rendered on the NVIDIA GeForce RTX 5090 Laptop GPU, stayed on its existing
+Hyprland workspace, and its exact owned audio stream was verified muted.
+
+The first bound server capture used the default nearby selection of 19 entities and
+hit the 32 MiB diagnostic session budget, dropping one record. The strict analyzer
+correctly returned `invalid`, so that capture is not acceptance evidence. Explicit
+species captures corrected the procedure. Cod session
+`8f9b3841-1806-4336-943d-c4f9d2a3099d` selected 8 entities, recorded 4,226 movement
+samples, dropped zero records, and returned `complete`. Salmon session
+`62693756-11c6-48d3-98d4-434765741fec` selected 3 entities, recorded 1,541 movement
+samples, dropped zero records, and returned `complete`. Oceanic Whitetip session
+`0901d412-bb0e-4b13-b161-89883df46d23` selected 2 entities, recorded 1,198 movement
+samples, dropped zero records, and returned `complete`. Their raw JSONL SHA-256 values
+are `c96056894f212e5c57a52100e585238b159dbb480243dbe03feddb7f4e0ef614`,
+`cde94b519725909906673e745c3def113dd5906655f5f15551ce7158d4240835`, and
+`4d7e00c7516c015176657fab96fd4c4b6e364f384265193c70e75b3622d08576` respectively.
+
+The matching laptop session `b0df3c36-65ff-4874-af0a-40b162377a91` selected 11
+entities and returned `complete` with 13,189 movement samples, 3,300 presentation
+samples, zero dropped records, and a clean terminal record. Its raw JSONL SHA-256 is
+`3dc657b79208d4eb2ae34509ceeb51c107537f565ca4444ec26141e42878ed93`. Presentation samples
+observed Cod idle, Oceanic Whitetip idle and swim variants, and the bound current
+movement stream. These captures prove the debug procedure and artifact binding, but
+they do not close the required authored five point bone transform table, every fish
+state, Oceanic bite and death timing, natural combat cleanup, fresh advancement
+profile, algae interaction, sustained population, or the final phase integration
+gates. Phase 000 therefore remains open.
