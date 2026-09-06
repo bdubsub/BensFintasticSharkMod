@@ -58,6 +58,8 @@ The parser preserves the raw sample history and writes `verdict.json` and `summa
 
 The candidate manifest supplies the scenario and requirement identity plus the only acceptance thresholds applied by the parser. For example, a scenario can bind an expected artifact hash and entity-specific sample count, moving transitions, net vertical displacement, coordinate continuity, pitch transition limits, required implemented fields, and route-shape limits. A field with an `unavailable:` reason is valid telemetry only when no current claim requires it. The analyzer reports measured peaks and complete history instead of inventing limits.
 
+The first movement sample for each selected entity has no prior position or orientation sample. Its derived deltas, rates, and angular differences therefore use the explicit `unavailable:no_previous_sample` value. The analyzer accepts that reason only on the first sample for those derived fields. Later samples must contain finite values whenever the field is part of the selected candidate manifest.
+
 ```json
 {
   "scenarioId": "<scenario-id>",
