@@ -151,7 +151,12 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
             warnings.append(f"capture dropped {end.get('recordsDropped')} records")
 
     validate_candidate_binding(header, manifest, scenario, requirement, errors)
-    metrics = movement_metrics(movement_history, errors)
+    # Server captures are emitted once per authoritative game tick, so a gap
+    # means a required server sample was lost. Client captures are emitted by
+    # the client tick/render loop and may legitimately skip a server tick when
+    # the render cadence falls behind. Both sides still require monotonic
+    # capture ticks and contiguous record sequences.
+    metrics = movement_metrics(movement_history, errors, strict_tick_continuity=header.get("side") == "server")
     checks = apply_manifest_checks(header, metrics, manifest, errors)
     verdict = "invalid" if errors else "incomplete" if warnings else "complete"
     coverage = {
@@ -193,7 +198,8 @@ def validate_finite_coordinates(record: dict[str, Any], index: int, errors: list
             errors.append(f"movement record {index} has non-finite {field}")
 
 
-def movement_metrics(history: dict[str, list[dict[str, Any]]], errors: list[str]) -> dict[str, Any]:
+def movement_metrics(history: dict[str, list[dict[str, Any]]], errors: list[str],
+                     strict_tick_continuity: bool = True) -> dict[str, Any]:
     entities: dict[str, Any] = {}
     for entity_id, samples in history.items():
         max_vertical_speed = max((abs(float(sample["velocityY"])) for sample in samples
@@ -212,8 +218,11 @@ def movement_metrics(history: dict[str, list[dict[str, Any]]], errors: list[str]
         max_pitch_step = 0.0
         coordinate_steps: list[float] = []
         moving_samples = 0
+        tick_gaps = 0
         for previous, current in zip(samples, samples[1:]):
             if current.get("tick") != previous.get("tick", 0) + 1:
+                tick_gaps += 1
+            if strict_tick_continuity and current.get("tick") != previous.get("tick", 0) + 1:
                 errors.append(f"entity {entity_id} has a missing required movement tick between "
                               f"{previous.get('tick')} and {current.get('tick')}")
             if all(isinstance(sample.get(field), (int, float))
@@ -232,6 +241,7 @@ def movement_metrics(history: dict[str, list[dict[str, Any]]], errors: list[str]
             "maxPitchStepDegrees": max_pitch_step,
             "maxCoordinateStep": max(coordinate_steps, default=0.0),
             "movingSampleTransitions": moving_samples,
+            "tickGaps": tick_gaps,
             "netVerticalDisplacement": net_vertical_displacement(samples),
             "history": samples,
         }

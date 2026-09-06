@@ -69,6 +69,36 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         self.assertTrue(any("moves backward" in error for error in analysis["errors"]))
         self.assertTrue(any("non-finite x" in error for error in analysis["errors"]))
 
+    def test_client_render_cadence_can_skip_server_ticks(self) -> None:
+        records = [
+            {**record("header", 1), "side": "client"},
+            {**record("movement", 2, entityUuid="fish", x=0.0, y=1.0, z=0.0,
+                      velocityX=0.0, velocityY=0.01, velocityZ=0.1, yaw=0.0, pitch=-1.0),
+             "side": "client"},
+            {**record("movement", 4, entityUuid="fish", x=0.0, y=1.02, z=0.2,
+                      velocityX=0.0, velocityY=0.01, velocityZ=0.1, yaw=0.0, pitch=-2.0),
+             "sequence": 3,
+             "side": "client"},
+            {**record("end", 5, incomplete=False, recordsDropped=0), "sequence": 4, "side": "client"},
+        ]
+        analysis = bfs_debug_analyze.validate(records, [], {
+            "entities": {"fish": {"minimumSamples": 2}},
+        })
+        self.assertEqual("complete", analysis["verdict"])
+        self.assertEqual(1, analysis["metrics"]["entities"]["fish"]["tickGaps"])
+
+    def test_server_tick_gap_remains_invalid(self) -> None:
+        analysis = bfs_debug_analyze.validate([
+            record("header", 1),
+            record("movement", 2, entityUuid="fish", x=0.0, y=1.0, z=0.0,
+                   velocityX=0.0, velocityY=0.01, velocityZ=0.1, yaw=0.0, pitch=-1.0),
+            record("movement", 4, entityUuid="fish", x=0.0, y=1.02, z=0.2,
+                   velocityX=0.0, velocityY=0.01, velocityZ=0.1, yaw=0.0, pitch=-2.0),
+            record("end", 5, incomplete=False, recordsDropped=0),
+        ], [], {"entities": {"fish": {"minimumSamples": 2}}})
+        self.assertEqual("invalid", analysis["verdict"])
+        self.assertTrue(any("missing required movement tick" in error for error in analysis["errors"]))
+
     def test_manifest_rejects_static_and_discontinuous_motion(self) -> None:
         static = [
             record("header", 1, artifactSha256="candidate"),
