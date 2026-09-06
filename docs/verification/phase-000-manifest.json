@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "88580315554384f00578d4d619928730e4de3f69",
+    "phase_commit": "b780a7c5202f391cf9ff895db946e63300fbad81",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
@@ -1547,6 +1547,65 @@
       }
     ],
     "limitations": "The captures close client cadence and bounded state presentation evidence but do not close the authored five-point bone-transform table, bite timing, Oceanic vertical locomotion, fresh advancement profile, algae collection and population, complete combat and cleanup, final artifact, review, merge, ancestry, or signed phase tag gates."
+  },
+  "bound_packaged_server_session": {
+    "status": "complete_diagnostic_and_handshake",
+    "source_revision": "b780a7c5202f391cf9ff895db946e63300fbad81",
+    "artifact": {
+      "path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "sha256": "3984700226aa70e352edd63ff5b580d298b0b598955adf2a63d0382600667754",
+      "sha512": "8843bc83dae2f3219376b2dac8ad760201dbc478d22a8d0913ba0a161d5011a696df3aecc107b0316bab7752d1e5d0cf84ae8dc84f2ad52c9237dd8086af0412",
+      "unzip_test": "passed"
+    },
+    "headless_verification": {
+      "gametest": "19 of 19 passed",
+      "python_tool_tests": "17 of 17 passed",
+      "server_host": "node-1",
+      "client_host": "envision",
+      "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "client_audio": "exact Minecraft playback stream muted"
+    },
+    "server_capture": {
+      "sha256": "5427916070a91a6acee49a7ec2bda29cfff86ef34d3d8b6607449977ebfd4b68",
+      "records": 41,
+      "movement_records": 39,
+      "dropped_records": 0,
+      "terminal_record": true,
+      "verdict": "complete",
+      "limitation": "controlled teleport fixture, not natural locomotion proof"
+    },
+    "static_negative_control": {
+      "sha256": "95406c6c6406233e01707e1391ec790760fcfd6c2fbb7349bf92f5a3d364d631",
+      "records": 61,
+      "dropped_records": 0,
+      "terminal_record": true,
+      "verdict_without_motion_threshold": "complete",
+      "verdict_with_motion_threshold": "invalid"
+    },
+    "client_capture": {
+      "sha256": "6586436257b9166713bf57ca95d4b05cf63b13cece9c1a8321df3da93f595244",
+      "records": 19980,
+      "movement_records": 15961,
+      "presentation_records": 4002,
+      "target_lifecycle_records": 15,
+      "dropped_records": 0,
+      "terminal_record": true,
+      "verdict": "complete",
+      "motion_profile": "phase-000-baseline",
+      "configuration_fingerprint": "phase-000-default",
+      "datapack_fingerprint": "phase-000-generated",
+      "selected_entity": {
+        "samples": 1199,
+        "moving_transitions": 137,
+        "pitch_range_degrees": 11.25,
+        "max_total_speed": 0.088567,
+        "max_horizontal_speed": 0.086733,
+        "max_vertical_speed": 0.03475,
+        "max_pitch_step": 0.46875,
+        "max_coordinate_step": 0.097896
+      }
+    },
+    "phase_scope": "diagnostic facility and packaged handshake evidence only; interactive visual, natural gameplay, advancement, algae, review, merge, ancestry, and signed tag gates remain open"
   },
   "defects": {
     "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",
