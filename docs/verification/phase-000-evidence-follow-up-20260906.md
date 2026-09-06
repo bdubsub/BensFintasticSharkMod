@@ -218,3 +218,11 @@ Presentation state coverage in this run was:
 | Oceanic Whitetip Shark | `animation.oceanicwhitetipshark.idle` |
 
 The capture confirms the earlier salmon and dolphin `no_current_animation` result is not universal for this exact artifact and fixture setup. It does not close the full authored matrix. Salmon ordinary swim, fast swim, and flop, Oceanic swim, fast swim, bite, thrash, beached, damage, and death, and movement driven pitch and vertical transition samples still require dedicated state captures. Because these fixtures used bounded diagnostic movement and client state sampling, this record is presentation evidence only and does not replace the required natural movement and action acceptance gates.
+
+## Current packaged captain advancement trigger
+
+On 2026-09-06, the same disposable dedicated server and exact artifact were used for a fresh player advancement trigger. The server first revoked all advancements from `EnVyOnMyMind` and confirmed the player inventory was empty. It then granted one `bensfintasticsharks:captain_ben_hat` item through the server command path. The server diagnostic capture was category `advancement`, session `b42e919a-d7cf-4f44-87bf-7c5076a35a3a`, and SHA 256 `5e1057270fa3650d5e055f194606215736a2254fc14b9078360e36318d2cf569`.
+
+The capture is bound to source `de0e2dbfbd7e8c207ca9761c9256eb3055c69ca7`, artifact SHA 256 `182ef55edad165e9c3f53b0bc6322b197b61d94f20154dfbcca1546d2ba1f4c6`, Forge `47.2.0`, Minecraft `1.20.1`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration `phase-000-task005-client-matrix-e8`, and data pack `phase-000-generated`. It contains eight accepted advancement events, zero dropped records, and a complete terminal record. The final custom event is `bensfintasticsharks:captains_heir` at tick `20401`, after the hat was inserted, proving the current generated criterion completes on the exact item trigger.
+
+This is fresh server-side trigger evidence only. It does not replace the required laptop advancement screen capture, seven icon byte and presentation review, or a natural loot acquisition path.
