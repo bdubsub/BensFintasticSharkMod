@@ -76,6 +76,27 @@ public final class BfsGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 40)
+    public static void algaeRejectsDryAndUnsupportedPlacement(GameTestHelper helper) {
+        prepareWaterColumn(helper);
+        helper.setBlock(ALGAE_POS, ModBlocks.LARGE_RED_ALGAE.defaultBlockState());
+        helper.runAfterDelay(1, () -> {
+            BlockPos absoluteAlgaePos = helper.absolutePos(ALGAE_POS);
+            helper.setBlock(SUPPORT_POS, Blocks.AIR.defaultBlockState());
+            helper.assertTrue(!ModBlocks.LARGE_RED_ALGAE.defaultBlockState()
+                            .canSurvive(helper.getLevel(), absoluteAlgaePos),
+                    "algae must reject placement after its submerged support is removed");
+
+            BlockPos dryPos = new BlockPos(3, 1, 1);
+            BlockPos absoluteDryPos = helper.absolutePos(dryPos);
+            helper.setBlock(dryPos, Blocks.AIR.defaultBlockState());
+            helper.assertTrue(!ModBlocks.ALGAE_BLOCK.defaultBlockState()
+                            .canSurvive(helper.getLevel(), absoluteDryPos),
+                    "algae must reject placement outside a water source");
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", batch = "bfs_debug_lifecycle", timeoutTicks = 20)
     public static void geckoLibNetworkChannelIsRegistered(GameTestHelper helper) {
         try {
