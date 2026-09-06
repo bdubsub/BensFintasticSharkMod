@@ -8,7 +8,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.gametest.GameTestHolder;
@@ -300,11 +303,20 @@ public final class BfsGameTests {
     @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 220)
     public static void tigerSharkPursuesReachableEdibleItem(GameTestHelper helper) {
         prepareWaterVolume(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         Vec3 start = shark.position();
         double startDistance = shark.distanceToSqr(item);
         sampleTigerItemPursuit(helper, shark, item, start, startDistance, new boolean[1], 0);
+    }
+
+    private static void clearAquaticFixtureEntities(GameTestHelper helper, BlockPos first, BlockPos second) {
+        Vec3 firstCenter = helper.absolutePos(first).getCenter();
+        Vec3 secondCenter = helper.absolutePos(second).getCenter();
+        AABB fixtureArea = new AABB(firstCenter, secondCenter).inflate(26.0D);
+        helper.getLevel().getEntitiesOfClass(LivingEntity.class, fixtureArea,
+                entity -> entity.isInWater() && !(entity instanceof Player)).forEach(LivingEntity::discard);
     }
 
     private static void sampleTigerItemPursuit(GameTestHelper helper, TigerSharkEntity shark,
@@ -320,9 +332,16 @@ public final class BfsGameTests {
             helper.assertTrue(acquired[0],
                     "tiger shark must acquire a reachable edible item");
             helper.assertTrue(shark.position().distanceToSqr(start) > 0.25,
-                    "tiger shark must leave its spawn position while pursuing an item");
+                    "tiger shark must leave its spawn position while pursuing an item, state="
+                            + shark.getSharkState() + ", position=" + shark.position()
+                            + ", item=" + item.position() + ", navDone=" + shark.getNavigation().isDone());
             helper.assertTrue(shark.distanceToSqr(item) < startDistance,
-                    "tiger shark must reduce distance to a reachable edible item");
+                    "tiger shark must reduce distance to a reachable edible item, state="
+                            + shark.getSharkState() + ", startDistance=" + startDistance
+                            + ", finalDistance=" + shark.distanceToSqr(item)
+                            + ", position=" + shark.position() + ", item=" + item.position()
+                            + ", navDone=" + shark.getNavigation().isDone()
+                            + ", delta=" + shark.getDeltaMovement());
             helper.succeed();
         });
     }
@@ -427,6 +446,37 @@ public final class BfsGameTests {
         sampleFishVerticalRoute(helper, cod, target, startY, heights, pitches, 0);
     }
 
+    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
+    public static void bottlenoseDolphinPitchTransitionsSmoothly(GameTestHelper helper) {
+        prepareVerticalWaterVolume(helper);
+        BottlenoseDolphinEntity dolphin = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN, new BlockPos(4, 5, 4));
+        dolphin.getBrain().removeAllBehaviors();
+        Vec3 target = helper.absolutePos(new BlockPos(4, 8, 4)).getCenter();
+        java.util.List<Float> pitches = new java.util.ArrayList<>();
+        double startY = dolphin.getY();
+        setVerticalTarget(dolphin, target);
+        sampleDolphinPitchRoute(helper, dolphin, target, startY, pitches, 0);
+    }
+
+    private static void sampleDolphinPitchRoute(GameTestHelper helper, BottlenoseDolphinEntity dolphin,
+                                                 Vec3 target, double startY, java.util.List<Float> pitches, int sample) {
+        helper.runAfterDelay(1, () -> {
+            pitches.add(dolphin.getXRot());
+            if (sample < 260 && dolphin.distanceToSqr(target) > 0.36) {
+                setVerticalTarget(dolphin, target);
+                sampleDolphinPitchRoute(helper, dolphin, target, startY, pitches, sample + 1);
+                return;
+            }
+            helper.assertTrue(dolphin.getY() - startY > 0.25,
+                    "bottlenose dolphin must make directed vertical progress, position=" + dolphin.position());
+            helper.assertTrue(minimumWrappedPitch(pitches) < -1.0F,
+                    "bottlenose dolphin must pitch its nose toward the elevated target, pitches=" + pitches);
+            helper.assertTrue(maxPitchStep(pitches) <= AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK + 0.0001F,
+                    "bottlenose dolphin pitch must transition smoothly, maxStep=" + maxPitchStep(pitches));
+            helper.succeed();
+        });
+    }
+
     private static void runVerticalRoute(GameTestHelper helper,
                                          BlockPos sharkStartPos, BlockPos sharkTargetPos,
                                          BlockPos dolphinStartPos, BlockPos dolphinTargetPos,
@@ -493,7 +543,10 @@ public final class BfsGameTests {
             double sharkProgress = shark.getY() - sharkStartY;
             double dolphinProgress = dolphin.getY() - dolphinStartY;
             helper.assertTrue(dolphinProgress * verticalDirection > 0.25,
-                    "bottlenose dolphin must complete the vertical reference route");
+                    "bottlenose dolphin must complete the vertical reference route, progress="
+                            + dolphinProgress + ", position=" + dolphin.position()
+                            + ", target=" + dolphinTarget + ", navDone=" + dolphin.getNavigation().isDone()
+                            + ", delta=" + dolphin.getDeltaMovement());
             helper.assertTrue(sharkProgress * verticalDirection > 0.25,
                     "shark must complete the vertical route, progress=" + sharkProgress
                             + ", dolphinProgress=" + dolphinProgress);

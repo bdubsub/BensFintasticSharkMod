@@ -47,7 +47,7 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
     protected BfsAquaticEntity(EntityType<T> type, Level level) {
         super(type, level);
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 1f / 8f, 0f, false);
-        this.lookControl = new SmoothSwimmingLookControl(this, 10);
+        this.lookControl = new BfsAquaticLookControl(this);
     }
 
     /**

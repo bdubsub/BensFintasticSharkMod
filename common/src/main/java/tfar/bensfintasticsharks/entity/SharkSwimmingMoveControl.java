@@ -57,15 +57,26 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
         super.tick();
 
         if (trackPitch) {
-            double verticalDx = verticalOnly ? routeDx : dx;
-            double verticalDy = verticalOnly ? routeDy : dy;
-            double verticalDz = verticalOnly ? routeDz : dz;
+            // Keep the powered vertical direction tied to the requested destination. A water
+            // path can refresh its intermediate waypoint across the current block boundary;
+            // using that waypoint's sign lets a descending route briefly reverse before the
+            // final destination direction is re-established.
+            double verticalDx = dx;
+            double verticalDy = dy;
+            double verticalDz = dz;
             double targetVerticalVelocity = moving
                     ? AquaticMovement.affectedVerticalVelocity(
                             this.mob.getSpeed(), verticalDx, verticalDy, verticalDz)
                     : 0.0D;
             smoothedVerticalVelocity = AquaticMovement.smoothVerticalVelocity(
                     this.mob.getDeltaMovement().y, targetVerticalVelocity);
+            // A path target may be refreshed to an adjacent block while descending or rising.
+            // Do not let the previous velocity carry the body across zero and create a visible
+            // depth reversal before the new target direction is established.
+            if ((targetVerticalVelocity > 0.0D && smoothedVerticalVelocity < 0.0D)
+                    || (targetVerticalVelocity < 0.0D && smoothedVerticalVelocity > 0.0D)) {
+                smoothedVerticalVelocity = 0.0D;
+            }
             this.mob.setDeltaMovement(this.mob.getDeltaMovement().x,
                     smoothedVerticalVelocity, this.mob.getDeltaMovement().z);
 
