@@ -64,6 +64,40 @@ On 2026-09-06, a disposable dedicated server and laptop client run isolated the 
 
 This isolation narrows but does not close `P000-TASK-005`. The authored five point transform table, every required fish and Oceanic state, Oceanic death and complete bite timing, natural combat, advancement completion, algae population, final artifact binding, review, merge, ancestry, and signed Phase 000 tag remain outstanding.
 
+## Authored five point clip samples
+
+The current source resources were sampled at normalized clip times `0`, `0.25`,
+`0.5`, `0.75`, and `1.0`. Values are the authored x, y, and z transform vector
+for the first complete moving channel that differs by more than `0.0001` from
+the first sample. This table is a structural authored-asset record and does not
+replace the required interactive controller and presentation evidence.
+
+| Clip | Sampled moving channel | Length | 0.00 | 0.25 | 0.50 | 0.75 | 1.00 |
+| --- | --- | ---: | --- | --- | --- | --- | --- |
+| `animation.atlantic_cod.idle` | `body.rotation` | 4 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 5.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -5.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_cod.swim` | `body.rotation` | 2 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_cod.swim_fast` | `body.rotation` | 1 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 12.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -12.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_cod.flop` | `body.rotation` | 0.5 | `(0.00000, -10.00000, -90.00000)` | `(0.00000, 5.62438, -90.00000)` | `(0.00000, 2.50000, -90.00000)` | `(0.00000, -3.75000, -90.00000)` | `(0.00000, -10.00000, -90.00000)` |
+| `animation.atlantic_salmon.idle` | `body.rotation` | 4 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 5.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -5.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_salmon.swim` | `body.rotation` | 2 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_salmon.swim_fast` | `body.rotation` | 1 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_salmon.flop` | `body.rotation` | 0.5 | `(0.00000, -5.00000, -90.00000)` | `(0.00000, 16.25275, -90.00000)` | `(0.00000, 30.00000, -90.00000)` | `(0.00000, 2.50000, -90.00000)` | `(0.00000, -5.00000, -90.00000)` |
+| `animation.atlantic_salmon.spin` | `root.rotation` | 0.5 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -90.00000, 0.00000)` | `(0.00000, -180.00000, 0.00000)` | `(0.00000, -270.00000, 0.00000)` | `(0.00000, -360.00000, 0.00000)` |
+| `animation.oceanicwhitetipshark.idle` | `Body.rotation` | 4 | `(0.00000, 0.00000, -2.00000)` | `(0.00000, 8.00000, 0.00000)` | `(0.00000, 0.00000, 2.00000)` | `(0.00000, -8.00000, 0.00000)` | `(0.00000, 0.00000, -2.00000)` |
+| `animation.oceanicwhitetipshark.swim_new` | `Body.rotation` | 1.7083 | `(0.00000, 0.00000, -1.00000)` | `(0.00000, 9.99985, -0.00548)` | `(0.00000, 0.10969, 0.99994)` | `(0.00000, -9.99865, 0.01645)` | `(0.00000, -0.21937, -0.99976)` |
+| `animation.oceanicwhitetipshark.swim_fast_new` | `Body.rotation` | 0.75 | `(0.00000, 0.00000, -2.00000)` | `(0.00000, 12.00000, 0.00000)` | `(0.00000, 0.00000, 2.00000)` | `(0.00000, -12.00000, 0.00000)` | `(0.00000, 0.00000, -2.00000)` |
+| `animation.oceanicwhitetipshark.bite_new` | `Head.rotation` | 0.75 | `(0.00000, 0.00000, 0.00000)` | `(-1.02075, 5.48185, -1.26450)` | `(4.59812, 4.98332, 0.39937)` | `(4.60134, 4.98024, 0.39517)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.oceanicwhitetipshark.death` | `Body.rotation` | 3 | `(0.00000, 0.00000, -2.00000)` | `(-6.08967, -9.56933, -11.45029)` | `(-31.83399, -4.64387, -26.32261)` | `(-27.08570, -11.92563, -29.08006)` | `(-22.33740, -19.20740, -31.83750)` |
+| `animation.oceanicwhitetipshark.beached` | `Body.rotation` | 4 | `(2.50000, 0.43301, -27.00000)` | `(2.50000, -0.25000, -27.00000)` | `(2.50000, -0.43301, -27.00000)` | `(2.50000, 0.25000, -27.00000)` | `(2.50000, 0.43301, -27.00000)` |
+| `animation.oceanicwhitetipshark.thrash` | `Fin2.rotation` | 3.25 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 0.00000, -0.45949)` | `(14.21891, 0.00000, 10.85995)` | `(3.06192, 0.00000, 13.70045)` | `(0.00000, 0.00000, 0.00000)` |
+
+The deterministic audit `fishAndWhitetipClipsHaveDistinctFivePointTransformSamples`
+remains the executable source of this table. The table was generated from the
+same resource tree at phase revision `e6d795179079dfb40295ccb5c3db879c91047b41`
+and has SHA 256
+`708d88e3b7cbae411088ea154e110f62f549a7bd55e0fe2c72378d152883c249` before
+insertion into this evidence record.
+
 ## Current phase tip deterministic verification
 
 On 2026-09-06, the exact phase tip `005a1f103079e4bb706a6b8fdc154326f9e0a0e1` was verified in a detached disposable worktree on node 1. Java 17.0.19 and the checked-in Gradle wrapper were used. `./gradlew :forge:test --no-daemon` passed. `./gradlew :forge:Data --no-daemon` passed twice; the second run wrote zero generated files. `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks` passed all 20 required tests, including diagnostic parity, lifecycle, permissions, fish and shark movement, combat, algae controls, and strict vertical movement. `./gradlew :forge:build --no-daemon` passed.
