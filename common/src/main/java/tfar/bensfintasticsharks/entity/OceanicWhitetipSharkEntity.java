@@ -166,7 +166,7 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
             }
         }
         setGrabTimer(release ? 0 : next);
-        if (release) ejectPassengers();
+        if (release) releaseGrab();
     }
 
     private void setGrabTimer(int timer) {
@@ -174,9 +174,19 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
     }
 
     @Override
-    public void remove(RemovalReason reason) {
+    public void releaseGrabPassengers() {
         setGrabTimer(0);
-        ejectPassengers();
+        // SharkGrabber.releaseGrabPassengers performs ejectPassengers() and passenger packet sync.
+        SharkGrabber.super.releaseGrabPassengers();
+    }
+
+    private void releaseGrab() {
+        releaseGrabPassengers();
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        releaseGrab();
         super.remove(reason);
     }
 

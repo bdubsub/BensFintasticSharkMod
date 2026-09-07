@@ -182,8 +182,7 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
         boolean livingPassenger = getPassengers().stream()
                 .anyMatch(passenger -> passenger instanceof LivingEntity living && living.isAlive());
         if (next <= 0 || !isAlive() || !isInWaterOrBubble() || !livingPassenger) {
-            setGrabTimer(0);
-            ejectPassengers();
+            releaseGrab();
         } else {
             setGrabTimer(next);
         }
@@ -194,14 +193,24 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
     }
 
     @Override
+    public void releaseGrabPassengers() {
+        setGrabTimer(0);
+        // SharkGrabber.releaseGrabPassengers performs ejectPassengers() and passenger packet sync.
+        SharkGrabber.super.releaseGrabPassengers();
+    }
+
+    private void releaseGrab() {
+        releaseGrabPassengers();
+    }
+
+    @Override
     public int getGrabTimer() {
         return entityData.get(DATA_LATCH_TIMER);
     }
 
     @Override
     public void remove(RemovalReason reason) {
-        setGrabTimer(0);
-        ejectPassengers();
+        releaseGrab();
         super.remove(reason);
     }
 

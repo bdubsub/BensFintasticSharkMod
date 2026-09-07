@@ -14,6 +14,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.LogicalSide;
@@ -56,6 +58,8 @@ public class BensFintasticSharksForge {
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerRespawn);
+        MinecraftForge.EVENT_BUS.addListener(this::onEntityLeaveLevel);
+        MinecraftForge.EVENT_BUS.addListener(this::onServerStopping);
         MinecraftForge.EVENT_BUS.addListener(this::trading);
         MinecraftForge.EVENT_BUS.addListener(this::onLivingDeath);
         MinecraftForge.EVENT_BUS.addListener(this::onRegisterCommands);
@@ -118,8 +122,30 @@ public class BensFintasticSharksForge {
         releaseGrabbedPlayer(event.getEntity());
     }
 
+    private void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof SharkGrabber grabber) {
+            grabber.releaseGrabPassengers();
+        } else if (entity.isPassenger()) {
+            entity.stopRiding();
+        }
+    }
+
+    private void onServerStopping(ServerStoppingEvent event) {
+        for (net.minecraft.server.level.ServerLevel level : event.getServer().getAllLevels()) {
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof SharkGrabber grabber) {
+                    grabber.releaseGrabPassengers();
+                }
+            }
+        }
+    }
+
     private void releaseGrabbedPlayer(net.minecraft.world.entity.player.Player player) {
-        if (player.isPassenger()) {
+        Entity vehicle = player.getVehicle();
+        if (vehicle instanceof SharkGrabber grabber) {
+            grabber.releaseGrabPassengers();
+        } else if (player.isPassenger()) {
             player.stopRiding();
         }
     }
@@ -181,6 +207,11 @@ public class BensFintasticSharksForge {
 
     private void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity().level().isClientSide) return;
+        if (event.getEntity() instanceof SharkGrabber grabber) {
+            grabber.releaseGrabPassengers();
+        } else if (event.getEntity().isPassenger()) {
+            event.getEntity().stopRiding();
+        }
         if (!event.getEntity().getType().is(ModTags.EntityTypes.CONSERVATION_PROTECTED)) return;
         if (!tfar.bensfintasticsharks.config.BfsConfig.COMMON.conservationDebuffEnabled.get()) return;
         if (event.getSource().getEntity() instanceof Player player && !player.isCreative() && !player.isSpectator()) {

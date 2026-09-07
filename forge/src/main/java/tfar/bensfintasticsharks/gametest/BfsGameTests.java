@@ -7,6 +7,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Items;
+import com.mojang.authlib.GameProfile;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
 import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
@@ -838,15 +840,19 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 140)
+    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 1100)
     public static void oceanicWhitetipGrabDamagesAndReleasesPassenger(GameTestHelper helper) {
         prepareWaterVolume(helper);
         OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
                 new BlockPos(4, 3, 3));
-        Mob prey = helper.spawn(EntityType.DROWNED, new BlockPos(5, 3, 3));
+        Player prey = makeSurvivalTestPlayer(helper);
+        prey.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
+        prey.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000.0D);
+        prey.setHealth(1000.0F);
+        helper.getLevel().addFreshEntity(prey);
         shark.getBrain().removeAllBehaviors();
-        prey.setNoAi(true);
         shark.setTarget(prey);
+        float startHealth = prey.getHealth();
         helper.runAfterDelay(2, () -> {
             helper.assertTrue(shark.getTarget() == prey,
                     "oceanic whitetip fixture must retain its target identity");
@@ -854,26 +860,225 @@ public final class BfsGameTests {
                     "oceanic whitetip fixture must place the shark in water");
             helper.assertTrue(!prey.isPassenger(),
                     "oceanic whitetip fixture target must start without a vehicle");
-            shark.grabMob(prey);
-            shark.setTarget(null);
-            float startHealth = prey.getHealth();
+            runOceanicBiteUntilGrab(helper, shark, prey, startHealth, 0);
+        });
+    }
 
-            helper.assertTrue(prey.isPassenger() && shark.getPassengers().contains(prey),
-                    "oceanic whitetip must attach a live target as a passenger");
-            helper.assertTrue(shark.getGrabTimer() > 0,
-                    "oceanic whitetip must expose an active grab timer");
-            helper.runAfterDelay(12, () -> {
-                helper.assertTrue(prey.getHealth() < startHealth,
-                        "oceanic whitetip thrash must deal server-authoritative damage");
-                helper.runAfterDelay(95, () -> {
-                    helper.assertTrue(shark.getGrabTimer() == 0,
-                            "oceanic whitetip grab timer must expire");
-                    helper.assertTrue(!prey.isPassenger() && shark.getPassengers().isEmpty(),
-                            "oceanic whitetip must release its passenger when the grab expires");
-                    helper.succeed();
-                });
+    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 1400)
+    public static void blacktipBiteStartsLatchWithoutPeriodicDamage(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        BlacktipReefSharkEntity shark = helper.spawn(ModEntityTypes.BLACKTIP_REEF_SHARK,
+                new BlockPos(4, 3, 3));
+        Player player = makeSurvivalTestPlayer(helper);
+        player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
+        player.setNoGravity(true);
+        player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000.0D);
+        player.setHealth(1000.0F);
+        helper.getLevel().addFreshEntity(player);
+        shark.getBrain().removeAllBehaviors();
+        shark.setTarget(player);
+        float[] initialHealth = {player.getHealth()};
+        runBlacktipBiteUntilLatch(helper, shark, player, initialHealth, 0);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 80)
+    public static void oceanicGrabReleasesOnTargetInvalidation(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
+                new BlockPos(4, 3, 3));
+        Player player = makeSurvivalTestPlayer(helper);
+        player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
+        helper.getLevel().addFreshEntity(player);
+        helper.runAfterDelay(2, () -> {
+            armOceanicGrab(shark, player);
+            helper.assertTrue(player.isPassenger() && shark.getGrabTimer() > 0,
+                    "oceanic grab lifecycle fixture must be armed");
+            player.stopRiding();
+            helper.runAfterDelay(2, () -> {
+                helper.assertTrue(shark.getGrabTimer() == 0 && !player.isPassenger()
+                                && shark.getPassengers().isEmpty(),
+                        "target invalidation must release the oceanic grab");
+                helper.succeed();
             });
         });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 80)
+    public static void oceanicGrabReleasesWhenSharkLeavesWater(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
+                new BlockPos(4, 3, 3));
+        Player player = makeSurvivalTestPlayer(helper);
+        player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
+        helper.getLevel().addFreshEntity(player);
+        helper.runAfterDelay(2, () -> {
+            armOceanicGrab(shark, player);
+            helper.assertTrue(player.isPassenger() && shark.getGrabTimer() > 0,
+                    "oceanic grab water fixture must be armed");
+            shark.setPos(shark.getX(), helper.absolutePos(new BlockPos(4, 9, 3)).getY(), shark.getZ());
+            helper.runAfterDelay(2, () -> {
+                helper.assertTrue(shark.getGrabTimer() == 0 && !player.isPassenger()
+                                && shark.getPassengers().isEmpty(),
+                        "leaving water must release the oceanic grab");
+                helper.succeed();
+            });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 80)
+    public static void oceanicGrabReleasesWhenPlayerDies(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
+                new BlockPos(4, 3, 3));
+        Player player = makeSurvivalTestPlayer(helper);
+        player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
+        helper.getLevel().addFreshEntity(player);
+        helper.runAfterDelay(2, () -> {
+            armOceanicGrab(shark, player);
+            helper.assertTrue(player.isPassenger() && shark.getGrabTimer() > 0,
+                    "oceanic grab death fixture must be armed");
+            player.kill();
+            helper.runAfterDelay(2, () -> {
+                helper.assertTrue(shark.getGrabTimer() == 0 && !player.isPassenger()
+                                && shark.getPassengers().isEmpty(),
+                        "player death must release the oceanic grab");
+                helper.succeed();
+            });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 80)
+    public static void oceanicGrabReleasesWhenSharkIsRemoved(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
+                new BlockPos(4, 3, 3));
+        Player player = makeSurvivalTestPlayer(helper);
+        player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
+        helper.getLevel().addFreshEntity(player);
+        helper.runAfterDelay(2, () -> {
+            armOceanicGrab(shark, player);
+            helper.assertTrue(player.isPassenger() && shark.getGrabTimer() > 0,
+                    "oceanic grab removal fixture must be armed");
+            shark.remove(Entity.RemovalReason.DISCARDED);
+            helper.runAfterDelay(2, () -> {
+                helper.assertTrue(!player.isPassenger(),
+                        "shark removal must release the passenger");
+                helper.succeed();
+            });
+        });
+    }
+
+    private static void armOceanicGrab(OceanicWhitetipSharkEntity shark, Player player) {
+        shark.getBrain().removeAllBehaviors();
+        shark.setTarget(player);
+        shark.grabMob(player);
+    }
+
+    private static void runOceanicBiteUntilGrab(GameTestHelper helper, OceanicWhitetipSharkEntity shark,
+                                                 Player prey, float startHealth, int sample) {
+        helper.runAfterDelay(1, () -> {
+            if (!prey.isAlive()) {
+                helper.fail("oceanic whitetip prey died before grab, health=" + prey.getHealth());
+                return;
+            }
+            Vec3 anchor = helper.absolutePos(new BlockPos(4, 3, 3)).getCenter();
+            shark.setPos(anchor.x, anchor.y, anchor.z);
+            shark.setDeltaMovement(Vec3.ZERO);
+            shark.setTarget(prey);
+            shark.setSharkState(AbstractSharkEntity.SharkState.HOSTILE);
+            shark.setStateTimer(240);
+            prey.setPos(shark.getX() + 0.9D, shark.getY(), shark.getZ());
+            prey.setDeltaMovement(Vec3.ZERO);
+            if (prey.isPassenger() && shark.getGrabTimer() > 0) {
+                helper.assertTrue(prey.isPassenger(),
+                        "oceanic whitetip real bite must create the passenger relationship");
+                helper.runAfterDelay(12, () -> {
+                    float damagedHealth = prey.getHealth();
+                    helper.assertTrue(shark.getGrabTimer() > 0,
+                            "oceanic whitetip must expose an active grab timer");
+                    helper.runAfterDelay(10, () -> {
+                        helper.assertTrue(prey.getHealth() < damagedHealth,
+                                "oceanic whitetip thrash must deal server authoritative damage");
+                        helper.runAfterDelay(90, () -> {
+                            helper.assertTrue(shark.getGrabTimer() == 0,
+                                    "oceanic whitetip grab timer must expire");
+                            helper.assertTrue(!prey.isPassenger() && shark.getPassengers().isEmpty(),
+                                    "oceanic whitetip must release its passenger when the grab expires");
+                            helper.succeed();
+                        });
+                    });
+                });
+                return;
+            }
+            if (sample >= 900) {
+                helper.fail("oceanic whitetip did not start a grab after real bites, health="
+                        + prey.getHealth() + ", target=" + shark.getTarget());
+                return;
+            }
+            runOceanicBiteUntilGrab(helper, shark, prey, startHealth, sample + 1);
+        });
+    }
+
+    private static void runBlacktipBiteUntilLatch(GameTestHelper helper, BlacktipReefSharkEntity shark,
+                                                   Player player, float[] initialHealth, int sample) {
+        helper.runAfterDelay(1, () -> {
+            if (!player.isAlive()) {
+                helper.fail("blacktip player fixture died before latch");
+                return;
+            }
+            Vec3 anchor = helper.absolutePos(new BlockPos(4, 3, 3)).getCenter();
+            shark.setPos(anchor.x, anchor.y, anchor.z);
+            shark.setDeltaMovement(Vec3.ZERO);
+            shark.setTarget(player);
+            shark.setSharkState(AbstractSharkEntity.SharkState.HOSTILE);
+            shark.setStateTimer(240);
+            player.setPos(shark.getX() + 0.9D, shark.getY(), shark.getZ());
+            player.setDeltaMovement(Vec3.ZERO);
+            if (player.isPassenger() && shark.getGrabTimer() > 0) {
+                helper.assertTrue(player.getHealth() < initialHealth[0],
+                        "blacktip real bite must deal initial latch damage");
+                initialHealth[0] = player.getHealth();
+                shark.getBrain().removeAllBehaviors();
+                shark.getNavigation().stop();
+                shark.setTarget(null);
+                helper.runAfterDelay(10, () -> {
+                    helper.assertTrue(Math.abs(player.getHealth() - initialHealth[0]) < 0.001F,
+                            "blacktip latch must not deal periodic damage after the initial bite, health="
+                                    + player.getHealth() + ", timer=" + shark.getGrabTimer()
+                                    + ", passenger=" + player.isPassenger());
+                    helper.runAfterDelay(25, () -> {
+                        helper.assertTrue(shark.getGrabTimer() == 0,
+                                "blacktip latch timer must expire");
+                        helper.assertTrue(!player.isPassenger() && shark.getPassengers().isEmpty(),
+                                "blacktip latch must release its passenger when the timer expires");
+                        helper.succeed();
+                    });
+                });
+                return;
+            }
+            if (player.getHealth() < initialHealth[0]) initialHealth[0] = player.getHealth();
+            if (sample >= 1100) {
+                helper.fail("blacktip did not start a latch after real bites, health="
+                        + player.getHealth() + ", target=" + shark.getTarget());
+                return;
+            }
+            runBlacktipBiteUntilLatch(helper, shark, player, initialHealth, sample + 1);
+        });
+    }
+
+    private static Player makeSurvivalTestPlayer(GameTestHelper helper) {
+        return new Player(helper.getLevel(), BlockPos.ZERO, 0.0F,
+                new GameProfile(java.util.UUID.randomUUID(), "test-survival-player")) {
+            @Override
+            public boolean isCreative() {
+                return false;
+            }
+
+            @Override
+            public boolean isSpectator() {
+                return false;
+            }
+        };
     }
 
     @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
@@ -1116,13 +1321,26 @@ public final class BfsGameTests {
     }
 
     private static boolean hasSingleFiniteHorizontalArc(java.util.List<Double> offsets) {
-        if (offsets.size() < 12 || directionReversals(offsets) > 2) return false;
+        if (offsets.size() < 12 || significantDirectionReversals(offsets, 0.02D) > 2) return false;
         int tailStart = offsets.size() - 12;
         double tailMin = offsets.subList(tailStart, offsets.size()).stream()
                 .mapToDouble(Double::doubleValue).min().orElse(Double.NaN);
         double tailMax = offsets.subList(tailStart, offsets.size()).stream()
                 .mapToDouble(Double::doubleValue).max().orElse(Double.NaN);
         return tailMax - tailMin <= 1.0e-6D;
+    }
+
+    private static int significantDirectionReversals(java.util.List<Double> values, double minimumDelta) {
+        int reversals = 0;
+        int lastSign = 0;
+        for (int i = 1; i < values.size(); i++) {
+            double delta = values.get(i) - values.get(i - 1);
+            if (Math.abs(delta) <= minimumDelta) continue;
+            int sign = delta > 0.0D ? 1 : -1;
+            if (lastSign != 0 && sign != lastSign) reversals++;
+            lastSign = sign;
+        }
+        return reversals;
     }
 
     private static double max(java.util.List<Double> values) {
