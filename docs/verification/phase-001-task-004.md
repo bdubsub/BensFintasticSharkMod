@@ -43,15 +43,20 @@ removed after the final consumer completes.
 BUILD SUCCESSFUL
 ```
 
-The curiosity batch contained seven required tests and passed in the complete
-server runs. The complete suite contained 31 required tests, but the current
-suite is not yet a clean phase gate. Repeated runs still expose inherited
-movement and combat failures in `sharkVerticalRouteFollowsDolphinWithoutOrbit`,
-`atlanticCodVerticalRouteUsesScaledPitch`, and
-`blacktipBiteMatrixReachesStationaryAndMovingPrey`. The latest run must not be
-treated as Phase 001 completion evidence until those failures are repaired and
-the complete suite passes in one run. The recurring blocker is tracked in
-[issue 12](https://github.com/bdubsub/BensFintasticSharkMod/issues/12).
+The curiosity batch contains seven required tests. The complete suite contains
+31 required tests, and the clean headless run below passed all of them after
+the bite matrix fixture cleanup was narrowed to its own local structure. The
+previous failures were caused by the broad cleanup deleting entities belonging
+to neighboring GameTest structures, not by the Tiger curiosity state machine.
+
+```text
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks
+All 31 required tests passed :)
+BUILD SUCCESSFUL
+```
+
+Issue 12 records the diagnosed fixture problem and can be closed after this
+commit is verified on the phase branch.
 
 No client or packaged artifact acceptance is claimed by this record. The
 interactive curiosity capture and the final packaged artifact remain later

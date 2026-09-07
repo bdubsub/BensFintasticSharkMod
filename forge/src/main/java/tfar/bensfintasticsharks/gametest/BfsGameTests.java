@@ -465,6 +465,14 @@ public final class BfsGameTests {
                 entity -> entity.isInWater() && !(entity instanceof Player)).forEach(LivingEntity::discard);
     }
 
+    private static void clearLocalAquaticFixtureEntities(GameTestHelper helper, BlockPos first, BlockPos second) {
+        Vec3 firstCenter = helper.absolutePos(first).getCenter();
+        Vec3 secondCenter = helper.absolutePos(second).getCenter();
+        AABB fixtureArea = new AABB(firstCenter, secondCenter).inflate(4.0D);
+        helper.getLevel().getEntitiesOfClass(LivingEntity.class, fixtureArea,
+                entity -> entity.isInWater() && !(entity instanceof Player)).forEach(LivingEntity::discard);
+    }
+
     private static void clearUnexpectedAquaticFixtureEntities(GameTestHelper helper,
                                                                TigerSharkEntity shark, ItemEntity item) {
         AABB fixtureArea = shark.getBoundingBox().minmax(item.getBoundingBox()).inflate(4.0D);
@@ -747,7 +755,7 @@ public final class BfsGameTests {
             helper.succeed();
             return;
         }
-        clearAquaticFixtureEntities(helper, new BlockPos(2, 2, 2), new BlockPos(10, 5, 10));
+        clearLocalAquaticFixtureEntities(helper, new BlockPos(2, 2, 2), new BlockPos(10, 5, 10));
         boolean moving = (scenario & 1) == 1;
         int size = scenario / 2;
         EntityType<? extends Mob> preyType = switch (size) {
