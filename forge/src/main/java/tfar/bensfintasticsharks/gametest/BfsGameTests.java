@@ -12,9 +12,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Salmon;
+import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -37,6 +39,8 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import com.mojang.authlib.GameProfile;
 import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
 import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
 import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
@@ -50,6 +54,8 @@ import tfar.bensfintasticsharks.debug.BfsDebugManager;
 import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 import tfar.bensfintasticsharks.init.ModItems;
+import tfar.bensfintasticsharks.config.BfsConfig;
+import tfar.bensfintasticsharks.spawn.MobCapManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -720,7 +726,7 @@ public final class BfsGameTests {
                 .withPosition(aquatic.position())
                 .withPermission(4);
         try {
-            String command = "bfs debug on movement 70 @e[type=" + entityId + ",distance=..4,limit=1]";
+            String command = "bfs debug on movement 70 @e[type=" + entityId + ",sort=nearest,limit=1]";
             server.getCommands().getDispatcher().execute(command, source);
             helper.assertTrue(BfsDebugManager.status().active(),
                     "depth fixture must begin a real server diagnostic capture");
@@ -1432,6 +1438,126 @@ public final class BfsGameTests {
                 return false;
             }
         };
+    }
+
+    @GameTest(template = "empty", batch = "bfs_spawn_controls", timeoutTicks = 40)
+    public static void vanillaFishReplacementHonorsOneForOneAndModes(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        boolean previousReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
+        boolean previousSuppression = BfsConfig.COMMON.disableVanillaAquaticSpawns.get();
+        MobCapManager manager = new MobCapManager();
+        BlockPos local = new BlockPos(4, 3, 4);
+        BlockPos absolute = helper.absolutePos(local);
+        try {
+            BfsConfig.COMMON.replaceVanillaMobs.set(true);
+            BfsConfig.COMMON.disableVanillaAquaticSpawns.set(false);
+
+            Cod source = EntityType.COD.create(helper.getLevel());
+            helper.assertTrue(source != null, "vanilla Cod fixture must construct");
+            source.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 0.5D,
+                    37.0F, -12.0F);
+            source.yHeadRot = 51.0F;
+            source.yBodyRot = 29.0F;
+            source.setDeltaMovement(new Vec3(0.12D, 0.03D, -0.08D));
+            source.setCustomName(Component.literal("named source cod"));
+            source.setCustomNameVisible(true);
+
+            MobSpawnEvent.FinalizeSpawn replacementEvent = newFinalizeSpawn(helper, source, absolute,
+                    MobSpawnType.NATURAL, null);
+            manager.onFinalizeSpawn(replacementEvent);
+            helper.assertTrue(replacementEvent.isSpawnCancelled(),
+                    "natural vanilla Cod must be replaced before suppression");
+            List<AtlanticCodEntity> cods = helper.getLevel().getEntitiesOfClass(AtlanticCodEntity.class,
+                    new AABB(absolute).inflate(2.0D));
+            helper.assertTrue(cods.size() == 1,
+                    "one accepted Cod attempt must produce at most one Atlantic Cod, count=" + cods.size());
+            AtlanticCodEntity replacement = cods.get(0);
+            helper.assertTrue(replacement.hasCustomName()
+                            && "named source cod".equals(replacement.getCustomName().getString()),
+                    "replacement must preserve custom name");
+            helper.assertTrue(replacement.isCustomNameVisible(),
+                    "replacement must preserve custom name visibility");
+            helper.assertTrue(replacement.getYRot() == source.getYRot()
+                            && replacement.getXRot() == source.getXRot()
+                            && replacement.yHeadRot == source.yHeadRot
+                            && replacement.yBodyRot == source.yBodyRot,
+                    "replacement must preserve body and head rotation");
+            helper.assertTrue(replacement.getDeltaMovement().equals(source.getDeltaMovement()),
+                    "replacement must preserve motion");
+            helper.assertTrue(replacementEvent.getSpawnData() != null,
+                    "replacement must preserve schooling group continuity");
+
+            TropicalFish tropical = EntityType.TROPICAL_FISH.create(helper.getLevel());
+            helper.assertTrue(tropical != null, "Tropical Fish fixture must construct");
+            tropical.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 0.5D,
+                    0.0F, 0.0F);
+            MobSpawnEvent.FinalizeSpawn excludedEvent = newFinalizeSpawn(helper, tropical, absolute,
+                    MobSpawnType.NATURAL, null);
+            manager.onFinalizeSpawn(excludedEvent);
+            helper.assertTrue(!excludedEvent.isSpawnCancelled(),
+                    "unsupported vanilla aquatic species must remain unchanged");
+
+            Cod eggSource = EntityType.COD.create(helper.getLevel());
+            helper.assertTrue(eggSource != null, "vanilla Cod egg fixture must construct");
+            eggSource.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 3.5D,
+                    0.0F, 0.0F);
+            eggSource.setCustomName(Component.literal("egg source cod"));
+            setSpawnTypeForTest(eggSource, MobSpawnType.SPAWN_EGG);
+            EntityJoinLevelEvent eggEvent = new EntityJoinLevelEvent(eggSource, helper.getLevel());
+            manager.onEntityJoin(eggEvent);
+            helper.assertTrue(eggEvent.isCanceled(),
+                    "vanilla Cod spawn egg must convert through the join path");
+            helper.assertTrue(helper.getLevel().getEntitiesOfClass(AtlanticCodEntity.class,
+                    new AABB(absolute).inflate(5.0D)).stream()
+                            .anyMatch(entity -> entity.hasCustomName()
+                                    && "egg source cod".equals(entity.getCustomName().getString())),
+                    "spawn egg replacement must preserve custom name");
+
+            BfsConfig.COMMON.replaceVanillaMobs.set(false);
+            Salmon unchanged = EntityType.SALMON.create(helper.getLevel());
+            helper.assertTrue(unchanged != null, "vanilla Salmon fixture must construct");
+            unchanged.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 1.5D,
+                    0.0F, 0.0F);
+            MobSpawnEvent.FinalizeSpawn disabledEvent = newFinalizeSpawn(helper, unchanged,
+                    absolute.offset(0, 0, 1), MobSpawnType.CHUNK_GENERATION, null);
+            manager.onFinalizeSpawn(disabledEvent);
+            helper.assertTrue(!disabledEvent.isSpawnCancelled(),
+                    "replacement disabled must preserve vanilla Salmon");
+            helper.assertTrue(helper.getLevel().getEntitiesOfClass(AtlanticSalmonEntity.class,
+                    new AABB(absolute).inflate(2.0D)).isEmpty(),
+                    "replacement disabled must not add Atlantic Salmon");
+            helper.succeed();
+        } finally {
+            BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
+            BfsConfig.COMMON.disableVanillaAquaticSpawns.set(previousSuppression);
+        }
+    }
+
+    private static MobSpawnEvent.FinalizeSpawn newFinalizeSpawn(GameTestHelper helper, Mob mob,
+                                                                  BlockPos position, MobSpawnType reason,
+                                                                  net.minecraft.nbt.CompoundTag spawnTag) {
+        return new MobSpawnEvent.FinalizeSpawn(
+                mob,
+                helper.getLevel(),
+                position.getX(),
+                position.getY(),
+                position.getZ(),
+                helper.getLevel().getCurrentDifficultyAt(position),
+                reason,
+                null,
+                spawnTag,
+                null
+        );
+    }
+
+    private static void setSpawnTypeForTest(Mob mob, MobSpawnType spawnType) {
+        try {
+            java.lang.reflect.Field field = Mob.class.getDeclaredField("spawnType");
+            field.setAccessible(true);
+            field.set(mob, spawnType);
+        } catch (ReflectiveOperationException exception) {
+            throw new AssertionError("unable to set the bounded spawn reason fixture", exception);
+        }
     }
 
     @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)

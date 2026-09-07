@@ -252,6 +252,45 @@ class ReleaseContractAuditTest {
     }
 
     @Test
+    void vanillaFishReplacementContractIsExplicit() throws IOException {
+        String config = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/config/BfsConfig.java"));
+        String manager = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/spawn/MobCapManager.java"));
+        String policy = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/spawn/VanillaFishReplacementPolicy.java"));
+        String categories = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/init/ModMobCategories.java"));
+        String platform = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/platform/ForgePlatformHelper.java"));
+
+        assertTrue(config.contains(".worldRestart()\n                    .define(\"replace_vanilla_mobs\", true)"));
+        assertTrue(config.contains(".worldRestart()\n                    .define(\"disable_vanilla_aquatic_spawns\", false)"));
+        assertTrue(policy.contains("if (!\"minecraft\".equals(namespace)) {\n            return null;\n        }"));
+        assertTrue(policy.contains("case \"cod\" -> Replacement.ATLANTIC_COD"));
+        assertTrue(policy.contains("case \"salmon\" -> Replacement.ATLANTIC_SALMON"));
+        assertTrue(manager.contains("MobSpawnType.NATURAL"));
+        assertTrue(manager.contains("MobSpawnType.CHUNK_GENERATION"));
+        assertTrue(manager.contains("MobSpawnType.SPAWN_EGG"));
+        assertTrue(manager.contains("MobSpawnType.DISPENSER"));
+        assertTrue(manager.contains("copySafeSpawnState(original, replacement, event.getSpawnTag())"));
+        assertTrue(manager.contains("data.remove(\"Passengers\")"));
+        assertTrue(manager.contains("data.remove(\"Leash\")"));
+        assertTrue(manager.indexOf("replaceNaturalFish(event)")
+                < manager.indexOf("disableVanillaAquaticSpawns.get()"));
+        assertTrue(manager.contains("REPLACEMENT_CATEGORY_ERROR_REPORTED.compareAndSet(false, true)"));
+        assertTrue(manager.contains("event.setSpawnCancelled(true)"));
+        assertTrue(categories.contains("BFS_WATER_AMBIENT"));
+        assertTrue(platform.contains("MobCategory.WATER_AMBIENT"));
+        assertTrue(platform.contains("registerAtlanticCod"));
+        assertTrue(platform.contains("registerAtlanticSalmon"));
+
+        Path modifierDir = GENERATED.resolve("data/bensfintasticsharks/forge/biome_modifier");
+        assertTrue(Files.exists(modifierDir.resolve("atlantic_cod_spawns.json")));
+        assertTrue(Files.exists(modifierDir.resolve("atlantic_salmon_spawns.json")));
+    }
+
+    @Test
     void fishItemRecipeLootAndCreativeContractsAreComplete() throws IOException {
         String items = Files.readString(ROOT.resolve(
                 "common/src/main/java/tfar/bensfintasticsharks/init/ModItems.java"));

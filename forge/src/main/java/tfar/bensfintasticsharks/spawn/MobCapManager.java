@@ -219,19 +219,7 @@ public class MobCapManager {
             return;
         }
 
-        CompoundTag data = new CompoundTag();
-        original.saveWithoutId(data);
-        // A replacement must receive player-authored state such as a custom name and safe
-        // spawn-egg tags, but never the source entity identity or attachment graph. Loading
-        // UUID, position, motion, passengers, or leash data would either collide with the
-        // source or resurrect relationships that were not part of the fish conversion.
-        data.remove("UUID");
-        data.remove("Pos");
-        data.remove("Motion");
-        data.remove("Rotation");
-        data.remove("Passengers");
-        data.remove("Leash");
-        replacement.load(data);
+        copySafeSpawnState(original, replacement, null);
         replacement.moveTo(original.getX(), original.getY(), original.getZ(), original.getYRot(), original.getXRot());
         replacement.setDeltaMovement(original.getDeltaMovement());
         replacement.yHeadRot = original.yHeadRot;
@@ -239,6 +227,26 @@ public class MobCapManager {
         if (event.getLevel().addFreshEntity(replacement)) {
             event.setCanceled(true);
         }
+    }
+
+    private static void copySafeSpawnState(Mob original, Mob replacement, CompoundTag spawnTag) {
+        CompoundTag data = new CompoundTag();
+        original.saveWithoutId(data);
+        if (spawnTag != null) {
+            data.merge(spawnTag.copy());
+        }
+        // A replacement must receive authored state such as a custom name and safe spawn
+        // data, but never source identity or attachment state. Loading UUID, position,
+        // motion, passengers, or leash data would collide with the source or resurrect
+        // relationships that were not part of the fish conversion.
+        data.remove("id");
+        data.remove("UUID");
+        data.remove("Pos");
+        data.remove("Motion");
+        data.remove("Rotation");
+        data.remove("Passengers");
+        data.remove("Leash");
+        replacement.load(data);
     }
 
     private static boolean replaceNaturalFish(MobSpawnEvent.FinalizeSpawn event) {
@@ -266,6 +274,7 @@ public class MobCapManager {
             return false;
         }
 
+        copySafeSpawnState(original, replacement, event.getSpawnTag());
         replacement.moveTo(
                 original.getX(),
                 original.getY(),
