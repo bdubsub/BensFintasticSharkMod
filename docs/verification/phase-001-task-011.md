@@ -83,6 +83,13 @@ The Forge artifact passed `unzip -tqq`. The candidate artifact was
 512
 `db281d4d585fdaa22d0f54ec9c079c650449c71bf4afa00a4db35d3499433b66b22a180d0a8c918e030d2d045546eee0229f253924c9cbb570958c3ea4c630d9`.
 
+That hash belongs to the earlier task 011 evidence artifact. The subsequent
+fishing modifier and shared arrival braking repairs produced a new candidate,
+so the earlier packaged population records are retained as historical evidence
+only. The current artifact hash and current full GameTest result are recorded
+in [Phase 001 task 013](phase-001-task-013.md). A fresh packaged population
+series remains required before the phase integration gate can close.
+
 The disposable `forge/run` GameTest runtime, world, configuration, EULA,
 logs, and debug captures were removed after the final evidence consumer
 completed. The protected pre-existing `forge/logs/` directory and generated
