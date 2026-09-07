@@ -18,6 +18,7 @@ import tfar.bensfintasticsharks.config.BfsConfig;
 import tfar.bensfintasticsharks.entity.BfsVariantHolder;
 import tfar.bensfintasticsharks.init.ModTags;
 import tfar.bensfintasticsharks.spawn.MobCapManager;
+import tfar.bensfintasticsharks.debug.BfsDebugCommands;
 
 import java.util.Locale;
 
@@ -42,6 +43,7 @@ public class BfsCommands {
                         // /bfs help — top-level help
                         .executes(BfsCommands::topHelp)
                         .then(Commands.literal("help").executes(BfsCommands::topHelp))
+                        .then(BfsDebugCommands.createNode())
                         // /bfs summon villager [trade] — creative showcase fisherman
                         .then(BfsVillagerCommand.createNode())
                         // /bfs cap …
@@ -102,6 +104,7 @@ public class BfsCommands {
         line(src, "/bfs cap help", "per-species cap controls (set/get/reset)");
         line(src, "/bfs disturbance <type>", "fire a test light/heavy/blood disturbance at your position");
         line(src, "/bfs reload", "reload config without restarting the server");
+        line(src, "/bfs debug on", "start a bounded server diagnostic capture");
         return 1;
     }
 

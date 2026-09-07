@@ -67,6 +67,12 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
     }
 
     @Override
+    protected float upwardPitchLimitDegrees() { return AquaticMovement.TIGER_UPWARD_PITCH_LIMIT; }
+
+    @Override
+    protected float downwardPitchLimitDegrees() { return AquaticMovement.TIGER_DOWNWARD_PITCH_LIMIT; }
+
+    @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_VARIANT, 0);

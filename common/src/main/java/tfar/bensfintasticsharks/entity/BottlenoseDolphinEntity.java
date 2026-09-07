@@ -41,6 +41,7 @@ public class BottlenoseDolphinEntity extends BfsAquaticEntity<BottlenoseDolphinE
 
     protected BottlenoseDolphinEntity(EntityType<BottlenoseDolphinEntity> type, Level level) {
         super(type, level);
+        this.moveControl = new SharkSwimmingMoveControl(this, 1f / 8f);
         this.airTicks = 600 + level.getRandom().nextInt(601);
     }
 

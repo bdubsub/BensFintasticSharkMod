@@ -1,0 +1,1796 @@
+{
+  "schema": "bfs.phase000.evidence.v1",
+  "phase": "BFS-PHASE-000",
+  "revision": {
+    "phase_branch": "envy/0.24-phase-000",
+    "phase_commit": "59d3912108642eadb927b8a095a9e6d4fd4bced6",
+    "canonical_branch": "1.20.1",
+    "canonical_ref": "origin/1.20.1",
+    "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
+    "work_ref": "origin/envy/0.24",
+    "work_commit": "a4d4e41511ab47a05f27d72387075e21a5ef3cb5",
+    "main_branch_present": false,
+    "master_branch_present": false
+  },
+  "host_policy": {
+    "node-1": "headless build, deterministic verification, packaging, and dedicated server tasks only; no windowed game sessions",
+    "linux_laptop": "required host for client rendering, interactive visual review, and windowed GameTest sessions"
+  },
+  "protected_dirty_state": {
+    "original_worktree": {
+      "build.gradle": {
+        "working_tree_sha256": "71fcd9ca04c96389a97202347bf4230008a0a149c96a6c77da84a0cde187ebf2",
+        "working_tree_git_blob": "9fdd5f8c915a46caed327b1f709795f3ebc82255",
+        "head_git_blob": "81bed49d28dd8764d2b15dd91eaf09cf0a03305e",
+        "classification": "line ending only"
+      },
+      "common/src/generated/resources/.cache/06b1ebdc5509e6429aa0a2f04ab3f606ab1fda5e": {
+        "working_tree_sha256": "61caabe8c713ec0e4e464a8259e9b07830cac041e21db5544bfb7c7ec9bfc3c2",
+        "working_tree_git_blob": "8e10f4077973cab93ef249b93b9d3c6b7020a266",
+        "head_git_blob": "6d78e4d7e26fe22f13f4b3cd0dbe788e7572db74"
+      },
+      "common/src/generated/resources/.cache/103d9f3f36b01595f1aa5172191e60eff02e6924": {
+        "working_tree_sha256": "9bf9c1e3c3ad48a7643ecaa4739947080f09c7a5846d9e17fd27375dd573ef34",
+        "working_tree_git_blob": "739ce21847507e7794c8e809f76c5f08597f2630",
+        "head_git_blob": "289b42c218ff0ecd15095dab0e3fc37a99bb1265"
+      },
+      "common/src/generated/resources/.cache/59eb3dbb5f86130e09b3c62d89b9525ee01cf52d": {
+        "working_tree_sha256": "c9b6407ff0aab2bdeae934a0f312c6fe330495b4676c7205c40256b19cd89213",
+        "working_tree_git_blob": "2eaf7f764b2b49480c4602078e6a86b178616849",
+        "head_git_blob": "3589523eaa984bde548c16348df77a568368af73"
+      },
+      "common/src/generated/resources/.cache/6355c9590ee25603929abf26c75a332d9588a284": {
+        "working_tree_sha256": "2c47e14c0b41d6619f16497c55dcee557e95be5cee945de4500db69759f121f0",
+        "working_tree_git_blob": "f0580c19877b2ecc239aff39ac1e8c55a048540b",
+        "head_git_blob": "5b55a5844339ae10f0594919495cc6f383bee1b6"
+      },
+      "common/src/generated/resources/.cache/739d2feb9960800afec6317e23ff52b218887ce1": {
+        "working_tree_sha256": "4868a277e5c0fb9d98bc7e961d2a8af4a134b791ac65b0581db2461dcf70fd20",
+        "working_tree_git_blob": "273a5d9c63b7c4b675632c4534624f3f0a25fe17",
+        "head_git_blob": "0ef3886e35b87162a1146641a703bef1679a567d"
+      },
+      "common/src/generated/resources/.cache/c622617f6fabf890a00b9275cd5f643584a8a2c8": {
+        "working_tree_sha256": "e2a77d202c139148e3da76be4f83df43476c9cbe482fa4d96e8ca6597de8aa7c",
+        "working_tree_git_blob": "a30e0ce2bc2d82bfd4b130430c6a4ab4dd2ce2a4",
+        "head_git_blob": "c7ab0af89fe994e5c47e2122a63991ff9b35afc6"
+      },
+      "common/src/generated/resources/.cache/c8cb2bd3a37f08f6158242942ad14b8041c48f8a": {
+        "working_tree_sha256": "488a4e816b6db64befb82ebc3d5f7a39510d09eece5227da9c9d79cea5fa7c49",
+        "working_tree_git_blob": "0b54aa4cd4d77e7fdaaacc7c92442e9dc0d8e4d0",
+        "head_git_blob": "1219999f4776f01ff1ada2a2e8ed54e93c905f07"
+      },
+      "common/src/generated/resources/.cache/e481799ad5073aa219264694871e092615972ff7": {
+        "working_tree_sha256": "29e224eb82588d5bb057c4f4513446512f0bb26118485fb8b460d70a711fe8db",
+        "working_tree_git_blob": "5e6a1ccd87061e84d6d1a762f2b69557cea706c1",
+        "head_git_blob": "620f07e3b23de22ac3ba9f57ee4210e39f6f8237"
+      },
+      "common/src/generated/resources/.cache/e5c5eb35b4ba40351ecb7d9f04c3527f2f5779b0": {
+        "working_tree_sha256": "ff36b90d064b5a35c7decb8b1099421dccb426ba2f9a2c37d009f7ad2cfcc6ac",
+        "working_tree_git_blob": "d24f611f600c2ff5f5d7c76fc572c2a91fe6c362",
+        "head_git_blob": "445f239f1d9e0389f912ec11e3b80295b6430511"
+      }
+    },
+    "content_directory": "covered by the archive and loose asset fingerprints above",
+    "staged_phase_paths": []
+  },
+  "inputs": {
+    "screenshot": {
+      "source_id": "SRC-006",
+      "sha256": "02bdee8362de4c1e7d1fb874899a85321e8f95287d6b686fa945298fd583a59a",
+      "dimensions": "1328x115"
+    },
+    "archives": [
+      {
+        "path": "Content/BFS 0.23 Content.zip",
+        "sha256": "1dcfd0db544184bffd467255ba294b57f0a1376b06023f10034f380b9e5d0eaa",
+        "member_count": 19,
+        "members": [
+          {"path": "BFS 0.23 Content/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "BFS 0.23 Content/Atlantic Cod/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "BFS 0.23 Content/Atlantic Cod/atlantic_cod.animation.json", "type": "file", "crc32": "b8a9c28a", "size": 10514, "sha256": "efd3e6231ca130f5b28d0e87225960e7877b85cc1fb0407e6d7404cc3c4a04ad"},
+          {"path": "BFS 0.23 Content/Atlantic Cod/atlantic_cod.geo.json", "type": "file", "crc32": "fdb3299b", "size": 13789, "sha256": "ef54d1552d53d530cf1b08d2566cc1fc4544b4022df750adc54038af2a5aa8cc"},
+          {"path": "BFS 0.23 Content/Atlantic Cod/atlantic_cod.png", "type": "file", "crc32": "287cc5e7", "size": 3063, "sha256": "ed3987ecb2a1b21ebfdc6c63ce65e8431b4cd717ee1bf3567711ce9183b25ad4", "dimensions": "80x80"},
+          {"path": "BFS 0.23 Content/Atlatnic Salmon/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "BFS 0.23 Content/Atlatnic Salmon/atlantic_salmon.animation.json", "type": "file", "crc32": "ab62451c", "size": 9922, "sha256": "19a5463fb83ce1fd9329125365f733a0ff715abdb5f06c6de5e7f1ccfff18648"},
+          {"path": "BFS 0.23 Content/Atlatnic Salmon/atlantic_salmon.geo.json", "type": "file", "crc32": "72b63a6f", "size": 27513, "sha256": "e9af49fbf1b954db868d1b93de5dae7c14645081512534dba871a13a59e98ff6"},
+          {"path": "BFS 0.23 Content/Atlatnic Salmon/atlantic_salmon.png", "type": "file", "crc32": "017db6a0", "size": 4790, "sha256": "0719e6aec5c2936480856ba8ad7d382b2f7a62697faf0131622ba8adc8f4849b", "dimensions": "128x128"},
+          {"path": "BFS 0.23 Content/BFS 0.23 Notes for Coder.txt", "type": "file", "crc32": "9a6fc6ef", "size": 1337, "sha256": "9a8042c18739b65e00b8c81c1698d7f1ab483fb49d4917c267c26ffc71ebe518"},
+          {"path": "BFS 0.23 Content/New Items/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "BFS 0.23 Content/New Items/Atlantic Cod Spawn Egg.png", "type": "file", "crc32": "416e490e", "size": 411, "sha256": "f34698d4115fe66dcd77b5c739bf8ad879959d1670d875c4de81b174653a32d5", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/New Items/Atlantic Salmon Spawn Egg.png", "type": "file", "crc32": "6756069e", "size": 420, "sha256": "9999a81aa0c294aefa8a23df525a6d079b2c16514c94b6020fcc0fef43cb1542", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/New Items/Cooked Atlantic Cod.png", "type": "file", "crc32": "1d1f6845", "size": 479, "sha256": "51769694f3cd9ac8565c327158f464532c11c6541c8374549b998dc1adf8a6c1", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/New Items/Cooked Atlantic Salmon.png", "type": "file", "crc32": "b3574356", "size": 460, "sha256": "ff82528016ad8bb8a34454fc935b324b22f7552b4e4311d538132cc39189e2f1", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/New Items/Raw Atlantic Cod.png", "type": "file", "crc32": "623fdea3", "size": 440, "sha256": "15bd270d1d10ee9fe23d84a57b06c5f7d14c5da6accef10802238d61cedf2326", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/New Items/Raw Atlantic Salmon.png", "type": "file", "crc32": "fd11faec", "size": 464, "sha256": "85f66a2ef9ac43a50f1872aefdab3bf39f0b8f377d5b803b13674ac96bd75994", "dimensions": "16x16"},
+          {"path": "BFS 0.23 Content/Oceanic Whitetip Animations New/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "BFS 0.23 Content/Oceanic Whitetip Animations New/oceanicwhitetipshark.animation.json", "type": "file", "crc32": "cb15a6e1", "size": 26865, "sha256": "dece327b4655f89d1f79ae463f05a6a3d3683cc2f7eb9550205e8b199d700e86"}
+        ]
+      },
+      {
+        "path": "Content/BFS 0.24 Content.zip",
+        "sha256": "25290e8d019339aff68c8ba168bd750d5c445aa915720d249aeed5700c9f3274",
+        "member_count": 9,
+        "members": [
+          {"path": "Advancement Icons Remaster/", "type": "directory", "crc32": "00000000", "size": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+          {"path": "Advancement Icons Remaster/Awkward Advancement Icon 16x.png", "type": "file", "crc32": "b93beb17", "size": 560, "sha256": "e5e531f62b458fea3ab50b1e61abc4504c75453fa7cd06c8640aabf794b0abd1", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Its A Shiny Advancement Icon 16x.png", "type": "file", "crc32": "f191897b", "size": 491, "sha256": "e0638a22ee40480f03a7e4361ff324e4a8d9b1cb93590a2ec695b2830f79ab76", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Mommy Shark Advancement 16x.png", "type": "file", "crc32": "41b62a57", "size": 536, "sha256": "58fb46c5267ea9b6e027fdaf4532ad2d76de7dcf75aa046367f3720f18c00cde", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Sharks Galore Advancement Icon 16x.png", "type": "file", "crc32": "a44cafd1", "size": 293, "sha256": "11f66a72567bb8ae16aa2022ca21778d43eb0d0fcbb531b21d34e03fa4e020f6", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Sleeping With The Fishes Advancement Icon 16x.png", "type": "file", "crc32": "3df200e8", "size": 684, "sha256": "6c01085423275d602fbad91924a8772249c1a8dbeee749f5e1e9907df0995977", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Specimen8 Advancement Icon 16x.png", "type": "file", "crc32": "eb0e3212", "size": 576, "sha256": "88f6dc345a7c399034142cf2bebc54fdd488e41b9f36f19d470806d393c1fc65", "dimensions": "16x16"},
+          {"path": "Advancement Icons Remaster/Thunder Bringer Advancement 16x.png", "type": "file", "crc32": "a4b83c36", "size": 477, "sha256": "4f54793625dc71ab456ca58de55b6bfe015f586c81930d11b72d5a3d6942595d", "dimensions": "16x16"},
+          {"path": "bfscontent0.24.txt", "type": "file", "crc32": "51f18328", "size": 379, "sha256": "831cf974a07a7737238a6d1fdc72267d83667b24d1723481dbaa74d479d81de1"}
+        ]
+      }
+    ],
+    "loose_algae": [
+      {"path": "Content/Algae Textures/algea_block.png", "dimensions": "16x16", "sha256": "562c9b1a75c2f9ed912c22b0f424651792a3df02ea96bf72b8b5cb6a59ba7392"},
+      {"path": "Content/Algae Textures/biggreenalgea_strip.png", "dimensions": "16x160", "sha256": "6818750169255d1fd99f33f3363c96157ef5355f2fe8663ba78f3f344ef7f0ab"},
+      {"path": "Content/Algae Textures/bigredalgea_1.png", "dimensions": "16x16", "sha256": "818238e574a12e13050fb1b3897d5901a332be422c8779ce0095eded6f99d204"},
+      {"path": "Content/Algae Textures/bigredalgea_2.png", "dimensions": "16x16", "sha256": "818238e574a12e13050fb1b3897d5901a332be422c8779ce0095eded6f99d204"},
+      {"path": "Content/Algae Textures/bigredalgea_3.png", "dimensions": "16x16", "sha256": "818238e574a12e13050fb1b3897d5901a332be422c8779ce0095eded6f99d204"},
+      {"path": "Content/Algae Textures/bigredalgea_4.png", "dimensions": "16x16", "sha256": "49d1246b44d22bc572f140214cc2ffe05cb3fffd7f4d078dcd97318521d0903d"},
+      {"path": "Content/Algae Textures/bigredalgea_5.png", "dimensions": "16x16", "sha256": "49d1246b44d22bc572f140214cc2ffe05cb3fffd7f4d078dcd97318521d0903d"},
+      {"path": "Content/Algae Textures/bigredalgea_6.png", "dimensions": "16x16", "sha256": "49d1246b44d22bc572f140214cc2ffe05cb3fffd7f4d078dcd97318521d0903d"},
+      {"path": "Content/Algae Textures/bigredalgea_7.png", "dimensions": "16x16", "sha256": "bc8431c1432f863de7635d03b3c70dd66dda30d80dd44379076d24d162379a77"},
+      {"path": "Content/Algae Textures/bigredalgea_8.png", "dimensions": "16x16", "sha256": "bc8431c1432f863de7635d03b3c70dd66dda30d80dd44379076d24d162379a77"},
+      {"path": "Content/Algae Textures/bigredalgea_9.png", "dimensions": "16x16", "sha256": "bc8431c1432f863de7635d03b3c70dd66dda30d80dd44379076d24d162379a77"},
+      {"path": "Content/Algae Textures/bigredalgea_strip.png", "dimensions": "16x144", "sha256": "ad9c3abbd801de619c1d8e14b53b3ec0e74bb21c47da1e980bca553210f8110c"},
+      {"path": "Content/Algae Textures/greenbigalgea_1.png", "dimensions": "16x16", "sha256": "852cc1899f2756b241eaf7bad1aea675e0a00ab9b60de9a867da8496c43c1096"},
+      {"path": "Content/Algae Textures/greenbigalgea_10.png", "dimensions": "16x16", "sha256": "0900b4ade7560b4e9e94caa3895f2b076a732801d4765df0b55effbecb316525"},
+      {"path": "Content/Algae Textures/greenbigalgea_2.png", "dimensions": "16x16", "sha256": "0fe9c99166e5f52e2ec49ab435ed9eb001a7c3b2db72c9553f62d273e8436ccf"},
+      {"path": "Content/Algae Textures/greenbigalgea_3.png", "dimensions": "16x16", "sha256": "0fe9c99166e5f52e2ec49ab435ed9eb001a7c3b2db72c9553f62d273e8436ccf"},
+      {"path": "Content/Algae Textures/greenbigalgea_4.png", "dimensions": "16x16", "sha256": "76d85b975460493cc142f629106c56e6dafe0a0888095d124da148fd88a2e177"},
+      {"path": "Content/Algae Textures/greenbigalgea_5.png", "dimensions": "16x16", "sha256": "76d85b975460493cc142f629106c56e6dafe0a0888095d124da148fd88a2e177"},
+      {"path": "Content/Algae Textures/greenbigalgea_6.png", "dimensions": "16x16", "sha256": "76d85b975460493cc142f629106c56e6dafe0a0888095d124da148fd88a2e177"},
+      {"path": "Content/Algae Textures/greenbigalgea_7.png", "dimensions": "16x16", "sha256": "93450e1856167cddfe967f71a3ae240b1074adf983508bfa7ae1be62be2a32fc"},
+      {"path": "Content/Algae Textures/greenbigalgea_8.png", "dimensions": "16x16", "sha256": "93450e1856167cddfe967f71a3ae240b1074adf983508bfa7ae1be62be2a32fc"},
+      {"path": "Content/Algae Textures/greenbigalgea_9.png", "dimensions": "16x16", "sha256": "0900b4ade7560b4e9e94caa3895f2b076a732801d4765df0b55effbecb316525"}
+    ]
+  },
+  "destination_mapping": {
+    "icon_destinations": [
+      {"source": "Awkward Advancement Icon 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/harbor_seal_block.png", "sha256": "e5e531f62b458fea3ab50b1e61abc4504c75453fa7cd06c8640aabf794b0abd1"},
+      {"source": "Its A Shiny Advancement Icon 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/albino.png", "sha256": "e0638a22ee40480f03a7e4361ff324e4a8d9b1cb93590a2ec695b2830f79ab76"},
+      {"source": "Sharks Galore Advancement Icon 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/sharks_galore.png", "sha256": "11f66a72567bb8ae16aa2022ca21778d43eb0d0fcbb531b21d34e03fa4e020f6"},
+      {"source": "Sleeping With The Fishes Advancement Icon 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/sleeping_with_the_fishes.png", "sha256": "6c01085423275d602fbad91924a8772249c1a8dbeee749f5e1e9907df0995977"},
+      {"source": "Specimen8 Advancement Icon 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/specimen_8.png", "sha256": "88f6dc345a7c399034142cf2bebc54fdd488e41b9f36f19d470806d393c1fc65"},
+      {"source": "Mommy Shark Advancement 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/mommy_shark.png", "sha256": "58fb46c5267ea9b6e027fdaf4532ad2d76de7dcf75aa046367f3720f18c00cde"},
+      {"source": "Thunder Bringer Advancement 16x.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/item/zippy_pixel_art.png", "sha256": "4f54793625dc71ab456ca58de55b6bfe015f586c81930d11b72d5a3d6942595d"}
+    ],
+    "algae_destinations": [
+      {"source": "Content/Algae Textures/algea_block.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/block/algae_block.png", "sha256": "562c9b1a75c2f9ed912c22b0f424651792a3df02ea96bf72b8b5cb6a59ba7392"},
+      {"source": "Content/Algae Textures/biggreenalgea_strip.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/block/large_green_algae.png", "sha256": "6818750169255d1fd99f33f3363c96157ef5355f2fe8663ba78f3f344ef7f0ab"},
+      {"source": "Content/Algae Textures/bigredalgea_strip.png", "destination": "common/src/main/resources/assets/bensfintasticsharks/textures/block/large_red_algae.png", "sha256": "ad9c3abbd801de619c1d8e14b53b3ec0e74bb21c47da1e980bca553210f8110c"}
+    ],
+    "animation_disposition": {
+      "atlantic_cod": "source MoLang channels are deterministically baked into numeric time maps; clip names and lengths are retained",
+      "atlantic_salmon": "source MoLang channels are deterministically baked into numeric time maps; clip names, lengths, and exact Spin name are retained",
+      "oceanic_whitetip_shark": "source leftFin and rightFin channels map to the existing Fin and Fin2 geometry bones; source MoLang channels are deterministically baked"
+    }
+  },
+  "verification": {
+    "asset_mapping": "passed, all supplied Cod, Salmon, fish item, and seven advancement icon destinations matched; geometry comparison passed after the documented Cod identifier correction",
+    "forge_test": "passed",
+    "junit_calibration": "passed, temporary known-bad fixture returned nonzero with an assertion failure and was removed; clean test rerun passed",
+    "forge_data": "passed, 302 generated files, no generated JSON drift",
+    "forge_gametest": "passed on three consecutive isolated runs with 9 required tests across bfs_combat, bfs_baseline, and bfs_movement, including algae placement, survival, removal, and direct self-drop loot, Tiger Shark item pursuit, delayed bite damage, bite cooldown, target loss recovery, Oceanic Whitetip grab damage and release, Dolphin parity vertical movement for ascent and descent, and Atlantic Cod scaled pitch at 2026-09-04 03:57:13, 2026-09-04 03:57:49, and 2026-09-04 03:58:26; the Dolphin reference fixture is outside the Tiger predator-flee radius and the monotonicity assertion records sampled heights and offsets; the algae loot fixture uses the server-level drop-enabled destroy path; earlier runs exposed and fixed a single-sample Tiger item timing race, predator-flee interference, and a drop-suppression mistake",
+    "algae_loot_gametest": {
+      "status": "passed",
+      "test": "bfs_baseline.algaeBreakDropsTheBrokenForm",
+      "command": "./gradlew :forge:GameTestServer --no-daemon --rerun-tasks",
+      "source_revision": "14257d188a9340da17095c3f6d914269aba10c37",
+      "required_suite_test_count": 9,
+      "fixture": "The test places ModBlocks.ALGAE_BLOCK in the prepared water column, destroys it through ServerLevel.destroyBlock with drops enabled, and asserts the actual ModBlocks.ALGAE_BLOCK item entity within two blocks.",
+      "calibration": {
+        "log": "/tmp/bfsm-phase000-gametest-algae-loot-1-20260904.log",
+        "observed": "The initial helper.destroyBlock calibration failed with the expected missing-item assertion because GameTestHelper suppresses drops.",
+        "counted_as_passing": false
+      },
+      "isolated_runs": [
+        {
+          "completed_at": "2026-09-04 03:57:13",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-2-20260904.log",
+          "log_sha256": "7e47400834299ed581eb3d32d0a56c8a166edbf00f156752bc16d93fc6c45d81",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        },
+        {
+          "completed_at": "2026-09-04 03:57:49",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-3-20260904.log",
+          "log_sha256": "7b44d11ac07aaf6fbf94911ed9243b0a3b7f6c4fafbbf176cb48394d8c7eee3b",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        },
+        {
+          "completed_at": "2026-09-04 03:58:26",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-4-20260904.log",
+          "log_sha256": "8d84b87aee48853ae378a73a107d19e504b73f77de1cb426ca1f6d24976d0194",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        }
+      ],
+      "result": "The corrected server-level drop path produced the expected algae item entity in all three independent suite runs."
+    },
+    "movement_regression": {
+      "status": "passed",
+      "test": "bfs_movement.sharkVerticalRouteFollowsDolphinWithoutOrbit and bfs_movement.sharkDescendingRouteFollowsDolphinWithoutOrbit",
+      "command": "./gradlew :forge:GameTestServer --no-daemon --rerun-tasks",
+      "observed": "The shark followed the same smooth constant vertical route as the Bottlenose Dolphin reference without repeated direction reversal or circular horizontal orbiting.",
+      "implementation": "SharkSwimmingMoveControl now uses SmoothSwimmingMoveControl with the Dolphin parameters and preserves yaw during vertical-only targets.",
+      "required_test_count": 9,
+      "source_revision": "14257d188a9340da17095c3f6d914269aba10c37",
+      "implementation_revision": "0f5f07148844119c46592a00d325ec639cb845e4",
+      "completed_at": "2026-09-04 03:58:26",
+      "repeat_runs": [
+        "2026-09-03 11:29:24",
+        "2026-09-03 11:29:56",
+        "2026-09-03 11:33:59",
+        "2026-09-04 01:04:52",
+        "2026-09-04 01:10:22",
+        "2026-09-04 03:38:47",
+        "2026-09-04 03:39:28",
+        "2026-09-04 03:40:02",
+        "2026-09-04 03:57:13",
+        "2026-09-04 03:57:49",
+        "2026-09-04 03:58:26"
+      ],
+      "historical_isolated_runs": [
+        {
+          "completed_at": "2026-09-04 03:38:47",
+          "log": "/tmp/bfsm-phase000-gametest-20260904-isolation1.log",
+          "log_sha256": "b65171e12ff717cfe5e5f0c4d6f85920c328668b3dec948106e5a24e10827b39",
+          "exit_code": 0
+        },
+        {
+          "completed_at": "2026-09-04 03:39:28",
+          "log": "/tmp/bfsm-phase000-gametest-20260904-isolation2.log",
+          "log_sha256": "876d149b18514bc13a1e183c6f0ccb2e307769b51a6d8564aff29bf6d6126368",
+          "exit_code": 0
+        },
+        {
+          "completed_at": "2026-09-04 03:40:02",
+          "log": "/tmp/bfsm-phase000-gametest-20260904-isolation3.log",
+          "log_sha256": "387f3ee75207bbf3d7f424c643090207ff31cd6d3b6af2163408c6781ba7ea81",
+          "exit_code": 0
+        }
+      ],
+      "isolated_runs": [
+        {
+          "completed_at": "2026-09-04 03:57:13",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-2-20260904.log",
+          "log_sha256": "7e47400834299ed581eb3d32d0a56c8a166edbf00f156752bc16d93fc6c45d81",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        },
+        {
+          "completed_at": "2026-09-04 03:57:49",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-3-20260904.log",
+          "log_sha256": "7b44d11ac07aaf6fbf94911ed9243b0a3b7f6c4fafbbf176cb48394d8c7eee3b",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        },
+        {
+          "completed_at": "2026-09-04 03:58:26",
+          "log": "/tmp/bfsm-phase000-gametest-algae-loot-4-20260904.log",
+          "log_sha256": "8d84b87aee48853ae378a73a107d19e504b73f77de1cb426ca1f6d24976d0194",
+          "exit_code": 0,
+          "required_tests_passed": 9
+        }
+      ],
+      "fixture_isolation": "The Dolphin reference starts at x=20 while the Tiger route remains at x=4, keeping the reference beyond the 12 block apex predator flee scan and preserving the same four block vertical route.",
+      "failure_diagnostics": "The Dolphin monotonicity assertion includes direction, arrival sample, sample count, sampled heights, horizontal offsets, position, and target."
+    },
+    "forge_build": {
+      "status": "passed",
+      "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "size": 1753884,
+      "sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+      "sha512": "defa9955e0822c0f987d25195e6cbcb0fedf653e271034710bbd83566c3522ed45c5ff96624087b20670a15012b61aa0e265e321ab3620ec11a90a918ab512cf",
+      "zip_integrity": "passed"
+    },
+    "forge_build_latest": {
+      "status": "passed",
+      "source_revision": "14257d188a9340da17095c3f6d914269aba10c37",
+      "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "size": 1760792,
+      "sha256": "9adbaea9e69eb507df6f0935573869ecb72123cb4538203166c829227e2ee8ea",
+      "sha512": "96050d56f185f98e8fad39de12f30829ea956b72d985fc6e9a66b5d8961ef60ab623feb4589bb7ae0502a2368150a059c0fd720c624aa5b5e736d97e8dc2b257a",
+      "zip_integrity": "passed",
+      "verification_log": "/tmp/bfsm-phase000-postalgae-test-build-20260904.log",
+      "verification_log_sha256": "69836023dde8d84d8afd8e1e648efe4c90b1fc380588a534cf8a18ac0df0c1a4"
+    },
+    "dedicated_server": {
+      "status": "passed_ext001_current",
+      "host": "node-1",
+      "connection_endpoint": "node-1.tail28d8bf.ts.net:25576",
+      "worktree": "/mnt/hermes/projects/BFSMOD-phase-000",
+      "branch": "envy/0.24-phase-000",
+      "revision": "5dfade3cd29c7e8623608b4422e5e7ca59500536",
+      "evidence_commit": "0e81b10d8d8aa26d2b1e76a95c1340ce3fc9c8a",
+      "runbook": "docs/test/phase-000-runbook.md",
+      "runbook_sha256": "5d6898aa44424cc5a0e3054476b243f1d2a1c357863d5cdda1b59ebb2536bf86",
+      "target": "forge/run/eula.txt",
+      "pre_state": "absent",
+      "temporary_sha256": "ee27072e4a23e088522f740ddaab0c7c4145c186969e90a86254faa3a5ec5ce6",
+      "command": "timeout --kill-after=15s 90s ./gradlew :forge:Server --no-daemon --args='--port 25576 --nogui'",
+      "ready_marker": "2026-09-03 14:21:33.147 Done (2.585s)!",
+      "exit_code": 124,
+      "termination": "clean server stop and all dimensions saved before timeout at 2026-09-03 14:22:41.569",
+      "port_closed": true,
+      "process_cleared": true,
+      "rollback": "target deleted and absent post-state restored",
+      "eula_changed": true,
+      "authorization_consumed": true,
+      "freshness": "current candidate evidence after fresh owner EULA authorization; source behavior matches the tested movement revision",
+      "evidence": "docs/verification/phase-000-eula-session.md"
+    },
+    "dedicated_server_multiplayer": {
+      "status": "passed_current_candidate_transport",
+      "server_host": "node-1",
+      "server_port": 25578,
+      "rcon_port": 25579,
+      "client_host": "linux_laptop",
+      "client_endpoint": "100.76.164.109:25578",
+      "server_source_revision": "be677cb999437a0dec1c407f92f5cec70da67f92",
+      "client_source_revision": "be677cb999437a0dec1c407f92f5cec70da67f92",
+      "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+      "server_command": "./gradlew :forge:Server --no-daemon --args='--port 25578 --nogui'",
+      "client_command": "./gradlew :forge:Client --no-daemon --args='--username Dev7 --quickPlayMultiplayer 100.76.164.109:25578'",
+      "configuration": {
+        "eula": true,
+        "online_mode": false,
+        "force_gamemode": true,
+        "gamemode": "creative",
+        "enable_command_block": true,
+        "do_daylight_cycle": false,
+        "do_weather_cycle": false,
+        "do_mob_spawning": false
+      },
+      "server_ready_marker": "Done (2.406s)!",
+      "server_log_sha256": "411b85e0e934404d60158449790f4cd9833f276cd1ed991bdc63d8eb58ba9eaf",
+      "client_log_sha256": "359f1324e6cc41be69b6e0b432106395c2254862b590cb84256b048af66ba244",
+      "client_connect_markers": [
+        "Connecting to 100.76.164.109, 25578",
+        "Connected to a modded server.",
+        "Loaded 56 advancements"
+      ],
+      "rcon_setup": [
+        "time set noon",
+        "weather clear",
+        "gamerule doDaylightCycle false",
+        "gamerule doWeatherCycle false",
+        "gamerule doMobSpawning false",
+        "gamerule commandBlockOutput false",
+        "glass and water tank fixture",
+        "player teleport and night vision",
+        "labeled Cod, Salmon, Oceanic Whitetip, and Bottlenose Dolphin summons"
+      ],
+      "window_transport": {
+        "display": "Xwayland :1 on wayland-1",
+        "active_workspace_before": 2,
+        "active_workspace_after": 2,
+        "window_workspace": 3,
+        "capture_command": "DISPLAY=:1 import -window <minecraft_window_id> <capture_path>"
+      },
+      "captures": [
+        {
+          "id": "mp-dedicated-connected-world",
+          "sha256": "3528a1a6e0f9caef3aa3216098f2e848be1d5d87b306b29652c3be57d7726fee",
+          "dimensions": "3800x2290",
+          "observed": "The laptop client rendered the connected dedicated-server world while the window remained hidden on workspace 3."
+        },
+        {
+          "id": "mp-dedicated-entity-fixture",
+          "sha256": "740d1db3fc8eb05b44a3060cc1226b30c2719c4020ff1b1868229f40b5a41107",
+          "dimensions": "3800x2290",
+          "observed": "The laptop client rendered the RCON-built glass tank with Cod, Salmon, Oceanic Whitetip, and Bottlenose Dolphin fixtures."
+        },
+        {
+          "id": "mp-dedicated-rcon-control-probe",
+          "sha256": "db5a52a14b0e0a28510b82f2094c1e8881c9fba1dffba14f80e9288cd2ac20bc",
+          "dimensions": "3800x2290",
+          "observed": "A command issued through node 1 RCON changed the connected laptop player to spectator mode and sent the dedicated server control probe message; the client log received the message while the hidden window stayed on workspace 3."
+        }
+      ],
+      "rcon_control_probe": {
+        "command": "say dedicated server control probe passed",
+        "server_log_marker": "[Rcon] dedicated server control probe passed",
+        "client_log_marker": "[System] [CHAT] [Rcon] dedicated server control probe passed",
+        "server_log_sha256": "25829b164093ee3d77b0ca417c65652034d159ea357f1fbc7828a6bfee17705b",
+        "client_log_sha256": "9a815f8dc8817a09312e7ba3eeddb8b044400e70548e117993484ef9a89d3765"
+      },
+      "current_candidate_reconnect": {
+        "source_revision": "58c3271833dbfae04655925466f1c999541ebaa5",
+        "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+        "artifact_size": 1754031,
+        "artifact_sha256": "31b9166489d50e516d5c8df9eb7b8cd3534fc156eabce54e3385c66249538163",
+        "server_ready_marker": "2026-09-03 21:40:08.001 Done (2.841s)!",
+        "server_join_marker": "2026-09-03 21:41:21.995 Dev7 joined the game",
+        "client_connect_markers": [
+          "2026-09-03 21:41:20.181 Connecting to 100.76.164.109, 25578",
+          "2026-09-03 21:41:21.937 Connected to a modded server.",
+          "2026-09-03 21:41:22.460 Loaded 57 advancements"
+        ],
+        "probe_command": "say dedicated server current candidate probe passed",
+        "probe_server_log_marker": "[Not Secure] [Rcon] dedicated server current candidate probe passed",
+        "probe_client_log_marker": "[System] [CHAT] [Rcon] dedicated server current candidate probe passed",
+        "probe_capture_sha256": "c4c788209a8a0876c4f73b09c15b3a920afced0eeb7ce7c938bea448639117b",
+        "probe_capture_dimensions": "3800x2290",
+        "server_log_sha256": "666d95aed6c036f860ed44c415914a3baf65b27b67261444ca3209fff09ca933",
+        "client_log_sha256": "df61c525cc78b81aabe7d3b59d28e727472a74b11b077f01471e6f8425f117fe"
+      },
+      "current_candidate_state_probes": {
+        "source_revision": "58c3271833dbfae04655925466f1c999541ebaa5",
+        "phase_branch": "envy/0.24-phase-000",
+        "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+        "artifact_size": 1754031,
+        "artifact_sha256": "31b9166489d50e516d5c8df9eb7b8cd3534fc156eabce54e3385c66249538163",
+        "server_host": "node-1",
+        "server_port": 25578,
+        "server_log_sha256": "afc164aabea7b208985d32d60c991cb6b4a054757f26a0ea7da35b57a29aaf6a",
+        "client_host": "linux_laptop",
+        "client_endpoint": "100.76.164.109:25578",
+        "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+        "client_log_sha256": "6586e0cddc02862276622af57bf4ac8830e2fd099bcabd25bd25294b0553999e",
+        "window_transport": {
+          "display": "Xwayland :1 on wayland-1",
+          "active_workspace_before": 2,
+          "active_workspace_after": 2,
+          "window_workspace": 3,
+          "capture_method": "remote import of the laptop Minecraft window without workspace switching"
+        },
+        "captures": [
+          {
+            "id": "mp-cod-idle-clean-current",
+            "kind": "image",
+            "sha256": "3f9101856d71d432a65d9ce07b5dde794bbaca8ee44def7b49d895aa42758e4d",
+            "observed": "The current Cod fixture rendered in the connected laptop client during an idle control."
+          },
+          {
+            "id": "mp-cod-swim-static-clean-current",
+            "kind": "video",
+            "sha256": "b6ecd16a27e3329febdb9ad370ac5f83531af687a5c7827b6924c31b1687740c",
+            "duration_seconds": 6.0,
+            "motion": [0.04, 0.004, 0.01],
+            "observed": "A clean server-issued Cod swim vector was reapplied during the connected-client capture."
+          },
+          {
+            "id": "mp-salmon-idle-current",
+            "kind": "video",
+            "sha256": "c843d49fab114ce1333b41cfae63a8eb9fc8948ed72723f8e30ccbcb036cb98e",
+            "duration_seconds": 5.0,
+            "observed": "The current Atlantic Salmon idle fixture rendered on the laptop client."
+          },
+          {
+            "id": "mp-salmon-swim-clean-current",
+            "kind": "video",
+            "sha256": "b6c76ed087e73b127a75100c09a857f099221a3a03bc97680834dbfcccfd238d",
+            "duration_seconds": 6.125,
+            "motion": [0.04, 0.004, 0.01],
+            "observed": "The current Salmon swim fixture received a repeated server-issued swim vector while rendered by the laptop client."
+          },
+          {
+            "id": "mp-salmon-fast-current",
+            "kind": "video",
+            "sha256": "a080de4f0f6e46fa88e79298c708d79f67d161fa34f2e6de6dd5af8b66035cac",
+            "duration_seconds": 6.125,
+            "motion": [0.2, 0.02, 0.04],
+            "observed": "The current Salmon fast-swim fixture rendered with the higher server-issued horizontal vector."
+          },
+          {
+            "id": "mp-salmon-spin-current",
+            "kind": "video",
+            "sha256": "9ed0c43971980ee4c7312d0441c109f9255b1a14718ef7382ed84ae0fc2599af",
+            "duration_seconds": 8.125,
+            "observed": "The exact custom name Spin control changed visible Salmon silhouette and orientation across sampled frames."
+          },
+          {
+            "id": "mp-salmon-rename-recovery-current",
+            "kind": "video",
+            "sha256": "a31fb8c383b86be595b307cb8bfd23f9973853eef5b01a65b9944bd0a41cc777",
+            "duration_seconds": 4.0,
+            "observed": "After the Spin name was replaced, the current Salmon returned to the ordinary named state control."
+          },
+          {
+            "id": "mp-salmon-flop-current",
+            "kind": "video",
+            "sha256": "96a704cbc05366d8a73bd959746d0149f8015e198f88ab862460f940e9d504db",
+            "duration_seconds": 5.0,
+            "observed": "The current Salmon land control rendered on a dry stone platform."
+          },
+          {
+            "id": "mp-salmon-death-current",
+            "kind": "video",
+            "sha256": "8b9a034e6c7d5ea18082cb96b2fb1f45c8add04ad3470baa20850f64ede34526",
+            "duration_seconds": 4.125,
+            "observed": "The current Salmon death control was followed by the server damage event and entity removal."
+          },
+          {
+            "id": "mp-oceanic-idle-current",
+            "kind": "video",
+            "sha256": "ed52160bf85e963f179b1e54b229b20794a9027d8e0ef1015a22acacad0f8bcd",
+            "duration_seconds": 6.0,
+            "observed": "The current Oceanic Whitetip idle controller rendered on the laptop client."
+          },
+          {
+            "id": "mp-oceanic-swim-new-current",
+            "kind": "video",
+            "sha256": "92ca2d33b9fd3da48441673687ffd3806c5ef6336e79568f10a3f1a6ad301d37",
+            "duration_seconds": 6.0,
+            "motion": [0.04, 0.004, 0.01],
+            "observed": "The current Oceanic Whitetip swim_new fixture rendered while RCON reapplied the server-issued swim vector."
+          },
+          {
+            "id": "mp-oceanic-fast-target-current",
+            "kind": "video",
+            "sha256": "8b1c5de767e0150184b0db2b0586590aec413307cd96259fd056322354f4ea17",
+            "duration_seconds": 7.125,
+            "observed": "The Oceanic Whitetip fast-target probe reached the Cod fixture and stopped at contact. This is a target-control probe, not a standalone fast-state oracle."
+          },
+          {
+            "id": "mp-oceanic-bite-new-current",
+            "kind": "video",
+            "sha256": "166e3b2136a43b87f03f4e6dd43bbdf7a59ad526246e66a78335cfdbccd4e0ea",
+            "duration_seconds": 10.0,
+            "server_trace": "Cod health decreased from 33.0 to 15.5 during the bounded bite capture while the shark remained at the controlled contact position.",
+            "observed": "The current bite_new fixture has a synchronized server damage timeline and laptop render."
+          },
+          {
+            "id": "mp-oceanic-death-current",
+            "kind": "video",
+            "sha256": "73f2914e9934d730b6e2673bb65bc24aead8a105f49671974fc54c6330ff666d",
+            "duration_seconds": 5.125,
+            "observed": "The current Oceanic Whitetip death control rendered the death pose and was removed after the server damage event."
+          },
+          {
+            "id": "mp-oceanic-beached-current",
+            "kind": "video",
+            "sha256": "433b6ec65e97bb47f30a89231bee10a35f0319ba78e0244ee17e22db0b55f1bf",
+            "duration_seconds": 5.0,
+            "observed": "The current Oceanic Whitetip beached control rendered on the dry stone platform with OnGround true."
+          },
+          {
+            "id": "mp-oceanic-real-grab-current",
+            "kind": "video",
+            "sha256": "9b031ade642c2e1b76d08c40aeb98b85f2ded22e89c13544548b94a767848d44",
+            "duration_seconds": 22.125,
+            "server_trace": "Natural bite contact attached the Cod at 8.10 seconds, passenger damage continued during the grab, and the passenger was released at 13.05 seconds. Cod health decreased from 179.0 at attachment to 160.0 at release.",
+            "observed": "The current connected-client thrash probe proves natural grab, passenger attachment, bounded damage, timer release, and post-release continuation."
+          },
+          {
+            "id": "mp-oceanic-real-grab-final",
+            "kind": "image",
+            "sha256": "89127cd7743290f0aa1d04e22f880f11267e830dc5a8721826c39b4288ae6c09",
+            "observed": "Final laptop hidden-window capture after the natural grab and release probe, collected without changing the active workspace."
+          }
+        ],
+        "motion_ratio": {
+          "normal_swim_vertical_to_horizontal_x": 0.1,
+          "fast_swim_vertical_to_horizontal_x": 0.1,
+          "interpretation": "The command fixtures use the requested approximately 0.10 vertical component ratio. The fixtures establish transport and render attribution; they do not replace per-tick authored-transform and nose-pitch proof."
+        },
+        "limitations": "All probes are disposable RCON-controlled multiplayer fixtures. They strengthen current-candidate attribution and server-client synchronization, but the complete per-clip sample table, continuous body and nose orientation trace, Tiger and Dolphin comparison, sustained population, and cleanup matrix remain open."
+      },
+      "latest_candidate_725bab6": {
+        "status": "passed_dedicated_server_to_laptop_capture",
+        "source_revision": "725bab666d38cd3f05e8e618f02fc96a6b84d7c7",
+        "phase_branch": "envy/0.24-phase-000",
+        "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+        "artifact_size": 1754085,
+        "artifact_sha256": "d478700bd3ea6faab6393e7d658fbdb9c2ecb4a50404d1349c617089dc5579f3",
+        "artifact_sha512": "2077a5f8f4d42f9e2f5de87dbee3288fdb3cf8e47f58da90682a9037ff6850b08821648493e0afb648f6dc447724e199237fbd42b56aa4d82824c379e74dd3d6",
+        "server_host": "node-1",
+        "server_port": 25578,
+        "rcon_port": 25579,
+        "server_worktree": "/mnt/hermes/projects/BFSMOD-phase-000",
+        "server_runtime_path": "/tmp/bfsm-phase000-final-server.r4d6Ox",
+        "world": "phase000-mp-final-2",
+        "client_host": "linux_laptop",
+        "client_endpoint": "100.76.164.109:25578",
+        "client_runtime_path": "/tmp/bfsm-laptop-phase000-mp-src.LmQVw0",
+        "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+        "client_driver": "610.57.04",
+        "configuration": {
+          "eula": true,
+          "online_mode": false,
+          "difficulty": "normal",
+          "do_mob_spawning": false,
+          "spawn_animals": true,
+          "spawn_monsters": true,
+          "pause_on_lost_focus": false
+        },
+        "server_ready_marker": "2026-09-03 23:09:13.050 Done (13.002s)!",
+        "server_join_marker": "2026-09-03 23:20:49.392 Dev7 joined the game",
+        "client_connect_markers": [
+          "2026-09-03 23:20:49.384 Connected to a modded server.",
+          "2026-09-03 23:20:49.877 Loaded 56 advancements"
+        ],
+        "rcon_control_probe": {
+          "command": "say phase 000 multiplayer animation capture complete",
+          "server_log_marker": "2026-09-03 23:24:40.790 [Rcon] phase 000 multiplayer animation capture complete",
+          "client_log_marker": "2026-09-03 23:24:40.807 [System] [CHAT] [Rcon] phase 000 multiplayer animation capture complete"
+        },
+        "server_log_sha256": "98be9a44c11aba062f8ef7e51f4a7629dff535387e7479278f6844cbc738ded5",
+        "client_log_sha256": "b581ec0f0e381742637fc36e367b2e426e6aa3c319303fb72d5a0349b0e434ea",
+        "window_transport": {
+          "display": "Xwayland :1",
+          "active_workspace_before": 2,
+          "active_workspace_after": 2,
+          "window_workspace": 3,
+          "capture_method": "remote import of the laptop Minecraft X11 window without workspace switching",
+          "window_geometry": "3800x2290"
+        },
+        "captures": [
+          {
+            "id": "mp-final-fixtures",
+            "kind": "image",
+            "sha256": "c8744c966a2217f9d2d2c7c353a15443b7c8bdba452660adccd3b2ff5aa6ff1e",
+            "dimensions": "3800x2290",
+            "observed": "The connected laptop client rendered the RCON-built water tank with labeled Oceanic Whitetip and Bottlenose Dolphin fixtures."
+          },
+          {
+            "id": "mp-final-state-a",
+            "kind": "image",
+            "sha256": "73009fa8b52a2b4bf1a9294f7e062c73a9a4bf2a4c04614e7b730365b52862f5",
+            "dimensions": "3800x2290",
+            "server_state": "Oceanic Whitetip at -6,65,0 and Bottlenose Dolphin at 6,65,0 before the capture",
+            "observed": "Both labeled actors rendered in the connected world."
+          },
+          {
+            "id": "mp-final-state-b",
+            "kind": "image",
+            "sha256": "5c8c78679211f6ef44d22b869d90184ad62901faf3049e074f68ed50d9fdefcd",
+            "dimensions": "3800x2290",
+            "server_state": "Oceanic Whitetip at -1,68,0 and Bottlenose Dolphin at 1,62,0 before the capture",
+            "observed": "The second server-controlled state rendered with a different vertical placement and orientation."
+          },
+          {
+            "id": "mp-final-oceanic-dolphin-transport",
+            "kind": "video",
+            "sha256": "77ca225ec607145f7b4024b4e4b8ce92bc619fb1d4408fc502b2279c39fcf77e",
+            "duration_seconds": 12.05,
+            "size_bytes": 31298,
+            "observed": "Laptop X11 transport capture completed; repeated hidden-window backing frames make this transport evidence only, not a continuous motion oracle."
+          }
+        ],
+        "limitations": "This run proves the headless node 1 server, Tailscale client connection, RCON fixture control, laptop rendering, and workspace-safe capture. Controlled state frames do not close the interactive per-clip animation, continuous body and nose orientation, combat, cleanup, or sustained-population gates."
+      },
+      "latest_candidate_8b63360": {
+        "status": "passed_dedicated_server_to_laptop_movement_capture",
+        "source_revision": "8b63360c2c9d95df12ac8d024508dd199ee3fd01",
+        "phase_branch": "envy/0.24-phase-000",
+        "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+        "artifact_size": 1760495,
+        "artifact_sha256": "6887ee5ddf22457193933e56faff1060bad8a767624703061be522fb8851abbc",
+        "artifact_sha512": "afe7d2c5aae62552081bc35f91b509974dbbfe2be33fc4ca03ada70fe061a1d5168cfbe600e27b664dead46cbaaee3c561384cdc95380b4c129ff3253cdff54a",
+        "server_host": "node-1",
+        "server_port": 25578,
+        "rcon_port": 25579,
+        "client_host": "linux_laptop",
+        "client_endpoint": "100.76.164.109:25578",
+        "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+        "configuration": {
+          "eula": true,
+          "online_mode": false,
+          "gamemode": "spectator",
+          "do_mob_spawning": false,
+          "pause_on_lost_focus": false
+        },
+        "server_ready_marker": "2026-09-04 00:28:44.556 Done (12.386s)!",
+        "server_join_marker": "2026-09-04 00:44:57.286 EnVy joined the game",
+        "client_connect_markers": [
+          "2026-09-04 00:44:57.281 Connected to a modded server.",
+          "2026-09-04 00:44:57.767 Loaded 57 advancements"
+        ],
+        "rcon_markers": [
+          "2026-09-04 00:50:14.617 [Rcon] MP_MULTIPLAYER_FIXTURE_VISUAL_PASS",
+          "2026-09-04 00:51:08.930 [Rcon] MP_MULTIPLAYER_RCON_TRACE_PASS"
+        ],
+        "server_log_sha256": "47c217be422ab5170ecc775d548f124868968bedfc2a4755352a57d83e0acec6",
+        "client_log_sha256": "bdfaffc12fd4c1ee849c65fe6aa615951fb3636c067f5a57a5ab3dfd717cf5f5",
+        "window_transport": {
+          "display": "Xwayland :1 on wayland-1",
+          "active_workspace_before": 2,
+          "active_workspace_after": 2,
+          "window_workspace": 3,
+          "capture_method": "remote import of the laptop Minecraft X11 window without workspace switching",
+          "window_geometry": "3800x2290"
+        },
+        "captures": [
+          {
+            "id": "mp-movement-fixture-live3",
+            "kind": "image",
+            "sha256": "c8553a855b0fe4e73f32f2643cb537dc16cf019994b0449b3d70448501439d8c",
+            "dimensions": "3800x2290",
+            "observed": "The laptop client rendered the RCON-controlled water tank with Atlantic Cod, Atlantic Salmon, Tiger Shark, Oceanic Whitetip, and Bottlenose Dolphin fixtures."
+          },
+          {
+            "id": "mp-movement-rcon-trace",
+            "kind": "text",
+            "sha256": "ebaa610d2d1db8247a643e313644f8067bd31be360c1c4322d264550b2570f7b",
+            "samples": 12,
+            "actors": ["mp_dolphin", "mp_cod", "mp_salmon", "mp_tiger", "mp_oceanic"],
+            "fields": ["Pos", "Rotation"],
+            "interval_seconds": 0.25,
+            "observed": "Twelve server-side RCON samples recorded position and yaw and pitch for every labeled fixture while the laptop client was connected."
+          }
+        ],
+        "limitations": "This run proves current source attribution, dedicated-server to laptop transport, server-side fixture control, connected-client rendering, and a server-side movement trace. It does not close the complete authored per-clip animation, continuous body and nose orientation, combat, cleanup, or sustained-population matrices."
+      },
+      "observed": "The node 1 dedicated server accepted the laptop client over Tailscale, RCON commands changed the disposable world and appeared in the laptop chat, and the laptop rendered the resulting entities on the NVIDIA GeForce RTX 5090 Laptop GPU. The control probe also confirmed a server command reached the connected client without a singleplayer world.",
+      "admissibility": "admissible for dedicated-server-to-laptop multiplayer setup and hidden-window render transport; controlled fixtures do not close animation, combat, cleanup, or sustained-population matrices"
+    },
+    "client_laptop_window": {
+      "status": "passed_laptop_render_and_hidden_window_capture",
+      "host": "linux_laptop",
+      "source_revision": "be677cb999437a0dec1c407f92f5cec70da67f92",
+      "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+      "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "driver": "610.57.04",
+      "display": "Xwayland :1 on wayland-1",
+      "active_workspace_before": 2,
+      "active_workspace_after": 2,
+      "window_workspace": 3,
+      "window_geometry": "3840x2290 capture from a 1920x1145 floating Minecraft window",
+      "capture_command": "DISPLAY=:1 import -window <minecraft_window_id> <capture_path>",
+      "captures": [
+        {
+          "id": "client-laptop-workspace3-hidden-final",
+          "sha256": "d2d84d84af35e01a726d6f0bde5e9d6980698ffb5ca58a1a7ae854ec9e3cee3f",
+          "dimensions": "3840x2290",
+          "observed": "Current Forge client rendered the disposable ocean fixture and BFS entities while the Minecraft window remained on workspace 3."
+        },
+        {
+          "id": "client-laptop-workspace3-hidden-frame-01",
+          "sha256": "ebcf09ec30c3d16a7d50b5b029a43926a49c55d95e8cecb9ca7892246f12e606",
+          "dimensions": "3840x2290",
+          "observed": "Direct hidden-window capture completed from workspace 3 without changing the active workspace."
+        },
+        {
+          "id": "client-laptop-workspace3-hidden-frame-02",
+          "sha256": "74674f45d9c2f64a1bc356c1a0a63c0ce80a7082f5020bd54f22dcf1c25cb09f",
+          "dimensions": "3840x2290",
+          "observed": "Second direct hidden-window capture completed with active workspace still 2."
+        },
+        {
+          "id": "client-laptop-workspace3-hidden-frame-03",
+          "sha256": "585102d29dd9485e7a375cfa99b2da2b868c4549c19dc98e259755a98268deb0",
+          "dimensions": "3840x2290",
+          "observed": "Third direct hidden-window capture completed with active workspace still 2."
+        },
+        {
+          "id": "client-laptop-workspace3-hidden-frame-04",
+          "sha256": "a16b921f2b7c3e34d318ffe71cf78e9efbbed01f2d11b2d230f2eb01fb84f73d",
+          "dimensions": "3840x2290",
+          "observed": "Fourth direct hidden-window capture completed with active workspace still 2."
+        }
+      ],
+      "admissibility": "admissible for laptop client loading and capture transport; does not close the per-state animation, advancement, algae, population, or multiplayer matrices"
+    },
+    "client_loading": {
+      "status": "historical_headless_smoke_not_admissible_under_laptop_only_policy",
+      "host": "node-1",
+      "source_revision": "ce4918ab3784e308fb639863dbff52f23b00f801",
+      "observed": "OpenGL 4.5 llvmpipe, Forge loading, resource reload, texture atlas completion, and OpenAL initialization completed for the current Phase 000 source. The disposable client was terminated with controlled Ctrl-C after reaching the title screen and an integrated world.",
+      "candidate_artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+      "log": "forge/run/logs/latest.log",
+      "run_command": "DISPLAY=:101 LIBGL_ALWAYS_SOFTWARE=1 ./gradlew :forge:Client --no-daemon --args='--username Dev'",
+      "mod_error_scan": "no mod-specific exception or error observed",
+      "visual_acceptance": "not_proven",
+      "admissibility": "retained for diagnostic history only; rerun on the Linux laptop before phase closure"
+    },
+    "client_interactive": {
+      "status": "historical_node1_capture_not_admissible_under_laptop_only_policy",
+      "host": "node-1",
+      "profile": "fresh disposable Demo World profile",
+      "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
+      "admissibility": "retained for diagnostic history only; all windowed acceptance captures must be collected on the Linux laptop",
+      "captures": [
+        {
+          "id": "client-fresh-advancement-tree",
+          "sha256": "f895c0032e530334a9ffd6d164ccf626ea5a4ce605c66c2a4ca97239452eeab2",
+          "dimensions": "1280x720",
+          "observed": "Fresh profile displayed the Ben's Fintastic Sharks advancement root and child icon column"
+        },
+        {
+          "id": "client-fresh-root-tooltip",
+          "sha256": "c79d4c16a11f34b4b50565b3f95f0574e12ba092bacae3843e50c5adad26488d",
+          "dimensions": "1280x720",
+          "observed": "Ben's Fintastic Sharks root tooltip rendered Achievement granted when logging in with the mod."
+        },
+        {
+          "id": "client-fresh-captains-heir-tooltip",
+          "sha256": "77515e770a79375ba2ab19b62d39c4541efe604e1e8ebdbe21abcb7e57ca3eb1",
+          "dimensions": "1280x720",
+          "observed": "El Capitán's Legacy tooltip rendered Obtain Capitán Ben's Hat."
+        },
+        {
+          "id": "client-fresh-advancement-mod-tree-reloaded",
+          "sha256": "b218310e2e4fd76c41ff0a8c089a5386c80ab27f29500907abd1405167d7ffc6",
+          "dimensions": "1280x720",
+          "observed": "After relaunch, the fresh disposable profile displayed the Ben's Fintastic Sharks tab with its title tooltip, root, and child icon column. The profile had received command-assisted advancement progress, so this capture does not prove natural completion or complete seven-icon coverage."
+        },
+        {
+          "id": "client-fish-controlled-start",
+          "sha256": "58b2563682c28074d3ff98acc2cca656f6cc139c479a74ff3e120316444a1e33",
+          "dimensions": "1280x720",
+          "observed": "A command-assisted bounded water fixture displayed Atlantic Cod and Atlantic Salmon together before capture."
+        },
+        {
+          "id": "client-fish-controlled-video",
+          "kind": "video",
+          "sha256": "d5622e2a92ff2e7cc95276c218bafbb4bd27d8468996e8e89f452e228b5251de",
+          "dimensions": "1280x720",
+          "duration_seconds": 8,
+          "observed": "Cod and Salmon remained visible through the bounded capture. The sampled frames do not establish every required state transition or an unambiguous swim transform."
+        },
+        {
+          "id": "client-salmon-spin-start",
+          "sha256": "05d5f1a4a430562672a91663d38bea8b741d8ba01c8279320f565d6d2ef20d4e",
+          "dimensions": "1280x720",
+          "observed": "The named Spin Salmon control and a Cod control were present in the water fixture."
+        },
+        {
+          "id": "client-salmon-spin-video",
+          "kind": "video",
+          "sha256": "1e8eb4e07fa4f946ad0e5c1adbd49aef7fd0c7e2f60e029de582fbe5d69a8304",
+          "dimensions": "1280x720",
+          "duration_seconds": 6,
+          "observed": "The named Spin Salmon silhouette and orientation varied across sampled frames. This is a positive control for the named state, not a complete animation matrix."
+        },
+        {
+          "id": "client-salmon-spin-spectator-start",
+          "sha256": "9c8bbc8c46b35e8baf71c4b63bde96ac64ab00a6a1fbdf63b797f023898e855b",
+          "dimensions": "1280x720",
+          "observed": "A named Spin Salmon was held in a fixed water fixture and centered from a stationary spectator camera before the state capture."
+        },
+        {
+          "id": "client-salmon-spin-spectator-video",
+          "kind": "video",
+          "sha256": "f5f0ae0d90eefcd8542b3249f16be362400ebd835bfbe942d2c90e54d2d427c9",
+          "dimensions": "1280x720",
+          "duration_seconds": 8,
+          "observed": "The stationary-camera capture keeps the named Spin Salmon in frame and shows repeated silhouette and orientation changes across sampled one-second frames. This is a stronger positive control for the named state, not a complete animation matrix."
+        },
+        {
+          "id": "client-salmon-flop-start",
+          "sha256": "4fd70237c3153333b586df55cc899f0f1a7a141606225c1415fc23c0f74c7069",
+          "dimensions": "1280x720",
+          "observed": "The Salmon flop control was placed on a dry stone platform."
+        },
+        {
+          "id": "client-salmon-flop-video",
+          "kind": "video",
+          "sha256": "6cd8d091cd3f28bc1d2f5e2dd1675192e370c0e7b6f7f94f22314e38c4e738c1",
+          "dimensions": "1280x720",
+          "duration_seconds": 6,
+          "observed": "The land flop control remained visible, but the sampled frames do not provide strong visual displacement proof."
+        },
+        {
+          "id": "client-tiger-curiosity-start",
+          "sha256": "4590967aa04aba832ca8f2cc912757d40b4bb00c6cb5bdfe9c4df6e53fe6db56",
+          "dimensions": "1280x720",
+          "observed": "A Tiger Shark and floating edible Cod item were displayed in the water fixture before the curiosity capture."
+        },
+        {
+          "id": "client-tiger-curiosity-video",
+          "kind": "video",
+          "sha256": "43af598a24396c62d6d7c9a5c57608a19a7a902870854520fffc0d854cccffb7",
+          "dimensions": "1280x720",
+          "duration_seconds": 8,
+          "observed": "The Tiger Shark changed visible position relative to the floating item. The capture does not prove vertical pursuit, contact, damage, or recovery."
+        },
+        {
+          "id": "client-whitetip-cod-health-start",
+          "sha256": "28e77b44c716df75eca6894d55be4bf42543b8bfb23fbe1227bfc123987c53ab",
+          "dimensions": "1280x720",
+          "observed": "A live Cod was present with a command-reported health of 3.0f before the bounded Oceanic Whitetip chase."
+        },
+        {
+          "id": "client-whitetip-cod-health-video",
+          "kind": "video",
+          "sha256": "a82159dbf1c4f733956679c3f40d821a97fdd361c2e25f3e85a850fe494b844a",
+          "dimensions": "1280x720",
+          "duration_seconds": 10,
+          "observed": "The Oceanic Whitetip and Cod were captured in the bounded chase fixture."
+        },
+        {
+          "id": "client-whitetip-cod-health-after",
+          "sha256": "85e80a66383e8012894a0b381d82829367998d7bbf4a562b182a01cbc6da0e72",
+          "dimensions": "1280x720",
+          "observed": "The post-capture command found no Cod entity. This establishes an observed disappearance after the chase, but not a clean damage timeline or bite-state visual oracle."
+        },
+        {
+          "id": "client-fish-current-labeled-video",
+          "kind": "video",
+          "sha256": "fc1e807bbb025cae0abe034738822f87fc567db43e02291cdc661c70f2dfa3e5",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "duration_seconds": 12,
+          "captured_at": "2026-09-03T12:59:14-05:00",
+          "observed": "The current candidate client rendered labeled Atlantic Cod, Atlantic Salmon, and named Spin Salmon actors in one fixed aquarium view. Sampled frames show the actors remaining visible and changing position, but the capture does not establish every required state transition, death presentation, or unambiguous authored transform."
+        },
+        {
+          "id": "client-fish-current-labeled-frame-01",
+          "sha256": "ce51c50441a6ef1f6fa10a7e2f62d534a5e88fcfc5d365813f96a78db8f5b71b",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Initial sampled frame from the current labeled fish control, with Cod, Salmon, and Spin labels visible."
+        },
+        {
+          "id": "client-fish-current-labeled-frame-02",
+          "sha256": "b41448ac84cfcb26a16691e8d8c8e63872a3ec7e2fa1a5011e3c6f3a28eed5f5",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Middle sampled frame from the current labeled fish control, showing changed actor positions while all labels remain attributable."
+        },
+        {
+          "id": "client-fish-current-labeled-frame-03",
+          "sha256": "1d2c3f4fb04f89dba1a17aef019bfec787fe3cb66f525cf6655cd96c42956bfa",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Final sampled frame from the current labeled fish control, showing changed actor positions and the named Spin Salmon still visible."
+        },
+        {
+          "id": "client-cod-idle-labeled-current",
+          "kind": "video",
+          "sha256": "aba6494077f56389832ea7d8967eb8414bdf2fad09afd23836bb2291223eddd0",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "source_revision": "5dfade3cd29c7e8623608b4422e5e7ca59500536",
+          "profile": "phase000_animation_current",
+          "dimensions": "1280x720",
+          "duration_seconds": 5,
+          "captured_at": "2026-09-03T13:54:37-05:00",
+          "observed": "The current Atlantic Cod Forge entity was held in a water fixture with NoAI and NoGravity, and its labeled idle control remained centered and stable for the five second capture. This is an idle-state control only and does not close the full fish animation matrix."
+        },
+        {
+          "id": "client-salmon-spin-close-current",
+          "kind": "video",
+          "sha256": "60b131446d22271f4297a190833ca027213d84e09bcce0b1100764c4c4734bd0",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "source_revision": "5dfade3cd29c7e8623608b4422e5e7ca59500536",
+          "profile": "phase000_animation_current",
+          "dimensions": "1280x720",
+          "duration_seconds": 8,
+          "captured_at": "2026-09-03T13:58:35-05:00",
+          "observed": "The current Atlantic Salmon Forge entity with the exact custom name Spin remained centered in a close stationary-camera water fixture. Sampled frames show repeated silhouette and orientation changes. This is a stronger current-artifact Spin control, not the complete fish state matrix."
+        },
+        {
+          "id": "client-salmon-spin-close-frame-01",
+          "sha256": "9fd1d1a5eb26a796295a563a93744be465ee27cc1b03acf43b9e361a33815548",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Initial sampled frame from the current close Spin Salmon control, with the exact Spin label visible."
+        },
+        {
+          "id": "client-salmon-spin-close-frame-02",
+          "sha256": "ff61f82ef5b9fb9846d6b0d4a9e65e55e024125b6bf22e51b7038fc94a194be9",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Middle sampled frame from the current close Spin Salmon control, showing a changed silhouette and orientation."
+        },
+        {
+          "id": "client-salmon-spin-close-frame-03",
+          "sha256": "0cb9b6b9a34c7b8a2b5fac6b60fae31b8ceef9c6fd8a6078280fe0ab1219b640",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Final sampled frame from the current close Spin Salmon control, showing another orientation while the label remains visible."
+        },
+        {
+          "id": "client-salmon-flop-current-labeled",
+          "kind": "video",
+          "sha256": "de292b9c0b86debdd633436c44f1e9c95911f07495812a62987a158cc438bd11",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "source_revision": "5dfade3cd29c7e8623608b4422e5e7ca59500536",
+          "profile": "phase000_animation_current",
+          "dimensions": "1280x720",
+          "duration_seconds": 5,
+          "captured_at": "2026-09-03T13:59:22-05:00",
+          "observed": "The current Atlantic Salmon Forge entity with a non-Spin custom name was placed on a dry stone platform outside the water fixture. The labeled land control remained visible and stable, providing a current-artifact flop-state control without claiming full displacement or death evidence."
+        },
+        {
+          "id": "client-salmon-flop-current-frame-01",
+          "sha256": "9db4d3905739ed27285a95655ccb371feb5b7118b5c9186afdbaea3b2bda6853",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Initial sampled frame from the current labeled Salmon flop control on the dry platform."
+        },
+        {
+          "id": "client-salmon-flop-current-frame-03",
+          "sha256": "db29ba269188233908d74ce07f749f0929aa5fbfad137b3563ee55aca49bd8aa",
+          "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+          "dimensions": "1280x720",
+          "observed": "Final sampled frame from the current labeled Salmon flop control, still visible on the dry platform."
+        }
+      ],
+      "limitations": "command-assisted disposable fixtures; fish, Tiger Shark, and Oceanic Whitetip probes are exploratory and do not replace the required state, damage, recovery, multiplayer, completion-path, or advancement-display matrices"
+    },
+    "current_dedicated_multiplayer_session_20260904": {
+      "status": "passed_transport_and_cleanup_probe",
+      "source_revision": "8b63360c2c9d95df12ac8d024508dd199ee3fd01",
+      "phase_branch": "envy/0.24-phase-000",
+      "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "artifact_sha256": "6887ee5ddf22457193933e56faff1060bad8a767624703061be522fb8851abbc",
+      "server_host": "node-1",
+      "server_port": 25578,
+      "rcon_port": 25579,
+      "world": "phase000-matrix-20260904",
+      "client_host": "linux_laptop",
+      "client_endpoint": "100.76.164.109:25578",
+      "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "server_ready_marker": "2026-09-04 01:23:22.494 Done (13.512s)!",
+      "server_log_sha256": "d13bf8d502e8fc84df62785a4b4482e5dd70e39c1e3c3503b6e91048856354d4",
+      "client_log_sha256": "5f08c11e40b79896d27bda5bdc299c4a4d7580e62d348594bcb80284d9465c20",
+      "client_connect_markers": [
+        "Connecting to 100.76.164.109, 25578",
+        "Connected to a modded server.",
+        "Loaded 57 advancements",
+        "[Rcon] BFS_MATRIX_RECONNECT_PASS"
+      ],
+      "configuration": {
+        "eula": true,
+        "online_mode": false,
+        "gamemode": "spectator",
+        "do_mob_spawning": false,
+        "pause_on_lost_focus": false
+      },
+      "window_transport": {
+        "display": "Xwayland :1",
+        "active_workspace_before": 2,
+        "active_workspace_after": 2,
+        "window_workspace": 3,
+        "capture_method": "remote import of the laptop Minecraft X11 window without workspace switching"
+      },
+      "captures": [
+        {
+          "id": "mp-matrix-cod-idle-20260904",
+          "kind": "video",
+          "sha256": "f09336735dccb87ad5b854fdd002cd827cb66eb5e0640a1e095e29419645d03d",
+          "duration_seconds": 4.0,
+          "observed": "A server-held zero-motion Cod fixture rendered on the connected laptop client."
+        },
+        {
+          "id": "mp-matrix-cod-natural-swim-20260904",
+          "kind": "video",
+          "sha256": "2185d935399792b3b87ad8eb26ad8e2a617b8cfe36a9dcdfcd3a6faa4c4313dd",
+          "duration_seconds": 8.0,
+          "observed": "A normal-AI Cod moved through the bounded server-built water fixture during the laptop capture."
+        },
+        {
+          "id": "mp-matrix-disconnect-screen-20260904",
+          "kind": "image",
+          "sha256": "0bcc2479560cfedb522add535b351d716532318d69b3f906b45ef5218256c2d3",
+          "dimensions": "3800x2290",
+          "observed": "The laptop displayed the server-issued connection-loss reason BFS_MATRIX_DISCONNECT."
+        }
+      ],
+      "cleanup_markers": [
+        "BFS_MATRIX_CLEANUP_MOUNTED",
+        "BFS_MATRIX_CLEANUP_DISMOUNTED",
+        "BFS_MATRIX_CLEANUP_ENTITY_REMOVED",
+        "BFS_MATRIX_DISCONNECT",
+        "BFS_MATRIX_RECONNECT_PASS",
+        "BFS_MATRIX_SESSION_END"
+      ],
+      "server_shutdown": "2026-09-04 01:53:08.236 all dimensions saved and RCON listener stopped",
+      "ports_closed": true,
+      "limitations": "This run proves the node 1 headless server to laptop client topology, RCON control, visible connected rendering, forced disconnect, reconnect, and command-driven passenger cleanup. It does not close the full animation, Tiger and Dolphin comparison, population, natural algae, or remaining multiplayer cleanup matrices."
+    },
+    "dedicated_multiplayer_population_20260904": {
+      "status": "passed",
+      "runtime_source_revision": "8b63360c2c9d95df12ac8d024508dd199ee3fd01",
+      "phase_branch": "envy/0.24-phase-000",
+      "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "artifact_sha256": "80c6cadf1b8dc849e95cb084c15feaf2df01fe7dc3e6c2c7fd4e8c8dfa89c1df",
+      "seed": 240024,
+      "sample_center": [560, 72, 400],
+      "force_loaded_chunks": {
+        "min": [31, 21],
+        "max": [38, 28],
+        "count": 64
+      },
+      "server_host": "node-1",
+      "client_host": "linux_laptop",
+      "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "client_endpoint_base": "100.76.164.109",
+      "runs": {
+        "replace_vanilla_mobs_true": {
+          "world": "phase000-population-true-20260904",
+          "server_port": 25580,
+          "rcon_port": 25581,
+          "configuration": {
+            "eula": true,
+            "online_mode": false,
+            "do_mob_spawning": true,
+            "replace_vanilla_mobs": true,
+            "player": "EnVy"
+          },
+          "server_ready_marker": "2026-09-04 02:02:44.154 Done (13.821s)!",
+          "server_join_marker": "2026-09-04 02:06:01 EnVy joined the game",
+          "completion_marker": "BFS_POP_TRUE_PASS",
+          "server_shutdown": "2026-09-04 02:29:33.687 all dimensions saved and RCON listener stopped",
+          "server_log_sha256": "9c8d1b73738b7b0049f1492641f58e2c8aeec01a8493dbb065346a4cc7e17e9a",
+          "sampler_log": "/tmp/bfsm-population-true-24k.txt",
+          "sampler_log_sha256": "a26c78553db82507133dd0a75512a383e3f0d1f9fe1cf79bd0db8b1ff00fc935",
+          "client_log": "/tmp/bfsm-phase000-population-client-true.log",
+          "client_log_sha256": "4abadd3ca7b25c0ebaa0001fc20347da618321ecabcc62e1db5e1f56a5e64cc7",
+          "client_endpoint": "100.76.164.109:25580",
+          "client_connect_markers": [
+            "Connecting to 100.76.164.109, 25580",
+            "Connected to a modded server.",
+            "Loaded 58 advancements"
+          ],
+          "sample_ticks": {
+            "start": 7661,
+            "end": 31748,
+            "elapsed": 24087,
+            "count": 21,
+            "interval": 1200
+          },
+          "counts": {
+            "minecraft:cod": {"min": 0, "max": 0},
+            "minecraft:salmon": {"min": 0, "max": 0},
+            "bensfintasticsharks:atlantic_cod": {"min": 14, "max": 23},
+            "bensfintasticsharks:atlantic_salmon": {"min": 0, "max": 7}
+          },
+          "ports_closed": true
+        },
+        "replace_vanilla_mobs_false": {
+          "world": "phase000-population-false-20260904",
+          "server_port": 25582,
+          "rcon_port": 25583,
+          "configuration": {
+            "eula": true,
+            "online_mode": false,
+            "do_mob_spawning": true,
+            "replace_vanilla_mobs": false,
+            "player": "EnVy"
+          },
+          "server_ready_marker": "2026-09-04 02:30:59.478 Done (13.057s)!",
+          "server_join_marker": "2026-09-04 02:31:26 EnVy joined the game",
+          "completion_marker": "BFS_POP_FALSE_PASS",
+          "server_shutdown": "2026-09-04 02:37:31.780 all dimensions saved and RCON listener stopped",
+          "server_log_sha256": "56ae8890202e84a1fe280dc70705119a59789d402e032647797f55c4bd335309",
+          "sampler_log": "/tmp/bfsm-population-false-6k.txt",
+          "sampler_log_sha256": "c9e03c8dbaff645c1b8ea21d88dae73650d1d8a5d483623ebd06374ad172c730",
+          "client_log": "/tmp/bfsm-phase000-population-client-false.log",
+          "client_log_sha256": "a9234e06f3b43f4859bc831a84c01840f1632255db566ca7f44e4967bd29edf8",
+          "client_endpoint": "100.76.164.109:25582",
+          "client_connect_markers": [
+            "Connecting to 100.76.164.109, 25582",
+            "Connected to a modded server.",
+            "Loaded 47 advancements"
+          ],
+          "sample_ticks": {
+            "start": 1422,
+            "end": 7470,
+            "elapsed": 6048,
+            "count": 6,
+            "interval": 1200
+          },
+          "counts": {
+            "minecraft:cod": {"min": 3, "max": 12},
+            "minecraft:salmon": {"min": 0, "max": 0},
+            "bensfintasticsharks:atlantic_cod": {"min": 8, "max": 15},
+            "bensfintasticsharks:atlantic_salmon": {"min": 0, "max": 8}
+          },
+          "ports_closed": true
+        }
+      },
+      "result": "The replacement-enabled 24000 tick sample remained bounded with vanilla cod and salmon at zero. The replacement-disabled comparison kept vanilla cod present alongside a separate bounded Atlantic fish population.",
+      "limitations": "Counts are direct entity-type samples across the forced-loaded disposable ocean rectangle. This closes the sustained population comparison evidence but does not close unrelated animation, combat, algae, progression, visual, or final-artifact gates."
+    },
+    "fresh_profile_progression": {
+      "status": "sharks_galore_natural_trigger_passed_with_controlled_fixture",
+      "world": "forge/run/saves/phase000-fresh-advancements",
+      "player_uuid": "380df991-f603-344c-a090-369bad2a924a",
+      "artifact_sha256": "5ea2a9e23ae0c9cd9381e19a2d0daedd5680ff4310b734fae3e0e03236195e7a",
+      "advancement_file": "forge/run/saves/phase000-fresh-advancements/advancements/380df991-f603-344c-a090-369bad2a924a.json",
+      "advancement_file_sha256": "7fe926c1baa836e11f51f7e53ed3f2e9065511e1127bec6ed399c5ab5dba6178",
+      "completed_advancement": "bensfintasticsharks:sharks_galore",
+      "completed_criteria": [
+        "bensfintasticsharks:great_white_shark",
+        "bensfintasticsharks:great_hammerhead_shark",
+        "bensfintasticsharks:common_thresher_shark",
+        "bensfintasticsharks:shortfin_mako_shark",
+        "bensfintasticsharks:tiger_shark",
+        "bensfintasticsharks:oceanic_whitetip_shark",
+        "bensfintasticsharks:sandtiger_shark",
+        "bensfintasticsharks:blacktip_reef_shark"
+      ],
+      "captures": [
+        {
+          "id": "client-fresh-shark-fixture",
+          "sha256": "7178fe1671fa49da80545f6a0882dbd91dba012ba555d0be874c45db9e0eeca3",
+          "dimensions": "1280x720",
+          "observed": "Fresh disposable world displayed all eight controlled shark fixtures after the summon commands completed."
+        },
+        {
+          "id": "client-fresh-advancement-shark-tree",
+          "sha256": "100ae59b734226b59e17f0936cea32165694177c3a2fafc0768014b4898cd543",
+          "dimensions": "1280x720",
+          "observed": "Fresh disposable profile advancement screen rendered the BFS tree after the eight shark criteria had completed."
+        },
+        {
+          "id": "client-fresh-advancement-mommy-shark-tooltip",
+          "sha256": "aff04503fda6005cdeff3d88da73c422e8afdc49da80f8caddd1c3e983a9e2d9",
+          "dimensions": "1280x720",
+          "observed": "Fresh disposable profile rendered the supplied Mommy Shark icon and the complete title and description tooltip."
+        }
+      ],
+      "observed": "All eight sharks_galore criteria were recorded by the normal player nearby-entity trigger at 2026-09-03 12:27:25 through 12:27:47, and the saved advancement record reports done true.",
+      "limitations": "The world used cheats and controlled summon fixtures, so this strengthens fresh-profile reachability and natural trigger evidence but does not prove natural biome spawning or a clean no-cheat completion path."
+    },
+    "fixed_seed_worldgen": {
+      "status": "passed",
+      "seed": 240024,
+      "dimension": "minecraft:overworld",
+      "sample_chunks": {
+        "x_min": 0,
+        "x_max": 15,
+        "z_min": 0,
+        "z_max": 15,
+        "count": 256
+      },
+      "generated_chunks": 256,
+      "missing_chunks": 0,
+      "region_file": "forge/run/saves/phase000-seed-240024/region/r.0.0.mca",
+      "region_sha256": "8aabdb937094c5c044d2fb8f092ac450bdbb9406017d0baeeeec9b29c87154b3",
+      "level_dat": "forge/run/saves/phase000-seed-240024/level.dat",
+      "level_dat_sha256": "ab66295f9be55e21965e6effd190648278e37a1a5294b568e6d031d8e8a24c44",
+      "counts": {
+        "bensfintasticsharks:algae_block": 35,
+        "bensfintasticsharks:large_green_algae": 28,
+        "bensfintasticsharks:large_red_algae": 48,
+        "minecraft:seagrass": 3116,
+        "minecraft:tall_seagrass": 5340
+      },
+      "bfs_total": 111,
+      "vanilla_seagrass_total": 8456,
+      "nonzero_bfs_chunks": 92,
+      "first_positions": [
+        {
+          "id": "bensfintasticsharks:algae_block",
+          "x": 78,
+          "y": 34,
+          "z": 12,
+          "chunk": [4, 0],
+          "fluid": "minecraft:water",
+          "biome": "minecraft:cold_ocean",
+          "capture_id": "fixed-seed-algae-view2"
+        },
+        {
+          "id": "bensfintasticsharks:large_green_algae",
+          "x": 212,
+          "y": 48,
+          "z": 2,
+          "chunk": [13, 0],
+          "fluid": "minecraft:water",
+          "biome": "minecraft:deep_cold_ocean",
+          "capture_id": "fixed-seed-large-green-f3"
+        },
+        {
+          "id": "bensfintasticsharks:large_red_algae",
+          "x": 101,
+          "y": 55,
+          "z": 1,
+          "chunk": [6, 0],
+          "fluid": "minecraft:water",
+          "biome": "minecraft:deep_cold_ocean",
+          "capture_id": "fixed-seed-large-red-f3"
+        }
+      ],
+      "captures": [
+        {
+          "id": "fixed-seed-algae-view2",
+          "sha256": "86b2b63ef62b22d26f31023174d8e85dd6c202a4e0c81d06e5a9d69ae5614cae",
+          "dimensions": "1280x720",
+          "observed": "F3 targeted block at 78,34,12 as bensfintasticsharks:algae_block; targeted fluid water; biome cold_ocean."
+        },
+        {
+          "id": "fixed-seed-large-green-f3",
+          "sha256": "f76b77ffa7eb0434f3b5fe3f2e5e2577956cc85f6ccd01c0a25384fb1c949620",
+          "dimensions": "1280x720",
+          "observed": "F3 targeted block at 212,48,2 as bensfintasticsharks:large_green_algae; targeted fluid water; biome deep_cold_ocean."
+        },
+        {
+          "id": "fixed-seed-large-red-f3",
+          "sha256": "ad2d18a006a53ff72e6d21639915c2f51100d57f22f5f97721c03b2aac225f08",
+          "dimensions": "1280x720",
+          "observed": "F3 targeted block at 101,55,1 as bensfintasticsharks:large_red_algae; targeted fluid water; biome deep_cold_ocean."
+        },
+        {
+          "id": "fixed-seed-algae-clean",
+          "sha256": "1f3fc5585d4baa27cfbf87369ab09496a5cc7bacdc0620ca332f97003d114f9e",
+          "dimensions": "1280x720",
+          "observed": "Clean spectator view of the naturally generated algae sample."
+        },
+        {
+          "id": "fixed-seed-algae-day-f3",
+          "sha256": "93127e51991f39fb9e6c97b9d3aa82025279222616b6b1e76c7b30f7b6650d67",
+          "dimensions": "1280x720",
+          "observed": "Daylight F3 view of the naturally generated algae sample."
+        }
+      ],
+      "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
+      "method": "Minecraft RegionFile and NbtIo scan after natural terrain generation; cheats were limited to spectator travel and inspection and no blocks were placed or removed"
+    },
+    "multiplayer_reconnect": {
+      "status": "passed",
+      "world": "phase000-seed-240024",
+      "host_username": "Dev",
+      "guest_username": "Guest",
+      "port": 46641,
+      "artifact_sha256": "7fd21a6d4aa7bd76f0a00a2de056db510e8e3d288573405088dc153fe299f11e",
+      "events": [
+        {
+          "event": "host_started",
+          "log": "Started serving on 46641"
+        },
+        {
+          "event": "guest_joined",
+          "log": "Guest joined the game",
+          "time": "23:51:24"
+        },
+        {
+          "event": "guest_left",
+          "log": "Guest left the game",
+          "time": "23:51:44"
+        },
+        {
+          "event": "guest_rejoined",
+          "log": "Guest joined the game",
+          "time": "23:51:58"
+        }
+      ],
+      "captures": [
+        {
+          "id": "multiplayer-guest-joined",
+          "sha256": "3049c1d47d05aaf50838d797d2cc7c1b685ef27c4abd48afbed70a7e77830aeb",
+          "dimensions": "1280x720",
+          "observed": "Guest is in the hosted modded world and the join advancement toast is visible."
+        },
+        {
+          "id": "multiplayer-guest-disconnected",
+          "sha256": "b0ae719dccb635f65422d22f1836e87451c5279d3513906da15a2aaf62eae574",
+          "dimensions": "1280x720",
+          "observed": "Guest returned to the multiplayer server list while the LAN world remained discoverable."
+        },
+        {
+          "id": "multiplayer-guest-reconnected",
+          "sha256": "91562219768a4be49f077fdd2957dc1781fa7dac5c6364f8f00747aae0cf2342",
+          "dimensions": "1280x720",
+          "observed": "Guest reentered the hosted modded world after reconnecting through the LAN server list."
+        }
+      ],
+      "limitations": "integrated LAN protocol only; dedicated-server readiness, sustained population, and full gameplay synchronization remain separate gates"
+    },
+    "animation_sample_equivalence": {
+      "status": "passed",
+      "implementation_revision": "725bab666d38cd3f05e8e618f02fc96a6b84d7c7",
+      "baker": "tools/bake_molang_animations.py",
+      "baker_sha256": "0e62f807b3fb8c2a712f9e2703f19bae4fa14baf2188de01373a788ba873ad50",
+      "source_archive": {
+        "path": "Content/BFS 0.23 Content.zip",
+        "sha256": "1dcfd0db544184bffd467255ba294b57f0a1376b06023f10034f380b9e5d0eaa"
+      },
+      "source_members": [
+        {
+          "path": "BFS 0.23 Content/Atlantic Cod/atlantic_cod.animation.json",
+          "sha256": "efd3e6231ca130f5b28d0e87225960e7877b85cc1fb0407e6d7404cc3c4a04ad",
+          "destination": "common/src/main/resources/assets/bensfintasticsharks/animations/entity/atlantic_cod.animation.json",
+          "destination_sha256": "ffa889ee5418b1439e4b1f6865404b02c4adfd5a6a03cc7e9df6f4b363c125ab"
+        },
+        {
+          "path": "BFS 0.23 Content/Atlatnic Salmon/atlantic_salmon.animation.json",
+          "sha256": "19a5463fb83ce1fd9329125365f733a0ff715abdb5f06c6de5e7f1ccfff18648",
+          "destination": "common/src/main/resources/assets/bensfintasticsharks/animations/entity/atlantic_salmon.animation.json",
+          "destination_sha256": "f7670f1eb24182309c536e032a412da69f6ddea57748c62f93dae8d1e4d6faed"
+        },
+        {
+          "path": "BFS 0.23 Content/Oceanic Whitetip Animations New/oceanicwhitetipshark.animation.json",
+          "sha256": "dece327b4655f89d1f79ae463f05a6a3d3683cc2f7eb9550205e8b199d700e86",
+          "destination": "common/src/main/resources/assets/bensfintasticsharks/animations/entity/oceanic_whitetip_shark.animation.json",
+          "destination_sha256": "d9e5f9e82b8124024800c86be81af12f5597ac10050f5db718121ca40384bfb0"
+        }
+      ],
+      "sample_points": [0.0, 0.25, 0.5, 0.75, 1.0],
+      "absolute_tolerance": 0.0001,
+      "endpoint_policy": "Authored endpoints are retained when a loop period does not divide cleanly at the baked precision, including Oceanic Whitetip swim_new at 1.7083 seconds.",
+      "bone_mapping": {
+        "oceanic_whitetip_shark": {
+          "leftFin": "Fin2",
+          "rightFin": "Fin"
+        }
+      },
+      "clips": [
+        {"name": "animation.atlantic_cod.idle", "length_seconds": 4.0, "total_channels": 16, "molang_channels": 16, "static_or_keyed_channels": 0, "sample_vectors": 80, "max_abs_delta": 0.00000403784439, "max_interior_delta": 0.00000403784439, "max_endpoint_delta": 0.00000403784439, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_cod.swim", "length_seconds": 2.0, "total_channels": 16, "molang_channels": 16, "static_or_keyed_channels": 0, "sample_vectors": 80, "max_abs_delta": 0.00000490538903, "max_interior_delta": 0.00000490538903, "max_endpoint_delta": 0.00000403784439, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_cod.swim_fast", "length_seconds": 1.0, "total_channels": 16, "molang_channels": 16, "static_or_keyed_channels": 0, "sample_vectors": 80, "max_abs_delta": 0.00000484541326, "max_interior_delta": 0.00000484541326, "max_endpoint_delta": 0.00000403784439, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_cod.flop", "length_seconds": 0.5, "total_channels": 17, "molang_channels": 0, "static_or_keyed_channels": 17, "sample_vectors": 0},
+        {"name": "animation.atlantic_salmon.spin", "length_seconds": 0.5, "total_channels": 9, "molang_channels": 0, "static_or_keyed_channels": 9, "sample_vectors": 0},
+        {"name": "animation.atlantic_salmon.idle", "length_seconds": 4.0, "total_channels": 12, "molang_channels": 12, "static_or_keyed_channels": 0, "sample_vectors": 60, "max_abs_delta": 0.00000378864668, "max_interior_delta": 0.00000378864668, "max_endpoint_delta": 0.00000378864668, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_salmon.swim", "length_seconds": 2.0, "total_channels": 13, "molang_channels": 13, "static_or_keyed_channels": 0, "sample_vectors": 65, "max_abs_delta": 0.00000403784439, "max_interior_delta": 0.00000403784439, "max_endpoint_delta": 0.00000403784439, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_salmon.swim_fast", "length_seconds": 1.0, "total_channels": 14, "molang_channels": 14, "static_or_keyed_channels": 0, "sample_vectors": 70, "max_abs_delta": 0.00000484541326, "max_interior_delta": 0.00000484541326, "max_endpoint_delta": 0.00000484541326, "representative_moving_bone": "body"},
+        {"name": "animation.atlantic_salmon.flop", "length_seconds": 0.5, "total_channels": 15, "molang_channels": 0, "static_or_keyed_channels": 15, "sample_vectors": 0},
+        {"name": "animation.oceanicwhitetipshark.idle", "length_seconds": 4.0, "total_channels": 10, "molang_channels": 10, "static_or_keyed_channels": 0, "sample_vectors": 50, "max_abs_delta": 0.00000484541326, "max_interior_delta": 0.00000484541326, "max_endpoint_delta": 0.00000484541326, "representative_moving_bone": "Body"},
+        {"name": "animation.oceanicwhitetipshark.swim_new", "length_seconds": 1.7083, "total_channels": 10, "molang_channels": 10, "static_or_keyed_channels": 0, "sample_vectors": 50, "max_abs_delta": 0.00000486971982, "max_interior_delta": 0.00000466967608, "max_endpoint_delta": 0.00000486971982, "representative_moving_bone": "Body"},
+        {"name": "animation.oceanicwhitetipshark.swim_fast_new", "length_seconds": 0.75, "total_channels": 11, "molang_channels": 11, "static_or_keyed_channels": 0, "sample_vectors": 55, "max_abs_delta": 0.00000378864668, "max_interior_delta": 0.00000378864668, "max_endpoint_delta": 0.00000378864668, "representative_moving_bone": "Body"},
+        {"name": "animation.oceanicwhitetipshark.bite_new", "length_seconds": 0.75, "total_channels": 13, "molang_channels": 0, "static_or_keyed_channels": 13, "sample_vectors": 0},
+        {"name": "animation.oceanicwhitetipshark.death", "length_seconds": 3.0, "total_channels": 13, "molang_channels": 0, "static_or_keyed_channels": 13, "sample_vectors": 0},
+        {"name": "animation.oceanicwhitetipshark.beached", "length_seconds": null, "comparison_length_seconds": 4.0, "total_channels": 13, "molang_channels": 4, "static_or_keyed_channels": 9, "sample_vectors": 20, "max_abs_delta": 0.00000334816167, "max_interior_delta": 0.00000334816167, "max_endpoint_delta": 0.00000270189222, "representative_moving_bone": "Body"},
+        {"name": "animation.oceanicwhitetipshark.thrash", "length_seconds": 3.25, "total_channels": 13, "molang_channels": 0, "static_or_keyed_channels": 13, "sample_vectors": 0}
+      ],
+      "result": "All sampled MoLang channels, including the five-point Oceanic Whitetip swim_new endpoint check, are below the absolute tolerance. Static and already-keyed clip channels remain explicitly represented in the table and were not treated as numeric MoLang samples."
+    },
+    "secret_scan": "passed",
+    "diff_check": "passed"
+  },
+  "latest_client_session": {
+    "status": "partial_interactive_transport_pass",
+    "source_revision": "88580315554384f00578d4d619928730e4de3f69",
+    "server_host": "node-1",
+    "server_port": 25584,
+    "rcon_port": 25585,
+    "server_mode": "offline isolated disposable development server",
+    "client_host": "envision",
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "driver": "610.57.04",
+    "display": "Xwayland :1 on wayland-1",
+    "active_workspace_observed": 2,
+    "window_workspace_observed": 2,
+    "captures": [
+      {
+        "id": "p000-live-movement-fixture",
+        "sha256": "738d8325d7cc99b94d3d98e15f341e55618d17b5e3819e2f9984db2358253ac",
+        "dimensions": "1890x2290",
+        "observed": "The connected laptop rendered the disposable water fixture with Oceanic Whitetip, Cod, and Salmon entities."
+      },
+      {
+        "id": "p000-live-fish-pitch-trace",
+        "sha256": "51b0afafee2e0526e1ff937b179f71262029fdeed7edff829c2192e63c25fac1",
+        "samples": 24,
+        "interval_seconds": 0.25,
+        "actors": ["atlantic_cod", "atlantic_salmon"],
+        "fields": ["Pos", "Rotation"],
+        "observed": "The server trace recorded bounded Cod and Salmon pitch transitions while the laptop client was connected."
+      }
+    ],
+    "limitations": "The client was closed before the final fish visual frame. The trace and transport capture do not close the complete interactive animation, body and nose orientation, Oceanic Whitetip, combat, cleanup, or fresh profile matrices."
+  },
+  "latest_client_debug_session": {
+    "status": "complete_bound_cadence_and_state_transitions",
+    "source_revision": "2dd08f8",
+    "artifact_sha256": "982dbc152c675bb87daf052596c1bf0c38542b9f3b9d7b2e516fa2d5ddd8c5d1",
+    "artifact_sha512": "a87715962438e78ae6c3c6170efa689b4ea7b86a3c4532d9da8961162befb61d93fad98cabaa4da61d624d0c027246331d8d737b379bc40354d1bafaf7dbf26e",
+    "server_host": "node-1",
+    "server_port": 25584,
+    "rcon_port": 25585,
+    "client_host": "envision",
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "configuration_fingerprint": "phase000-default-config",
+    "datapack_fingerprint": "generated-20260905",
+    "analyzer_tests": 17,
+    "captures": [
+      {
+        "id": "p000-client-cadence-061433",
+        "sha256": "64d8e98f466b5b8d552659196d127c05da87a80957e1fc61cb72d8756c65d635",
+        "records": 5998,
+        "movement_samples": 4796,
+        "presentation_samples": 1200,
+        "dropped_records": 0,
+        "terminal_record": true,
+        "verdict": "complete",
+        "verdict_sha256": "641ac6ebada0de484a59c5da3af5c2b4c8abb5909f6bc8c31e6dbe292ec9ff85",
+        "summary_sha256": "a5111a0c65714bc3ff0685806a2960a15f9530cabfd4226c4596f847969e4998",
+        "observed_states": "Cod swim and idle, Salmon swim and idle, Bottlenose Dolphin swim and idle, Oceanic Whitetip swim, idle, and thrash"
+      },
+      {
+        "id": "p000-client-state-062116",
+        "sha256": "785b7d8a89094c97507c7790475773e00fa04184bda04824abae14aad0e192e0",
+        "records": 5998,
+        "movement_samples": 4796,
+        "presentation_samples": 1200,
+        "dropped_records": 0,
+        "terminal_record": true,
+        "verdict": "complete",
+        "verdict_sha256": "e5f38124fa1878e0353a789899e4131d4dc8f27d649c8354ad610720229fb598",
+        "summary_sha256": "d0be6e297ae28fd2bfb6d5056d85f8e50a9ed161633d22ddbaee8d10fe01e15a",
+        "observed_states": "Cod idle, swim, fast swim, and flop, Salmon idle, swim, fast swim, and spin, Bottlenose Dolphin idle, swim, and breach, Oceanic Whitetip idle, swim, and thrash",
+        "teleport_assisted": false
+      }
+    ],
+    "follow_up_source_revision": "c3536e0",
+    "follow_up_evidence_document": "docs/verification/phase-000-evidence-follow-up-20260906.md",
+    "follow_up_server_port": 25586,
+    "follow_up_rcon_port": 25587,
+    "follow_up_captures": [
+      {
+        "id": "p000-client-fixture-idle-065048",
+        "sha256": "85344feb80939103e7e5d81385729f62c02384c69f33a27c7b079b0edb75572a",
+        "records": 26282,
+        "movement_samples": 21019,
+        "presentation_samples": 5260,
+        "dropped_records": 0,
+        "terminal_record": true,
+        "verdict": "complete",
+        "verdict_sha256": "fc533dea0c7e896952a7631f421e83a2a0f8a55baf478a957b3b2dd78a983368",
+        "summary_sha256": "906844f112cf038b5a2927a55654c6a919205ecf10134c7f69c19313495626dd",
+        "observed_states": "Cod idle, Salmon Spin, Bottlenose Dolphin idle, and Oceanic Whitetip idle"
+      },
+      {
+        "id": "p000-client-fixture-transitions-065739",
+        "sha256": "b2fd8896f6004397248f897d65f852968ce37a21b237e883c8e80027ae525765",
+        "records": 26984,
+        "movement_samples": 21582,
+        "presentation_samples": 5400,
+        "dropped_records": 0,
+        "terminal_record": true,
+        "verdict": "complete",
+        "verdict_sha256": "43a0a0eebc62a9d8374d9f6e5c841a6f3424afb7194fd20851b465bd140a12d2",
+        "summary_sha256": "794b0366afa6c810e3701d516333c509573d50f85095e6807b83be3494762621",
+        "observed_states": "Cod flop, Salmon Spin, and Oceanic Whitetip thrash; Dolphin remained idle"
+      },
+      {
+        "id": "p000-client-oceanic-route-070121",
+        "sha256": "ef746c46784ccc502197c7a1d8d3ccf6ae3b0687b8daa628e60c7320bcd429b7",
+        "records": 23369,
+        "movement_samples": 18688,
+        "presentation_samples": 4677,
+        "dropped_records": 0,
+        "terminal_record": true,
+        "verdict": "complete",
+        "verdict_sha256": "fbb9dbc99c71584d63bda590b70368b54728e054884ed4d644bff906f3097668",
+        "summary_sha256": "0571a67a083a7084c0f58370c4159add52de9e9f500c558aff04b6dbafe7889c",
+        "observed_states": "Oceanic Whitetip swim_new, swim_fast_new, bite_new, beached, and idle; no death controller state observed"
+      }
+    ],
+    "limitations": "The captures close client cadence and bounded state presentation evidence but do not close the authored five-point bone-transform table, bite timing, Oceanic vertical locomotion, fresh advancement profile, algae collection and population, complete combat and cleanup, final artifact, review, merge, ancestry, or signed phase tag gates."
+  },
+  "bound_packaged_server_session": {
+    "status": "complete_diagnostic_and_handshake",
+    "source_revision": "b780a7c5202f391cf9ff895db946e63300fbad81",
+    "artifact": {
+      "path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "sha256": "3984700226aa70e352edd63ff5b580d298b0b598955adf2a63d0382600667754",
+      "sha512": "8843bc83dae2f3219376b2dac8ad760201dbc478d22a8d0913ba0a161d5011a696df3aecc107b0316bab7752d1e5d0cf84ae8dc84f2ad52c9237dd8086af0412",
+      "unzip_test": "passed"
+    },
+    "headless_verification": {
+      "gametest": "19 of 19 passed",
+      "python_tool_tests": "17 of 17 passed",
+      "server_host": "node-1",
+      "client_host": "envision",
+      "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "client_audio": "exact Minecraft playback stream muted"
+    },
+    "server_capture": {
+      "sha256": "5427916070a91a6acee49a7ec2bda29cfff86ef34d3d8b6607449977ebfd4b68",
+      "records": 41,
+      "movement_records": 39,
+      "dropped_records": 0,
+      "terminal_record": true,
+      "verdict": "complete",
+      "limitation": "controlled teleport fixture, not natural locomotion proof"
+    },
+    "static_negative_control": {
+      "sha256": "95406c6c6406233e01707e1391ec790760fcfd6c2fbb7349bf92f5a3d364d631",
+      "records": 61,
+      "dropped_records": 0,
+      "terminal_record": true,
+      "verdict_without_motion_threshold": "complete",
+      "verdict_with_motion_threshold": "invalid"
+    },
+    "client_capture": {
+      "sha256": "6586436257b9166713bf57ca95d4b05cf63b13cece9c1a8321df3da93f595244",
+      "records": 19980,
+      "movement_records": 15961,
+      "presentation_records": 4002,
+      "target_lifecycle_records": 15,
+      "dropped_records": 0,
+      "terminal_record": true,
+      "verdict": "complete",
+      "motion_profile": "phase-000-baseline",
+      "configuration_fingerprint": "phase-000-default",
+      "datapack_fingerprint": "phase-000-generated",
+      "selected_entity": {
+        "samples": 1199,
+        "moving_transitions": 137,
+        "pitch_range_degrees": 11.25,
+        "max_total_speed": 0.088567,
+        "max_horizontal_speed": 0.086733,
+        "max_vertical_speed": 0.03475,
+        "max_pitch_step": 0.46875,
+        "max_coordinate_step": 0.097896
+      }
+    },
+    "phase_scope": "diagnostic facility and packaged handshake evidence only; interactive visual, natural gameplay, advancement, algae, review, merge, ancestry, and signed tag gates remain open"
+  },
+  "bound_targeted_state_capture_20260907": {
+    "status": "complete_bounded_state_capture",
+    "source_revision": "1e5b4f0c07ae06ca15b6d2c5bd429b10c0902b33",
+    "artifact": {
+      "path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "sha256": "92d4dfa54d6d796cb1b2b471a8feb32d6a3040237111c32238e7d0e31046c4f8"
+    },
+    "environment": {
+      "server_host": "node-1",
+      "client_host": "envision",
+      "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "client_audio": "exact Minecraft playback stream muted",
+      "configuration_fingerprint": "p000-task005-targeted-20260907",
+      "datapack_fingerprint": "phase-000-generated"
+    },
+    "client_capture": {
+      "session_id": "24c3ff56-52be-43f4-b0a2-150b09533510",
+      "path": "/tmp/bfsm-phase000-evidence/p000-task005-targeted-exact-20260907/client.jsonl",
+      "sha256": "dfa376e523079a747863fecb50b11d1c2ce1d25f86cfdc39f51bfed7a8de3d2d",
+      "records": 4499,
+      "movement_records": 3597,
+      "presentation_records": 900,
+      "dropped_records": 0,
+      "terminal_record": true,
+      "verdict": "complete",
+      "observed_animations": {
+        "bensfintasticsharks:atlantic_cod": ["animation.atlantic_cod.idle", "animation.atlantic_cod.swim"],
+        "bensfintasticsharks:atlantic_salmon": ["animation.atlantic_salmon.spin"],
+        "bensfintasticsharks:oceanic_whitetip_shark": ["animation.oceanicwhitetipshark.swim_fast_new", "animation.oceanicwhitetipshark.bite_new"]
+      },
+      "limitation": "This bounded capture does not claim Salmon flop, Oceanic death, beached, thrash, bite damage timing, or the complete five-point transform table."
+    }
+  },
+  "isolated_gametest_rerun_20260906": {
+    "status": "passed",
+    "source_revision": "b985394",
+    "run_directory": "/tmp/bfsm-p000-task011-gametest-20260906",
+    "eula": "eula=true",
+    "host": "node-1",
+    "tests": 21,
+    "result": "all 21 required tests passed",
+    "log": {
+      "path": "/tmp/bfsm-phase000-evidence/p000-task011-gametest-current/latest.log",
+      "sha256": "d2bbc5071a87a8e5cd486282b981fd1456987f69aa8e068368ad56a11e66aed0"
+    },
+    "cleanup": "disposable runtime, world, configuration, captures, and logs removed after final consumer"
+  },
+  "bound_fresh_profile_visual_20260906": {
+    "status": "complete_bounded_fresh_profile",
+    "source_revision": "a05b1d83228ac3da7f1362a41f7c5cc587640f3e",
+    "artifact": {
+      "path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "sha256": "a92992269497693911a9a2a7f4a0bae371a594e5ec9827cdb2ce46dfef52d756",
+      "unzip_test": "passed"
+    },
+    "environment": {
+      "server_host": "node-1",
+      "client_host": "envision",
+      "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "client_audio": "exact Minecraft playback stream muted",
+      "loader": "Forge 47.2.0",
+      "geckolib": "4.4.7",
+      "smartbrainlib": "1.14.2",
+      "configuration_fingerprint": "p000-phase000-visual-20260906",
+      "datapack_fingerprint": "phase-000-generated"
+    },
+    "natural_advancement_log": {
+      "path": "/tmp/bfsm-phase000-evidence/p000-fresh-profile-visual-20260906/client-advancement-lines.log",
+      "sha256": "ebf8402fa6a788451606e00e45e6810d2bcabef79dfe7e83ec62876df4019588",
+      "handshake": "connected to a modded server",
+      "natural_triggers": [
+        "Salmo salar",
+        "Marine Curious",
+        "Gadus morhua",
+        "Pelagic Nightmare",
+        "Dolphin Tale"
+      ],
+      "grant_command_used": false
+    },
+    "display_capture": {
+      "path": "/tmp/bfsm-phase000-evidence/p000-fresh-profile-visual-20260906/advancements-screen.png",
+      "sha256": "a0253529f2013ecb759bcf4b8d0e6fff94a7be3bcca3e1c56f27a0f96c444460",
+      "workspace_switch": false,
+      "observed": "BFS advancement tree, completed Salmo salar node, and tooltip Encounter an Atlantic Salmon."
+    },
+    "limitations": "Bounded fresh profile and display evidence only. Complete seven-icon advancement display, full fresh-profile completion, and final merged-artifact review remain open."
+  },
+  "diagnostic_task_013_20260907": {
+    "status": "complete_bounded_diagnostic_facility",
+    "source_revision": "1ba2c7f228848cf563885a5570ee7d1654491caa",
+    "artifact": {
+      "path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "sha256": "4397627adf00556f30270606db2d6535a22d351e3d1b25174752d8415cf576a4"
+    },
+    "analyzer": {
+      "test_count": 18,
+      "log": "/tmp/bfsm-phase000-evidence/p000-task013-analyzer-tests-20260907.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "negative_controls": ["bad_json", "truncated_jsonl", "missing_end", "incomplete_writer"],
+      "verdict": "complete"
+    },
+    "gametest": {
+      "host": "node-1",
+      "eula": true,
+      "required_tests": 22,
+      "log": "/tmp/bfsm-phase000-evidence/p000-task013-gametest-20260906.log",
+      "log_sha256": "7f401e6b2869dbe889b31edf633cafa61e23b9f7017f40430d806df6a079917a",
+      "brain_test": "serverDebugBrainCaptureRecordsSanitizedState",
+      "result": "all 22 required tests passed"
+    },
+    "dedicated_capture": {
+      "host": "node-1",
+      "server_port": 25790,
+      "rcon_port": 25791,
+      "source_binding": "phase-000-brain-diagnostics",
+      "configuration_fingerprint": "p000-task013-dedicated",
+      "datapack_fingerprint": "phase-000-generated",
+      "motion_profile": "dec-006-v1",
+      "capture": "/tmp/bfsm-p000-task013-server-20260906/logs/bfs-debug/bfs-debug-20260907-043546-7f9d9f73-7235-4709-870e-e1261c4e97c3.jsonl",
+      "capture_sha256": "0f188f370574b4b20106bbe3cc351f199c46a2461185b9b5ffa434ce7bc2d910",
+      "brain_events": 79,
+      "movement_events": 79,
+      "records_dropped": 0,
+      "incomplete": false,
+      "verdict": "complete",
+      "verdict_sha256": "491954104625da6bffb8a534000b4aef719cc6e440a95c7264429ea16ceeef3b",
+      "cleanup": "server stopped through RCON, ports closed, exact runtime removed after hashing"
+    },
+    "scope": "Brain telemetry and strict diagnostic validation are complete. Phase 000 product and integration gates remain open."
+  },
+  "clean_committed_verification_20260907": {
+    "status": "passed",
+    "source_revision": "9392a06",
+    "evidence_revision": "59d3912",
+    "host": "node-1",
+    "java": "17.0.19",
+    "runtime": "/tmp/bfsm-p000-clean-gametest-LR6Z55",
+    "eula": "eula=true",
+    "ordered_tasks": [
+      ":forge:compileJava",
+      ":forge:compileTestJava",
+      ":forge:test",
+      ":forge:Data",
+      ":forge:test",
+      ":forge:GameTestServer",
+      ":forge:build"
+    ],
+    "gametest": {
+      "required_tests": 22,
+      "result": "all 22 required tests passed",
+      "renderer_started": false,
+      "client_started": false
+    },
+    "artifact": {
+      "path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "size": 1830502,
+      "unzip_test": "passed",
+      "sha256": "ac566c2817d470ca5269d5c3d4906dd2be79d72e36cefbe2e4801550f58e80c9",
+      "sha512": "324223131ba2c8315a3908a9d80b082e32ab0377cdad4f6ed5bb2eec8f786c3110504e14f2fa38b38f4d7e62841178f56855c902a4c5d996e83ad9072eae5afb",
+      "metadata": {
+        "minecraft": "1.20.1",
+        "forge": "47.2.0",
+        "mod_version": "0.24",
+        "final_rc_metadata_owner": "BFS-PHASE-005"
+      }
+    },
+    "cleanup": "exact extracted source and disposable runtime paths removed and verified absent",
+    "scope": "clean Phase 000 candidate binding; review, merge, ancestry, and signed phase tag remain open"
+  },
+  "defects": {
+    "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",
+    "DEF-024-002": "blocked, bounded client state and presentation captures now pass but the complete authored interactive state matrix remains missing",
+    "DEF-024-003": "blocked, structural clip and controller checks pass and GameTest proves Oceanic Whitetip passenger grab, thrash damage, timer expiry, and passenger release; interactive transition, bite timing, and complete cleanup capture remain missing",
+    "DEF-024-004": "blocked, GameTests prove reachable edible item movement, delayed bite damage, bite cooldown, target loss recovery, and Dolphin parity vertical movement without orbiting; interactive pursuit and combat capture remain missing",
+    "DEF-024-005": "blocked, generated graph and fresh tree load pass but fresh profile completion capture is missing",
+    "DEF-024-006": "positively_disproved for deterministic copy and captured tooltip paths; complete fresh visual review remains open",
+    "DEF-024-007": "blocked, exact icon paths and partial fresh tree display pass but complete interactive advancement display capture is missing",
+    "DEF-024-008": "blocked, registration, placement and survival smoke, direct algae self-drop loot, fixed-seed natural generation, current fish population comparison, and current isolated dedicated-server readiness pass; natural algae collection, algae client and population evidence, and final merged-artifact evidence remain"
+  },
+  "phase_exit": "open",
+  "phase_exit_blockers": [
+    "Phase 000 completion packet review",
+    "pull request merge into envy/0.24",
+    "remote ancestry verification",
+    "signed bfs-0.24-phase-000 tag"
+  ]
+}

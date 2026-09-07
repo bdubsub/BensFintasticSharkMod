@@ -21,6 +21,8 @@ import tfar.bensfintasticsharks.disturbance.SharkAlertHandler;
 
 public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity implements GeoEntity {
 
+    private static final double SWIM_MOVEMENT_EPSILON = 1.0e-4;
+
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.idle");
     private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.swim_new");
     private static final RawAnimation FAST_SWIM = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.swim_fast_new");
@@ -53,13 +55,20 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
+            if (this.isDeadOrDying()) {
+                return event.setAndContinue(DEATH);
+            }
             if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(BEACHED);
             }
             if (this.getSharkState() == SharkState.HOSTILE) {
                 return event.setAndContinue(FAST_SWIM);
             }
-            return event.setAndContinue(event.isMoving() ? SWIM : IDLE);
+            // GeckoLib's generic isMoving flag is based on client limb movement and can remain
+            // false for an aquatic entity whose server-authoritative velocity is changing. Use
+            // the synchronized movement vector so the authored swim clip follows actual travel
+            // instead of falling back to idle or no-current-animation during a valid route.
+            return event.setAndContinue(getDeltaMovement().lengthSqr() > SWIM_MOVEMENT_EPSILON ? SWIM : IDLE);
         })
                 .triggerableAnim("bite", BITE)
                 .triggerableAnim("death", DEATH));
