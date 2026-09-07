@@ -1,6 +1,7 @@
 package tfar.bensfintasticsharks.entity;
 
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 /** Shared movement math for aquatic entities whose vertical thrust follows the approved oracle. */
 public final class AquaticMovement {
@@ -85,5 +86,60 @@ public final class AquaticMovement {
         double eased = smoothVerticalVelocity(current, target);
         double limit = Math.abs(speed) * VERTICAL_SPEED_RATIO;
         return Mth.clamp(eased, -limit, limit);
+    }
+
+    /**
+     * Returns the engine forward vector for the entity's yaw and pitch. Minecraft's positive
+     * pitch points the nose down, so a negative pitch produces positive vertical travel.
+     */
+    public static Vec3 forwardVector(float yawDegrees, float pitchDegrees) {
+        double yaw = Math.toRadians(yawDegrees);
+        double pitch = Math.toRadians(pitchDegrees);
+        double horizontal = Math.cos(pitch);
+        return new Vec3(-Math.sin(yaw) * horizontal, -Math.sin(pitch),
+                Math.cos(yaw) * horizontal);
+    }
+
+    /**
+     * Couples forward propulsion to body pitch while leaving lateral steering horizontal. A
+     * shark cannot request independent vertical input through this path.
+     */
+    public static Vec3 bodyAlignedInput(Vec3 movementInput, float pitchDegrees) {
+        double pitch = Math.toRadians(pitchDegrees);
+        double forwardInput = movementInput.z;
+        return new Vec3(movementInput.x, -Math.sin(pitch) * forwardInput,
+                Math.cos(pitch) * forwardInput);
+    }
+
+    /**
+     * Limits the powered component of a velocity without changing its direction. Orthogonal
+     * velocity is retained for separately classified external forces.
+     */
+    public static Vec3 limitPoweredVelocity(Vec3 velocity, Vec3 forward,
+                                             double horizontalSpeedCap, double verticalSpeedCap) {
+        double poweredSpeed = velocity.dot(forward);
+        if (poweredSpeed <= 0.0D) return velocity;
+        double cap = poweredSpeed;
+        double horizontalProjection = Math.sqrt(forward.x * forward.x + forward.z * forward.z);
+        if (horizontalProjection > 1.0e-8) {
+            cap = Math.min(cap, Math.abs(horizontalSpeedCap) / horizontalProjection);
+        }
+        if (Math.abs(forward.y) > 1.0e-8) {
+            cap = Math.min(cap, Math.abs(verticalSpeedCap) / Math.abs(forward.y));
+        }
+        if (cap >= poweredSpeed) return velocity;
+        Vec3 powered = forward.scale(poweredSpeed);
+        return velocity.subtract(powered).add(forward.scale(cap));
+    }
+
+    /**
+     * Removes stale vertical slip left over from the previous body pose while retaining
+     * horizontal orthogonal drift for collision and external-force handling.
+     */
+    public static Vec3 removeUnalignedVerticalSlip(Vec3 velocity, Vec3 forward) {
+        double poweredSpeed = velocity.dot(forward);
+        if (poweredSpeed <= 0.0D) return velocity;
+        Vec3 orthogonal = velocity.subtract(forward.scale(poweredSpeed));
+        return new Vec3(orthogonal.x, 0.0D, orthogonal.z).add(forward.scale(poweredSpeed));
     }
 }

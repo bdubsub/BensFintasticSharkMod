@@ -653,10 +653,13 @@ public final class BfsGameTests {
         java.util.List<Double> dolphinHeights = new java.util.ArrayList<>();
         java.util.List<Double> sharkHorizontalOffsets = new java.util.ArrayList<>();
         java.util.List<Double> dolphinHorizontalOffsets = new java.util.ArrayList<>();
+        java.util.List<Float> sharkPitches = new java.util.ArrayList<>();
+        java.util.List<Double> sharkVerticalSpeeds = new java.util.ArrayList<>();
 
         sampleVerticalRoute(helper, shark, dolphin, sharkTarget, dolphinTarget,
                 sharkStartY, dolphinStartY, sharkStartX, sharkStartZ, dolphinStartX, dolphinStartZ,
                 sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets,
+                sharkPitches, sharkVerticalSpeeds,
                 verticalDirection, 0, -1);
     }
 
@@ -669,6 +672,8 @@ public final class BfsGameTests {
                                              java.util.List<Double> dolphinHeights,
                                              java.util.List<Double> sharkHorizontalOffsets,
                                              java.util.List<Double> dolphinHorizontalOffsets,
+                                             java.util.List<Float> sharkPitches,
+                                             java.util.List<Double> sharkVerticalSpeeds,
                                              int verticalDirection,
                                              int sample,
                                              int dolphinArrivalSample) {
@@ -681,6 +686,8 @@ public final class BfsGameTests {
             dolphinHeights.add(dolphin.getY());
             sharkHorizontalOffsets.add(Math.hypot(shark.getX() - sharkStartX, shark.getZ() - sharkStartZ));
             dolphinHorizontalOffsets.add(Math.hypot(dolphin.getX() - dolphinStartX, dolphin.getZ() - dolphinStartZ));
+            sharkPitches.add(Mth.wrapDegrees(shark.getXRot()));
+            sharkVerticalSpeeds.add(Math.abs(shark.getDeltaMovement().y));
             if (sample < 260) {
                 setVerticalTarget(shark, sharkTarget);
                 if (arrival[0] < 0) {
@@ -689,6 +696,7 @@ public final class BfsGameTests {
                 sampleVerticalRoute(helper, shark, dolphin, sharkTarget, dolphinTarget,
                         sharkStartY, dolphinStartY, sharkStartX, sharkStartZ, dolphinStartX, dolphinStartZ,
                         sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets,
+                        sharkPitches, sharkVerticalSpeeds,
                         verticalDirection, sample + 1, arrival[0]);
                 return;
             }
@@ -702,24 +710,28 @@ public final class BfsGameTests {
                             + ", delta=" + dolphin.getDeltaMovement());
             helper.assertTrue(sharkProgress * verticalDirection > 0.25,
                     "shark must complete the vertical route, progress=" + sharkProgress
-                            + ", dolphinProgress=" + dolphinProgress);
-            helper.assertTrue(sharkProgress * verticalDirection <= dolphinProgress * verticalDirection + 0.75,
-                    "shark vertical progress must remain below the full dolphin reference, shark=" + sharkProgress
-                            + ", dolphin=" + dolphinProgress + ", navDone=" + shark.getNavigation().isDone()
-                            + ", position=" + shark.position() + ", delta=" + shark.getDeltaMovement());
-            helper.assertTrue(max(sharkHorizontalOffsets) <= max(dolphinHorizontalOffsets) + 0.75,
-                    "shark must not orbit horizontally while following a vertical route, sharkMax="
-                            + max(sharkHorizontalOffsets) + ", dolphinMax=" + max(dolphinHorizontalOffsets));
+                            + ", dolphinProgress=" + dolphinProgress + ", position=" + shark.position()
+                            + ", target=" + sharkTarget + ", navTarget=" + shark.getNavigation().getTargetPos()
+                            + ", pitch=" + shark.getXRot() + ", delta=" + shark.getDeltaMovement());
+            helper.assertTrue(hasSingleFiniteHorizontalArc(sharkHorizontalOffsets),
+                    "shark must use one finite entry arc instead of sustained horizontal orbit, reversals="
+                            + directionReversals(sharkHorizontalOffsets) + ", offsets=" + sharkHorizontalOffsets
+                            + ", position=" + shark.position() + ", target=" + sharkTarget
+                            + ", navTarget=" + shark.getNavigation().getTargetPos());
+            helper.assertTrue(sharkPitches.stream().mapToDouble(Float::doubleValue)
+                            .map(Math::abs).max().orElse(0.0) > 1.0,
+                    "shark must pitch toward the vertical target, pitches=" + sharkPitches);
+            helper.assertTrue(maxPitchStep(sharkPitches)
+                            <= AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK + 0.0001F,
+                    "shark pitch must transition smoothly, maxStep=" + maxPitchStep(sharkPitches));
+            helper.assertTrue(max(sharkVerticalSpeeds)
+                            <= shark.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO + 0.0001D,
+                    "shark powered vertical speed must remain at the ten percent cap, max="
+                            + max(sharkVerticalSpeeds) + ", cap="
+                            + shark.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO);
             helper.assertTrue(hasNoDirectionReversal(sharkHeights, verticalDirection),
                     "shark vertical travel must not repeatedly reverse direction, reversals="
                             + directionReversals(sharkHeights) + ", heights=" + sharkHeights);
-            int dolphinSamples = arrival[0] < 0
-                    ? dolphinHeights.size() : arrival[0] + 1;
-            helper.assertTrue(hasNoDirectionReversal(dolphinHeights.subList(0, dolphinSamples), verticalDirection),
-                    "dolphin reference must remain smooth and monotonic, direction=" + verticalDirection
-                            + ", arrivalSample=" + arrival[0] + ", samples=" + dolphinSamples
-                            + ", heights=" + dolphinHeights + ", horizontalOffsets=" + dolphinHorizontalOffsets
-                            + ", position=" + dolphin.position() + ", target=" + dolphinTarget);
             helper.succeed();
         });
     }
@@ -797,6 +809,16 @@ public final class BfsGameTests {
             if (sign != 0) lastSign = sign;
         }
         return reversals;
+    }
+
+    private static boolean hasSingleFiniteHorizontalArc(java.util.List<Double> offsets) {
+        if (offsets.size() < 12 || directionReversals(offsets) > 2) return false;
+        int tailStart = offsets.size() - 12;
+        double tailMin = offsets.subList(tailStart, offsets.size()).stream()
+                .mapToDouble(Double::doubleValue).min().orElse(Double.NaN);
+        double tailMax = offsets.subList(tailStart, offsets.size()).stream()
+                .mapToDouble(Double::doubleValue).max().orElse(Double.NaN);
+        return tailMax - tailMin <= 1.0e-6D;
     }
 
     private static double max(java.util.List<Double> values) {

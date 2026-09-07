@@ -1,24 +1,32 @@
 package tfar.bensfintasticsharks.entity;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * Shark swim steering using the same smooth target following as bottlenose dolphins.
  *
- * <p>The vertical-only guard keeps the vanilla controller from assigning a meaningless
- * yaw when a path target is directly above or below the shark. This preserves smooth
- * pitch and vertical thrust without introducing circular horizontal movement.</p>
+ * <p>Direct vertical routes retain their entry yaw while the body eases into pitch-driven
+ * propulsion. Once the target depth is crossed, thrust stops instead of starting a new
+ * horizontal orbit.</p>
  */
 public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
 
     private static final double VERTICAL_TARGET_EPSILON = 1.0e-6;
-    private static final double VERTICAL_ROUTE_HORIZONTAL_TOLERANCE_SQR = 0.25;
     private final boolean trackPitch;
     private double smoothedVerticalVelocity;
+    private double lastWantedX = Double.NaN;
+    private double lastWantedY = Double.NaN;
+    private double lastWantedZ = Double.NaN;
+    private float verticalRouteYaw;
+    private int verticalRouteDirection;
+    private double verticalRouteGoalY;
+    private boolean verticalRouteSettled;
+    private boolean verticalRouteProfileInitialized;
+    private boolean verticalRoute;
 
     public SharkSwimmingMoveControl(Mob mob, float inWaterSpeedModifier) {
         this(mob, inWaterSpeedModifier, true);
@@ -31,82 +39,117 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
 
     @Override
     public void tick() {
+        boolean pitchDrivenTravel = this.mob instanceof AbstractSharkEntity<?> shark
+                && shark.usesPitchDrivenVerticalMovement();
+        boolean hasMoveTarget = this.operation == MoveControl.Operation.MOVE_TO;
+        if (!hasMoveTarget) {
+            lastWantedX = Double.NaN;
+            lastWantedY = Double.NaN;
+            lastWantedZ = Double.NaN;
+            verticalRouteSettled = false;
+            verticalRouteProfileInitialized = false;
+            verticalRoute = false;
+        } else if (pitchDrivenTravel) {
+            if (!verticalRouteProfileInitialized) {
+                BlockPos navigationTarget = this.mob.getNavigation().getTargetPos();
+                verticalRouteYaw = this.mob.getYRot();
+                verticalRouteGoalY = navigationTarget == null ? this.wantedY : navigationTarget.getY() + 0.5D;
+                double initialDx = this.wantedX - this.mob.getX();
+                double initialDz = this.wantedZ - this.mob.getZ();
+                verticalRoute = initialDx * initialDx + initialDz * initialDz
+                        <= VERTICAL_TARGET_EPSILON;
+                verticalRouteDirection = Integer.signum(Double.compare(
+                        verticalRouteGoalY, this.mob.getY()));
+                verticalRouteSettled = false;
+                verticalRouteProfileInitialized = true;
+            }
+        } else if (!Double.isFinite(lastWantedX)
+                || Math.abs(lastWantedX - this.wantedX) > VERTICAL_TARGET_EPSILON
+                || Math.abs(lastWantedY - this.wantedY) > VERTICAL_TARGET_EPSILON
+                || Math.abs(lastWantedZ - this.wantedZ) > VERTICAL_TARGET_EPSILON) {
+            lastWantedX = this.wantedX;
+            lastWantedY = this.wantedY;
+            lastWantedZ = this.wantedZ;
+            verticalRouteYaw = this.mob.getYRot();
+            verticalRouteDirection = Integer.signum(Double.compare(this.wantedY, this.mob.getY()));
+            verticalRouteSettled = false;
+        }
         boolean moving = this.operation == MoveControl.Operation.MOVE_TO
                 && !this.mob.getNavigation().isDone()
                 && this.mob.isInWater();
         double dx = this.wantedX - this.mob.getX();
         double dy = this.wantedY - this.mob.getY();
         double dz = this.wantedZ - this.mob.getZ();
-        BlockPos routeTargetPos = this.mob.getNavigation().getTargetPos();
-        double routeDx = dx;
-        double routeDy = dy;
-        double routeDz = dz;
-        if (routeTargetPos != null) {
-            Vec3 routeTarget = Vec3.atCenterOf(routeTargetPos);
-            routeDx = routeTarget.x - this.mob.getX();
-            routeDy = routeTarget.y - this.mob.getY();
-            routeDz = routeTarget.z - this.mob.getZ();
+        double routeDy = pitchDrivenTravel && verticalRoute ? verticalRouteGoalY - this.mob.getY() : dy;
+        double pitchDx = pitchDrivenTravel && verticalRoute ? 0.0D : dx;
+        double pitchDz = pitchDrivenTravel && verticalRoute ? 0.0D : dz;
+        if (pitchDrivenTravel && verticalRouteDirection == 0 && Math.abs(routeDy) > VERTICAL_TARGET_EPSILON) {
+            verticalRouteDirection = Integer.signum(Double.compare(routeDy, 0.0D));
         }
-        boolean verticalOnly = moving
-                && (dx * dx + dz * dz <= VERTICAL_TARGET_EPSILON
-                || (routeTargetPos != null
-                && routeDx * routeDx + routeDz * routeDz <= VERTICAL_ROUTE_HORIZONTAL_TOLERANCE_SQR));
+        boolean verticalOnly = moving && (pitchDrivenTravel
+                ? verticalRoute
+                : dx * dx + dz * dz <= VERTICAL_TARGET_EPSILON);
+        if (pitchDrivenTravel && verticalOnly && verticalRouteDirection != 0
+                && (routeDy * verticalRouteDirection <= 0.0D
+                || Math.abs(routeDy) <= this.mob.getBbHeight())) {
+            verticalRouteSettled = true;
+        }
+        boolean motionActive = moving && !(pitchDrivenTravel && verticalOnly && verticalRouteSettled);
         float yaw = this.mob.getYRot();
         float previousPitch = this.mob.getXRot();
 
         super.tick();
 
         if (trackPitch) {
-            // Keep the powered vertical direction tied to the requested destination. A water
-            // path can refresh its intermediate waypoint across the current block boundary;
-            // using that waypoint's sign lets a descending route briefly reverse before the
-            // final destination direction is re-established.
-            double verticalDx = dx;
-            double verticalDy = dy;
-            double verticalDz = dz;
-            double targetVerticalVelocity = moving
-                    ? AquaticMovement.affectedVerticalVelocity(
-                            this.mob.getSpeed(), verticalDx, verticalDy, verticalDz)
-                    : 0.0D;
-            // Do not smooth from the full vertical impulse that SmoothSwimmingMoveControl writes
-            // above. That impulse is the unscaled vanilla value and caused a first tick elevator
-            // burst before the approved ten percent profile took effect.
-            smoothedVerticalVelocity = AquaticMovement.smoothAndLimitVerticalVelocity(
-                    smoothedVerticalVelocity, targetVerticalVelocity, this.mob.getSpeed());
-            // A path target may be refreshed to an adjacent block while descending or rising.
-            // Do not let the previous velocity carry the body across zero and create a visible
-            // depth reversal before the new target direction is established.
-            if ((targetVerticalVelocity > 0.0D && smoothedVerticalVelocity < 0.0D)
-                    || (targetVerticalVelocity < 0.0D && smoothedVerticalVelocity > 0.0D)) {
-                smoothedVerticalVelocity = 0.0D;
+            // Non pitch driven routes continue to follow smoothed vertical waypoints. Pitch
+            // driven routes use the latched final target above so refreshed path nodes cannot
+            // reverse the body attitude during a direct ascent or descent.
+            if (!pitchDrivenTravel) {
+                double targetVerticalVelocity = moving
+                        ? AquaticMovement.affectedVerticalVelocity(this.mob.getSpeed(), dx, dy, dz)
+                        : 0.0D;
+                smoothedVerticalVelocity = AquaticMovement.smoothAndLimitVerticalVelocity(
+                        smoothedVerticalVelocity, targetVerticalVelocity, this.mob.getSpeed());
+                this.mob.setDeltaMovement(this.mob.getDeltaMovement().x,
+                        smoothedVerticalVelocity, this.mob.getDeltaMovement().z);
             }
-            this.mob.setDeltaMovement(this.mob.getDeltaMovement().x,
-                    smoothedVerticalVelocity, this.mob.getDeltaMovement().z);
-
-            if (!moving) {
+            if (!motionActive) {
                 if (this.mob.isInWater()) {
                     this.mob.setXRot(this.rotlerp(previousPitch, 0.0F,
                             AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
                 }
+                if (pitchDrivenTravel && verticalOnly) {
+                    this.mob.setYRot(verticalRouteYaw);
+                    this.mob.yBodyRot = verticalRouteYaw;
+                    this.mob.yHeadRot = verticalRouteYaw;
+                }
+                this.mob.setZza(0.0F);
                 this.mob.setYya(0.0F);
                 return;
             }
 
             this.mob.setYya(0.0F);
+            // A direct-above or direct-below target still needs forward propulsion while the
+            // body eases through its entry arc. The pitch-aligned travel step supplies the
+            // vertical component; zero forward input would create stationary pitch acquisition.
+            this.mob.setZza(1.0F);
             this.mob.setXRot(this.rotlerp(previousPitch,
-                    AquaticMovement.affectedPitch(verticalDx, verticalDy, verticalDz,
+                    AquaticMovement.affectedPitch(pitchDx, routeDy, pitchDz,
                             pitchUpLimit(), pitchDownLimit()),
                     AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
-        }
 
-        if (verticalOnly) {
-            this.mob.setYRot(yaw);
-            this.mob.yBodyRot = yaw;
-            this.mob.yHeadRot = yaw;
-            this.mob.setZza(0.0f);
-            this.mob.setXxa(0.0f);
-            Vec3 delta = this.mob.getDeltaMovement();
-            this.mob.setDeltaMovement(0.0, delta.y, 0.0);
+            if (verticalOnly) {
+                float routeYaw = pitchDrivenTravel ? verticalRouteYaw : yaw;
+                this.mob.setYRot(routeYaw);
+                this.mob.yBodyRot = routeYaw;
+                this.mob.yHeadRot = routeYaw;
+                if (!pitchDrivenTravel) {
+                    this.mob.setZza(0.0F);
+                    this.mob.setXxa(0.0F);
+                    Vec3 delta = this.mob.getDeltaMovement();
+                    this.mob.setDeltaMovement(0.0D, delta.y, 0.0D);
+                }
+            }
         }
     }
 

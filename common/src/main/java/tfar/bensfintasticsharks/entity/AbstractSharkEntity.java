@@ -844,6 +844,9 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         float scale = shallowWaterSpeedScale();
         if (chasing || fleeing) scale *= chaseAccelBoost();
         Vec3 effectiveInput = braking ? Vec3.ZERO : scaleVerticalSwimInput(movementInput);
+        if (!braking && usesPitchDrivenVerticalMovement()) {
+            effectiveInput = AquaticMovement.bodyAlignedInput(effectiveInput, this.getXRot());
+        }
         float accel = useSwimMultiplier
                 ? this.getSpeed() * swimSpeedMultiplier() * scale
                 : this.getSpeed() * scale;
@@ -854,7 +857,17 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         Vec3 dm = this.getDeltaMovement();
         double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
         float cap = maxHorizontalSpeed();
-        if (horiz > cap) {
+        if (usesPitchDrivenVerticalMovement() && !braking) {
+            Vec3 forward = AquaticMovement.forwardVector(this.getYRot(), this.getXRot());
+            dm = AquaticMovement.limitPoweredVelocity(dm, forward, cap,
+                    this.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO);
+            if (movementInput.z > 0.0F) {
+                dm = AquaticMovement.removeUnalignedVerticalSlip(dm, forward);
+            }
+            this.setDeltaMovement(dm);
+            horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
+        }
+        if (!usesPitchDrivenVerticalMovement() && horiz > cap) {
             double s = cap / horiz;
             this.setDeltaMovement(dm.x * s, dm.y, dm.z * s);
         } else {
