@@ -220,11 +220,21 @@ class ReleaseContractAuditTest {
                 "common/src/main/java/tfar/bensfintasticsharks/entity/AtlanticSalmonEntity.java"));
         String salmonForge = Files.readString(ROOT.resolve(
                 "forge/src/main/java/tfar/bensfintasticsharks/entity/AtlanticSalmonEntityForge.java"));
+        String platform = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/platform/ForgePlatformHelper.java"));
+        String spawnPlacements = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/spawn/BfsSpawnPlacements.java"));
         assertTrue(cod.contains("extends Cod"));
         assertTrue(salmon.contains("extends Salmon"));
         assertTrue(salmon.contains("\"Spin\".equals(getCustomName().getString())"));
         assertTrue(salmonForge.contains("if (isNamedSpin())"));
         assertTrue(salmonForge.contains("animation.atlantic_salmon.spin"));
+        assertTrue(platform.contains(".sized(0.5f, 0.3f)"));
+        assertTrue(platform.contains(".sized(0.7f, 0.4f)"));
+        assertEquals(2, countOccurrences(platform, ".clientTrackingRange(4)"));
+        assertTrue(spawnPlacements.contains("registerFish(event, ModEntityTypes.ATLANTIC_COD)"));
+        assertTrue(spawnPlacements.contains("registerFish(event, ModEntityTypes.ATLANTIC_SALMON)"));
+        assertTrue(spawnPlacements.contains("Heightmap.Types.MOTION_BLOCKING_NO_LEAVES"));
 
         Path resources = GENERATED.resolve("data/bensfintasticsharks");
         for (String fish : List.of("atlantic_cod", "atlantic_salmon")) {
@@ -239,6 +249,16 @@ class ReleaseContractAuditTest {
         assertTrue(speciesInfo.contains("atlantic_salmon\", species(\"Salmo salar\""));
         assertFalse(speciesInfo.contains("atlantic_cod\", species(\"Gadus morhua\", \"Passive schooling fish\",\n                    \"TBD\""));
         assertFalse(speciesInfo.contains("atlantic_salmon\", species(\"Salmo salar\", \"Passive schooling fish\",\n                    \"TBD\""));
+    }
+
+    private static int countOccurrences(String text, String needle) {
+        int count = 0;
+        int offset = 0;
+        while ((offset = text.indexOf(needle, offset)) >= 0) {
+            count++;
+            offset += needle.length();
+        }
+        return count;
     }
 
     @Test

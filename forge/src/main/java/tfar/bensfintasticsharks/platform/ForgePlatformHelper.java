@@ -180,12 +180,18 @@ public class ForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public EntityType<AtlanticCodEntity> registerAtlanticCod() {
-        return EntityType.Builder.of(AtlanticCodEntityForge::new, MobCategory.WATER_AMBIENT).sized(0.65f, 0.4f).build("");
+        return EntityType.Builder.of(AtlanticCodEntityForge::new, MobCategory.WATER_AMBIENT)
+                .sized(0.5f, 0.3f)
+                .clientTrackingRange(4)
+                .build("");
     }
 
     @Override
     public EntityType<AtlanticSalmonEntity> registerAtlanticSalmon() {
-        return EntityType.Builder.of(AtlanticSalmonEntityForge::new, MobCategory.WATER_AMBIENT).sized(0.8f, 0.45f).build("");
+        return EntityType.Builder.of(AtlanticSalmonEntityForge::new, MobCategory.WATER_AMBIENT)
+                .sized(0.7f, 0.4f)
+                .clientTrackingRange(4)
+                .build("");
     }
 
     @Override

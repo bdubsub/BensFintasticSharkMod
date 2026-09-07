@@ -12,11 +12,15 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
+import net.minecraft.world.entity.animal.Cod;
+import net.minecraft.world.entity.animal.Salmon;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
 import com.mojang.authlib.GameProfile;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
@@ -483,6 +487,70 @@ public final class BfsGameTests {
                 helper.succeed();
             });
         });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_fish_parity", timeoutTicks = 40)
+    public static void atlanticFishMatchVanillaParityAndPlacement(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 3, 3));
+        AtlanticSalmonEntity salmon = helper.spawn(ModEntityTypes.ATLANTIC_SALMON, new BlockPos(6, 3, 3));
+        Cod vanillaCod = EntityType.COD.create(helper.getLevel());
+        Salmon vanillaSalmon = EntityType.SALMON.create(helper.getLevel());
+        helper.assertTrue(vanillaCod != null && vanillaSalmon != null,
+                "vanilla fish controls must be constructible in the parity fixture");
+        helper.assertTrue(ModEntityTypes.ATLANTIC_COD.getCategory() == EntityType.COD.getCategory()
+                        && ModEntityTypes.ATLANTIC_SALMON.getCategory() == EntityType.SALMON.getCategory(),
+                "Atlantic fish must retain the vanilla water ambient category");
+        assertEntityTypeParity(helper, ModEntityTypes.ATLANTIC_COD, EntityType.COD, "Cod");
+        assertEntityTypeParity(helper, ModEntityTypes.ATLANTIC_SALMON, EntityType.SALMON, "Salmon");
+        helper.assertTrue(cod.getMaxSchoolSize() == vanillaCod.getMaxSchoolSize(),
+                "Atlantic Cod must retain vanilla schooling size");
+        helper.assertTrue(salmon.getMaxSchoolSize() == vanillaSalmon.getMaxSchoolSize(),
+                "Atlantic Salmon must retain vanilla schooling size");
+        helper.assertTrue(cod.getNavigation() instanceof WaterBoundPathNavigation
+                        && salmon.getNavigation() instanceof WaterBoundPathNavigation,
+                "Atlantic fish must use vanilla water navigation");
+        helper.assertTrue(cod.getTarget() == null && salmon.getTarget() == null,
+                "Atlantic fish must remain passive without attack targets");
+        helper.assertTrue(net.minecraft.world.entity.SpawnPlacements.getPlacementType(ModEntityTypes.ATLANTIC_COD)
+                        == net.minecraft.world.entity.SpawnPlacements.Type.IN_WATER
+                        && net.minecraft.world.entity.SpawnPlacements.getPlacementType(ModEntityTypes.ATLANTIC_SALMON)
+                        == net.minecraft.world.entity.SpawnPlacements.Type.IN_WATER,
+                "Atlantic fish placement must remain in water");
+        helper.assertTrue(net.minecraft.world.entity.SpawnPlacements.getHeightmapType(ModEntityTypes.ATLANTIC_COD)
+                        == net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES
+                        && net.minecraft.world.entity.SpawnPlacements.getHeightmapType(ModEntityTypes.ATLANTIC_SALMON)
+                        == net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                "Atlantic fish placement must use the vanilla heightmap");
+        helper.succeed();
+    }
+
+    private static void assertEntityTypeParity(GameTestHelper helper, EntityType<?> actual,
+                                                EntityType<?> vanilla, String species) {
+        helper.assertTrue(Math.abs(actual.getWidth() - vanilla.getWidth()) < 0.0001F
+                        && Math.abs(actual.getHeight() - vanilla.getHeight()) < 0.0001F,
+                species + " hitbox must match vanilla dimensions, actual=" + actual.getWidth() + "x"
+                        + actual.getHeight() + ", vanilla=" + vanilla.getWidth() + "x" + vanilla.getHeight());
+        helper.assertTrue(actual.clientTrackingRange() == vanilla.clientTrackingRange(),
+                species + " tracking range must match vanilla");
+    }
+
+    @GameTest(template = "empty", batch = "bfs_fish_parity", timeoutTicks = 40)
+    public static void atlanticSalmonSpinNameIsExactAndReversible(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        AtlanticSalmonEntity salmon = helper.spawn(ModEntityTypes.ATLANTIC_SALMON, new BlockPos(4, 3, 3));
+        helper.assertTrue(!salmon.isNamedSpin(), "unnamed Salmon must not enter Spin");
+        salmon.setCustomName(Component.literal("spin"));
+        helper.assertTrue(!salmon.isNamedSpin(), "lowercase spin must not enter Spin");
+        salmon.setCustomName(Component.literal("Spin "));
+        helper.assertTrue(!salmon.isNamedSpin(), "space suffixed Spin must not enter Spin");
+        salmon.setCustomName(Component.literal("Spin"));
+        helper.assertTrue(salmon.isNamedSpin(), "exact case sensitive Spin must enter Spin immediately");
+        salmon.setCustomName(Component.literal("Other"));
+        helper.assertTrue(!salmon.isNamedSpin(), "renaming must exit Spin without reloading the entity");
+        salmon.setCustomName(null);
+        helper.assertTrue(!salmon.isNamedSpin(), "removing the name must keep Spin inactive");
+        helper.succeed();
     }
 
     @GameTest(template = "empty", batch = "bfs_debug_cod_movement", timeoutTicks = 120)
