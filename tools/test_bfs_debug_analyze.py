@@ -188,6 +188,16 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         self.assertEqual("invalid", analysis["verdict"])
         self.assertTrue(any("not valid JSON" in error for error in analysis["errors"]))
 
+    def test_truncated_jsonl_is_invalid(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "capture.jsonl"
+            path.write_text(json.dumps(record("header", 1)) + "\n{\"event\":\n", encoding="utf-8")
+            records, errors = bfs_debug_analyze.load_capture(path)
+        analysis = bfs_debug_analyze.validate(records, errors, {})
+        self.assertEqual("invalid", analysis["verdict"])
+        self.assertTrue(any("not valid JSON" in error for error in analysis["errors"]))
+        self.assertIn("capture must contain exactly one end record", analysis["errors"])
+
     def test_arriving_helical_route_is_rejected_when_declared(self) -> None:
         records = [record("header", 1)]
         for tick, angle in enumerate((0.0, 1.8, 3.6, 5.4, 6.4), start=2):

@@ -1,6 +1,7 @@
 package tfar.bensfintasticsharks.debug;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -12,6 +13,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -212,7 +215,12 @@ public final class BfsDebugManager {
                 releaseTarget(active, level, targetId, "entity_unavailable_in_source_dimension");
                 continue;
             }
-            enqueue(active, movementRecord(active, level, target, tick));
+            if (active.category.capturesMovement()) {
+                enqueue(active, movementRecord(active, level, target, tick));
+            }
+            if (active.category.capturesBrain()) {
+                enqueue(active, brainRecord(active, level, target, tick));
+            }
         }
     }
 
@@ -376,6 +384,68 @@ public final class BfsDebugManager {
         }
         record.addProperty("brainState", "unavailable:controller_specific_state_is_not_exposed_by_the_base_entity_api");
         return record;
+    }
+
+    /**
+     * Records the observable server brain state without serializing memory values, entity
+     * instances, coordinates, player data, or behavior debug strings. The metadata is enough to
+     * correlate decisions with motion while keeping the support bundle safe to share.
+     */
+    private static JsonObject brainRecord(Session active, ServerLevel level, Entity entity, long tick) {
+        JsonObject record = baseRecord(active, "brain", tick);
+        record.addProperty("entityUuid", entity.getUUID().toString());
+        record.addProperty("entityType", entityId(entity));
+        record.addProperty("runtimeId", entity.getId());
+        if (!(entity instanceof Mob mob)) {
+            record.addProperty("brain", "unavailable:not_a_mob");
+            return record;
+        }
+
+        Brain<?> brain = mob.getBrain();
+        JsonArray activeActivities = new JsonArray();
+        brain.getActiveActivities().stream()
+                .map(net.minecraft.world.entity.schedule.Activity::getName)
+                .sorted()
+                .forEach(activeActivities::add);
+        record.add("activeActivities", activeActivities);
+
+        JsonArray runningBehaviors = new JsonArray();
+        brain.getRunningBehaviors().stream()
+                .map(BfsDebugManager::behaviorSnapshot)
+                .sorted()
+                .forEach(runningBehaviors::add);
+        record.add("runningBehaviors", runningBehaviors);
+
+        JsonArray memories = new JsonArray();
+        brain.getMemories().entrySet().stream()
+                .sorted(Comparator.comparing(entry -> memoryId(entry.getKey())))
+                .forEach(entry -> memories.add(memorySnapshot(brain, entry.getKey(), entry.getValue().isPresent())));
+        record.add("memories", memories);
+        record.addProperty("memoryCount", memories.size());
+        record.addProperty("targetUuid", mob.getTarget() == null ? "none" : mob.getTarget().getUUID().toString());
+        record.addProperty("targetType", mob.getTarget() == null ? "none" : entityId(mob.getTarget()));
+        return record;
+    }
+
+    private static String behaviorSnapshot(BehaviorControl<?> behavior) {
+        return behavior.getClass().getName() + ":" + behavior.getStatus().name();
+    }
+
+    private static JsonObject memorySnapshot(Brain<?> brain,
+                                              net.minecraft.world.entity.ai.memory.MemoryModuleType<?> memory,
+                                              boolean present) {
+        JsonObject record = new JsonObject();
+        record.addProperty("memoryType", memoryId(memory));
+        record.addProperty("present", present);
+        if (present) {
+            record.addProperty("timeUntilExpiryTicks", brain.getTimeUntilExpiry(memory));
+        }
+        return record;
+    }
+
+    private static String memoryId(net.minecraft.world.entity.ai.memory.MemoryModuleType<?> memory) {
+        net.minecraft.resources.ResourceLocation key = BuiltInRegistries.MEMORY_MODULE_TYPE.getKey(memory);
+        return key == null ? "unavailable:unregistered_memory_type" : key.toString();
     }
 
     private static void addPositionDelta(Session active, JsonObject record, Entity entity) {
@@ -711,6 +781,10 @@ public final class BfsDebugManager {
 
         private boolean capturesMovement() {
             return this == ALL || this == MOVEMENT || this == BRAIN;
+        }
+
+        private boolean capturesBrain() {
+            return this == ALL || this == BRAIN;
         }
 
         private boolean capturesCombat() {

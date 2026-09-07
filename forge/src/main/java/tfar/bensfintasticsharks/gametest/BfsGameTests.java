@@ -26,6 +26,10 @@ import tfar.bensfintasticsharks.debug.BfsDebugManager;
 import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 /** Server safe smoke fixtures for the shared Phase 000 harness. */
 @GameTestHolder("bensfintasticsharks")
 public final class BfsGameTests {
@@ -184,6 +188,86 @@ public final class BfsGameTests {
             helper.succeed();
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
             helper.fail("BFS debug command test failed: " + exception.getMessage());
+        }
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_brain", timeoutTicks = 100)
+    public static void serverDebugBrainCaptureRecordsSanitizedState(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 3, 3));
+        BfsDebugManager.stop("gametest_setup");
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(helper.absolutePos(new BlockPos(3, 3, 3)).getCenter())
+                .withPermission(4);
+        try {
+            int started = server.getCommands().getDispatcher().execute(
+                    "bfs debug on brain 30 @e[type=bensfintasticsharks:atlantic_cod,distance=..4,limit=1]", source);
+            helper.assertTrue(started == 1, "brain diagnostic fixture must select exactly one Cod");
+            helper.runAfterDelay(10, () -> {
+                try {
+                    server.getCommands().getDispatcher().execute("bfs debug off", source);
+                    Path output = BfsDebugManager.status().lastStop().outputPath();
+                    verifyBrainCapture(helper, output, 20);
+                } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+                    helper.fail("BFS brain diagnostic stop command failed: " + exception.getMessage());
+                }
+            });
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+            helper.fail("BFS brain diagnostic start command failed: " + exception.getMessage());
+        }
+    }
+
+    private static void verifyBrainCapture(GameTestHelper helper, Path output, int remainingChecks) {
+        helper.runAfterDelay(1, () -> {
+            try {
+                if (!Files.exists(output)) {
+                    if (remainingChecks > 1) {
+                        verifyBrainCapture(helper, output, remainingChecks - 1);
+                    } else {
+                        helper.fail("BFS brain diagnostic output was not written: " + output);
+                    }
+                    return;
+                }
+                String contents = Files.readString(output);
+                if (!contents.contains("\"event\":\"brain\"")) {
+                    if (remainingChecks > 1) {
+                        verifyBrainCapture(helper, output, remainingChecks - 1);
+                    } else {
+                        helper.fail("BFS brain diagnostic output has no brain event: " + output);
+                    }
+                    return;
+                }
+                helper.assertTrue(contents.contains("\"activeActivities\":"),
+                        "brain records must include active activities");
+                helper.assertTrue(contents.contains("\"runningBehaviors\":"),
+                        "brain records must include running behavior metadata");
+                helper.assertTrue(contents.contains("\"memories\":"),
+                        "brain records must include memory presence metadata");
+                helper.assertTrue(!contents.contains("debugString"),
+                        "brain records must not include behavior debug strings");
+                helper.succeed();
+            } catch (IOException exception) {
+                helper.fail("unable to read BFS brain diagnostic output: " + exception.getMessage());
+            } finally {
+                if (remainingChecks == 1 || Files.exists(output) &&
+                        contentsContainBrainEvent(output)) {
+                    try {
+                        Files.deleteIfExists(output);
+                    } catch (IOException ignored) {
+                        // Cleanup is best effort after the evidence assertions have run.
+                    }
+                }
+            }
+        });
+    }
+
+    private static boolean contentsContainBrainEvent(Path output) {
+        try {
+            return Files.readString(output).contains("\"event\":\"brain\"");
+        } catch (IOException exception) {
+            return false;
         }
     }
 
