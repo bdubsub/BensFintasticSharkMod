@@ -1607,6 +1607,39 @@
     },
     "phase_scope": "diagnostic facility and packaged handshake evidence only; interactive visual, natural gameplay, advancement, algae, review, merge, ancestry, and signed tag gates remain open"
   },
+  "bound_targeted_state_capture_20260907": {
+    "status": "complete_bounded_state_capture",
+    "source_revision": "1e5b4f0c07ae06ca15b6d2c5bd429b10c0902b33",
+    "artifact": {
+      "path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "sha256": "92d4dfa54d6d796cb1b2b471a8feb32d6a3040237111c32238e7d0e31046c4f8"
+    },
+    "environment": {
+      "server_host": "node-1",
+      "client_host": "envision",
+      "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "client_audio": "exact Minecraft playback stream muted",
+      "configuration_fingerprint": "p000-task005-targeted-20260907",
+      "datapack_fingerprint": "phase-000-generated"
+    },
+    "client_capture": {
+      "session_id": "24c3ff56-52be-43f4-b0a2-150b09533510",
+      "path": "/tmp/bfsm-phase000-evidence/p000-task005-targeted-exact-20260907/client.jsonl",
+      "sha256": "dfa376e523079a747863fecb50b11d1c2ce1d25f86cfdc39f51bfed7a8de3d2d",
+      "records": 4499,
+      "movement_records": 3597,
+      "presentation_records": 900,
+      "dropped_records": 0,
+      "terminal_record": true,
+      "verdict": "complete",
+      "observed_animations": {
+        "bensfintasticsharks:atlantic_cod": ["animation.atlantic_cod.idle", "animation.atlantic_cod.swim"],
+        "bensfintasticsharks:atlantic_salmon": ["animation.atlantic_salmon.spin"],
+        "bensfintasticsharks:oceanic_whitetip_shark": ["animation.oceanicwhitetipshark.swim_fast_new", "animation.oceanicwhitetipshark.bite_new"]
+      },
+      "limitation": "This bounded capture does not claim Salmon flop, Oceanic death, beached, thrash, bite damage timing, or the complete five-point transform table."
+    }
+  },
   "defects": {
     "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",
     "DEF-024-002": "blocked, bounded client state and presentation captures now pass but the complete authored interactive state matrix remains missing",
