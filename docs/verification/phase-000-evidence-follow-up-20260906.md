@@ -540,3 +540,57 @@ exact-target cleanup, and both paths were checked absent. This run is the clean
 candidate artifact for the Phase 000 packet. Review, remote push, pull-request
 merge, ancestry verification and the signed `bfs-0.24-phase-000` tag remain
 open.
+
+## Current clean P000-TASK-011 candidate binding
+
+On 2026-09-07, the current Phase 000 head `aa7d8514469accff86cf2993663b5b8f8f5994e8`
+was extracted with `git archive` into a unique temporary directory. The clean
+archive used the explicit Java 17.0.19 executable
+`/usr/lib/jvm/temurin-17-jdk-amd64/bin/java`; no client, renderer or display was
+started. The ordered verification commands completed successfully:
+
+```text
+./gradlew :forge:compileJava :forge:compileTestJava --no-daemon
+./gradlew :forge:test --no-daemon
+./gradlew :forge:Data --no-daemon
+./gradlew :forge:test --no-daemon
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks -PbfsGameTestRunDir=/tmp/bfsm-p000-task011-gametest.K5Z0nI
+./gradlew :forge:build --no-daemon
+python3 tools/test_bfs_debug_analyze.py
+```
+
+The compile, test, data, GameTest, build and analyzer logs are retained only as
+sanitized evidence at `/tmp/bfsm-p000-task011-evidence-20260907/`. Their
+SHA-256 values are `c2389c26a77f3da6d9f13c206a35c00e6064eb38f74a1ecf24057d45a2570fbf`,
+`d564be722b0ce614599adbe7c728503c9bc5b055899dc8638ecd595b29b87844`,
+`a22dcfd613bb8707e962ddf54f4485bc02f013f562cf7fabc06a6fcd8a6f9f3b`,
+`dc9d211363d7520908334bad38d60c09d266b0fa4283af865abca6a3a189e840`,
+`b9e03118f026b90db13dbda1cad66b5f9827a68fc806c82707f3230c8f7228f`, and
+`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` in that
+order. The second unit-test log is
+`d564be722b0ce614599adbe7c728503c9bc5b055899dc8638ecd595b29b87844`.
+
+The clean Forge GameTest run reported all `22` required tests passed, and the
+strict debug analyzer reported `18` tests passed. Data generation produced no
+non-cache generated-resource drift. The Forge artifact
+`forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` is `1831893`
+bytes with SHA-256
+`34fd935170cc8e1d67501163448fd7407da08f303234422bae5d627c85b82a68` and
+SHA-512
+`403cb206656434db4b793c3611ddf1266e248cb1f612b9a3a268d89d6ba557ce462d899669d2842bd2b06dc3e54bd15f45318f7f0260b0dec17973758ac84939`.
+`unzip -tqq` passed and the jar contains no diagnostic JSONL, runtime logs,
+worlds, source archives or `Content/` files.
+
+The exact packaged Forge server probe used this artifact with Forge `47.2.0`,
+GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, Java `17.0.19`, `eula=true`, and a
+disposable runtime on node 1. It reached `Done (13.528s)`, loaded `7` recipes
+and `1343` advancements, and stopped cleanly. The packaged log SHA-256 is
+`e26ac349cb12a6e7eb8b9b1c9203f9ba1b86e084364a87253091ee3cd76deef0`.
+
+The extracted archive, GameTest runtime and packaged server runtime were
+removed after their final consumers completed, and each exact path was checked
+absent. The protected `build.gradle`, generated cache files, uncommitted Forge
+source edits and pre-existing `forge/logs/` directory were not staged or
+modified. This closes the current P000-TASK-011 deterministic artifact and
+readiness evidence. P000-TASK-012 review, pull-request merge, remote ancestry
+verification and the signed phase tag remain open.
