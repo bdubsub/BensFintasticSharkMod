@@ -512,3 +512,31 @@ and their required integration metadata. Only those owned paths may be staged fo
 the phase commit. The protected paths remain visible in the worktree status so a
 later owner can bind or discard them deliberately; they do not enter the Phase
 000 artifact or pull request.
+
+## Clean committed Phase 000 verification
+
+The phase-owned evidence commit `9392a06` was verified from a clean `git archive`
+extraction on `node-1`; no protected dirty path was present in that verification
+tree. The ordered commands completed successfully: compileJava and
+compileTestJava, unit tests, data generation, the second unit-test pass,
+`GameTestServer --rerun-tasks`, and the full Forge build. The GameTest server was
+headless, used Java 17.0.19, and reported `22` required tests passed. Its isolated
+runtime was `/tmp/bfsm-p000-clean-gametest-LR6Z55`, with `eula=true` written and
+read for that disposable target. No client, renderer or laptop process was
+started.
+
+The packaged Forge artifact was
+`forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar`, size `1830502`
+bytes. `unzip -tqq` passed. SHA-256 is
+`ac566c2817d470ca5269d5c3d4906dd2be79d72e36cefbe2e4801550f58e80c9`; SHA-512
+is
+`324223131ba2c8315a3908a9d80b082e32ab0377cdad4f6ed5bb2eec8f786c3110504e14f2fa38b38f4d7e62841178f56855c902a4c5d996e83ad9072eae5afb`.
+The embedded metadata is Forge for Minecraft `1.20.1`, mod version `0.24`,
+GeckoLib `4.x` and SmartBrainLib `1.14.x`; final `1.0-rc.1` metadata remains a
+Phase 005 responsibility under `DEC-011`.
+
+The extracted source tree and disposable GameTest runtime were removed with
+exact-target cleanup, and both paths were checked absent. This run is the clean
+candidate artifact for the Phase 000 packet. Review, remote push, pull-request
+merge, ancestry verification and the signed `bfs-0.24-phase-000` tag remain
+open.
