@@ -9,12 +9,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
 import com.mojang.authlib.GameProfile;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
@@ -29,6 +31,7 @@ import tfar.bensfintasticsharks.entity.TigerSharkEntity;
 import tfar.bensfintasticsharks.debug.BfsDebugManager;
 import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
+import tfar.bensfintasticsharks.init.ModItems;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -84,6 +87,39 @@ public final class BfsGameTests {
             helper.assertItemEntityPresent(ModBlocks.ALGAE_BLOCK.asItem(), ALGAE_POS, 2.0);
             helper.succeed();
         });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_armor", timeoutTicks = 40)
+    public static void prismarineArmorEquipmentSurvivesWaterAndReequip(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        Player player = makeSurvivalTestPlayer(helper);
+        player.setPos(helper.absolutePos(new BlockPos(3, 3, 3)).getCenter());
+        helper.getLevel().addFreshEntity(player);
+        setPrismarineArmor(player);
+        helper.runAfterDelay(10, () -> {
+            helper.assertTrue(player.isInWaterOrBubble(), "armor fixture must keep the player in water");
+            assertPrismarineArmor(helper, player, "initial water equipment");
+            player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+            helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).isEmpty(),
+                    "chest slot must empty before re-equipping");
+            player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.PRISMARINE_CHESTPLATE));
+            assertPrismarineArmor(helper, player, "re-equipped water armor");
+            helper.succeed();
+        });
+    }
+
+    private static void setPrismarineArmor(Player player) {
+        player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ModItems.PRISMARINE_HELMET));
+        player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.PRISMARINE_CHESTPLATE));
+        player.setItemSlot(EquipmentSlot.LEGS, new ItemStack(ModItems.PRISMARINE_LEGGINGS));
+        player.setItemSlot(EquipmentSlot.FEET, new ItemStack(ModItems.PRISMARINE_BOOTS));
+    }
+
+    private static void assertPrismarineArmor(GameTestHelper helper, Player player, String context) {
+        helper.assertTrue(player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.PRISMARINE_HELMET), context + " helmet");
+        helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).is(ModItems.PRISMARINE_CHESTPLATE), context + " chestplate");
+        helper.assertTrue(player.getItemBySlot(EquipmentSlot.LEGS).is(ModItems.PRISMARINE_LEGGINGS), context + " leggings");
+        helper.assertTrue(player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.PRISMARINE_BOOTS), context + " boots");
     }
 
     @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 40)

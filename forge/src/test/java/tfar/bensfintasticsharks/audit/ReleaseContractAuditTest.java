@@ -353,6 +353,43 @@ class ReleaseContractAuditTest {
         assertEquals(9, biomes.getAsJsonArray("values").size());
     }
 
+    @Test
+    void prismarineArmorGeometryAndLivePoseBindingAreComplete() throws IOException {
+        JsonObject geometry = readJson(SOURCE_ASSETS.resolve("geo/item/armor/prismarine_armor.geo.json"));
+        Map<String, Integer> cubeCounts = new LinkedHashMap<>();
+        Set<String> bones = new HashSet<>();
+        for (JsonElement geometryEntry : geometry.getAsJsonArray("minecraft:geometry")) {
+            for (JsonElement boneElement : geometryEntry.getAsJsonObject().getAsJsonArray("bones")) {
+                JsonObject bone = boneElement.getAsJsonObject();
+                String name = bone.get("name").getAsString();
+                bones.add(name);
+                cubeCounts.put(name, bone.has("cubes") ? bone.getAsJsonArray("cubes").size() : 0);
+            }
+        }
+        assertTrue(bones.containsAll(Set.of("bipedHead", "armorHead", "bipedBody", "armorBody",
+                "bipedRightArm", "armorRightArm", "bipedLeftArm", "armorLeftArm", "bipedLeftLeg",
+                "armorLeftLeg", "armorLeftBoot", "bipedRightLeg", "armorRightLeg", "armorRightBoot")));
+        assertEquals(5, cubeCounts.get("armorHead"));
+        assertEquals(5, cubeCounts.get("armorBody"));
+        assertEquals(3, cubeCounts.get("armorRightArm"));
+        assertEquals(3, cubeCounts.get("armorLeftArm"));
+        assertEquals(2, cubeCounts.get("armorLeftLeg"));
+        assertEquals(2, cubeCounts.get("armorRightLeg"));
+        assertEquals(3, cubeCounts.get("armorLeftBoot"));
+        assertEquals(3, cubeCounts.get("armorRightBoot"));
+
+        String armorItem = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/item/PrismarineArmorItem.java"));
+        String armorModel = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/client/model/PrismarineArmorModel.java"));
+        String armorRenderer = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/client/renderer/PrismarineArmorRenderer.java"));
+        assertTrue(armorItem.contains("livingRenderer.getModel()"));
+        assertTrue(armorItem.contains("this.renderer.prepForRender(livingEntity, itemStack, equipmentSlot, poseSource)"));
+        assertTrue(armorModel.contains("armor/prismarine_armor"));
+        assertTrue(armorRenderer.contains("PrismarineArmorModel"));
+    }
+
     private static void assertClipHasFivePointMotion(String fileName, String clipName) throws IOException {
         JsonObject animations = readJson(SOURCE_ASSETS.resolve("animations/entity/" + fileName)).getAsJsonObject("animations");
         assertTrue(animations.has(clipName), clipName);
