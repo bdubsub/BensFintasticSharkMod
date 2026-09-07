@@ -8,6 +8,7 @@
 * [Phase 000 evidence](verification/phase-000-evidence.md)
 * [Phase 000 evidence follow up](verification/phase-000-evidence-follow-up-20260906.md)
 * [Phase 000 traceability and ownership matrix](verification/phase-000-traceability.md)
+* [Phase 001 entry and Phase 000 intake](verification/phase-001-entry.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
 * [Phase 000 test runbook](test/phase-000-runbook.md)
