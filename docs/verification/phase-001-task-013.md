@@ -21,6 +21,14 @@ does not create an invented gate.
 | `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks` | `BUILD SUCCESSFUL`, all 42 required tests passed |
 | `./gradlew :forge:build --no-daemon` | `BUILD SUCCESSFUL` |
 
+The required `./gradlew :forge:Server --no-daemon --args='--port 25615
+--nogui'` smoke reached `Done (13.077s)!`, loaded 7 recipes and 1343
+advancements, and stopped after the readiness check. Gradle reports exit 143
+because the owned server child was terminated during disposable-runtime
+cleanup. The retained server log is
+`/tmp/bfsm-p001-evidence-20260907-1742/dev-server-latest.log` with SHA-256
+`bf8a0fd8d98cddcc5dc277bc98cfd77b220b4fb949d73fd06a257fa7d6882294`.
+
 The final GameTest run was server-only and headless. It exercised the shared
 movement, vertical arrival braking, bite timing, Tiger curiosity cleanup,
 Oceanic and Blacktip lifecycle cleanup, fish parity, fish acquisition,
