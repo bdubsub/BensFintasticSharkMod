@@ -55,6 +55,16 @@ from the unused `minecraft:gameplay/fishing/fish` table to the actual vanilla
 `minecraft:gameplay/fishing` root table used by `FishingHook.retrieve`. The
 candidate jar contains the regenerated JSON with that corrected condition.
 
+## Tracked documentation consistency audit
+
+On 2026-09-07, the maintained Markdown link set in `README.md`,
+`DOCUMENTATION.md`, `CHANGELOG.md`, and `docs/README.md` resolved without a
+missing target. The plan index and authoring handoff are present. The checked
+metadata sources report version `0.24` and Minecraft `1.20.1`, and the
+packaged `META-INF/mods.toml` reports version `0.24`. The final Forge build and
+`git diff --check` both passed during this audit. No tracked documentation
+change was required by this consistency pass.
+
 ## Open task 013 gate
 
 The exact laptop client visual matrix, fresh profile advancement tree review,
