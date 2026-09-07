@@ -33,6 +33,8 @@ Install Forge, place the mod and its required dependencies in the `mods` directo
 
 The documentation index is in [docs/README.md](docs/README.md). The 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md). Diagnostic command and parser instructions are in [docs/test/debug-diagnostics.md](docs/test/debug-diagnostics.md).
 
+The retained Phase 001 verification records document the current 0.23 compatibility baseline, including the real fishing advancement path and the packaged Forge server checks. The interactive advancement and rendering review remains a laptop-only acceptance step.
+
 ## Development
 
 Use the checked in Gradle Wrapper and Java 17. On Linux:

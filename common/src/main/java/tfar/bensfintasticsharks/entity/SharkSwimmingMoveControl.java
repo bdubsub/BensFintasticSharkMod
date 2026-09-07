@@ -126,6 +126,10 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
                     this.mob.setYRot(verticalRouteYaw);
                     this.mob.yBodyRot = verticalRouteYaw;
                     this.mob.yHeadRot = verticalRouteYaw;
+                    // A direct vertical route is complete at this point. Clear the
+                    // previous forward impulse so arrival braking cannot leave a
+                    // horizontal tail that turns into an orbit on the next ticks.
+                    this.mob.setDeltaMovement(Vec3.ZERO);
                 }
                 this.mob.setZza(0.0F);
                 this.mob.setYya(0.0F);

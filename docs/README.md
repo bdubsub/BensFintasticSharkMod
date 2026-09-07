@@ -19,6 +19,8 @@
 * [Phase 001 task 009 Atlantic fish parity evidence](verification/phase-001-task-009.md)
 * [Phase 001 task 010 fish items, loot, and recipes evidence](verification/phase-001-task-010.md)
 * [Phase 001 task 011 spawn controls and population evidence](verification/phase-001-task-011.md)
+* [Phase 001 task 012 retained advancement evidence](verification/phase-001-task-012.md)
+* [Phase 001 task 013 consolidated verification](verification/phase-001-task-013.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
 * [Phase 000 test runbook](test/phase-000-runbook.md)

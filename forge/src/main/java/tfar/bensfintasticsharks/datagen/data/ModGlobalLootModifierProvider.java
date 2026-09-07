@@ -47,10 +47,10 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 ModItems.CAPTAIN_BEN_HAT, 0.03f));
 
         add("add_atlantic_cod_fishing", new AddItemChanceLootModifier(
-                new LootItemCondition[]{LootTableIdCondition.builder(BuiltInLootTables.FISHING_FISH).build()},
+                new LootItemCondition[]{LootTableIdCondition.builder(BuiltInLootTables.FISHING).build()},
                 ModItems.RAW_ATLANTIC_COD, 1, 1, 0.125f));
         add("add_atlantic_salmon_fishing", new AddItemChanceLootModifier(
-                new LootItemCondition[]{LootTableIdCondition.builder(BuiltInLootTables.FISHING_FISH).build()},
+                new LootItemCondition[]{LootTableIdCondition.builder(BuiltInLootTables.FISHING).build()},
                 ModItems.RAW_ATLANTIC_SALMON, 1, 1, 0.125f));
     }
 

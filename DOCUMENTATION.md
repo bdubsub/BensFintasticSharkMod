@@ -412,6 +412,8 @@ Encounter advancements exist for every species the mod ships. Shark Spotter requ
 
 The Atlantic fish add four advancements. `Gadus morhua` and `Salmo salar` trigger when the player encounters the matching living fish. `Oh My Cod` and `Why aren't you red?` trigger only when the matching raw fish is obtained from a fishing hook catch. Their icons use the supplied raw or cooked item sprites according to Ben's content notes.
 
+The generated Atlantic fishing modifiers target the vanilla `minecraft:gameplay/fishing` root table used by `FishingHook.retrieve`. This keeps the two catch advancements tied to real fishing results rather than inventory insertion. The retained advancement and packaged server evidence is recorded in [Phase 001 task 012](docs/verification/phase-001-task-012.md).
+
 The themed ones cover progression. Apex Awareness fires when any shark damages you. Wrong Place, Wrong Time is the survivor variant. Sleeping with the Fishes fires when a shark kills you. Fresh Catch fires when you have any cooked lobster meat in your inventory. Hidden Trove fires when you pick up a Lost Manuscript. Captain's Heir fires when you obtain Captain Ben's Hat. Conservationist is the gentle path: encounter the first three sharks without violence required.
 
 Run `/advancement grant @s only bensfintasticsharks:marine_biologist` if you want to test the capstone.

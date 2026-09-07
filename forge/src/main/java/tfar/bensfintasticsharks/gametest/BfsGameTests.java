@@ -45,6 +45,7 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
 import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
 import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
+import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
 import tfar.bensfintasticsharks.entity.AquaticMovement;
 import tfar.bensfintasticsharks.entity.OceanicWhitetipSharkEntity;
@@ -595,6 +596,18 @@ public final class BfsGameTests {
         player.connection = new ServerGamePacketListenerImpl(helper.getLevel().getServer(),
                 new Connection(PacketFlow.SERVERBOUND), player);
         fishFromRealRodCast(helper, player);
+
+        net.minecraft.server.ServerAdvancementManager advancements = helper.getLevel().getServer().getAdvancements();
+        net.minecraft.advancements.Advancement codCatch =
+                advancements.getAdvancement(BensFintasticSharks.id("oh_my_cod"));
+        net.minecraft.advancements.Advancement salmonCatch =
+                advancements.getAdvancement(BensFintasticSharks.id("why_arent_you_red"));
+        helper.assertTrue(codCatch != null && salmonCatch != null,
+                "Atlantic fishing advancements must be loaded before the real rod assertion");
+        helper.assertTrue(player.getAdvancements().getOrStartProgress(codCatch).isDone(),
+                "real fishing must complete the Atlantic Cod catch advancement");
+        helper.assertTrue(player.getAdvancements().getOrStartProgress(salmonCatch).isDone(),
+                "real fishing must complete the Atlantic Salmon catch advancement");
     }
 
     private static void assertFishRecipe(GameTestHelper helper, net.minecraft.world.item.Item raw,
@@ -663,7 +676,7 @@ public final class BfsGameTests {
     }
 
     private static void assertFishingWeights(GameTestHelper helper, ServerPlayer player) {
-        LootTable table = helper.getLevel().getServer().getLootData().getLootTable(BuiltInLootTables.FISHING_FISH);
+        LootTable table = helper.getLevel().getServer().getLootData().getLootTable(BuiltInLootTables.FISHING);
         FishingHook hook = new FishingHook(player, helper.getLevel(), 0, 0);
         LootParams params = new LootParams.Builder(helper.getLevel())
                 .withParameter(LootContextParams.ORIGIN, hook.position())
@@ -870,7 +883,11 @@ public final class BfsGameTests {
                         helper.assertTrue(shark.getTarget() == null,
                                 "tiger shark must clear a dead target");
                         helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.IDLE,
-                                "tiger shark must return to idle after target loss");
+                                "tiger shark must return to idle after target loss, state="
+                                        + shark.getSharkState() + ", target=" + shark.getTarget()
+                                        + ", position=" + shark.position() + ", navDone="
+                                        + shark.getNavigation().isDone() + ", delta="
+                                        + shark.getDeltaMovement());
                         helper.succeed();
                     });
                 });
