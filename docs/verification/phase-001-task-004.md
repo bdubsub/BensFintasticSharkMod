@@ -50,7 +50,8 @@ movement and combat failures in `sharkVerticalRouteFollowsDolphinWithoutOrbit`,
 `atlanticCodVerticalRouteUsesScaledPitch`, and
 `blacktipBiteMatrixReachesStationaryAndMovingPrey`. The latest run must not be
 treated as Phase 001 completion evidence until those failures are repaired and
-the complete suite passes in one run.
+the complete suite passes in one run. The recurring blocker is tracked in
+[issue 12](https://github.com/bdubsub/BensFintasticSharkMod/issues/12).
 
 No client or packaged artifact acceptance is claimed by this record. The
 interactive curiosity capture and the final packaged artifact remain later
