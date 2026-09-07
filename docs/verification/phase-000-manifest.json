@@ -1640,6 +1640,20 @@
       "limitation": "This bounded capture does not claim Salmon flop, Oceanic death, beached, thrash, bite damage timing, or the complete five-point transform table."
     }
   },
+  "isolated_gametest_rerun_20260906": {
+    "status": "passed",
+    "source_revision": "b985394",
+    "run_directory": "/tmp/bfsm-p000-task011-gametest-20260906",
+    "eula": "eula=true",
+    "host": "node-1",
+    "tests": 21,
+    "result": "all 21 required tests passed",
+    "log": {
+      "path": "/tmp/bfsm-phase000-evidence/p000-task011-gametest-current/latest.log",
+      "sha256": "d2bbc5071a87a8e5cd486282b981fd1456987f69aa8e068368ad56a11e66aed0"
+    },
+    "cleanup": "disposable runtime, world, configuration, captures, and logs removed after final consumer"
+  },
   "defects": {
     "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",
     "DEF-024-002": "blocked, bounded client state and presentation captures now pass but the complete authored interactive state matrix remains missing",
