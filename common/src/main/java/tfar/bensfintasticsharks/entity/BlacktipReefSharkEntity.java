@@ -149,7 +149,10 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
 
     @Override
     protected double biteRangeAgainst(net.minecraft.world.entity.LivingEntity target) {
-        return closeBiteRangeAgainst(target, 0.3);
+        // The small collision box stops against large prey before the jaw geometry reaches the
+        // prey center. Keep the contact rule bounded by the authored snout extension instead of
+        // requiring the whole body boxes to overlap.
+        return closeBiteRangeAgainst(target, 0.85);
     }
 
     protected void latchMob(LivingEntity target) {

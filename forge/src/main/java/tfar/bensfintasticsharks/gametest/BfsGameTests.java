@@ -21,6 +21,8 @@ import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
 import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
 import tfar.bensfintasticsharks.entity.AquaticMovement;
 import tfar.bensfintasticsharks.entity.OceanicWhitetipSharkEntity;
+import tfar.bensfintasticsharks.entity.BlacktipReefSharkEntity;
+import tfar.bensfintasticsharks.entity.SandtigerSharkEntity;
 import tfar.bensfintasticsharks.entity.TigerSharkEntity;
 import tfar.bensfintasticsharks.debug.BfsDebugManager;
 import tfar.bensfintasticsharks.init.ModBlocks;
@@ -531,6 +533,87 @@ public final class BfsGameTests {
                     });
                 });
             });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 720)
+    public static void sandtigerBiteMatrixReachesStationaryAndMovingPrey(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        runBiteMatrix(helper, false, 0);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 720)
+    public static void blacktipBiteMatrixReachesStationaryAndMovingPrey(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        runBiteMatrix(helper, true, 0);
+    }
+
+    private static void runBiteMatrix(GameTestHelper helper, boolean blacktip, int scenario) {
+        if (scenario >= 6) {
+            helper.succeed();
+            return;
+        }
+        clearAquaticFixtureEntities(helper, new BlockPos(2, 2, 2), new BlockPos(10, 5, 10));
+        boolean moving = (scenario & 1) == 1;
+        int size = scenario / 2;
+        EntityType<? extends Mob> preyType = switch (size) {
+            case 0 -> EntityType.TROPICAL_FISH;
+            case 1 -> EntityType.COD;
+            default -> EntityType.DROWNED;
+        };
+        AbstractSharkEntity<?> shark = blacktip
+                ? helper.spawn(ModEntityTypes.BLACKTIP_REEF_SHARK, new BlockPos(3, 3, 4))
+                : helper.spawn(ModEntityTypes.SANDTIGER_SHARK, new BlockPos(3, 3, 4));
+        Mob prey = helper.spawn(preyType, new BlockPos(8, 3, 4));
+        shark.setTarget(prey);
+        shark.setSharkState(AbstractSharkEntity.SharkState.HOSTILE);
+        shark.setStateTimer(240);
+        prey.setNoAi(true);
+        float startHealth = prey.getHealth();
+        runBiteScenario(helper, shark, prey, moving, startHealth, prey.getX() + 1.25D,
+                0, -1, Double.POSITIVE_INFINITY, scenario, blacktip);
+    }
+
+    private static void runBiteScenario(GameTestHelper helper, AbstractSharkEntity<?> shark, Mob prey,
+                                        boolean moving, float startHealth, double movingLimit,
+                                        int sample, int impactSample, double nearestDistance,
+                                        int scenario, boolean blacktip) {
+        helper.runAfterDelay(1, () -> {
+            if (moving && prey.isAlive() && prey.getX() < movingLimit) {
+                prey.setPos(prey.getX() + 0.015D, prey.getY(), prey.getZ());
+            }
+            double currentDistance = shark.distanceTo(prey);
+            double closest = Math.min(nearestDistance, currentDistance);
+            int impact = impactSample;
+            if (impact < 0 && prey.getHealth() < startHealth) {
+                impact = sample;
+                prey.kill();
+            }
+            if (impact >= 0) {
+                helper.assertTrue(closest < 3.5D,
+                        "bite must enter physical contact range, species=" + (blacktip ? "blacktip" : "sandtiger")
+                                + ", size=" + (scenario / 2) + ", moving=" + moving
+                                + ", closest=" + closest);
+                helper.assertTrue(impact >= 3,
+                        "bite damage must be delayed after the trigger, sample=" + impact
+                                + ", species=" + (blacktip ? "blacktip" : "sandtiger"));
+                if (sample >= impact + 4) {
+                    helper.assertTrue(shark.getTarget() == null,
+                            "target loss must clear the active bite target after impact, species="
+                                    + (blacktip ? "blacktip" : "sandtiger") + ", target=" + shark.getTarget());
+                    runBiteMatrix(helper, blacktip, scenario + 1);
+                    return;
+                }
+            }
+            if (sample >= 180) {
+                helper.fail("shark did not land one bite, species=" + (blacktip ? "blacktip" : "sandtiger")
+                        + ", size=" + (scenario / 2) + ", moving=" + moving + ", health=" + prey.getHealth()
+                        + ", position=" + shark.position() + ", prey=" + prey.position()
+                        + ", distance=" + currentDistance + ", navDone=" + shark.getNavigation().isDone());
+                return;
+            }
+            runBiteScenario(helper, shark, prey, moving, startHealth, movingLimit,
+                    sample + 1, impact, closest, scenario, blacktip);
         });
     }
 
