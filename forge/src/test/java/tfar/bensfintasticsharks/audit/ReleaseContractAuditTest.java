@@ -237,6 +237,50 @@ class ReleaseContractAuditTest {
     }
 
     @Test
+    void showcaseCardsAndOceanicHabitatBindToAuthoritativeSources() throws IOException {
+        String speciesInfo = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/command/BfsSpeciesInfo.java"));
+        String commands = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/command/BfsCommands.java"));
+        String biomeProvider = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/tags/ModBiomeTagsProvider.java"));
+
+        List<String> retainedTbd = List.of(
+                "orca", "bottlenose_dolphin", "common_octopus", "caribbean_reef_octopus", "nautilus",
+                "giant_moray_eel", "green_sea_turtle", "american_lobster", "common_stingray", "harbor_seal",
+                "black_sea_nettle_jellyfish", "cannonball_jellyfish");
+        for (String id : retainedTbd) {
+            assertTrue(speciesInfo.contains("Map.entry(\"" + id + "\", species("), id);
+        }
+        assertEquals(12, retainedTbd.size());
+        assertTrue(speciesInfo.contains("\"TBD\""));
+        assertFalse(speciesInfo.contains("VANILLA_REPLACEMENT_HABITATS"));
+        assertTrue(speciesInfo.contains("getMobSettings().getMobs"));
+        assertTrue(speciesInfo.contains("EntityType.COD"));
+        assertTrue(speciesInfo.contains("EntityType.SALMON"));
+
+        assertTrue(commands.contains("\"Scientific name\""));
+        assertTrue(commands.contains("\"Habitats\""));
+        assertTrue(commands.contains("\"Behavior\""));
+        assertTrue(commands.contains("\"Diet\""));
+        assertTrue(commands.contains("\"Health\""));
+        assertTrue(commands.contains("\"Variants\""));
+        assertTrue(commands.contains("\"Registry ID\""));
+        assertTrue(commands.contains("\"Spawn category\""));
+        assertTrue(commands.contains("\"Natural spawning\""));
+        assertTrue(commands.contains("\"Natural cap\""));
+
+        assertTrue(biomeProvider.contains(
+                "tag(ModTags.Biomes.OCEANIC_WHITETIP_SHARK_SPAWNS).add(Biomes.DEEP_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN)"));
+        assertFalse(biomeProvider.contains("OCEANIC_WHITETIP_SHARK_SPAWNS).add(Biomes.DEEP_COLD_OCEAN"));
+
+        JsonObject oceanic = readJson(GENERATED.resolve(
+                "data/bensfintasticsharks/tags/worldgen/biome/oceanic_whitetip_shark_spawns.json"));
+        assertEquals(List.of("minecraft:deep_ocean", "minecraft:deep_lukewarm_ocean"),
+                stringValues(oceanic.getAsJsonArray("values")));
+    }
+
+    @Test
     void everyLivingSpeciesHasActionAndPresentationInventoryEntries() throws IOException {
         assertEquals(22, LIVING_SPECIES.size());
         String entityTypes = Files.readString(ROOT.resolve(

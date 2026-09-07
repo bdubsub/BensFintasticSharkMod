@@ -33,6 +33,8 @@ import tfar.bensfintasticsharks.init.ModEntityTypes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Server safe smoke fixtures for the shared Phase 000 harness. */
 @GameTestHolder("bensfintasticsharks")
@@ -192,6 +194,88 @@ public final class BfsGameTests {
             helper.succeed();
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
             helper.fail("BFS debug command test failed: " + exception.getMessage());
+        }
+    }
+
+    @GameTest(template = "empty", batch = "bfs_info_cards", timeoutTicks = 60)
+    public static void infoCardsExposeAuthoritativeSpeciesData(GameTestHelper helper) {
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        List<String> success = new ArrayList<>();
+        net.minecraft.commands.CommandSource capture = new net.minecraft.commands.CommandSource() {
+            @Override
+            public void sendSystemMessage(net.minecraft.network.chat.Component message) {
+                success.add(message.getString());
+            }
+
+            @Override
+            public boolean acceptsSuccess() {
+                return true;
+            }
+
+            @Override
+            public boolean acceptsFailure() {
+                return true;
+            }
+
+            @Override
+            public boolean shouldInformAdmins() {
+                return false;
+            }
+        };
+        net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(helper.absolutePos(new BlockPos(1, 1, 1)).getCenter())
+                .withPermission(4)
+                .withSource(capture);
+        List<String> species = List.of(
+                "orca", "bottlenose_dolphin", "common_octopus", "caribbean_reef_octopus", "nautilus",
+                "giant_moray_eel", "green_sea_turtle", "american_lobster", "common_stingray", "harbor_seal",
+                "black_sea_nettle_jellyfish", "cannonball_jellyfish", "oceanic_whitetip_shark",
+            "atlantic_cod", "atlantic_salmon");
+        try {
+            for (String id : species) {
+                int before = success.size();
+                int result = server.getCommands().getDispatcher().execute("bfs info " + id, source);
+                helper.assertTrue(result == 1, "info command must succeed for " + id);
+                List<String> card = success.subList(before, success.size());
+                if (List.of("orca", "bottlenose_dolphin", "common_octopus", "caribbean_reef_octopus",
+                        "nautilus", "giant_moray_eel", "green_sea_turtle", "american_lobster", "common_stingray",
+                        "harbor_seal", "black_sea_nettle_jellyfish", "cannonball_jellyfish").contains(id)) {
+                    helper.assertTrue(card.stream().anyMatch(line -> line.contains("Diet: TBD")),
+                            "retained nonshark card must expose Diet: TBD for " + id);
+                }
+            }
+            helper.assertTrue(success.stream().anyMatch(line -> line.contains("Habitats: Deep Lukewarm Ocean, Deep Ocean")),
+                    "Oceanic Whitetip must expose only its generated deep ocean habitats");
+            helper.assertTrue(success.stream().anyMatch(line -> line.contains("Natural spawning: Replaces Vanilla Cod spawns")),
+                    "replacement enabled Cod card must expose its replacement source");
+            helper.assertTrue(success.stream().anyMatch(line -> line.contains("Natural spawning: Replaces Vanilla Salmon spawns")),
+                    "replacement enabled Salmon card must expose its replacement source");
+
+            var biomeRegistry = helper.getLevel().registryAccess()
+                    .registryOrThrow(net.minecraft.core.registries.Registries.BIOME);
+            helper.assertTrue(biomeRegistry.getHolderOrThrow(net.minecraft.world.level.biome.Biomes.DEEP_OCEAN)
+                            .is(tfar.bensfintasticsharks.init.ModTags.Biomes.OCEANIC_WHITETIP_SHARK_SPAWNS),
+                    "Oceanic Whitetip tag must admit Deep Ocean natural spawning");
+            helper.assertTrue(biomeRegistry.getHolderOrThrow(net.minecraft.world.level.biome.Biomes.DEEP_LUKEWARM_OCEAN)
+                            .is(tfar.bensfintasticsharks.init.ModTags.Biomes.OCEANIC_WHITETIP_SHARK_SPAWNS),
+                    "Oceanic Whitetip tag must admit Deep Lukewarm Ocean natural spawning");
+            helper.assertTrue(!biomeRegistry.getHolderOrThrow(net.minecraft.world.level.biome.Biomes.DEEP_COLD_OCEAN)
+                            .is(tfar.bensfintasticsharks.init.ModTags.Biomes.OCEANIC_WHITETIP_SHARK_SPAWNS),
+                    "Oceanic Whitetip tag must reject Deep Cold Ocean natural spawning");
+
+            int unknown = server.getCommands().getDispatcher().execute("bfs info unknown_species", source);
+            helper.assertTrue(unknown == 0 && success.stream().anyMatch(line -> line.contains("Unknown BFS species")),
+                    "unknown species must return a structured failure, result=" + unknown + ", messages=" + success);
+            try {
+                server.getCommands().getDispatcher().execute("bfs info orca", source.withPermission(0));
+                helper.fail("untrusted source must not access info cards");
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) {
+                // Permission-gated command nodes are intentionally invisible to untrusted sources.
+            }
+            helper.succeed();
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+            helper.fail("BFS info command failed: " + exception.getMessage());
         }
     }
 
