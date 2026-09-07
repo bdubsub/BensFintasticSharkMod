@@ -536,6 +536,200 @@ public final class BfsGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 140)
+    public static void tigerCuriosityBitesEdibleWithoutConsumingStack(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
+        ItemEntity edible = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
+        boolean[] acquired = new boolean[1];
+        sampleTigerCuriosity(helper, shark, edible, acquired, 0);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 140)
+    public static void tigerCuriosityIgnoresNonEdibleItem(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
+        ItemEntity nonEdible = helper.spawnItem(Items.STONE, new BlockPos(8, 3, 3));
+        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
+        helper.runAfterDelay(80, () -> {
+            helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
+                    "non edible item must not enter curiosity state");
+            helper.assertTrue(nonEdible.isAlive() && nonEdible.getItem().is(Items.STONE)
+                            && nonEdible.getItem().getCount() == 1,
+                    "non edible item must remain untouched");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 160)
+    public static void tigerCuriosityClearsWhenItemLeavesWater(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
+        ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
+        runWhenTigerCurious(helper, shark, item, 80, () -> {
+            item.setPos(item.getX(), item.getY() + 10.0D, item.getZ());
+            helper.runAfterDelay(2, () -> {
+                helper.assertTrue(!item.isInWater(), "leaving water fixture must invalidate the item");
+                helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
+                        "leaving water must clear curiosity state");
+                helper.assertTrue(shark.getNavigation().isDone(),
+                        "leaving water must stop the curiosity navigation");
+                helper.succeed();
+            });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 220)
+    public static void tigerCuriosityPathFailureAppliesRetryCooldown(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
+        ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
+        runWhenTigerCurious(helper, shark, item, 80, () -> {
+            helper.runAfterDelay(12, () -> {
+                shark.getNavigation().stop();
+                helper.runAfterDelay(2, () -> {
+                    helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.IDLE,
+                            "failed curiosity navigation must return the shark to idle");
+                    helper.assertTrue(item.isAlive() && item.getItem().is(Items.COD)
+                                    && item.getItem().getCount() == 1,
+                            "failed curiosity navigation must preserve the item stack");
+                    helper.runAfterDelay(20, () -> {
+                        helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
+                                "the investigated item identity must remain on retry cooldown");
+                        helper.succeed();
+                    });
+                });
+            });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 160)
+    public static void tigerCuriosityFleePreemptionClearsInvestigation(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
+        ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
+        runWhenTigerCurious(helper, shark, item, 80, () -> {
+            AbstractSharkEntity<?> largerShark = helper.spawn(ModEntityTypes.GREAT_WHITE_SHARK,
+                    new BlockPos(3, 3, 7));
+            largerShark.setNoAi(true);
+            shark.setBfsScale(0.85F);
+            largerShark.setBfsScale(1.10F);
+            shark.hurt(helper.getLevel().damageSources().mobAttack(largerShark), 1.0F);
+            helper.runAfterDelay(2, () -> {
+                helper.assertTrue(shark.isFleeing(),
+                        "a larger shark hit must enter the flee state");
+                helper.assertTrue(shark.getTarget() == null,
+                        "flee preemption must not retain an investigation target as combat target");
+                helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
+                        "flee preemption must clear curiosity state");
+                helper.assertTrue(item.isAlive() && item.getItem().getCount() == 1,
+                        "flee preemption must preserve the item stack");
+                helper.succeed();
+            });
+        });
+    }
+
+    private static void runWhenTigerCurious(GameTestHelper helper, TigerSharkEntity shark,
+                                             ItemEntity item, int remainingTicks, Runnable action) {
+        helper.runAfterDelay(1, () -> {
+            if (shark.getSharkState() == TigerSharkEntity.SharkState.CURIOUS) {
+                action.run();
+                return;
+            }
+            if (remainingTicks <= 0) {
+                helper.fail("tiger did not acquire the edible item, state=" + shark.getSharkState()
+                        + ", itemAlive=" + item.isAlive() + ", itemInWater=" + item.isInWater()
+                        + ", itemPos=" + item.position() + ", navDone=" + shark.getNavigation().isDone());
+                return;
+            }
+            runWhenTigerCurious(helper, shark, item, remainingTicks - 1, action);
+        });
+    }
+
+    private static void sampleTigerCuriosity(GameTestHelper helper, TigerSharkEntity shark,
+                                             ItemEntity edible, boolean[] acquired, int sample) {
+        helper.runAfterDelay(1, () -> {
+            acquired[0] |= shark.getSharkState() == TigerSharkEntity.SharkState.CURIOUS
+                    || shark.justBitItem();
+            if (sample < 80) {
+                sampleTigerCuriosity(helper, shark, edible, acquired, sample + 1);
+                return;
+            }
+            helper.assertTrue(acquired[0], "tiger must acquire the reachable edible item, state="
+                    + shark.getSharkState() + ", itemAlive=" + edible.isAlive()
+                    + ", itemInWater=" + edible.isInWater() + ", itemPos=" + edible.position()
+                    + ", navDone=" + shark.getNavigation().isDone());
+            helper.assertTrue(edible.isAlive() && edible.getItem().is(Items.COD)
+                            && edible.getItem().getCount() == 1,
+                    "cosmetic item bite must preserve the edible item stack");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 100)
+    public static void tigerCuriosityClearsOnTargetAndItemLoss(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
+        ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
+        helper.getLevel().getEntitiesOfClass(LivingEntity.class, shark.getBoundingBox().inflate(64.0D),
+                entity -> entity != shark && entity.isInWater() && !(entity instanceof Player))
+                .forEach(LivingEntity::discard);
+        item.setNoGravity(true);
+        helper.runAfterDelay(1, () -> {
+            helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.CURIOUS,
+                    "target preemption fixture must begin while the shark is curious, state="
+                            + shark.getSharkState() + ", item=" + item.position()
+                            + ", navDone=" + shark.getNavigation().isDone());
+            Mob prey = helper.spawn(EntityType.DROWNED, new BlockPos(8, 3, 5));
+            prey.setNoAi(true);
+            shark.setTarget(prey);
+            helper.runAfterDelay(5, () -> {
+                helper.assertTrue(shark.getTarget() == prey,
+                        "combat target must remain authoritative during curiosity preemption");
+                helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
+                        "combat target must clear curiosity state");
+                helper.assertTrue(item.isAlive() && item.getItem().getCount() == 1,
+                        "curiosity preemption must not consume the item");
+                prey.kill();
+                item.discard();
+                helper.runAfterDelay(10, () -> {
+                    helper.assertTrue(shark.getTarget() == null,
+                            "target loss must clear the combat target, target=" + shark.getTarget()
+                                    + ", state=" + shark.getSharkState());
+                    helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
+                            "item loss must leave curiosity idle");
+                    helper.succeed();
+                });
+            });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 400)
+    public static void tigerCuriosityTimeoutRemembersItemWithoutReacquiring(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
+        ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        item.setNoGravity(true);
+        helper.runAfterDelay(225, () -> {
+            helper.assertTrue(item.isAlive() && item.getItem().getCount() == 1,
+                    "curiosity timeout must not consume the item");
+            helper.assertTrue(shark.getTarget() == null,
+                    "curiosity timeout must not create a combat target");
+            helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.IDLE,
+                    "curiosity timeout must return the shark to idle");
+            helper.runAfterDelay(50, () -> {
+                helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.IDLE,
+                        "recent item cooldown must prevent immediate reacquisition");
+                helper.succeed();
+            });
+        });
+    }
+
     @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 720)
     public static void sandtigerBiteMatrixReachesStationaryAndMovingPrey(GameTestHelper helper) {
         prepareWaterVolume(helper);
@@ -565,10 +759,14 @@ public final class BfsGameTests {
                 ? helper.spawn(ModEntityTypes.BLACKTIP_REEF_SHARK, new BlockPos(3, 3, 4))
                 : helper.spawn(ModEntityTypes.SANDTIGER_SHARK, new BlockPos(3, 3, 4));
         Mob prey = helper.spawn(preyType, new BlockPos(8, 3, 4));
+        shark.setInvulnerable(true);
+        shark.getBrain().removeAllBehaviors();
         shark.setTarget(prey);
         shark.setSharkState(AbstractSharkEntity.SharkState.HOSTILE);
         shark.setStateTimer(240);
         prey.setNoAi(true);
+        prey.setNoGravity(true);
+        prey.setDeltaMovement(Vec3.ZERO);
         float startHealth = prey.getHealth();
         runBiteScenario(helper, shark, prey, moving, startHealth, prey.getX() + 1.25D,
                 0, -1, Double.POSITIVE_INFINITY, scenario, blacktip);
@@ -581,6 +779,17 @@ public final class BfsGameTests {
         helper.runAfterDelay(1, () -> {
             if (moving && prey.isAlive() && prey.getX() < movingLimit) {
                 prey.setPos(prey.getX() + 0.015D, prey.getY(), prey.getZ());
+            }
+            if (!moving && prey.isAlive()) {
+                prey.setDeltaMovement(Vec3.ZERO);
+            }
+            if (prey.isAlive() && shark.getTarget() != prey) {
+                shark.setTarget(prey);
+                shark.setSharkState(AbstractSharkEntity.SharkState.HOSTILE);
+                shark.setStateTimer(240);
+            }
+            if (shark.getNavigation().isDone() || shark.distanceToSqr(prey) > 9.0D) {
+                shark.getNavigation().moveTo(prey, 1.0D);
             }
             double currentDistance = shark.distanceTo(prey);
             double closest = Math.min(nearestDistance, currentDistance);
@@ -609,7 +818,11 @@ public final class BfsGameTests {
                 helper.fail("shark did not land one bite, species=" + (blacktip ? "blacktip" : "sandtiger")
                         + ", size=" + (scenario / 2) + ", moving=" + moving + ", health=" + prey.getHealth()
                         + ", position=" + shark.position() + ", prey=" + prey.position()
-                        + ", distance=" + currentDistance + ", navDone=" + shark.getNavigation().isDone());
+                        + ", distance=" + currentDistance + ", navDone=" + shark.getNavigation().isDone()
+                        + ", target=" + shark.getTarget() + ", state=" + shark.getSharkState()
+                        + ", sharkWidth=" + shark.getBbWidth() + ", preyWidth=" + prey.getBbWidth()
+                        + ", preyAlive=" + prey.isAlive() + ", preyInWater=" + prey.isInWater()
+                        + ", delta=" + shark.getDeltaMovement());
                 return;
             }
             runBiteScenario(helper, shark, prey, moving, startHealth, movingLimit,

@@ -861,6 +861,10 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             Vec3 forward = AquaticMovement.forwardVector(this.getYRot(), this.getXRot());
             dm = AquaticMovement.limitPoweredVelocity(dm, forward, cap,
                     this.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO);
+            double verticalCap = Math.abs(this.getSpeed()) * AquaticMovement.VERTICAL_SPEED_RATIO;
+            if (Math.abs(dm.y) > verticalCap) {
+                dm = new Vec3(dm.x, Math.copySign(verticalCap, dm.y), dm.z);
+            }
             if (movementInput.z > 0.0F) {
                 dm = AquaticMovement.removeUnalignedVerticalSlip(dm, forward);
             }

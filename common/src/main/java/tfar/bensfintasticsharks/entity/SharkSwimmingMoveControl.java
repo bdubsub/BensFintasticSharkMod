@@ -54,8 +54,12 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
                 BlockPos navigationTarget = this.mob.getNavigation().getTargetPos();
                 verticalRouteYaw = this.mob.getYRot();
                 verticalRouteGoalY = navigationTarget == null ? this.wantedY : navigationTarget.getY() + 0.5D;
-                double initialDx = this.wantedX - this.mob.getX();
-                double initialDz = this.wantedZ - this.mob.getZ();
+                double initialDx = navigationTarget == null
+                        ? this.wantedX - this.mob.getX()
+                        : navigationTarget.getX() + 0.5D - this.mob.getX();
+                double initialDz = navigationTarget == null
+                        ? this.wantedZ - this.mob.getZ()
+                        : navigationTarget.getZ() + 0.5D - this.mob.getZ();
                 verticalRoute = initialDx * initialDx + initialDz * initialDz
                         <= VERTICAL_TARGET_EPSILON;
                 verticalRouteDirection = Integer.signum(Double.compare(
