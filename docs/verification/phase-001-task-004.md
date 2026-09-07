@@ -49,6 +49,13 @@ The curiosity batch contains seven required tests. The complete suite contains
 blocks, and fixture cleanup removes every nonplayer entity only inside that
 structure so stale or neighboring entities cannot change target selection.
 
+The final Phase 001 source rerun freezes every dropped item fixture's gravity,
+velocity, and collision state. The flee preemption fixture allows one complete
+bounded scan and path acquisition window before asserting preemption. This
+removes startup timing sensitivity from the fixture without changing the
+curiosity contract or production movement behavior. The rebuilt 2026-09-07
+GameTest run passed all 42 required tests.
+
 ```text
 ./gradlew :forge:GameTestServer --no-daemon --rerun-tasks
 All 38 required tests passed :)

@@ -18,19 +18,23 @@ The generated advancement audit passed for the exact candidate built on 2026-09-
 * All four retained fish advancement identifiers, parent links, requirements,
   translations, and item roles are present in the candidate Forge jar.
 
-The packaged server runtime used the exact Forge jar hash
-`1063f3174db789f59f64da1f8c3c145136905eb75a6611a7b5afacd2cb62f098`, Java
+The final packaged server readiness probe used the rebuilt Forge jar with
+SHA-256
+`9f0aa22a3e76740df3d5f035015a11cf0363f9fafc794873d995b7dc9b780571`, Java
 17.0.19, Forge 47.2.0, GeckoLib 4.4.7, and SmartBrainLib 1.14.2. It reached
-`Done (13.533s)!`, loaded 7 recipes and 1343 advancements, and stopped cleanly.
-The retained packaged server log is
-`/tmp/bfsm-p001-evidence-20260907-1742/packaged-server-latest.log` with SHA-256
-`baf6b3ea71bddb4313edf82b3ced9f6ad1b40943dfdf93fae76847ffeee6ba9d`.
+`Done`, loaded 7 recipes and 1343 advancements, and stopped cleanly. The
+retained final log is `/tmp/bfsm-p001-packaged-final-java17.log` with SHA-256
+`3453b987c0b1a96fe0af8c31d57490f7a4f86c8cee165e9a6d278339167870cb`.
 
-The final post-package GameTest run completed with `All 42 required tests
+The final rebuilt GameTest run completed with `All 42 required tests
 passed :)`. The `bfs_fish_items` test performed real fishing-hook resolution
 and recorded the server grants for `Why aren't you red?` and `Oh My Cod`.
 The test also verifies that both matching Atlantic raw fish remain in the
 resolved vanilla `minecraft:gameplay/fishing` loot table.
+
+The final rebuilt GameTest log is
+`/tmp/bfsm-p001-final-evidence-20260907/gametest-final.log` with SHA-256
+`35df1fe4da934a25547ac268794bf65e8a9f3c6a48c0b19b1f25d874d076611a`.
 
 ## Remaining acceptance gate
 

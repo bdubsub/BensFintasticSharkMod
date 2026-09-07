@@ -35,16 +35,16 @@ Oceanic and Blacktip lifecycle cleanup, fish parity, fish acquisition,
 replacement and population controls, advancement fishing criteria, and the BFS
 debug capture lifecycle. No GameTest failure remained after the final source
 changes. The retained final GameTest log is
-`/tmp/bfsm-p001-evidence-20260907-1742/gametest-latest.log` with SHA-256
-`af42fd899922cfd9b1f181c1cf13402fc880187c7b5f48dc624724f73d04eb79`.
+`/tmp/bfsm-p001-final-evidence-20260907/gametest-final.log` with SHA-256
+`35df1fe4da934a25547ac268794bf65e8a9f3c6a48c0b19b1f25d874d076611a`.
 
 ## Candidate artifact
 
 The Forge artifact is
 `forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar`.
 
-* SHA-256: `1063f3174db789f59f64da1f8c3c145136905eb75a6611a7b5afacd2cb62f098`
-* SHA-512: `0f34f5b70b24c84ede22cd1ae60c54a0ffd38da96de9f8a539799168181e61471984952c98d43b3e6de5529807bc4baeed568553d84e6e2f1de9b354de2ba803`
+* SHA-256: `9f0aa22a3e76740df3d5f035015a11cf0363f9fafc794873d995b7dc9b780571`
+* SHA-512: `5815653352c5bd12b727d17b4a869456b2006f98d36a56b7951f3f4ee8eb29aa4804dcfaa0b6d73302c68e31c62e92508108e4619eeba9b971cfcd16bd9c476c`
 * `unzip -tqq` passed.
 * The jar contains the Atlantic fish classes and resources, Oceanic Whitetip
   resources, retained advancement JSON, generated loot modifiers, item models,
@@ -54,6 +54,12 @@ The generated resource review found the two Atlantic fishing modifiers changed
 from the unused `minecraft:gameplay/fishing/fish` table to the actual vanilla
 `minecraft:gameplay/fishing` root table used by `FishingHook.retrieve`. The
 candidate jar contains the regenerated JSON with that corrected condition.
+
+The final packaged readiness probe used the same artifact, Java 17.0.19, and
+the matching Forge, GeckoLib, and SmartBrainLib dependency set. It reached
+`Done` and stopped cleanly. Its log is
+`/tmp/bfsm-p001-packaged-final-java17.log` with SHA-256
+`3453b987c0b1a96fe0af8c31d57490f7a4f86c8cee165e9a6d278339167870cb`.
 
 ## Tracked documentation consistency audit
 

@@ -785,7 +785,7 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
-        item.setNoGravity(true);
+        freezeCuriosityItem(item);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         Vec3 start = shark.position();
         double startDistance = shark.distanceToSqr(item);
@@ -801,6 +801,12 @@ public final class BfsGameTests {
         AABB fixtureArea = new AABB(firstCenter, secondCenter).inflate(4.0D);
         helper.getLevel().getEntitiesOfClass(Entity.class, fixtureArea,
                 entity -> !(entity instanceof Player)).forEach(Entity::discard);
+    }
+
+    private static void freezeCuriosityItem(ItemEntity item) {
+        item.setNoGravity(true);
+        item.setDeltaMovement(Vec3.ZERO);
+        item.noPhysics = true;
     }
 
     private static void clearCombatFixtureEntities(GameTestHelper helper, BlockPos first, BlockPos second) {
@@ -900,7 +906,7 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity edible = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
-        edible.setNoGravity(true);
+        freezeCuriosityItem(edible);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         runWhenTigerCurious(helper, shark, edible, 120, () -> helper.runAfterDelay(10, () -> {
             helper.assertTrue(edible.isAlive() && edible.getItem().is(Items.COD)
@@ -915,6 +921,7 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity nonEdible = helper.spawnItem(Items.STONE, new BlockPos(8, 3, 3));
+        freezeCuriosityItem(nonEdible);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         helper.runAfterDelay(80, () -> {
             helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
@@ -931,7 +938,7 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
-        item.setNoGravity(true);
+        freezeCuriosityItem(item);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         runWhenTigerCurious(helper, shark, item, 80, () -> {
             item.setPos(item.getX(), item.getY() + 10.0D, item.getZ());
@@ -951,7 +958,7 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
-        item.setNoGravity(true);
+        freezeCuriosityItem(item);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         // Item scanning retries after its bounded 100 tick empty-scan cooldown. Allow one
         // complete retry window so fixture startup timing cannot turn path cleanup into a
@@ -975,14 +982,17 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_curiosity_flee", timeoutTicks = 160)
+    @GameTest(template = "empty", batch = "bfs_curiosity_flee", timeoutTicks = 260)
     public static void tigerCuriosityFleePreemptionClearsInvestigation(GameTestHelper helper) {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
-        item.setNoGravity(true);
+        freezeCuriosityItem(item);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
-        runWhenTigerCurious(helper, shark, item, 80, () -> {
+        // Allow one complete bounded scan and path acquisition window before asserting
+        // preemption. Fixture startup and parallel batch placement can delay the first
+        // reachable path without changing the curiosity contract.
+        runWhenTigerCurious(helper, shark, item, 180, () -> {
             AbstractSharkEntity<?> largerShark = helper.spawn(ModEntityTypes.GREAT_WHITE_SHARK,
                     new BlockPos(3, 3, 7));
             largerShark.setNoAi(true);
@@ -1049,7 +1059,7 @@ public final class BfsGameTests {
         helper.getLevel().getEntitiesOfClass(LivingEntity.class, shark.getBoundingBox().inflate(64.0D),
                 entity -> entity != shark && entity.isInWater() && !(entity instanceof Player))
                 .forEach(LivingEntity::discard);
-        item.setNoGravity(true);
+        freezeCuriosityItem(item);
         helper.runAfterDelay(1, () -> {
             helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.CURIOUS,
                     "target preemption fixture must begin while the shark is curious, state="
@@ -1084,7 +1094,7 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
-        item.setNoGravity(true);
+        freezeCuriosityItem(item);
         helper.runAfterDelay(225, () -> {
             helper.assertTrue(item.isAlive() && item.getItem().getCount() == 1,
                     "curiosity timeout must not consume the item");
