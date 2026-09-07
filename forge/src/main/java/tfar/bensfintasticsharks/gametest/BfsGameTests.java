@@ -16,11 +16,25 @@ import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Salmon;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.FishingRodItem;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
 import com.mojang.authlib.GameProfile;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
@@ -551,6 +565,114 @@ public final class BfsGameTests {
         salmon.setCustomName(null);
         helper.assertTrue(!salmon.isNamedSpin(), "removing the name must keep Spin inactive");
         helper.succeed();
+    }
+
+    @GameTest(template = "empty", batch = "bfs_fish_items", timeoutTicks = 120)
+    public static void atlanticFishItemsLootRecipesAndFishingRoundTrip(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        assertFishRecipe(helper, ModItems.RAW_ATLANTIC_COD, ModItems.COOKED_ATLANTIC_COD, "atlantic cod");
+        assertFishRecipe(helper, ModItems.RAW_ATLANTIC_SALMON, ModItems.COOKED_ATLANTIC_SALMON,
+                "atlantic salmon");
+
+        AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 3, 3));
+        AtlanticSalmonEntity salmon = helper.spawn(ModEntityTypes.ATLANTIC_SALMON, new BlockPos(6, 3, 3));
+        assertFishLoot(helper, cod, ModItems.RAW_ATLANTIC_COD, ModItems.COOKED_ATLANTIC_COD, "atlantic cod");
+        assertFishLoot(helper, salmon, ModItems.RAW_ATLANTIC_SALMON, ModItems.COOKED_ATLANTIC_SALMON,
+                "atlantic salmon");
+
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+                new GameProfile(java.util.UUID.randomUUID(), "fish-loot-player"));
+        player.setPos(helper.absolutePos(new BlockPos(5, 3, 5)).getCenter());
+        player.setYRot(0.0F);
+        player.setXRot(0.0F);
+        player.connection = new ServerGamePacketListenerImpl(helper.getLevel().getServer(),
+                new Connection(PacketFlow.SERVERBOUND), player);
+        fishFromRealRodCast(helper, player);
+    }
+
+    private static void assertFishRecipe(GameTestHelper helper, net.minecraft.world.item.Item raw,
+                                         net.minecraft.world.item.Item cooked, String species) {
+        SimpleContainer input = new SimpleContainer(new ItemStack(raw));
+        var manager = helper.getLevel().getServer().getRecipeManager();
+        var smelting = manager.getRecipeFor(RecipeType.SMELTING, input, helper.getLevel());
+        var smoking = manager.getRecipeFor(RecipeType.SMOKING, input, helper.getLevel());
+        helper.assertTrue(smelting.isPresent() && smelting.get().getResultItem(helper.getLevel().registryAccess())
+                        .is(cooked), species + " furnace recipe must return its matching cooked item");
+        helper.assertTrue(smoking.isPresent() && smoking.get().getResultItem(helper.getLevel().registryAccess())
+                        .is(cooked), species + " smoker recipe must return its matching cooked item");
+        helper.assertTrue(!manager.getRecipeFor(RecipeType.SMELTING,
+                        new SimpleContainer(new ItemStack(cooked)), helper.getLevel()).isPresent(),
+                species + " cooked item must not be accepted as the raw furnace input");
+    }
+
+    private static void assertFishLoot(GameTestHelper helper, net.minecraft.world.entity.LivingEntity fish,
+                                       net.minecraft.world.item.Item raw, net.minecraft.world.item.Item cooked,
+                                       String species) {
+        net.minecraft.server.level.ServerLevel level = (net.minecraft.server.level.ServerLevel) helper.getLevel();
+        LootTable table = level.getServer().getLootData().getLootTable(fish.getLootTable());
+        LootParams ordinaryParams = new LootParams.Builder(level)
+                .withParameter(LootContextParams.ORIGIN, fish.position())
+                .withParameter(LootContextParams.THIS_ENTITY, fish)
+                .withParameter(LootContextParams.DAMAGE_SOURCE, level.damageSources().generic())
+                .create(LootContextParamSets.ENTITY);
+        helper.assertTrue(table.getRandomItems(ordinaryParams).stream().anyMatch(stack -> stack.is(raw)),
+                species + " ordinary death must yield its raw fish");
+        fish.setSecondsOnFire(20);
+        LootParams fireParams = new LootParams.Builder(level)
+                .withParameter(LootContextParams.ORIGIN, fish.position())
+                .withParameter(LootContextParams.THIS_ENTITY, fish)
+                .withParameter(LootContextParams.DAMAGE_SOURCE, level.damageSources().generic())
+                .create(LootContextParamSets.ENTITY);
+        helper.assertTrue(table.getRandomItems(fireParams).stream().anyMatch(stack -> stack.is(cooked)),
+                species + " fire death must yield its cooked fish");
+    }
+
+    private static void fishFromRealRodCast(GameTestHelper helper, ServerPlayer player) {
+        FishingRodItem rod = (FishingRodItem) Items.FISHING_ROD;
+        boolean caughtRealFishingItem = false;
+        try {
+            java.lang.reflect.Field nibble = FishingHook.class.getDeclaredField("nibble");
+            nibble.setAccessible(true);
+            for (int attempt = 0; attempt < 128; attempt++) {
+                player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FISHING_ROD));
+                rod.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+                FishingHook hook = player.fishing;
+                helper.assertTrue(hook != null, "a real rod use must create a fishing hook");
+                nibble.setInt(hook, 1);
+                hook.retrieve(player.getMainHandItem());
+                for (ItemEntity item : helper.getLevel().getEntitiesOfClass(ItemEntity.class,
+                        player.getBoundingBox().inflate(32.0D))) {
+                    caughtRealFishingItem = true;
+                    item.discard();
+                }
+            }
+        } catch (ReflectiveOperationException exception) {
+            helper.fail("unable to arm the real fishing bite fixture: " + exception.getMessage());
+            return;
+        }
+        helper.assertTrue(caughtRealFishingItem, "real fishing casts must resolve a fishing loot item");
+        assertFishingWeights(helper, player);
+        helper.succeed();
+    }
+
+    private static void assertFishingWeights(GameTestHelper helper, ServerPlayer player) {
+        LootTable table = helper.getLevel().getServer().getLootData().getLootTable(BuiltInLootTables.FISHING_FISH);
+        FishingHook hook = new FishingHook(player, helper.getLevel(), 0, 0);
+        LootParams params = new LootParams.Builder(helper.getLevel())
+                .withParameter(LootContextParams.ORIGIN, hook.position())
+                .withParameter(LootContextParams.THIS_ENTITY, hook)
+                .withParameter(LootContextParams.TOOL, new ItemStack(Items.FISHING_ROD))
+                .create(LootContextParamSets.FISHING);
+        int cod = 0;
+        int salmon = 0;
+        for (int draw = 0; draw < 256; draw++) {
+            for (ItemStack stack : table.getRandomItems(params)) {
+                if (stack.is(ModItems.RAW_ATLANTIC_COD)) cod += stack.getCount();
+                if (stack.is(ModItems.RAW_ATLANTIC_SALMON)) salmon += stack.getCount();
+            }
+        }
+        helper.assertTrue(cod > 0, "fishing loot must retain the Atlantic Cod 0.125 weight");
+        helper.assertTrue(salmon > 0, "fishing loot must retain the Atlantic Salmon 0.125 weight");
     }
 
     @GameTest(template = "empty", batch = "bfs_debug_cod_movement", timeoutTicks = 120)

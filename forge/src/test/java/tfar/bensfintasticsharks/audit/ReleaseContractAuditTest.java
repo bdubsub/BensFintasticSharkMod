@@ -251,6 +251,75 @@ class ReleaseContractAuditTest {
         assertFalse(speciesInfo.contains("atlantic_salmon\", species(\"Salmo salar\", \"Passive schooling fish\",\n                    \"TBD\""));
     }
 
+    @Test
+    void fishItemRecipeLootAndCreativeContractsAreComplete() throws IOException {
+        String items = Files.readString(ROOT.resolve(
+                "common/src/main/java/tfar/bensfintasticsharks/init/ModItems.java"));
+        String models = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/ModItemModelProvider.java"));
+        String creative = Files.readString(ROOT.resolve(
+                "common/src/main/java/tfar/bensfintasticsharks/init/ModCreativeTabs.java"));
+        String entityLoot = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/loot/ModEntityLoot.java"));
+        String fishingLoot = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/ModGlobalLootModifierProvider.java"));
+        String recipes = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/ModRecipeProvider.java"));
+
+        Path itemTextures = SOURCE_ASSETS.resolve("textures/item");
+        for (String item : List.of("atlantic_cod_spawn_egg", "atlantic_salmon_spawn_egg",
+                "raw_atlantic_cod", "cooked_atlantic_cod", "raw_atlantic_salmon", "cooked_atlantic_salmon")) {
+            assertTexture(itemTextures.resolve(item + ".png"), 16, 16);
+            assertTrue(Files.exists(GENERATED.resolve("assets/bensfintasticsharks/models/item/" + item + ".json")), item);
+            String field = switch (item) {
+                case "atlantic_cod_spawn_egg" -> "ATLANTIC_COD_SPAWN_EGG";
+                case "atlantic_salmon_spawn_egg" -> "ATLANTIC_SALMON_SPAWN_EGG";
+                case "raw_atlantic_cod" -> "RAW_ATLANTIC_COD";
+                case "cooked_atlantic_cod" -> "COOKED_ATLANTIC_COD";
+                case "raw_atlantic_salmon" -> "RAW_ATLANTIC_SALMON";
+                case "cooked_atlantic_salmon" -> "COOKED_ATLANTIC_SALMON";
+                default -> throw new IllegalStateException(item);
+            };
+            assertTrue(models.contains("ModItems." + field), item);
+        }
+        for (String item : List.of("ATLANTIC_COD_SPAWN_EGG", "ATLANTIC_SALMON_SPAWN_EGG",
+                "RAW_ATLANTIC_COD", "COOKED_ATLANTIC_COD", "RAW_ATLANTIC_SALMON", "COOKED_ATLANTIC_SALMON")) {
+            assertTrue(items.contains("public static final Item " + item), item);
+        }
+        assertTrue(creative.contains("!(item instanceof HiddenItem)"));
+        assertTrue(entityLoot.contains("SmeltItemFunction.smelted().when(onFire())"));
+        assertTrue(entityLoot.contains("ModItems.RAW_ATLANTIC_COD"));
+        assertTrue(entityLoot.contains("ModItems.RAW_ATLANTIC_SALMON"));
+        assertEquals(2, countOccurrences(fishingLoot, "0.125f"));
+        assertTrue(recipes.contains("ModItems.RAW_ATLANTIC_COD"));
+        assertTrue(recipes.contains("ModItems.COOKED_ATLANTIC_COD"));
+        assertTrue(recipes.contains("ModItems.RAW_ATLANTIC_SALMON"));
+        assertTrue(recipes.contains("ModItems.COOKED_ATLANTIC_SALMON"));
+        assertTrue(recipes.contains("SimpleCookingRecipeBuilder.smelting"));
+        assertTrue(recipes.contains("SimpleCookingRecipeBuilder.smoking"));
+
+        for (String fish : List.of("atlantic_cod", "atlantic_salmon")) {
+            JsonObject modifier = readJson(GENERATED.resolve(
+                    "data/bensfintasticsharks/loot_modifiers/add_" + fish + "_fishing.json"));
+            assertEquals(0.125D, modifier.get("chance").getAsDouble(), 0.000001D, fish);
+            assertEquals("bensfintasticsharks:raw_" + fish, modifier.get("item").getAsString(), fish);
+            assertEquals(1, modifier.get("min").getAsInt(), fish);
+            assertEquals(1, modifier.get("max").getAsInt(), fish);
+            String entityLootJson = Files.readString(GENERATED.resolve(
+                    "data/bensfintasticsharks/loot_tables/entities/" + fish + ".json"));
+            assertTrue(entityLootJson.contains("raw_" + fish), fish);
+            assertTrue(entityLootJson.contains("minecraft:furnace_smelt"), fish);
+            for (String station : List.of("smelting", "smoking")) {
+                JsonObject recipe = readJson(GENERATED.resolve(
+                        "data/bensfintasticsharks/recipes/cooked_" + fish + "_from_" + station + ".json"));
+                assertEquals("bensfintasticsharks:raw_" + fish,
+                        recipe.getAsJsonObject("ingredient").get("item").getAsString(), fish);
+                assertEquals("bensfintasticsharks:cooked_" + fish, recipe.get("result").getAsString(), fish);
+                assertTrue(recipe.get("cookingtime").getAsInt() > 0, fish);
+            }
+        }
+    }
+
     private static int countOccurrences(String text, String needle) {
         int count = 0;
         int offset = 0;
