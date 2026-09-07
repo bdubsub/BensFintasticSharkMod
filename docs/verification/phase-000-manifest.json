@@ -3,7 +3,7 @@
   "phase": "BFS-PHASE-000",
   "revision": {
     "phase_branch": "envy/0.24-phase-000",
-    "phase_commit": "4a635f438b151037b4c0ee851a6590a15a3886a8",
+    "phase_commit": "59d3912108642eadb927b8a095a9e6d4fd4bced6",
     "canonical_branch": "1.20.1",
     "canonical_ref": "origin/1.20.1",
     "canonical_commit": "15d3a8ce4913dbe5b647b67dbb5993b2f58c983e",
@@ -1737,6 +1737,45 @@
     },
     "scope": "Brain telemetry and strict diagnostic validation are complete. Phase 000 product and integration gates remain open."
   },
+  "clean_committed_verification_20260907": {
+    "status": "passed",
+    "source_revision": "9392a06",
+    "evidence_revision": "59d3912",
+    "host": "node-1",
+    "java": "17.0.19",
+    "runtime": "/tmp/bfsm-p000-clean-gametest-LR6Z55",
+    "eula": "eula=true",
+    "ordered_tasks": [
+      ":forge:compileJava",
+      ":forge:compileTestJava",
+      ":forge:test",
+      ":forge:Data",
+      ":forge:test",
+      ":forge:GameTestServer",
+      ":forge:build"
+    ],
+    "gametest": {
+      "required_tests": 22,
+      "result": "all 22 required tests passed",
+      "renderer_started": false,
+      "client_started": false
+    },
+    "artifact": {
+      "path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "size": 1830502,
+      "unzip_test": "passed",
+      "sha256": "ac566c2817d470ca5269d5c3d4906dd2be79d72e36cefbe2e4801550f58e80c9",
+      "sha512": "324223131ba2c8315a3908a9d80b082e32ab0377cdad4f6ed5bb2eec8f786c3110504e14f2fa38b38f4d7e62841178f56855c902a4c5d996e83ad9072eae5afb",
+      "metadata": {
+        "minecraft": "1.20.1",
+        "forge": "47.2.0",
+        "mod_version": "0.24",
+        "final_rc_metadata_owner": "BFS-PHASE-005"
+      }
+    },
+    "cleanup": "exact extracted source and disposable runtime paths removed and verified absent",
+    "scope": "clean Phase 000 candidate binding; review, merge, ancestry, and signed phase tag remain open"
+  },
   "defects": {
     "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",
     "DEF-024-002": "blocked, bounded client state and presentation captures now pass but the complete authored interactive state matrix remains missing",
@@ -1749,9 +1788,9 @@
   },
   "phase_exit": "open",
   "phase_exit_blockers": [
-    "natural collection, client, and sustained-population evidence for algae",
-    "interactive client visual evidence",
-    "algae population evidence",
-    "fresh-profile completion and advancement-display evidence"
+    "Phase 000 completion packet review",
+    "pull request merge into envy/0.24",
+    "remote ancestry verification",
+    "signed bfs-0.24-phase-000 tag"
   ]
 }
