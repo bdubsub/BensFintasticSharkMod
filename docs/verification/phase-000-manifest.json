@@ -1654,6 +1654,46 @@
     },
     "cleanup": "disposable runtime, world, configuration, captures, and logs removed after final consumer"
   },
+  "bound_fresh_profile_visual_20260906": {
+    "status": "complete_bounded_fresh_profile",
+    "source_revision": "a05b1d83228ac3da7f1362a41f7c5cc587640f3e",
+    "artifact": {
+      "path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "sha256": "a92992269497693911a9a2a7f4a0bae371a594e5ec9827cdb2ce46dfef52d756",
+      "unzip_test": "passed"
+    },
+    "environment": {
+      "server_host": "node-1",
+      "client_host": "envision",
+      "client_gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "client_audio": "exact Minecraft playback stream muted",
+      "loader": "Forge 47.2.0",
+      "geckolib": "4.4.7",
+      "smartbrainlib": "1.14.2",
+      "configuration_fingerprint": "p000-phase000-visual-20260906",
+      "datapack_fingerprint": "phase-000-generated"
+    },
+    "natural_advancement_log": {
+      "path": "/tmp/bfsm-phase000-evidence/p000-fresh-profile-visual-20260906/client-advancement-lines.log",
+      "sha256": "ebf8402fa6a788451606e00e45e6810d2bcabef79dfe7e83ec62876df4019588",
+      "handshake": "connected to a modded server",
+      "natural_triggers": [
+        "Salmo salar",
+        "Marine Curious",
+        "Gadus morhua",
+        "Pelagic Nightmare",
+        "Dolphin Tale"
+      ],
+      "grant_command_used": false
+    },
+    "display_capture": {
+      "path": "/tmp/bfsm-phase000-evidence/p000-fresh-profile-visual-20260906/advancements-screen.png",
+      "sha256": "a0253529f2013ecb759bcf4b8d0e6fff94a7be3bcca3e1c56f27a0f96c444460",
+      "workspace_switch": false,
+      "observed": "BFS advancement tree, completed Salmo salar node, and tooltip Encounter an Atlantic Salmon."
+    },
+    "limitations": "Bounded fresh profile and display evidence only. Complete seven-icon advancement display, full fresh-profile completion, and final merged-artifact review remain open."
+  },
   "defects": {
     "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",
     "DEF-024-002": "blocked, bounded client state and presentation captures now pass but the complete authored interactive state matrix remains missing",
