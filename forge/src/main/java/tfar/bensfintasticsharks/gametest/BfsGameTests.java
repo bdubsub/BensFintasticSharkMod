@@ -582,9 +582,21 @@ public final class BfsGameTests {
     private static void clearAquaticFixtureEntities(GameTestHelper helper, BlockPos first, BlockPos second) {
         Vec3 firstCenter = helper.absolutePos(first).getCenter();
         Vec3 secondCenter = helper.absolutePos(second).getCenter();
-        AABB fixtureArea = new AABB(firstCenter, secondCenter).inflate(26.0D);
+        // Keep cleanup inside this structure. The old 26 block radius crossed adjacent
+        // GameTest structures, so parallel fixtures could delete each other's sharks and
+        // make combat and curiosity results depend on batch placement.
+        AABB fixtureArea = new AABB(firstCenter, secondCenter).inflate(4.0D);
         helper.getLevel().getEntitiesOfClass(LivingEntity.class, fixtureArea,
                 entity -> entity.isInWater() && !(entity instanceof Player)).forEach(LivingEntity::discard);
+    }
+
+    private static void clearCombatFixtureEntities(GameTestHelper helper, BlockPos first, BlockPos second) {
+        Vec3 firstCenter = helper.absolutePos(first).getCenter();
+        Vec3 secondCenter = helper.absolutePos(second).getCenter();
+        AABB fixtureArea = new AABB(firstCenter, secondCenter).inflate(4.0D);
+        helper.getLevel().getEntitiesOfClass(Entity.class, fixtureArea,
+                        entity -> !(entity instanceof net.minecraft.server.level.ServerPlayer))
+                .forEach(Entity::discard);
     }
 
     private static void clearLocalAquaticFixtureEntities(GameTestHelper helper, BlockPos first, BlockPos second) {
@@ -631,7 +643,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 100)
+    @GameTest(template = "empty", batch = "bfs_combat_tiger_bite", timeoutTicks = 100)
     public static void tigerBiteLandsOnceAndRecoversAfterTargetLoss(GameTestHelper helper) {
         prepareWaterVolume(helper);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(4, 3, 3));
@@ -666,7 +678,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 140)
+    @GameTest(template = "empty", batch = "bfs_curiosity_edible", timeoutTicks = 140)
     public static void tigerCuriosityBitesEdibleWithoutConsumingStack(GameTestHelper helper) {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
@@ -676,7 +688,7 @@ public final class BfsGameTests {
         sampleTigerCuriosity(helper, shark, edible, acquired, 0);
     }
 
-    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 140)
+    @GameTest(template = "empty", batch = "bfs_curiosity_non_edible", timeoutTicks = 140)
     public static void tigerCuriosityIgnoresNonEdibleItem(GameTestHelper helper) {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
@@ -692,7 +704,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 160)
+    @GameTest(template = "empty", batch = "bfs_curiosity_water_exit", timeoutTicks = 160)
     public static void tigerCuriosityClearsWhenItemLeavesWater(GameTestHelper helper) {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
@@ -711,7 +723,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 220)
+    @GameTest(template = "empty", batch = "bfs_curiosity_path_failure", timeoutTicks = 220)
     public static void tigerCuriosityPathFailureAppliesRetryCooldown(GameTestHelper helper) {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
@@ -736,7 +748,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 160)
+    @GameTest(template = "empty", batch = "bfs_curiosity_flee", timeoutTicks = 160)
     public static void tigerCuriosityFleePreemptionClearsInvestigation(GameTestHelper helper) {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
@@ -800,7 +812,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 100)
+    @GameTest(template = "empty", batch = "bfs_curiosity_target_loss", timeoutTicks = 100)
     public static void tigerCuriosityClearsOnTargetAndItemLoss(GameTestHelper helper) {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
@@ -839,7 +851,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_curiosity", timeoutTicks = 400)
+    @GameTest(template = "empty", batch = "bfs_curiosity_timeout", timeoutTicks = 400)
     public static void tigerCuriosityTimeoutRemembersItemWithoutReacquiring(GameTestHelper helper) {
         prepareWaterVolume(helper);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
@@ -860,13 +872,13 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 720)
+    @GameTest(template = "empty", batch = "bfs_combat_sandtiger_matrix", timeoutTicks = 720)
     public static void sandtigerBiteMatrixReachesStationaryAndMovingPrey(GameTestHelper helper) {
         prepareWaterVolume(helper);
         runBiteMatrix(helper, false, 0);
     }
 
-    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 720)
+    @GameTest(template = "empty", batch = "bfs_combat_blacktip_matrix", timeoutTicks = 720)
     public static void blacktipBiteMatrixReachesStationaryAndMovingPrey(GameTestHelper helper) {
         prepareWaterVolume(helper);
         runBiteMatrix(helper, true, 0);
@@ -960,9 +972,10 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 1100)
+    @GameTest(template = "empty", batch = "bfs_combat_oceanic_grab", timeoutTicks = 1100)
     public static void oceanicWhitetipGrabDamagesAndReleasesPassenger(GameTestHelper helper) {
         prepareWaterVolume(helper);
+        clearCombatFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(6, 3, 3));
         OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
                 new BlockPos(4, 3, 3));
         Player prey = makeSurvivalTestPlayer(helper);
@@ -984,12 +997,15 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 1400)
+    @GameTest(template = "empty", batch = "bfs_combat_blacktip_latch", timeoutTicks = 1400)
     public static void blacktipBiteStartsLatchWithoutPeriodicDamage(GameTestHelper helper) {
         prepareWaterVolume(helper);
+        clearCombatFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(6, 3, 3));
+        Entity[] allowedAttacker = new Entity[1];
         BlacktipReefSharkEntity shark = helper.spawn(ModEntityTypes.BLACKTIP_REEF_SHARK,
                 new BlockPos(4, 3, 3));
-        Player player = makeSurvivalTestPlayer(helper);
+        Player player = makeSurvivalTestPlayer(helper, allowedAttacker);
+        allowedAttacker[0] = shark;
         player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
         player.setNoGravity(true);
         player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000.0D);
@@ -1001,7 +1017,7 @@ public final class BfsGameTests {
         runBlacktipBiteUntilLatch(helper, shark, player, initialHealth, 0);
     }
 
-    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 80)
+    @GameTest(template = "empty", batch = "bfs_combat_oceanic_invalidation", timeoutTicks = 80)
     public static void oceanicGrabReleasesOnTargetInvalidation(GameTestHelper helper) {
         prepareWaterVolume(helper);
         OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
@@ -1023,7 +1039,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 80)
+    @GameTest(template = "empty", batch = "bfs_combat_oceanic_water_exit", timeoutTicks = 80)
     public static void oceanicGrabReleasesWhenSharkLeavesWater(GameTestHelper helper) {
         prepareWaterVolume(helper);
         OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
@@ -1045,7 +1061,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 80)
+    @GameTest(template = "empty", batch = "bfs_combat_oceanic_player_death", timeoutTicks = 80)
     public static void oceanicGrabReleasesWhenPlayerDies(GameTestHelper helper) {
         prepareWaterVolume(helper);
         OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
@@ -1067,7 +1083,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_combat", timeoutTicks = 80)
+    @GameTest(template = "empty", batch = "bfs_combat_oceanic_removal", timeoutTicks = 80)
     public static void oceanicGrabReleasesWhenSharkIsRemoved(GameTestHelper helper) {
         prepareWaterVolume(helper);
         OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
@@ -1187,8 +1203,21 @@ public final class BfsGameTests {
     }
 
     private static Player makeSurvivalTestPlayer(GameTestHelper helper) {
+        return makeSurvivalTestPlayer(helper, null);
+    }
+
+    private static Player makeSurvivalTestPlayer(GameTestHelper helper, Entity[] allowedAttacker) {
         return new Player(helper.getLevel(), BlockPos.ZERO, 0.0F,
                 new GameProfile(java.util.UUID.randomUUID(), "test-survival-player")) {
+            @Override
+            public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+                if (allowedAttacker != null && source.getEntity() instanceof AbstractSharkEntity
+                        && source.getEntity() != allowedAttacker[0]) {
+                    return false;
+                }
+                return super.hurt(source, amount);
+            }
+
             @Override
             public boolean isCreative() {
                 return false;

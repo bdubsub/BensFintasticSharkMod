@@ -248,7 +248,8 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                 // pendingBiteTarget forever and the shark could never bite again.
                 LivingEntity victim = pendingBiteTarget;
                 pendingBiteTarget = null;
-                if (victim != null && victim.isAlive()) {
+                if (victim != null && victim.isAlive() && !victim.isPassenger()
+                        && getPassengers().isEmpty()) {
                     double reach = biteRangeAgainst(victim);
                     if (this.distanceToSqr(victim) <= reach * reach) {
                         this.doHurtTarget(victim);
@@ -428,7 +429,10 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             // overshoot-orbit loop.
             if (inBiteRange
                     && biteCooldown <= 0
-                    && pendingBiteTarget == null) {
+                    && pendingBiteTarget == null
+                    // A latched passenger is already inside the active attack. Do not
+                    // schedule another bite while the grab or latch timer is running.
+                    && getPassengers().isEmpty()) {
                 this.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
                 onBiteAttack(tgt);
                 pendingBiteTarget = tgt;
