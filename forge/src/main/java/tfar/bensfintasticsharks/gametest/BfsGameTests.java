@@ -413,14 +413,16 @@ public final class BfsGameTests {
                 .withLevel(helper.getLevel())
                 .withPosition(capturedStart)
                 .withPermission(4);
-        try {
-            int started = server.getCommands().getDispatcher().execute(
-                    "bfs debug on movement 70 @e[type=bensfintasticsharks:atlantic_cod,distance=..4,limit=1]", source);
-            helper.assertTrue(started == 1, "diagnostic parity fixture must select only its captured Cod");
-            sampleDiagnosticParity(helper, server, source, captured, control, capturedStart, controlStart, 20);
-        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
-            helper.fail("BFS diagnostic parity start command failed: " + exception.getMessage());
-        }
+        helper.runAfterDelay(1, () -> {
+            try {
+                int started = server.getCommands().getDispatcher().execute(
+                        "bfs debug on movement 70 @e[type=bensfintasticsharks:atlantic_cod,distance=..8,sort=nearest,limit=1]", source);
+                helper.assertTrue(started == 1, "diagnostic parity fixture must select only its captured Cod");
+                sampleDiagnosticParity(helper, server, source, captured, control, capturedStart, controlStart, 20);
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+                helper.fail("BFS diagnostic parity start command failed: " + exception.getMessage());
+            }
+        });
     }
 
     private static void sampleDiagnosticParity(GameTestHelper helper, net.minecraft.server.MinecraftServer server,
@@ -573,6 +575,7 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        item.setNoGravity(true);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         Vec3 start = shark.position();
         double startDistance = shark.distanceToSqr(item);
@@ -586,8 +589,8 @@ public final class BfsGameTests {
         // GameTest structures, so parallel fixtures could delete each other's sharks and
         // make combat and curiosity results depend on batch placement.
         AABB fixtureArea = new AABB(firstCenter, secondCenter).inflate(4.0D);
-        helper.getLevel().getEntitiesOfClass(LivingEntity.class, fixtureArea,
-                entity -> entity.isInWater() && !(entity instanceof Player)).forEach(LivingEntity::discard);
+        helper.getLevel().getEntitiesOfClass(Entity.class, fixtureArea,
+                entity -> !(entity instanceof Player)).forEach(Entity::discard);
     }
 
     private static void clearCombatFixtureEntities(GameTestHelper helper, BlockPos first, BlockPos second) {
@@ -683,9 +686,14 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity edible = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        edible.setNoGravity(true);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
-        boolean[] acquired = new boolean[1];
-        sampleTigerCuriosity(helper, shark, edible, acquired, 0);
+        runWhenTigerCurious(helper, shark, edible, 120, () -> helper.runAfterDelay(10, () -> {
+            helper.assertTrue(edible.isAlive() && edible.getItem().is(Items.COD)
+                            && edible.getItem().getCount() == 1,
+                    "cosmetic item bite must preserve the edible item stack");
+            helper.succeed();
+        }));
     }
 
     @GameTest(template = "empty", batch = "bfs_curiosity_non_edible", timeoutTicks = 140)
@@ -709,6 +717,7 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        item.setNoGravity(true);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         runWhenTigerCurious(helper, shark, item, 80, () -> {
             item.setPos(item.getX(), item.getY() + 10.0D, item.getZ());
@@ -728,6 +737,7 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        item.setNoGravity(true);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         runWhenTigerCurious(helper, shark, item, 80, () -> {
             helper.runAfterDelay(12, () -> {
@@ -753,6 +763,7 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
+        item.setNoGravity(true);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         runWhenTigerCurious(helper, shark, item, 80, () -> {
             AbstractSharkEntity<?> largerShark = helper.spawn(ModEntityTypes.GREAT_WHITE_SHARK,
@@ -1178,10 +1189,10 @@ public final class BfsGameTests {
                 shark.getNavigation().stop();
                 shark.setTarget(null);
                 helper.runAfterDelay(10, () -> {
-                    helper.assertTrue(Math.abs(player.getHealth() - initialHealth[0]) < 0.001F,
-                            "blacktip latch must not deal periodic damage after the initial bite, health="
+                            helper.assertTrue(player.getHealth() >= initialHealth[0] - 0.001F,
+                                    "blacktip latch must not deal periodic damage after the initial bite, health="
                                     + player.getHealth() + ", timer=" + shark.getGrabTimer()
-                                    + ", passenger=" + player.isPassenger());
+                                    + ", initial=" + initialHealth[0] + ", passenger=" + player.isPassenger());
                     helper.runAfterDelay(25, () -> {
                         helper.assertTrue(shark.getGrabTimer() == 0,
                                 "blacktip latch timer must expire");

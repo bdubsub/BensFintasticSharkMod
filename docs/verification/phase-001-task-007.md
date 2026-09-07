@@ -15,7 +15,16 @@ The focused audit passed with:
 ./gradlew :forge:test --tests tfar.bensfintasticsharks.audit.ReleaseContractAuditTest --no-daemon
 ```
 
-The new `bfs_armor` GameTest passed in the headless Forge harness. The full 38 test reruns remain red on pre-existing movement and combat fixtures, not on the armor test. The parent commit `26f1aba` reproduced the Oceanic Whitetip and Blacktip failures before this task, confirming that the armor changes did not introduce them. The current stabilization also keeps fixture cleanup inside each structure and prevents bite scheduling while a passenger is latched. The latest run still reported `blacktipBiteStartsLatchWithoutPeriodicDamage`, `tigerCuriosityTimeoutRemembersItemWithoutReacquiring`, `tigerCuriosityPathFailureAppliesRetryCooldown`, and `atlanticCodVerticalRouteUsesScaledPitch`, so phase integration remains blocked pending a deterministic full suite.
+The new `bfs_armor` GameTest passed in the headless Forge harness. The full 38
+test rerun now passes. The stabilization keeps fixture cleanup inside an
+isolated structure, prevents bite scheduling while a passenger is latched,
+keeps underwater item fixtures stationary, and prevents an Oceanic grab from
+immediately reacquiring its released passenger. The Blacktip assertion accepts
+normal player regeneration while rejecting any health decrease.
+
+The exact headless run completed with `All 38 required tests passed :)`, so the
+earlier shared fixture failures are no longer present in the current phase
+branch.
 
 ## Multiplayer and visual evidence
 

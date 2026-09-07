@@ -14,7 +14,8 @@ also verifies the per item retry cooldown.
 The retained `TigerSharkEntity` state machine remains server authoritative. The
 GameTests exercise its existing cleanup path rather than injecting a private
 target or consuming an item. The fixture keeps the item at a fixed submerged
-position, and the edible and nonedible cases are separate so the negative
+position with gravity disabled, and the edible and nonedible cases are separate
+so the negative
 control cannot change the selected intercept. Curiosity, target, and flee
 transitions all assert that the item remains alive with an unchanged count.
 
@@ -44,14 +45,13 @@ BUILD SUCCESSFUL
 ```
 
 The curiosity batch contains seven required tests. The complete suite contains
-31 required tests, and the clean headless run below passed all of them after
-the bite matrix fixture cleanup was narrowed to its own local structure. The
-previous failures were caused by the broad cleanup deleting entities belonging
-to neighboring GameTest structures, not by the Tiger curiosity state machine.
+38 required tests. The empty GameTest structure is isolated at 40 by 24 by 40
+blocks, and fixture cleanup removes every nonplayer entity only inside that
+structure so stale or neighboring entities cannot change target selection.
 
 ```text
 ./gradlew :forge:GameTestServer --no-daemon --rerun-tasks
-All 31 required tests passed :)
+All 38 required tests passed :)
 BUILD SUCCESSFUL
 ```
 

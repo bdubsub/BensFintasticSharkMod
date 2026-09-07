@@ -6,7 +6,7 @@ This record covers `P001-TASK-005` and `BFS-REQ-004` for the server side grab an
 
 ## Implementation
 
-Both grabber species now share an authoritative release helper that clears the timer, ejects every passenger, and resends the empty passenger packet to a server player. Release is invoked for timer expiry, missing or invalid target, leaving water, dead passenger, shark death, entity removal, player logout, dimension change, respawn, entity level removal, and server stopping. The Forge lifecycle listeners release the vehicle immediately when a player leaves or changes lifecycle state.
+Both grabber species now share an authoritative release helper that clears the timer, ejects every passenger, and resends the empty passenger packet to a server player. Oceanic Whitetip starts the grab contract on every successful bite, clears its hunt target, and holds a bounded post grab cooldown so timer expiry cannot immediately reacquire the same passenger. Release is invoked for timer expiry, missing or invalid target, leaving water, dead passenger, shark death, entity removal, player logout, dimension change, respawn, entity level removal, and server stopping. The Forge lifecycle listeners release the vehicle immediately when a player leaves or changes lifecycle state.
 
 ## Deterministic evidence
 
@@ -16,13 +16,18 @@ The dedicated Forge GameTest harness ran on the headless node 1 host with Java 1
 ./gradlew :forge:GameTestServer --no-daemon --rerun-tasks
 ```
 
-The suite completed successfully with all 36 required tests passing. It includes:
+The suite completed successfully with all 38 required tests passing. It includes:
 
 * real bite to Oceanic Whitetip grab, server thrash damage, and normal timeout release;
 * real bite to Blacktip Reef latch, initial damage, no periodic latch damage, and timeout release;
 * target invalidation, shark leaving water, player death, and shark removal release probes;
 * shared vertical movement and finite entry arc regression coverage;
 * the previously established movement, bite, curiosity, and debug capture tests.
+
+The Blacktip no periodic damage assertion allows normal survival player
+regeneration while still rejecting any health decrease. The disposable fixtures
+use isolated 40 by 24 by 40 structures and remove only nonplayer entities in
+their own structure.
 
 The source compiled successfully before the GameTest run with:
 

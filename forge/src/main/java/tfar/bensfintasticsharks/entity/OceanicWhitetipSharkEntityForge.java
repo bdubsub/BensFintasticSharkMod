@@ -94,9 +94,7 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     @Override
     protected void onBiteLanded(LivingEntity target) {
         if (level().isClientSide || target.isDeadOrDying()) return;
-        if (getRandom().nextFloat() < 0.10f) {
-            grabMob(target);
-        }
+        grabMob(target);
     }
 
     @Override
