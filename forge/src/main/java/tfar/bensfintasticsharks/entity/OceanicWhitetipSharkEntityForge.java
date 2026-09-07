@@ -22,6 +22,7 @@ import tfar.bensfintasticsharks.disturbance.SharkAlertHandler;
 public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity implements GeoEntity {
 
     private static final double SWIM_MOVEMENT_EPSILON = 1.0e-4;
+    private static final double VISUAL_MOVEMENT_EPSILON = 4.0e-4;
 
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.idle");
     private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.swim_new");
@@ -32,9 +33,28 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     private static final RawAnimation THRASH = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.thrash");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private int visuallyStillTicks;
 
     public OceanicWhitetipSharkEntityForge(EntityType<OceanicWhitetipSharkEntity> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (level().isClientSide) {
+            double dx = getX() - xo;
+            double dy = getY() - yo;
+            double dz = getZ() - zo;
+            visuallyStillTicks = dx * dx + dy * dy + dz * dz < VISUAL_MOVEMENT_EPSILON
+                    ? Math.min(visuallyStillTicks + 1, 40)
+                    : 0;
+        }
+    }
+
+    private boolean isVisuallyMoving() {
+        return getDeltaMovement().lengthSqr() > SWIM_MOVEMENT_EPSILON
+                || level().isClientSide && visuallyStillTicks == 0;
     }
 
     @Override
@@ -68,7 +88,7 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
             // false for an aquatic entity whose server-authoritative velocity is changing. Use
             // the synchronized movement vector so the authored swim clip follows actual travel
             // instead of falling back to idle or no-current-animation during a valid route.
-            return event.setAndContinue(getDeltaMovement().lengthSqr() > SWIM_MOVEMENT_EPSILON ? SWIM : IDLE);
+            return event.setAndContinue(isVisuallyMoving() ? SWIM : IDLE);
         })
                 .triggerableAnim("bite", BITE)
                 .triggerableAnim("death", DEATH));
