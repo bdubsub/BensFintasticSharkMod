@@ -68,13 +68,20 @@ The new dedicated server GameTest exercises a natural Cod replacement,
 one for one entity count, custom name, body and head rotation, motion, school
 continuity, an excluded Tropical Fish path, a real join event for a vanilla
 Cod spawn egg, and replacement disabled for a chunk generated Salmon. The
-runtime used the headless GameTest server on node 1 with no client or renderer.
+The expanded matrix also covers Pufferfish, command, bucket, spawner, and
+structure reasons, existing loaded Cod, BFS Cod spawn eggs, and replacement
+disabled for vanilla Cod eggs. The runtime used the headless GameTest server on
+node 1 with no client or renderer. The latest isolated run passed all 42
+required tests. Its latest log has SHA 256
+`4b1e8c76466028afcfcf250f9a4daa623b64e0a59e7fac49041602eee204adf1` and SHA
+512
+`ca335ce956afe4915c3e103524f44044b902f9c1ff0339a9eaa658354934328ac0117bc004b4a712202790e95b345c4bef856c345effe9d55af91405687c702f`.
 
 The Forge artifact passed `unzip -tqq`. The candidate artifact was
 `forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` with SHA 256
-`72c4fae0e590e6e8f04c7bef60d357df02d74fbe7f551627c7fbbeafee0460eb` and SHA
+`ac3fd5b493567f66c00572b3394f48a592b4d57b9ec7d83e94a649fcac40b177` and SHA
 512
-`b55308ea1ab35fecddf5bd355876b32f108bb0a8b379fd5b181f9bf6230a15d3b5e99b193cfb05a312477020b2ffa338e91093ce47665b4ce8794a2cab0fff07`.
+`9b37e008fe57427d1f224e1ad1cbe7210bee1413552f000b70c56d1a2c1daada74a8e53e0efedaae981b026679aaf13efaf65a95a3d26d6827174a03896edc6f`.
 
 The disposable `forge/run` GameTest runtime, world, configuration, EULA,
 logs, and debug captures were removed after the final evidence consumer

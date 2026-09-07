@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Salmon;
 import net.minecraft.world.entity.animal.TropicalFish;
+import net.minecraft.world.entity.animal.Pufferfish;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -1497,6 +1498,49 @@ public final class BfsGameTests {
             helper.assertTrue(!excludedEvent.isSpawnCancelled(),
                     "unsupported vanilla aquatic species must remain unchanged");
 
+            Pufferfish pufferfish = EntityType.PUFFERFISH.create(helper.getLevel());
+            helper.assertTrue(pufferfish != null, "Pufferfish fixture must construct");
+            pufferfish.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 4.5D,
+                    0.0F, 0.0F);
+            MobSpawnEvent.FinalizeSpawn pufferfishEvent = newFinalizeSpawn(helper, pufferfish,
+                    absolute.offset(0, 0, 4), MobSpawnType.NATURAL, null);
+            manager.onFinalizeSpawn(pufferfishEvent);
+            helper.assertTrue(!pufferfishEvent.isSpawnCancelled(),
+                    "Pufferfish natural spawn must remain unchanged");
+
+            for (MobSpawnType reason : List.of(MobSpawnType.COMMAND, MobSpawnType.BUCKET,
+                    MobSpawnType.SPAWNER, MobSpawnType.STRUCTURE)) {
+                Cod unchanged = EntityType.COD.create(helper.getLevel());
+                helper.assertTrue(unchanged != null, "vanilla Cod fixture must construct for " + reason);
+                unchanged.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D,
+                        absolute.getZ() + 5.5D, 0.0F, 0.0F);
+                MobSpawnEvent.FinalizeSpawn unchangedEvent = newFinalizeSpawn(helper, unchanged,
+                        absolute.offset(0, 0, 5), reason, null);
+                manager.onFinalizeSpawn(unchangedEvent);
+                helper.assertTrue(!unchangedEvent.isSpawnCancelled(),
+                        "vanilla Cod " + reason + " path must remain unchanged");
+            }
+
+            Cod existing = EntityType.COD.create(helper.getLevel());
+            helper.assertTrue(existing != null, "existing vanilla Cod fixture must construct");
+            existing.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 6.5D,
+                    0.0F, 0.0F);
+            setSpawnTypeForTest(existing, MobSpawnType.NATURAL);
+            EntityJoinLevelEvent existingEvent = new EntityJoinLevelEvent(existing, helper.getLevel());
+            manager.onEntityJoin(existingEvent);
+            helper.assertTrue(!existingEvent.isCanceled(),
+                    "existing loaded vanilla Cod must remain unchanged");
+
+            AtlanticCodEntity bfsEgg = ModEntityTypes.ATLANTIC_COD.create(helper.getLevel());
+            helper.assertTrue(bfsEgg != null, "BFS Cod spawn egg fixture must construct");
+            bfsEgg.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 7.5D,
+                    0.0F, 0.0F);
+            setSpawnTypeForTest(bfsEgg, MobSpawnType.SPAWN_EGG);
+            EntityJoinLevelEvent bfsEggEvent = new EntityJoinLevelEvent(bfsEgg, helper.getLevel());
+            manager.onEntityJoin(bfsEggEvent);
+            helper.assertTrue(!bfsEggEvent.isCanceled(),
+                    "BFS Cod spawn egg must remain unchanged");
+
             Cod eggSource = EntityType.COD.create(helper.getLevel());
             helper.assertTrue(eggSource != null, "vanilla Cod egg fixture must construct");
             eggSource.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 3.5D,
@@ -1526,6 +1570,16 @@ public final class BfsGameTests {
             helper.assertTrue(helper.getLevel().getEntitiesOfClass(AtlanticSalmonEntity.class,
                     new AABB(absolute).inflate(2.0D)).isEmpty(),
                     "replacement disabled must not add Atlantic Salmon");
+
+            Cod disabledEggSource = EntityType.COD.create(helper.getLevel());
+            helper.assertTrue(disabledEggSource != null, "replacement disabled egg fixture must construct");
+            disabledEggSource.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D,
+                    absolute.getZ() + 8.5D, 0.0F, 0.0F);
+            setSpawnTypeForTest(disabledEggSource, MobSpawnType.SPAWN_EGG);
+            EntityJoinLevelEvent disabledEggEvent = new EntityJoinLevelEvent(disabledEggSource, helper.getLevel());
+            manager.onEntityJoin(disabledEggEvent);
+            helper.assertTrue(!disabledEggEvent.isCanceled(),
+                    "replacement disabled must preserve vanilla Cod spawn eggs");
             helper.succeed();
         } finally {
             BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
