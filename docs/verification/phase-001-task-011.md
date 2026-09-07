@@ -52,6 +52,18 @@ BUILD SUCCESSFUL
 BUILD SUCCESSFUL
 ```
 
+The dedicated server startup smoke also passed on the headless node with a
+fresh fixed seed runtime, an explicit `eula=true`, and precreated server
+properties. `./gradlew :forge:Server --no-daemon
+-PbfsServerRunDir=<disposable-runtime> --args='--port 25613 --nogui'` reached
+`Done (12.985s)!` and loaded Forge `47.2.0` and the mod. The sanitized log has
+SHA 256
+`5e73fd4273ef02c904f1f78b574abe6a5078197f5fb35a30a839aec0c4c1734a` and SHA
+512
+`95ef188f18be2dde7b5e52cd25b96f8d96f5c20deb3b2d276249b49b8994e9ca23380f42013690324381b0e3ccab7113b79f22b180ca68d9cf14468cfbd44713`.
+The exact disposable runtime, world, configuration, EULA, and logs were
+removed after the evidence hash was recorded.
+
 The new dedicated server GameTest exercises a natural Cod replacement,
 one for one entity count, custom name, body and head rotation, motion, school
 continuity, an excluded Tropical Fish path, a real join event for a vanilla
