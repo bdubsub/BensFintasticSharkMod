@@ -15,6 +15,7 @@
 * [Phase 001 task 005 grab and latch lifecycle evidence](verification/phase-001-task-005.md)
 * [Phase 001 task 006 species information and habitat evidence](verification/phase-001-task-006.md)
 * [Phase 001 task 007 Prismarine armor evidence](verification/phase-001-task-007.md)
+* [Phase 001 task 008 Oceanic Whitetip state mapping evidence](verification/phase-001-task-008.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
 * [Phase 000 test runbook](test/phase-000-runbook.md)

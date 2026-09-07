@@ -204,7 +204,12 @@ class ReleaseContractAuditTest {
         }
         assertTrue(forgeSource.indexOf("DEATH") < forgeSource.indexOf("THRASH"));
         assertTrue(forgeSource.contains("if (this.onGround() && !this.isInWaterOrBubble())"));
-        assertTrue(forgeSource.contains("if (!this.getPassengers().isEmpty())"));
+        assertTrue(forgeSource.contains(".triggerableAnim(\"bite\", BITE)"));
+        assertTrue(forgeSource.contains(".triggerableAnim(\"death\", DEATH)"));
+        assertTrue(forgeSource.contains("if (!this.isDeadOrDying() && this.isInWaterOrBubble()"));
+        assertTrue(forgeSource.contains("&& this.getGrabTimer() > 0 && !this.getPassengers().isEmpty()"));
+        assertTrue(forgeSource.indexOf("if (this.isDeadOrDying())")
+                < forgeSource.indexOf("if (this.getSharkState() == SharkState.HOSTILE)"));
     }
 
     @Test

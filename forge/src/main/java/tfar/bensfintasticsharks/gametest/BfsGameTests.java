@@ -732,14 +732,17 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_curiosity_path_failure", timeoutTicks = 220)
+    @GameTest(template = "empty", batch = "bfs_curiosity_path_failure", timeoutTicks = 300)
     public static void tigerCuriosityPathFailureAppliesRetryCooldown(GameTestHelper helper) {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
         item.setNoGravity(true);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
-        runWhenTigerCurious(helper, shark, item, 80, () -> {
+        // Item scanning retries after its bounded 100 tick empty-scan cooldown. Allow one
+        // complete retry window so fixture startup timing cannot turn path cleanup into a
+        // false failure.
+        runWhenTigerCurious(helper, shark, item, 180, () -> {
             helper.runAfterDelay(12, () -> {
                 shark.getNavigation().stop();
                 helper.runAfterDelay(2, () -> {
