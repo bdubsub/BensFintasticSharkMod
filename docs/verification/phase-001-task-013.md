@@ -204,3 +204,61 @@ This rerun closes the fresh-profile Atlantic encounter and direct presentation
 checkpoint for the two retained encounter advancements. It does not close the
 complete authored animation matrix, the remaining fishing presentation rows,
 or repository integration task `P001-TASK-014`.
+
+## Laptop visual matrix rerun
+
+On 2026-09-08, the exact Phase 001 head `f04425460a37c1d3fab8e102328b10a70e48cea9`
+was packaged and copied to the disposable Forge server runtime
+`/tmp/bfsm-p001-visual-final-20260908` and to the disposable Prism profile
+`bfsm-p001-visual-final-20260908`. The Forge jar SHA-256 was
+`5400bb906dfad0ece5902fb3774bab113bb00d06706a8a1c4898410694e8cc89`.
+The server used Java 17.0.19, Forge 47.2.0, GeckoLib 4.4.7, and
+SmartBrainLib 1.14.2 at `100.76.164.109:25842`. The laptop client connected
+through that private endpoint and reported the NVIDIA GeForce RTX 5090 Laptop
+GPU. The owned playback stream for client PID `93448` was matched by process
+identity and muted with `wpctl`; no default sink or unrelated client stream was
+changed.
+
+The close underwater capture placed the exact Atlantic Cod, Atlantic Salmon
+with the case sensitive `Spin` name, ordinary Atlantic Salmon, and Bottlenose
+Dolphin renderers in the same controlled water fixture. The image is retained
+outside Git at
+`/tmp/bfsm-p001-task013-evidence-20260908/visual/bfsm-p001-visual-final-fish-matrix-close.png`
+with SHA-256
+`ddd2cadca02b549777d66588bb074f5a99d1a79365af86f02b29184a7e810275`.
+
+The dry platform capture placed Atlantic Cod and Atlantic Salmon outside water
+and showed their beached presentation. It is retained at
+`/tmp/bfsm-p001-task013-evidence-20260908/visual/bfsm-p001-visual-final-beached-air.png`
+with SHA-256
+`7c0bdda06f0fea42932fc77f506df43151eefed0feb5b02fd96bb7da96af20a1`.
+The fixture was disposable and used only to select the dry state; it is not a
+claim about ordinary swimming motion.
+
+After revoking all advancements on the same disposable server profile, the
+client opened the advancement screen and captured the fresh tree. The image is
+retained at
+`/tmp/bfsm-p001-task013-evidence-20260908/visual/bfsm-p001-advancement-fresh.png`
+with SHA-256
+`b8d69d223d42a1783cb395d56d705b5322e0f5b1edb0111d96fae842343ecc4b`.
+The reset profile later received a natural Atlantic Salmon encounter, which
+is recorded as encounter evidence only. A fishing rod was cast from the
+disposable water fixture, but no fishing advancement was granted during this
+bounded attempt. The fishing presentation rows therefore remain open and no
+command granted criterion is treated as a fishing result. The fishing view is
+retained at
+`/tmp/bfsm-p001-task013-evidence-20260908/visual/bfsm-p001-fishing-edge2.png`
+with SHA-256
+`137c17c1821051c28c8de28120331386ab650c68c62a07c5032302f7484688fa`.
+
+The sanitized client and server logs for this rerun are retained outside Git
+at `/tmp/bfsm-p001-task013-evidence-20260908/client-latest.log` and
+`/tmp/bfsm-p001-task013-evidence-20260908/server-latest.log`. Their SHA-256
+values are `f6b192140289b9696a1b8674b5d7eba02c7488bf57a99f2492ed3945fd436db3`
+and `9a1ec03cd3295158f23b23425ceb6968c1cec3ce30c45422648af7b4cf1ea700`.
+
+This rerun closes the authored fish and dolphin renderer visibility checkpoint,
+the dry state visibility checkpoint, and the fresh tree screenshot checkpoint.
+It does not close the complete fishing interaction matrix or the final phase
+integration gate. Those remain mandatory before `P001-TASK-013` and
+`P001-TASK-014` can close.
