@@ -156,9 +156,12 @@ class ReleaseContractAuditTest {
         assertClipHasFivePointMotion("atlantic_cod.animation.json", "animation.atlantic_cod.idle");
         assertClipHasFivePointMotion("atlantic_cod.animation.json", "animation.atlantic_cod.swim");
         assertClipHasFivePointMotion("atlantic_cod.animation.json", "animation.atlantic_cod.swim_fast");
+        assertClipHasFivePointMotion("atlantic_cod.animation.json", "animation.atlantic_cod.flop");
         assertClipHasFivePointMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.idle");
         assertClipHasFivePointMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.swim");
         assertClipHasFivePointMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.swim_fast");
+        assertClipHasFivePointMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.flop");
+        assertClipHasFivePointMotion("atlantic_salmon.animation.json", "animation.atlantic_salmon.spin");
         assertClipHasFivePointMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.idle");
         assertClipHasFivePointMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.swim_new");
         assertClipHasFivePointMotion("oceanic_whitetip_shark.animation.json", "animation.oceanicwhitetipshark.swim_fast_new");
