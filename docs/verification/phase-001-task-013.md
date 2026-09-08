@@ -153,3 +153,15 @@ They do not close the authored client animation matrix, fresh-profile
 advancement presentation, or final phase integration gates. The phase remains
 open and the server-only diagnostic result does not substitute for those
 client claims.
+
+The same packaged client also supplied an exploratory static geometry capture
+from the laptop window without changing the active Hyprland workspace. The
+window was the exact owned Minecraft client at stable id `1800094f` on
+workspace `3`. The inspected capture hash is
+`2cfc073dbb9673bbd565b97d7e3895a2c572cb1ef503f0d6a2ab188a088f55db`.
+The earlier connected-water checkpoint hash is
+`645bf918d36007ba132b74d77f14580c701363c2c26a87e4ecac27c3fa8ed839`.
+These are visual checkpoints only. They do not claim the complete authored
+animation state matrix, continuous pitch and movement review, or fresh
+advancement presentation. Both images are retained with the capture evidence
+outside Git.
