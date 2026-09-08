@@ -83,3 +83,124 @@ The exact laptop client visual matrix, fresh profile advancement tree review,
 and final documentation consistency pass remain open. No node 1 client or
 renderer was used, and no headless client result is being substituted for that
 visual evidence.
+
+## Current reconciled headless rerun
+
+On 2026-09-07, the reconciled Phase 001 head `39dae8f385f51642fc7eabb8241e567eae4f670d`
+was extracted into a clean temporary tree on node 1. The run used the explicit
+Java 17.0.19 executable `/usr/lib/jvm/temurin-17-jdk-amd64/bin/java` and did
+not start a client, renderer, display server or virtual display.
+
+The ordered commands all passed:
+
+```text
+./gradlew :forge:compileJava :forge:compileTestJava --no-daemon
+./gradlew :forge:test --no-daemon
+./gradlew :forge:Data --no-daemon
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks
+./gradlew :forge:build --no-daemon
+```
+
+The final GameTest server reported all `42` required tests passed. The Forge
+artifact `forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` passed
+`unzip -tqq` with SHA-256
+`f50cd99a15420b8ab09031d16c6354951cbe3cf7eb010d64573e0f04a01c9a53` and
+SHA-512
+`aad24e3527abfa98a9d680efcccbd68ab4e6794c357e27ef812e69e4486d16b940394d205a351dbffee5150c3ad1e4af46055fc2f27cd9721c4787cd9b76417b`.
+Sanitized logs are retained at `/tmp/bfsm-p001-task013-evidence-20260907/`:
+`compile.log` SHA-256
+`07c9b66737010c3194e2c7b45857365f045b0782068caf8f126b626309f4c140`,
+`test.log` SHA-256
+`69fb8052233e63bfd1bfe30a6c22bb2481b3ecf096e90c821d02a322f7c30a3d`,
+`data.log` SHA-256
+`dc39c8d5c8573bb0826b1f8af8738e6b82be606fa4fa2287b419238b950c1983`,
+`gametest.log` SHA-256
+`fa0b03adc695069bf757459f9e9c919627d4dba7dfa67abeba97f696759095f4`, and
+`build.log` SHA-256
+`36dd8af84e7705c07bd9e8bc9bdde9547e7078da68dc847ef33e3516bd5d4131`.
+The extracted tree and disposable GameTest runtime were removed after the
+final consumer and the exact path was verified absent.
+
+This closes the current deterministic and artifact portion of P001-TASK-013.
+The laptop visual matrix, fresh profile advancement review, final documentation
+review, and P001-TASK-014 pull request, merge and signed tag remain open.
+
+## Bound packaged diagnostic rerun
+
+On 2026-09-07, the exact Forge candidate copied to the disposable packaged
+server and the authenticated laptop client was bound at runtime with source
+revision `39dae8f385f51642fc7eabb8241e567eae4f670d`, artifact SHA-256
+`5096bb71ceabec46e2270b09d88bc22e73b5daf592b621118d98f8936bc8b983`, Java
+`17.0.19`, Forge `47.2.0`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, and the
+configuration and generated-data fingerprints recorded in the capture header.
+The server ran on node 1 at `100.76.164.109:25820`. The laptop client used
+Prism instance `bfsm-p001-task013`, connected through the private endpoint,
+rendered with the NVIDIA GeForce RTX 5090 Laptop GPU, and its exact Java
+playback stream was verified muted.
+
+The first five-target capture is retained as a negative control because Tiger
+Shark predation killed two prey targets. It contains 5,207 records with zero
+drops but ends with two missing targets, so it is not acceptance evidence.
+Separate tagged fixtures removed that interaction. The nonpredator capture
+selected Atlantic Cod, Atlantic Salmon, and Bottlenose Dolphin for 300 ticks
+each. It contains 900 movement samples, zero dropped records, no missing
+targets, and one complete terminal record. Strict analysis returned `complete`
+for scenario `p001-task013-packaged-motion-20260907` and requirement
+`BFS-REQ-001`. The shark capture selected Tiger Shark and Oceanic Whitetip for
+300 ticks each. It contains 600 movement samples, zero dropped records, no
+missing targets, and one complete terminal record. Strict analysis returned
+`complete` for scenario `p001-task013-packaged-shark-motion-20260907` and
+requirement `BFS-REQ-001`.
+
+Raw captures, candidate manifests, analyzer verdicts, and their SHA-256 ledger
+are retained in `/tmp/bfsm-p001-task013-evidence-20260907/`. These captures
+close the bound server telemetry and target-completeness portion of Task 013.
+They do not close the authored client animation matrix, fresh-profile
+advancement presentation, or final phase integration gates. The phase remains
+open and the server-only diagnostic result does not substitute for those
+client claims.
+
+The same packaged client also supplied an exploratory static geometry capture
+from the laptop window without changing the active Hyprland workspace. The
+window was the exact owned Minecraft client at stable id `1800094f` on
+workspace `3`. The inspected capture hash is
+`2cfc073dbb9673bbd565b97d7e3895a2c572cb1ef503f0d6a2ab188a088f55db`.
+The earlier connected-water checkpoint hash is
+`645bf918d36007ba132b74d77f14580c701363c2c26a87e4ecac27c3fa8ed839`.
+These are visual checkpoints only. They do not claim the complete authored
+animation state matrix, continuous pitch and movement review, or fresh
+advancement presentation. Both images are retained with the capture evidence
+outside Git.
+
+## Fresh profile advancement encounter and presentation rerun
+
+On 2026-09-07, the exact packaged candidate from source revision
+`a2a700bd8a63de8272c8b50ce1e300e011e53fa3` was copied to the disposable Forge
+server at `100.76.164.109:25830` and to the fresh laptop profile
+`bfsm-p001-task012-fresh-20260908`. The candidate SHA-256 was
+`f2ab6a4b3f34aacde835b3ec0bb4afc3e81eacc499a44d21c0fcc3798563d91b`.
+The server used Java 17.0.19, Forge 47.2.0, GeckoLib 4.4.7, SmartBrainLib
+1.14.2, `spawn-animals=true`, and `doMobSpawning=false`. The laptop client
+process was PID `3162910`, rendered with the NVIDIA GeForce RTX 5090 Laptop
+GPU, and its playback stream was matched to that PID and verified muted.
+
+The player was placed in survival at `[560.5d, 68.0d, 400.5d]`. The server
+revoked all advancements, then summoned persistent no-AI Atlantic Cod and
+Atlantic Salmon encounter fixtures at `560 68 400` and `561 68 400`. No
+advancement grant command was used. The fresh client log recorded
+`Gadus morhua` and `Salmo salar` after the encounter fixtures were present.
+The sanitized client excerpt SHA-256 is
+`f01f438d1880dea66cdfcb0f9e6009a3d4a61cc93fc8823dfa7ec16c66288800`.
+
+The advancement screen was captured directly from the owned client window on
+workspace `3` without switching to that workspace. The captured tree showed
+the Atlantic Salmon node title `Salmo salar` and description `Encounter an
+Atlantic Salmon.`. The PNG SHA-256 is
+`7a8abe7e1a95a43550de5260bcf2a5bca3a20674c14e9ccc667b6b7381ad6878`.
+The command transcript, sanitized log excerpt, and image are retained at
+`/tmp/bfsm-p001-task013-evidence-20260908/` outside Git.
+
+This rerun closes the fresh-profile Atlantic encounter and direct presentation
+checkpoint for the two retained encounter advancements. It does not close the
+complete authored animation matrix, the remaining fishing presentation rows,
+or repository integration task `P001-TASK-014`.

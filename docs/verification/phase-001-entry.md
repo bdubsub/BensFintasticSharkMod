@@ -3,15 +3,22 @@
 ## Entry binding
 
 Phase 001 uses branch `envy/0.24-phase-001`, created only after Phase 000 was
-merged into `envy/0.24`. The branch base is merge commit
-`df11ec95a2fa6718cc085ea2e4a7ce49946c7b0c`, which is also the target of the
-signed annotated tag `bfs-0.24-phase-000`. The tag signature verifies with the
-EnVy signing key fingerprint `SHA256:CE014W2Y8QMbKKspTiTQAJ37gK83TV3gup2el94DWb4`.
+merged into `envy/0.24`. The verified Phase 000 integration merge is
+`f641131640481f17bfcfc54999c98700b42c1af6`, and the signed annotated tag
+`bfs-0.24-phase-000` resolves to that exact commit. The tag signature verifies
+with the EnVy signing key fingerprint
+`SHA256:CE014W2Y8QMbKKspTiTQAJ37gK83TV3gup2el94DWb4`.
+
+The phase branch was reconciled with that corrected integration merge before
+entry evidence continued. Its reconciliation commit is recorded in the branch
+history and preserves all previously reviewed Phase 001 work.
 
 The canonical branch remains `1.20.1` at
 `15d3a8ce4913dbe5b647b67dbb5993b2f58c983e`. The release work branch
-`envy/0.24` is at the Phase 000 merge. Both ancestry directions required at
-entry are present, and no `main` or `master` branch is used.
+`envy/0.24` is at `f641131640481f17bfcfc54999c98700b42c1af6`. The corrected
+Phase 000 tag target is an ancestor of that work branch and of the reconciled
+Phase 001 branch. Both ancestry directions required at entry are present, and
+no `main` or `master` branch is used.
 
 The supported entry toolchain is Minecraft `1.20.1`, Forge `47.2.0`, Java `17`,
 Parchment `2023.09.03`, GeckoLib `4.4.7`, and SmartBrainLib `1.14.2`. The

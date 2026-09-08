@@ -1776,6 +1776,41 @@
     "cleanup": "exact extracted source and disposable runtime paths removed and verified absent",
     "scope": "clean Phase 000 candidate binding; review, merge, ancestry, and signed phase tag remain open"
   },
+  "current_task011_clean_candidate_20260907": {
+    "status": "passed",
+    "source_revision": "aa7d8514469accff86cf2993663b5b8f8f5994e8",
+    "host": "node-1",
+    "java": "17.0.19",
+    "java_executable": "/usr/lib/jvm/temurin-17-jdk-amd64/bin/java",
+    "ordered_logs": [
+      {"name": "compile", "path": "/tmp/bfsm-p000-task011-evidence-20260907/compile.log", "sha256": "c2389c26a77f3da6d9f13c206a35c00e6064eb38f74a1ecf24057d45a2570fbf"},
+      {"name": "test", "path": "/tmp/bfsm-p000-task011-evidence-20260907/test.log", "sha256": "d564be722b0ce614599adbe7c728503c9bc5b055899dc8638ecd595b29b87844"},
+      {"name": "data", "path": "/tmp/bfsm-p000-task011-evidence-20260907/data.log", "sha256": "a22dcfd613bb8707e962ddf54f4485bc02f013f562cf7fabc06a6fcd8a6f9f3b"},
+      {"name": "gametest", "path": "/tmp/bfsm-p000-task011-evidence-20260907/gametest.log", "sha256": "dc9d211363d7520908334bad38d60c09d266b0fa4283af865abca6a3a189e840"},
+      {"name": "build", "path": "/tmp/bfsm-p000-task011-evidence-20260907/build.log", "sha256": "b9e03118f026b90db13dbda1cad66b5f9827a68fc806c82707f3230c8f7228f"},
+      {"name": "analyzer", "path": "/tmp/bfsm-p000-task011-evidence-20260907/analyzer.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+    ],
+    "gametest": {"required_tests": 22, "result": "all 22 required tests passed", "renderer_started": false, "client_started": false},
+    "analyzer": {"test_count": 18, "result": "all 18 analyzer tests passed"},
+    "artifact": {
+      "path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar",
+      "size": 1831893,
+      "unzip_test": "passed",
+      "sha256": "34fd935170cc8e1d67501163448fd7407da08f303234422bae5d627c85b82a68",
+      "sha512": "403cb206656434db4b793c3611ddf1266e248cb1f612b9a3a268d89d6ba557ce462d899669d2842bd2b06dc3e54bd15f45318f7f0260b0dec17973758ac84939",
+      "metadata": {"minecraft": "1.20.1", "forge": "47.2.0", "mod_version": "0.24", "final_rc_metadata_owner": "BFS-PHASE-005"}
+    },
+    "packaged_server": {
+      "eula": true,
+      "ready": "Done (13.528s)!",
+      "recipes": 7,
+      "advancements": 1343,
+      "log": "/tmp/bfsm-p000-task011-evidence-20260907/packaged.log",
+      "log_sha256": "e26ac349cb12a6e7eb8b9b1c9203f9ba1b86e084364a87253091ee3cd76deef0"
+    },
+    "cleanup": "exact archive, GameTest runtime and packaged server runtime removed and verified absent",
+    "scope": "P000-TASK-011 deterministic artifact and packaged readiness evidence; P000-TASK-012 review, merge, ancestry and signed tag remain open"
+  },
   "defects": {
     "DEF-024-001": "positively_disproved for deterministic and fresh tooltip paths; final merged-artifact and natural chest-discovery rechecks remain",
     "DEF-024-002": "blocked, bounded client state and presentation captures now pass but the complete authored interactive state matrix remains missing",

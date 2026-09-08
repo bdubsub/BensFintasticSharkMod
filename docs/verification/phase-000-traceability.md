@@ -120,9 +120,10 @@ The current compile, test and headless GameTest rerun passed on the dirty phase
 working tree. The rerun discovered and passed 22 required GameTests and left no
 runtime behind. `P000-TASK-013`, `P000-TASK-008`, `P000-TASK-009` and the current
 `P000-TASK-010` packaged-server binding have passing evidence for their exercised
-scope. The first unmet Phase 000 gate is now `P000-TASK-011` final
-invalidation-aware artifact and protected-diff reconciliation, followed by
-`P000-TASK-012` review, merge, ancestry and signed tag. The client-only animation
+scope. The current clean `aa7d851` candidate now has passing `P000-TASK-011`
+invalidation-aware artifact and protected-diff evidence, including the exact
+packaged server readiness probe and cleanup record. The next unmet Phase 000
+gate is `P000-TASK-012` review, merge, ancestry and signed tag. The client-only animation
 and presentation gaps listed above remain downstream gameplay evidence, not a
 reason to claim a Phase 000 pass or to skip its own readiness and integration
 gates.
