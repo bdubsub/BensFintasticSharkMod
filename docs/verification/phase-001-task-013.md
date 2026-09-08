@@ -165,3 +165,36 @@ These are visual checkpoints only. They do not claim the complete authored
 animation state matrix, continuous pitch and movement review, or fresh
 advancement presentation. Both images are retained with the capture evidence
 outside Git.
+
+## Fresh profile advancement encounter and presentation rerun
+
+On 2026-09-07, the exact packaged candidate from source revision
+`a2a700bd8a63de8272c8b50ce1e300e011e53fa3` was copied to the disposable Forge
+server at `100.76.164.109:25830` and to the fresh laptop profile
+`bfsm-p001-task012-fresh-20260908`. The candidate SHA-256 was
+`f2ab6a4b3f34aacde835b3ec0bb4afc3e81eacc499a44d21c0fcc3798563d91b`.
+The server used Java 17.0.19, Forge 47.2.0, GeckoLib 4.4.7, SmartBrainLib
+1.14.2, `spawn-animals=true`, and `doMobSpawning=false`. The laptop client
+process was PID `3162910`, rendered with the NVIDIA GeForce RTX 5090 Laptop
+GPU, and its playback stream was matched to that PID and verified muted.
+
+The player was placed in survival at `[560.5d, 68.0d, 400.5d]`. The server
+revoked all advancements, then summoned persistent no-AI Atlantic Cod and
+Atlantic Salmon encounter fixtures at `560 68 400` and `561 68 400`. No
+advancement grant command was used. The fresh client log recorded
+`Gadus morhua` and `Salmo salar` after the encounter fixtures were present.
+The sanitized client excerpt SHA-256 is
+`f01f438d1880dea66cdfcb0f9e6009a3d4a61cc93fc8823dfa7ec16c66288800`.
+
+The advancement screen was captured directly from the owned client window on
+workspace `3` without switching to that workspace. The captured tree showed
+the Atlantic Salmon node title `Salmo salar` and description `Encounter an
+Atlantic Salmon.`. The PNG SHA-256 is
+`7a8abe7e1a95a43550de5260bcf2a5bca3a20674c14e9ccc667b6b7381ad6878`.
+The command transcript, sanitized log excerpt, and image are retained at
+`/tmp/bfsm-p001-task013-evidence-20260908/` outside Git.
+
+This rerun closes the fresh-profile Atlantic encounter and direct presentation
+checkpoint for the two retained encounter advancements. It does not close the
+complete authored animation matrix, the remaining fishing presentation rows,
+or repository integration task `P001-TASK-014`.
