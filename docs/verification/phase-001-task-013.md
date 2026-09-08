@@ -38,6 +38,12 @@ changes. The retained final GameTest log is
 `/tmp/bfsm-p001-final-evidence-20260907/gametest-final.log` with SHA-256
 `35df1fe4da934a25547ac268794bf65e8a9f3c6a48c0b19b1f25d874d076611a`.
 
+A fresh server-only rerun on 2026-09-07 at 23:53 used the same checked-in
+Phase 001 worktree and completed all 42 required GameTests successfully. The
+run included the fish, movement, combat, curiosity, lifecycle, replacement,
+advancement, and debug capture batches. This rerun produced no source or
+resource changes and does not replace the still required laptop visual matrix.
+
 ## Candidate artifact
 
 The Forge artifact is
