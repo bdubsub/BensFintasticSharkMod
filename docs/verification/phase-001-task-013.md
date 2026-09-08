@@ -118,3 +118,38 @@ final consumer and the exact path was verified absent.
 This closes the current deterministic and artifact portion of P001-TASK-013.
 The laptop visual matrix, fresh profile advancement review, final documentation
 review, and P001-TASK-014 pull request, merge and signed tag remain open.
+
+## Bound packaged diagnostic rerun
+
+On 2026-09-07, the exact Forge candidate copied to the disposable packaged
+server and the authenticated laptop client was bound at runtime with source
+revision `39dae8f385f51642fc7eabb8241e567eae4f670d`, artifact SHA-256
+`5096bb71ceabec46e2270b09d88bc22e73b5daf592b621118d98f8936bc8b983`, Java
+`17.0.19`, Forge `47.2.0`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, and the
+configuration and generated-data fingerprints recorded in the capture header.
+The server ran on node 1 at `100.76.164.109:25820`. The laptop client used
+Prism instance `bfsm-p001-task013`, connected through the private endpoint,
+rendered with the NVIDIA GeForce RTX 5090 Laptop GPU, and its exact Java
+playback stream was verified muted.
+
+The first five-target capture is retained as a negative control because Tiger
+Shark predation killed two prey targets. It contains 5,207 records with zero
+drops but ends with two missing targets, so it is not acceptance evidence.
+Separate tagged fixtures removed that interaction. The nonpredator capture
+selected Atlantic Cod, Atlantic Salmon, and Bottlenose Dolphin for 300 ticks
+each. It contains 900 movement samples, zero dropped records, no missing
+targets, and one complete terminal record. Strict analysis returned `complete`
+for scenario `p001-task013-packaged-motion-20260907` and requirement
+`BFS-REQ-001`. The shark capture selected Tiger Shark and Oceanic Whitetip for
+300 ticks each. It contains 600 movement samples, zero dropped records, no
+missing targets, and one complete terminal record. Strict analysis returned
+`complete` for scenario `p001-task013-packaged-shark-motion-20260907` and
+requirement `BFS-REQ-001`.
+
+Raw captures, candidate manifests, analyzer verdicts, and their SHA-256 ledger
+are retained in `/tmp/bfsm-p001-task013-evidence-20260907/`. These captures
+close the bound server telemetry and target-completeness portion of Task 013.
+They do not close the authored client animation matrix, fresh-profile
+advancement presentation, or final phase integration gates. The phase remains
+open and the server-only diagnostic result does not substitute for those
+client claims.
