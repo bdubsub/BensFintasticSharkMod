@@ -85,6 +85,31 @@ The earlier production Forge candidate had SHA-256 `68ba7e05ed0f31fe149bd12ad4f1
 
 The authoritative [Phase 001 plan](../general/phases/plan-phase-001.md) defines the remaining acceptance. [Issue 15](https://github.com/bdubsub/BensFintasticSharkMod/issues/15) tracks the unfinished combined fishing and replacement gate.
 
+## Obstruction safe live catch reel on September 9, 2026
+
+The live fish delivery path now owns a short server side return trajectory after
+the catch is accepted. It follows a smooth eased arc, temporarily disables
+gravity and collision so a wall cannot stop the fish, points the entity along
+the current trajectory, and restores its original physics at a clear landing
+point beneath or immediately beside the angler. The same path is used for item
+delivery, so both configured modes have identical obstruction handling.
+
+The dedicated GameTest `liveFishingReelArcsOverObstructionToAngler` passed in
+the `bfs_fishing_arc` batch. Its fixture used the real rod and hook, placed a
+two block stone wall between the hook and the angler, asserted a visible rise
+over the wall, asserted final distance below one block from the angler's feet,
+and asserted gravity and collision were restored after arrival. The first run
+exposed only a fixture limitation because the synthetic test player was not in
+the player list. The production path now retains the actual server player
+object for the bounded reel path and removes it on disconnect or server stop.
+
+The verification command was
+`JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64 ./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=<unique-runtime>`.
+The disposable GameTest runtimes were removed after the batch result and no
+GameTest or Gradle process remained. This closes the server side obstruction
+regression only. Laptop visual approval of the arc and the remaining Phase 001
+integration gates are still required.
+
 ## Expanded fishing matrix on September 8, 2026
 
 The next bounded suite added six mode and selection tests in `BfsFishingModeGameTests` and four item transaction cases in `BfsFishingGameTests`. These execute the real server rod, hook, fishing table, registered loot modifier and insertion paths. They do not substitute for physical client input or visual acceptance.

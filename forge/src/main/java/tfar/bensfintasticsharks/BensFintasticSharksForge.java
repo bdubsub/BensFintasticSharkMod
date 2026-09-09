@@ -69,6 +69,8 @@ public class BensFintasticSharksForge {
         MinecraftForge.EVENT_BUS.addListener(this::onEntityJoin);
         MinecraftForge.EVENT_BUS.addListener(net.minecraftforge.eventbus.api.EventPriority.LOWEST, true,
                 tfar.bensfintasticsharks.fishing.FishingCatchDelivery::onItemFished);
+        MinecraftForge.EVENT_BUS.addListener(tfar.bensfintasticsharks.fishing.FishingCatchDelivery::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(tfar.bensfintasticsharks.fishing.FishingCatchDelivery::onServerStopping);
         MinecraftForge.EVENT_BUS.register(new tfar.bensfintasticsharks.spawn.MobCapManager());
         WaterDisturbanceListeners.register(MinecraftForge.EVENT_BUS);
         tfar.bensfintasticsharks.debug.BfsDebugManager.register(MinecraftForge.EVENT_BUS);

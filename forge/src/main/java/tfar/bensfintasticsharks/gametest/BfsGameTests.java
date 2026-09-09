@@ -71,6 +71,7 @@ import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 import tfar.bensfintasticsharks.init.ModItems;
 import tfar.bensfintasticsharks.config.BfsConfig;
+import tfar.bensfintasticsharks.fishing.FishingCatchDelivery;
 import tfar.bensfintasticsharks.fishing.FishingCatchPolicy;
 import tfar.bensfintasticsharks.spawn.MobCapManager;
 
@@ -843,6 +844,81 @@ public final class BfsGameTests {
                 "real fishing must complete the Atlantic Cod catch advancement");
         helper.assertTrue(player.getAdvancements().getOrStartProgress(salmonCatch).isDone(),
                 "real fishing must complete the Atlantic Salmon catch advancement");
+    }
+
+    @GameTest(template = "empty", batch = "bfs_fishing_arc", timeoutTicks = 45)
+    public static void liveFishingReelArcsOverObstructionToAngler(GameTestHelper helper) {
+        boolean originalLive = BfsConfig.COMMON.fishEntities.get();
+        BfsConfig.COMMON.fishEntities.set(true);
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+                new GameProfile(java.util.UUID.randomUUID(), "fish-arc"));
+        player.connection = new ServerGamePacketListenerImpl(helper.getLevel().getServer(),
+                new Connection(PacketFlow.SERVERBOUND), player);
+        player.setPos(helper.absolutePos(new BlockPos(2, 3, 2)).getCenter());
+        FishingHook hook = null;
+        Entity caught = null;
+        boolean completionScheduled = false;
+        try {
+            player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FISHING_ROD));
+            Items.FISHING_ROD.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+            hook = player.fishing;
+            helper.assertTrue(hook != null, "the real rod must create a hook for the obstruction fixture");
+            Vec3 hookPosition = helper.absolutePos(new BlockPos(12, 3, 2)).getCenter();
+            hook.setPos(hookPosition.x, hookPosition.y, hookPosition.z);
+            BlockPos wallBase = helper.absolutePos(new BlockPos(7, 3, 2));
+            helper.getLevel().setBlock(wallBase, Blocks.STONE.defaultBlockState(), 3);
+            helper.getLevel().setBlock(wallBase.above(), Blocks.STONE.defaultBlockState(), 3);
+
+            FishingCatchDelivery.onItemFished(new net.minecraftforge.event.entity.player.ItemFishedEvent(
+                    List.of(new ItemStack(ModItems.RAW_ATLANTIC_COD)), 1, hook));
+            List<Entity> deliveries = helper.getLevel().getEntitiesOfClass(Entity.class,
+                    new AABB(hookPosition, hookPosition).inflate(2.0D),
+                    entity -> entity.getType() == ModEntityTypes.ATLANTIC_COD);
+            helper.assertTrue(deliveries.size() == 1, "the obstruction fixture must create one live atlantic cod");
+            caught = deliveries.get(0);
+            double startY = hookPosition.y;
+            Entity finalCaught = caught;
+            FishingHook finalHook = hook;
+            double[] maxY = {startY};
+            completionScheduled = true;
+            for (int tick = 1; tick <= 18; tick++) {
+                int observationTick = tick;
+                helper.runAtTickTime(observationTick, () -> {
+                    if (finalCaught.isAlive()) {
+                        maxY[0] = Math.max(maxY[0], finalCaught.getY());
+                    }
+                    if (observationTick == 18) {
+                        try {
+                            helper.assertTrue(maxY[0] > startY + 0.75D,
+                                    "the live catch must visibly arc over the obstruction");
+                            helper.assertTrue(finalCaught.position().distanceTo(player.position()) < 1.0D,
+                                    "the live catch must finish directly beside the angler's feet");
+                            helper.assertTrue(!finalCaught.noPhysics && !finalCaught.isNoGravity(),
+                                    "the live catch must restore normal physics after the reel");
+                        } finally {
+                            finalCaught.discard();
+                            finalHook.discard();
+                            player.getAdvancements().stopListening();
+                            player.discard();
+                            BfsConfig.COMMON.fishEntities.set(originalLive);
+                        }
+                        helper.succeed();
+                    }
+                });
+            }
+        } finally {
+            if (!completionScheduled) {
+                if (hook != null) {
+                    hook.discard();
+                }
+                if (caught != null && caught.isAlive()) {
+                    caught.discard();
+                }
+                player.getAdvancements().stopListening();
+                player.discard();
+                BfsConfig.COMMON.fishEntities.set(originalLive);
+            }
+        }
     }
 
     @GameTest(template = "empty", batch = "bfs_advancements", timeoutTicks = 80)
