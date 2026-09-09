@@ -394,6 +394,8 @@ slot `0`. The item-mode server log SHA-256 was
 `5798a294b1279732da8632086192c283ec2a2ec78be7f3d3f80c4b2274dff05a`, and the
 laptop client log SHA-256 was
 `11c8badbb5e3b9fc3b99bd6e74a5028be97ff92153038a5f004fef5a41160c20`.
+Sanitized copies of both logs are retained at
+`/tmp/bfsm-p001-task013-item-evidence-20260908/`.
 
 This closes the interactive item-mode Cod delivery and matching advancement
 row. Together with the live Salmon transaction above, it covers the two
