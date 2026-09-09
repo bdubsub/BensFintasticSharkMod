@@ -163,3 +163,24 @@ JAR SHA-512: `0ea455298ed9a429993b30ab0e6698412c2b36caca6331dabf32f11db4a4594029
 The extended diagnostics and packaged readiness do not close restart persistence, complete source/permission behavior, unrestricted ambient population recovery, final player/client acceptance, phase review or integration. The [Phase 001 plan](../general/phases/plan-phase-001.md) remains authoritative for those gates, and Phase 000 is not reopened.
 
 Cleanup verified that no process retained the owned test root as its working directory. After the final evidence consumers completed, `/tmp/bfsm-p001-fishing-debug.IifPSq` was removed and its absence verified. This removed the disposable source/build copy, three GameTest worlds, packaged server world, copied JARs, captures, raw logs and parser reports. Only the sanitized record above remains. The shared installed Forge libraries, dependency cache, source worktrees and unrelated runtimes were preserved.
+
+## Laptop launch recovery on September 9, 2026
+
+The first owned Prism client launch failed before Forge or the mod loaded
+because the Hyprland Wayland GLFW backend could not provide a window
+position. The decisive error was
+`GLFW error before init: [0x1000C]Wayland: The platform does not provide the window position`.
+This was not a fishing or server regression.
+
+The instance was relaunched through the laptop's existing XWayland display
+`:1` with `GLFW_PLATFORM=x11` and no `WAYLAND_DISPLAY`. It initialized on the
+RTX 5090, connected to the exact installed Forge server at
+`100.76.164.109:25857`, and retained the profile's zero master-volume
+setting. The Java playback stream was matched to the owned Minecraft process
+and individually muted before any acceptance action.
+
+The bounded post-connection `/bfs debug on all 120` capture completed with
+`5517` accepted records, zero dropped records and `incomplete=false`. No
+fishing event occurred in that capture, so it is environment and diagnostic
+readiness evidence only. Physical fishing acceptance remains unclosed until
+the owner performs the cast and reel against the connected candidate.

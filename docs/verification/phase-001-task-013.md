@@ -424,3 +424,34 @@ SHA-512
 `unzip -tqq` passed again. The signed branch head is pushed to
 `origin/envy/0.24-phase-001`, whose verified merge base is the signed
 `bfs-0.24-phase-000` commit on `origin/envy/0.24`.
+
+## Current laptop client environment recovery
+
+On 2026-09-09, the first launch of the owned Prism verification instance
+failed before Forge initialization with
+`GLFW error before init: [0x1000C]Wayland: The platform does not provide the window position`.
+The crash originated in Minecraft `Window` construction and did not reach
+Forge, the mod, the server handshake, or entity loading. It is therefore an
+environment launch failure, not a candidate regression.
+
+The same owned instance was relaunched through the laptop's real Hyprland
+XWayland display `:1`, with `GLFW_PLATFORM=x11` and `WAYLAND_DISPLAY` unset.
+The window initialized with the NVIDIA GeForce RTX 5090 Laptop GPU, loaded
+Forge `47.2.0`, and connected to the installed production Forge server at
+`100.76.164.109:25857`. The server log recorded the authenticated
+`EnVyOnMyMind` login at `00:00:44`, and the client log recorded the modded
+connection at `00:00:44`.
+
+The profile's master volume was already `0.0`. After the window appeared,
+the exact Java process PID `3793620` was matched to PipeWire stream `157` by
+process ID and the stream reported `Volume: 1.00 [MUTED]`. No sink-wide mute
+or unrelated application change was made.
+
+The first bounded `/bfs debug on all 120` capture after connection accepted
+`5517` records, dropped `0`, and reported `incomplete=false`; its JSONL
+SHA-256 is
+`d21dd94c89cad659bf88ea4d25ce092d82feb26d711823eaf7b151108549c688`.
+It observed loaded Atlantic fish, but no fishing event occurred during that
+window. This capture proves the repaired client launch and diagnostic path
+only. It does not close the live fishing interaction row, which still needs
+an owner performed cast and reel on the connected client.

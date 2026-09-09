@@ -56,6 +56,16 @@ Run `./gradlew :forge:Server` with an unused development port and record the com
 
 Run `./gradlew :forge:Client` only on EnVy's Linux laptop when client evidence is required. Capture labeled clips for the fish animation states, Oceanic Whitetip grab and release, Tiger Shark movement and curiosity, Shark Spotter, and Prismarine armor. Review the client log for missing models, textures, bones, animation clips, and render layer warnings. Never substitute a headless or software rendered client for laptop visual evidence.
 
+If Minecraft exits before Forge initialization with
+`GLFW error before init: [0x1000C]Wayland: The platform does not provide the window position`,
+the failure is in the Hyprland Wayland window backend. Keep the real laptop
+desktop and GPU, and retry the owned Prism profile through its existing
+XWayland display with `GLFW_PLATFORM=x11`, the exact `DISPLAY` reported by
+the active XWayland process, and `WAYLAND_DISPLAY` unset. Reidentify the
+Minecraft window with `hyprctl clients -j` after the retry, then repeat the
+per-process PipeWire mute check. Do not use Xvfb, a virtual display,
+software rendering, or node-1 for this recovery.
+
 Use the server and local client diagnostics in [BFS Debug Diagnostics](debug-diagnostics.md) before requesting an interactive connection. Analyze a completed server capture first. Start the laptop client only when rendering, UI, input, or client synchronization is the remaining question.
 
 For interactive evidence that needs a server, use the dedicated-server path. Start the Forge server on `node-1` with an unused port and an exact `-PbfsServerRunDir=<disposable-runtime>` directory, then keep all server setup command driven. Launch the matching laptop client only through an authenticated test profile and connect it to the verified private endpoint. Keep server authentication enabled. Never bypass login validation or weaken authentication to obtain visual evidence. Use the server console or an authenticated RCON session for gamerules, fixture blocks, teleports, entity labels, and cleanup. Record the server ready marker, join and handshake lines from both logs, the server and client revisions, the client GPU, the endpoint, and every capture hash. Keep the Minecraft window on a nonactive workspace with a no-pause-on-focus-loss client option when hidden capture is needed, and verify that the laptop’s active workspace is unchanged before and after each capture. This replaces singleplayer setup for server-backed interactive checks and keeps windowed game processes off `node-1`.
