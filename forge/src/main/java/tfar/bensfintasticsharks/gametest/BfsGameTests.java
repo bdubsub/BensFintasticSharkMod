@@ -60,6 +60,7 @@ import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
 import tfar.bensfintasticsharks.entity.CannonballJellyfishEntity;
 import tfar.bensfintasticsharks.entity.CaribbeanReefOctopusEntity;
 import tfar.bensfintasticsharks.entity.CommonOctopusEntity;
+import tfar.bensfintasticsharks.entity.OctopusEscapePolicy;
 import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
 import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
 import tfar.bensfintasticsharks.BensFintasticSharks;
@@ -827,7 +828,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 150)
+    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 180)
     public static void octopusThreatUsesBoundedSafeJetAndCooldown(GameTestHelper helper) {
         prepareWaterVolume(helper);
         CommonOctopusEntity octopus = helper.spawn(ModEntityTypes.COMMON_OCTOPUS,
@@ -856,10 +857,46 @@ public final class BfsGameTests {
                 helper.runAfterDelay(81, () -> {
                     helper.assertTrue(!octopus.isInkCloudActive(),
                             "the transient cloud must expire before the emission cooldown");
-                    finishAfterRemovingTestPlayer(helper, threat);
-                    octopus.discard();
+                    helper.runAfterDelay(30, () -> {
+                        helper.assertTrue(!octopus.isInkCloudActive() && !octopus.isJetting(),
+                                "the emission cooldown must prevent an immediate second escape");
+                        finishAfterRemovingTestPlayer(helper, threat);
+                        octopus.discard();
+                    });
                 });
             });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 80)
+    public static void octopusThreatWithoutSafeWaterRouteDoesNotEmit(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        CommonOctopusEntity octopus = helper.spawn(ModEntityTypes.COMMON_OCTOPUS,
+                new BlockPos(5, 3, 5));
+        octopus.setPos(helper.absolutePos(new BlockPos(5, 2, 5)).getX() + 0.5D,
+                helper.absolutePos(new BlockPos(5, 2, 5)).getY() + 0.25D,
+                helper.absolutePos(new BlockPos(5, 2, 5)).getZ() + 0.5D);
+        octopus.setNoAi(true);
+        octopus.setNoGravity(true);
+        Player threat = makeSurvivalTestPlayer(helper);
+        threat.setPos(helper.absolutePos(new BlockPos(7, 2, 5)).getCenter());
+        threat.setNoGravity(true);
+        helper.getLevel().addFreshEntity(threat);
+        // Close every candidate fan direction with a solid ring while leaving the octopus cell
+        // itself submerged. The route policy must fail closed instead of forcing a wall burst.
+        for (int x = 3; x <= 7; x++) {
+            for (int z = 3; z <= 7; z++) {
+                if (x == 5 && z == 5) continue;
+                helper.setBlock(new BlockPos(x, 2, z), Blocks.STONE.defaultBlockState());
+            }
+        }
+        helper.runAfterDelay(25, () -> {
+            helper.assertTrue(OctopusEscapePolicy.findRoute(octopus, threat).isEmpty(),
+                    "a fully blocked octopus must have no safe retreat route");
+            helper.assertTrue(!octopus.isInkCloudActive() && !octopus.isJetting(),
+                    "a blocked retreat must not emit ink or start a wall jet");
+            finishAfterRemovingTestPlayer(helper, threat);
+            octopus.discard();
         });
     }
 

@@ -18,20 +18,21 @@ ticks, emit no more than 32 particle births, and expose a synchronized event
 identity and lifetime. Visual threat checks respect water-valid cloud rays and
 solid barriers. Entity removal clears the cloud and jet state.
 
-The focused regression is `octopusThreatUsesBoundedSafeJetAndCooldown` in the
-dedicated Forge suite. The fixture waits for the production twenty tick
-proximity sampling interval, verifies cloud creation, verifies physical retreat
-and the finite jet window, then verifies cloud expiry. The suite also retains
-the finite cloud, camouflage, support removal, advancement, fish, shark, and
-population regressions.
+The focused regressions are `octopusThreatUsesBoundedSafeJetAndCooldown` and
+`octopusThreatWithoutSafeWaterRouteDoesNotEmit` in the dedicated Forge suite.
+The fixtures wait for the production twenty tick proximity sampling interval,
+verify cloud creation, physical retreat, the finite jet window, cloud expiry,
+cooldown suppression, and fail-closed behavior when every retreat route is
+blocked. The suite also retains the finite cloud, camouflage, support removal,
+advancement, fish, shark, and population regressions.
 
 Final command:
 
 ```text
-./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-p002-octopus-20260909-r27
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-p002-octopus-20260909-r28
 ```
 
-Result: all 68 required Forge GameTests passed on node 1 with Java 17,
+Result: all 69 required Forge GameTests passed on node 1 with Java 17,
 Minecraft 1.20.1, Forge 47.2.0, and `eula=true`. The disposable runtime was
 stopped and removed after the log was inspected. The Java unit suite also
 passed with `./gradlew :forge:test --no-daemon --console=plain`.
