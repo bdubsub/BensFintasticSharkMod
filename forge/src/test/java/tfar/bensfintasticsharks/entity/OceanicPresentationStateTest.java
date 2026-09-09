@@ -16,7 +16,7 @@ class OceanicPresentationStateTest {
 
     @Test
     void biteDamageUsesAuthoredJawImpactFrame() {
-        assertTrue(OceanicPresentationState.biteImpactDelayTicks() == 5,
+        assertTrue(OceanicBiteTiming.impactDelayTicks() == 5,
                 "the authored jaw peak is at 0.25 seconds, or five server ticks");
     }
 }

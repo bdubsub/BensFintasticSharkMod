@@ -210,7 +210,7 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
     }
 
     @Override protected int biteImpactDelayTicks() {
-        return 5;
+        return OceanicBiteTiming.impactDelayTicks();
     }
 
     @Override
