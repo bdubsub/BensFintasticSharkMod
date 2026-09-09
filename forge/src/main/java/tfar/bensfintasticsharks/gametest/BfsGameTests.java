@@ -436,8 +436,11 @@ public final class BfsGameTests {
     }
 
     private static void clearPopulationSoakFish(GameTestHelper helper) {
-        AABB bounds = new AABB(helper.absolutePos(new BlockPos(1, 2, 1)),
-                helper.absolutePos(new BlockPos(10, 4, 8))).inflate(1.0D);
+        // The production replacement cap counts the same species within a 64 block radius.
+        // Remove completed neighboring GameTest fish inside that exact accounting radius so
+        // this fixture measures its own eight-wave population rather than prior batches.
+        BlockPos center = helper.absolutePos(new BlockPos(4, 3, 4));
+        AABB bounds = new AABB(center).inflate(MobCapManager.COUNT_RADIUS + 1.0D);
         helper.getLevel().getEntitiesOfClass(Mob.class, bounds, BfsGameTests::isPopulationSoakFish)
                 .forEach(Mob::discard);
     }
@@ -674,7 +677,7 @@ public final class BfsGameTests {
         helper.runAfterDelay(1, () -> {
             try {
                 int started = server.getCommands().getDispatcher().execute(
-                        "bfs debug on movement 70 @e[type=bensfintasticsharks:atlantic_cod,distance=..8,sort=nearest,limit=1]", source);
+                        "bfs debug on movement 70 @e[distance=..8,sort=nearest,limit=1]", source);
                 helper.assertTrue(started == 1, "diagnostic parity fixture must select only its captured Cod");
                 sampleDiagnosticParity(helper, server, source, captured, control, capturedStart, controlStart, 20);
             } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
@@ -1480,10 +1483,7 @@ public final class BfsGameTests {
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
         freezeCuriosityItem(item);
-        helper.runAfterDelay(2, () -> {
-            helper.assertTrue(item.isInWater(), "The edible item must tick in water before the shark can scan it, position="
-                    + item.position() + ", block=" + item.blockPosition() + ", fluid="
-                    + helper.getLevel().getFluidState(item.blockPosition()));
+        waitForCuriosityItemInWater(helper, item, 20, () -> {
             TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
             helper.getLevel().getEntitiesOfClass(LivingEntity.class, shark.getBoundingBox().inflate(64.0D),
                     entity -> entity != shark && entity.isInWater() && !(entity instanceof Player))
@@ -1515,6 +1515,23 @@ public final class BfsGameTests {
                     });
                 });
             });
+        });
+    }
+
+    private static void waitForCuriosityItemInWater(GameTestHelper helper, ItemEntity item,
+                                                     int remainingTicks, Runnable action) {
+        helper.runAfterDelay(1, () -> {
+            if (item.isInWater()) {
+                action.run();
+                return;
+            }
+            if (remainingTicks <= 0) {
+                helper.fail("The edible item did not settle in water before the shark could scan it, position="
+                        + item.position() + ", block=" + item.blockPosition() + ", fluid="
+                        + helper.getLevel().getFluidState(item.blockPosition()));
+                return;
+            }
+            waitForCuriosityItemInWater(helper, item, remainingTicks - 1, action);
         });
     }
 
@@ -1689,7 +1706,9 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
                 new BlockPos(4, 3, 3));
+        shark.setNoGravity(true);
         Player player = makeSurvivalTestPlayer(helper);
+        player.setNoGravity(true);
         player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
         helper.getLevel().addFreshEntity(player);
         helper.runAfterDelay(2, () -> {
@@ -1755,7 +1774,9 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
                 new BlockPos(4, 3, 3));
+        shark.setNoGravity(true);
         Player player = makeSurvivalTestPlayer(helper);
+        player.setNoGravity(true);
         player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
         helper.getLevel().addFreshEntity(player);
         helper.runAfterDelay(2, () -> {
