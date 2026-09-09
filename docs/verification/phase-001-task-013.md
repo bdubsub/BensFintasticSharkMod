@@ -364,6 +364,12 @@ ordinary loot path and that the matching raw salmon reached the player
 inventory. The advancement is intentionally granted at live delivery before
 death, so its timestamp and the later saved inventory are recorded as separate
 events.
+The sanitized salmon event excerpts are retained at
+`/tmp/bfsm-p001-task013-salmon-evidence-20260908/`; their SHA-256 values are
+`90d13156ee86d7cf689fe8583d0fa0079863850c1fc2008f54f1d94a4de639b5` for the
+server excerpt and
+`1f8012dae7058f087d6df969145990a39262e91981e872fc5936eff68aa7aa97` for the
+client excerpt.
 
 This closes the live Atlantic Salmon catch, matching advancement, and normal
 raw-drop row for the current candidate. The full fishing matrix still requires
