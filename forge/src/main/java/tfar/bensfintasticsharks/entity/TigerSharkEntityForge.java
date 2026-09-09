@@ -66,7 +66,9 @@ public class TigerSharkEntityForge extends TigerSharkEntity implements GeoEntity
     @Override
     protected void tickDeath() {
         ++this.deathTime;
-        this.triggerAnim("controller", "death");
+        if (this.deathTime == 1) {
+            this.triggerAnim("controller", "death");
+        }
         if (this.deathTime == 30) {
             this.remove(Entity.RemovalReason.KILLED);
             this.dropExperience();
