@@ -1,7 +1,6 @@
 package tfar.bensfintasticsharks.entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
@@ -29,24 +28,30 @@ public final class BfsFishMoveControl extends MoveControl {
     }
 
     /**
-     * Mirrors AbstractFish water travel without its unconditional idle sink. Vertical velocity
-     * is supplied by this controller, so a fish can only rise or dive while its nose is moving
-     * toward that same target vector.
+     * Mirrors AbstractFish water travel without its unconditional idle sink. The local forward
+     * input is rotated through the current body pitch before travel, so vertical movement is
+     * always the vertical projection of forward propulsion rather than a second independent
+     * impulse.
      */
     static void travel(AbstractFish fish, Vec3 movementInput) {
-        fish.moveRelative(0.01F, new Vec3(movementInput.x, 0.0, movementInput.z));
+        Vec3 planarInput = new Vec3(movementInput.x, 0.0D, movementInput.z);
+        Vec3 bodyAlignedInput = AquaticMovement.bodyAlignedInput(planarInput, fish.getXRot());
+        fish.moveRelative(0.01F, bodyAlignedInput);
         fish.move(MoverType.SELF, fish.getDeltaMovement());
         Vec3 velocity = fish.getDeltaMovement().scale(0.9);
         double verticalLimit = Math.abs(fish.getSpeed()) * AquaticMovement.VERTICAL_SPEED_RATIO;
         if (Math.abs(velocity.y) > verticalLimit) {
             velocity = new Vec3(velocity.x, Math.copySign(verticalLimit, velocity.y), velocity.z);
         }
+        if (movementInput.z <= 0.0D) {
+            velocity = new Vec3(velocity.x,
+                    AquaticMovement.smoothVerticalVelocity(velocity.y, 0.0D), velocity.z);
+        }
         fish.setDeltaMovement(velocity);
     }
 
     @Override
     public void tick() {
-        double targetVerticalImpulse = 0.0;
         float previousPitch = fish.getXRot();
         if (this.operation == Operation.MOVE_TO) {
             float targetSpeed = (float) (this.speedModifier
@@ -64,11 +69,6 @@ public final class BfsFishMoveControl extends MoveControl {
             double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
             if (distance > 0.5) {
-                targetVerticalImpulse = AquaticMovement.affectedVerticalVelocity(
-                        fish.getSpeed(), dx, routeDy, dz);
-                double arrivalDamping = Mth.clamp(Math.abs(routeDy), 0.0D, 1.0D);
-                targetVerticalImpulse *= arrivalDamping;
-
                 if (Math.abs(dx) > 1.0e-8 || Math.abs(dz) > 1.0e-8) {
                     float desiredYaw = (float) (Mth.atan2(dz, dx) * Mth.RAD_TO_DEG) - 90.0F;
                     fish.setYRot(this.rotlerp(fish.getYRot(), desiredYaw, 90.0F));
@@ -77,8 +77,10 @@ public final class BfsFishMoveControl extends MoveControl {
                 }
 
                 fish.setXxa(0.0F);
-                double horizontalDistanceSqr = dx * dx + dz * dz;
-                fish.setZza(horizontalDistanceSqr > 0.25 ? 1.0F : 0.0F);
+                // Even a direct-above or direct-below destination needs forward propulsion while
+                // the body eases into its matching vertical pose. Stopping forward input here
+                // would create stationary pitch acquisition and an independent vertical impulse.
+                fish.setZza(1.0F);
 
                 fish.setXRot(this.rotlerp(previousPitch,
                         AquaticMovement.affectedPitch(dx, routeDy, dz, upwardPitchLimit, downwardPitchLimit),
@@ -99,11 +101,7 @@ public final class BfsFishMoveControl extends MoveControl {
                     AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
         }
 
-        if (fish.isEyeInFluid(FluidTags.WATER)) {
-            double verticalVelocity = AquaticMovement.smoothAndLimitVerticalVelocity(
-                    fish.getDeltaMovement().y, targetVerticalImpulse, fish.getSpeed());
-            fish.setDeltaMovement(fish.getDeltaMovement().x, verticalVelocity,
-                    fish.getDeltaMovement().z);
-        }
+        // Travel owns the projected vertical component. The controller only selects the route
+        // and eases the body attitude, avoiding a second writer that could move a level fish.
     }
 }
