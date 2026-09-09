@@ -462,4 +462,19 @@ On 2026-09-09, the phase branch head `8213c080fd3578997bba9ad86e8ce08fe5ae1466` 
 
 The ordered Forge build completed successfully, including compilation, test compilation, unit tests, packaging, and archive integrity. The exact Forge artifact `forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` passed `unzip -tqq` with SHA-256 `3d5b4365993758819c8cd5eacd25b6927defcc2ac08e80ae4d6520d8fd652b54` and SHA-512 `0e7ed1128649ce4d3feb315af7f15b47bbeb4470e4a30a1cb9684c8a80a8aae3f33ce9489311d16a5e18ab12945a7e8287a18e9bd1337abb79f7090219307ec1`.
 
-Pull request 16 reports passing `build`, `analyze`, and `CodeQL` checks for this head. This binding closes the CI resolution failure only. It does not close the owner performed laptop fishing visual gate or the phase integration, merge, default branch, and signed tag gates.
+Pull request 16 reports passing `build`, `analyze`, and `CodeQL` checks for this head. At the time of this binding, the owner performed laptop fishing visual gate and the phase integration, merge, default branch, and signed tag gates were still open.
+
+## Owner fishing acceptance on September 9, 2026
+
+EnVy reports that the four owner performed fishing checks passed on the exact
+candidate bound to source revision `6facc284`, artifact SHA-256
+`c518eb256a45d8e7a2b9e291b6af7e3602a4214e6ef832eb78ea2d884645df8e`, Java 17,
+Forge 47.2.0, and the authorized laptop client connected to the production
+Forge server at `100.76.164.109:25860`. The checks used real rod input and did
+not use command granted fishing results. The owner reported no failure for
+tests 1 through 4, covering the current manual fishing acceptance sequence.
+
+This owner statement closes the previously open owner performed fishing gate
+for the bound candidate. It does not claim Phase 002 movement, animation, or
+AI approval. The exact server and client runtime binding remains the evidence
+authority for the completed phase matrix.
