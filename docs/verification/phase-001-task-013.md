@@ -409,3 +409,18 @@ row. Together with the live Salmon transaction above, it covers the two
 delivery modes and both supported fish species on the exact candidate. The
 remaining Phase 001 gates are final documentation consistency and sequential
 review, merge, default branch verification, and signed phase tag integration.
+
+## Final Phase 001 documentation and artifact audit
+
+On 2026-09-08 at branch head `1502f1812d2c05402fc50795b24ed12fba72025b`, the
+maintained Markdown link set in `README.md`, `DOCUMENTATION.md`,
+`CHANGELOG.md`, and `docs/README.md` was resolved again with zero missing
+targets. `git diff --check` passed. The only descendants after the packaged
+source head `91f536bb6c3c4e685bae27a666a619bb664ad330` are the fishing evidence
+documents, so the candidate Forge JAR remains byte identical with SHA-256
+`01da439051ec17ad8dbfff680f4f2716484ac9b5611882d1c2694c6e7688d21c` and
+SHA-512
+`31de02131b387f16f1c4f967654c6a2f8f5f2ecb5bc34f15d7aad27e49e3d721bd6cc8a978a1a2b82f777935c2d65676c14c44d1d2e7f64e676b4580960efd6d`.
+`unzip -tqq` passed again. The signed branch head is pushed to
+`origin/envy/0.24-phase-001`, whose verified merge base is the signed
+`bfs-0.24-phase-000` commit on `origin/envy/0.24`.
