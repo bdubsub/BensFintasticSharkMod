@@ -1296,10 +1296,10 @@ public final class BfsGameTests {
         shark.setStateTimer(100);
         float startHealth = prey.getHealth();
 
-        helper.runAfterDelay(5, () -> {
+        helper.runAfterDelay(4, () -> {
             helper.assertTrue(prey.getHealth() == startHealth,
                     "scheduled bite must not damage the target before its impact frame");
-            helper.runAfterDelay(10, () -> {
+            helper.runAfterDelay(3, () -> {
                 float afterImpactHealth = prey.getHealth();
                 helper.assertTrue(afterImpactHealth < startHealth,
                         "tiger shark must land one server-authoritative bite");
