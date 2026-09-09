@@ -10,6 +10,13 @@
     "smartbrainlib": "1.14.2",
     "research_date": "2026-09-04"
   },
+  "smartbrainlib_api": [
+    {"operation": "memory read and write", "class": "net.tslat.smartbrainlib.util.BrainUtils", "methods": ["hasMemory", "getMemory", "setMemory", "clearMemory"], "usage": "server-side bounded action state"},
+    {"operation": "brain owner contract", "class": "net.tslat.smartbrainlib.api.SmartBrainOwner", "methods": ["getSensors", "getActivityRequirements", "getCoreTasks", "getIdleTasks", "getFightTasks"], "usage": "existing entity brain integration"},
+    {"operation": "walk target value", "class": "net.minecraft.world.entity.ai.memory.WalkTarget", "methods": ["constructor"], "usage": "one owned route intent at a time"},
+    {"operation": "movement behavior", "class": "net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget", "methods": ["tick", "start", "stop"], "usage": "existing route adapter; no second vertical writer"},
+    {"operation": "look behavior", "class": "net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget", "methods": ["tick", "start", "stop"], "usage": "presentation look only; server pitch remains locomotion-owned"}
+  ],
   "shared_engineering_bounds": {
     "pitch_rate": {"value": 6.0, "unit": "degrees_per_second", "kind": "engineering_bound"},
     "pitch_acceleration": {"value": 6.0, "unit": "degrees_per_second_squared", "kind": "engineering_bound"},
