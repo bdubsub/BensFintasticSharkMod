@@ -2,6 +2,8 @@ package tfar.bensfintasticsharks.spawn;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.commands.SummonCommand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -11,6 +13,7 @@ import net.minecraft.world.entity.animal.AbstractSchoolingFish;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,8 +23,10 @@ import tfar.bensfintasticsharks.init.ModEntityTypes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -59,6 +64,8 @@ public class MobCapManager {
     private static final ThreadLocal<Boolean> SPAWNING_GROUP_EXTRAS =
             ThreadLocal.withInitial(() -> false);
     private static final AtomicBoolean REPLACEMENT_CATEGORY_ERROR_REPORTED = new AtomicBoolean();
+    private static final Map<UUID, ServerLevel> PENDING_BUCKET_REPLACEMENTS = new HashMap<>();
+    private static final Map<UUID, ServerLevel> PENDING_FINALIZED_FISH_REPLACEMENTS = new HashMap<>();
 
     /** Returns the current cap for an EntityType, or {@code -1} if uncapped. */
     public static int getCap(EntityType<?> type) {
@@ -117,14 +124,21 @@ public class MobCapManager {
 
     @SubscribeEvent
     public void onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn event) {
-        MobSpawnType reason = event.getSpawnType();
         if (REPLACING_VANILLA_FISH.get()) {
             return;
         }
 
+        MobSpawnType reason = event.getSpawnType();
         boolean naturalSpawn = reason == MobSpawnType.NATURAL
                 || reason == MobSpawnType.CHUNK_GENERATION;
         EntityType<?> type = event.getEntity().getType();
+
+        if (BfsConfig.COMMON.replaceVanillaMobs.get()
+                && isFinalizedFishJoinSource(reason)
+                && replacementTypeFor(type) != null
+                && event.getEntity().level() instanceof ServerLevel serverLevel) {
+            PENDING_FINALIZED_FISH_REPLACEMENTS.put(event.getEntity().getUUID(), serverLevel);
+        }
 
         if (naturalSpawn && BfsConfig.COMMON.replaceVanillaMobs.get()) {
             if (replacementTypeFor(type) != null && replaceNaturalFish(event)) {
@@ -198,25 +212,79 @@ public class MobCapManager {
 
     @SubscribeEvent
     public void onEntityJoin(EntityJoinLevelEvent event) {
-        if (event.getLevel().isClientSide
+        if (REPLACING_VANILLA_FISH.get()
+                || event.getLevel().isClientSide
                 || !BfsConfig.COMMON.replaceVanillaMobs.get()
                 || !(event.getEntity() instanceof Mob original)) {
             return;
         }
 
         MobSpawnType reason = original.getSpawnType();
-        if (reason != MobSpawnType.SPAWN_EGG && reason != MobSpawnType.DISPENSER) {
-            return;
-        }
-
         EntityType<? extends Mob> replacementType = replacementTypeFor(original.getType());
         if (replacementType == null) {
             return;
         }
-
-        Mob replacement = replacementType.create(event.getLevel());
-        if (replacement == null) {
+        ServerLevel finalizedSpawnLevel = PENDING_FINALIZED_FISH_REPLACEMENTS.remove(original.getUUID());
+        boolean finalizedFishSpawn = finalizedSpawnLevel == event.getLevel();
+        boolean commandSpawn = reason == null && isSummonCommandSpawn();
+        if (!VanillaFishReplacementPolicy.replacesEntityJoinSource(reason)
+                && !finalizedFishSpawn
+                && !commandSpawn) {
             return;
+        }
+        if (!usesSameMobCategory(original.getType(), replacementType)) {
+            reportReplacementCategoryError(original.getType(), replacementType);
+            event.setCanceled(true);
+            return;
+        }
+
+        if (reason == MobSpawnType.BUCKET) {
+            if (event.getLevel() instanceof ServerLevel serverLevel) {
+                PENDING_BUCKET_REPLACEMENTS.put(original.getUUID(), serverLevel);
+            }
+            return;
+        }
+
+        replaceJoinedFish(original, replacementType);
+        event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
+
+        Iterator<Map.Entry<UUID, ServerLevel>> pending = PENDING_BUCKET_REPLACEMENTS.entrySet().iterator();
+        while (pending.hasNext()) {
+            Map.Entry<UUID, ServerLevel> entry = pending.next();
+            pending.remove();
+            Entity entity = entry.getValue().getEntity(entry.getKey());
+            if (!(entity instanceof Mob original) || !original.isAlive()) {
+                continue;
+            }
+            EntityType<? extends Mob> replacementType = replacementTypeFor(original.getType());
+            if (replacementType == null) {
+                continue;
+            }
+            if (!usesSameMobCategory(original.getType(), replacementType)) {
+                reportReplacementCategoryError(original.getType(), replacementType);
+                continue;
+            }
+            replaceJoinedFish(original, replacementType);
+            original.discard();
+        }
+        PENDING_FINALIZED_FISH_REPLACEMENTS.clear();
+    }
+
+    private static boolean isFinalizedFishJoinSource(MobSpawnType reason) {
+        return reason == MobSpawnType.SPAWNER || reason == MobSpawnType.STRUCTURE;
+    }
+
+    private static boolean replaceJoinedFish(Mob original, EntityType<? extends Mob> replacementType) {
+        Mob replacement = replacementType.create(original.level());
+        if (replacement == null) {
+            return false;
         }
 
         copySafeSpawnState(original, replacement, null);
@@ -224,9 +292,17 @@ public class MobCapManager {
         replacement.setDeltaMovement(original.getDeltaMovement());
         replacement.yHeadRot = original.yHeadRot;
         replacement.yBodyRot = original.yBodyRot;
-        if (event.getLevel().addFreshEntity(replacement)) {
-            event.setCanceled(true);
+        REPLACING_VANILLA_FISH.set(true);
+        try {
+            return original.level().addFreshEntity(replacement);
+        } finally {
+            REPLACING_VANILLA_FISH.remove();
         }
+    }
+
+    private static boolean isSummonCommandSpawn() {
+        return StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).walk(frames ->
+                frames.anyMatch(frame -> frame.getDeclaringClass() == SummonCommand.class));
     }
 
     private static void copySafeSpawnState(Mob original, Mob replacement, CompoundTag spawnTag) {
@@ -256,22 +332,17 @@ public class MobCapManager {
             return false;
         }
         if (!usesSameMobCategory(originalType, replacementType)) {
-            if (REPLACEMENT_CATEGORY_ERROR_REPORTED.compareAndSet(false, true)) {
-                BensFintasticSharks.LOG.error(
-                        "Vanilla fish replacement is disabled because {} uses {} instead of {}.",
-                        BuiltInRegistries.ENTITY_TYPE.getKey(replacementType),
-                        replacementType.getCategory().getName(),
-                        originalType.getCategory().getName()
-                );
-            }
-            event.setSpawnCancelled(true);
-            return true;
+            reportReplacementCategoryError(originalType, replacementType);
+            return cancelVanillaNaturalFish(event);
         }
 
         Mob original = event.getEntity();
         Mob replacement = replacementType.create(original.level());
         if (replacement == null) {
-            return false;
+            return cancelVanillaNaturalFish(event);
+        }
+        if (!hasNaturalReplacementCapacity(event, replacement)) {
+            return cancelVanillaNaturalFish(event);
         }
 
         copySafeSpawnState(original, replacement, event.getSpawnTag());
@@ -290,7 +361,7 @@ public class MobCapManager {
         boolean added;
         REPLACING_VANILLA_FISH.set(true);
         try {
-            ForgeEventFactory.onFinalizeSpawn(
+            sourceGroup = ForgeEventFactory.onFinalizeSpawn(
                     replacement,
                     event.getLevel(),
                     event.getDifficulty(),
@@ -304,7 +375,7 @@ public class MobCapManager {
         }
 
         if (!added) {
-            return false;
+            return cancelVanillaNaturalFish(event);
         }
 
         if (sourceGroup == null && replacement instanceof AbstractSchoolingFish schoolingFish) {
@@ -312,6 +383,32 @@ public class MobCapManager {
         }
         event.setSpawnCancelled(true);
         return true;
+    }
+
+    private static boolean cancelVanillaNaturalFish(MobSpawnEvent.FinalizeSpawn event) {
+        event.setSpawnCancelled(true);
+        return true;
+    }
+
+    private static boolean hasNaturalReplacementCapacity(MobSpawnEvent.FinalizeSpawn event, Mob replacement) {
+        if (!(event.getLevel() instanceof ServerLevel level)) {
+            return false;
+        }
+
+        int cap = getCap(replacement.getType());
+        if (cap < 0) {
+            return true;
+        }
+        if (cap == 0) {
+            return false;
+        }
+
+        AABB area = new AABB(
+                event.getX(), event.getY(), event.getZ(),
+                event.getX(), event.getY(), event.getZ()
+        ).inflate(COUNT_RADIUS);
+        int count = level.getEntitiesOfClass(replacement.getClass(), area, Entity::isAlive).size();
+        return count < cap;
     }
 
     public static void validateVanillaFishReplacementCategories() {
@@ -331,6 +428,17 @@ public class MobCapManager {
 
     private static boolean usesSameMobCategory(EntityType<?> source, EntityType<?> replacement) {
         return source.getCategory() == replacement.getCategory();
+    }
+
+    private static void reportReplacementCategoryError(EntityType<?> source, EntityType<?> replacement) {
+        if (REPLACEMENT_CATEGORY_ERROR_REPORTED.compareAndSet(false, true)) {
+            BensFintasticSharks.LOG.error(
+                    "Vanilla fish replacement is disabled because {} uses {} instead of {}.",
+                    BuiltInRegistries.ENTITY_TYPE.getKey(replacement),
+                    replacement.getCategory().getName(),
+                    source.getCategory().getName()
+            );
+        }
     }
 
     private static EntityType<? extends Mob> replacementTypeFor(EntityType<?> type) {

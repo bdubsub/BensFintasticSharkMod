@@ -241,8 +241,10 @@ class ReleaseContractAuditTest {
             assertTrue(Files.exists(resources.resolve("loot_tables/entities/" + fish + ".json")), fish);
             assertTrue(Files.exists(resources.resolve("recipes/cooked_" + fish + "_from_smelting.json")), fish);
             assertTrue(Files.exists(resources.resolve("recipes/cooked_" + fish + "_from_smoking.json")), fish);
-            assertTrue(Files.exists(resources.resolve("loot_modifiers/add_" + fish + "_fishing.json")), fish);
         }
+        assertTrue(Files.exists(resources.resolve("loot_modifiers/replace_fishing_fish.json")));
+        assertFalse(Files.exists(resources.resolve("loot_modifiers/add_atlantic_cod_fishing.json")));
+        assertFalse(Files.exists(resources.resolve("loot_modifiers/add_atlantic_salmon_fishing.json")));
         String speciesInfo = Files.readString(ROOT.resolve(
                 "forge/src/main/java/tfar/bensfintasticsharks/command/BfsSpeciesInfo.java"));
         assertTrue(speciesInfo.contains("atlantic_cod\", species(\"Gadus morhua\""));
@@ -265,14 +267,16 @@ class ReleaseContractAuditTest {
                 "forge/src/main/java/tfar/bensfintasticsharks/platform/ForgePlatformHelper.java"));
 
         assertTrue(config.contains(".worldRestart()\n                    .define(\"replace_vanilla_mobs\", true)"));
+        assertTrue(config.contains(".worldRestart()\n                    .define(\"fish_entities\", true)"));
         assertTrue(config.contains(".worldRestart()\n                    .define(\"disable_vanilla_aquatic_spawns\", false)"));
         assertTrue(policy.contains("if (!\"minecraft\".equals(namespace)) {\n            return null;\n        }"));
         assertTrue(policy.contains("case \"cod\" -> Replacement.ATLANTIC_COD"));
         assertTrue(policy.contains("case \"salmon\" -> Replacement.ATLANTIC_SALMON"));
+        assertTrue(policy.contains("case SPAWN_EGG, COMMAND, BUCKET, DISPENSER, SPAWNER, STRUCTURE -> true"));
         assertTrue(manager.contains("MobSpawnType.NATURAL"));
         assertTrue(manager.contains("MobSpawnType.CHUNK_GENERATION"));
-        assertTrue(manager.contains("MobSpawnType.SPAWN_EGG"));
-        assertTrue(manager.contains("MobSpawnType.DISPENSER"));
+        assertTrue(manager.contains("replacesEntityJoinSource(reason)"));
+        assertTrue(manager.contains("REPLACING_VANILLA_FISH.get()"));
         assertTrue(manager.contains("copySafeSpawnState(original, replacement, event.getSpawnTag())"));
         assertTrue(manager.contains("data.remove(\"Passengers\")"));
         assertTrue(manager.contains("data.remove(\"Leash\")"));
@@ -302,6 +306,8 @@ class ReleaseContractAuditTest {
                 "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/loot/ModEntityLoot.java"));
         String fishingLoot = Files.readString(ROOT.resolve(
                 "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/ModGlobalLootModifierProvider.java"));
+        String fishingPolicy = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/fishing/FishingCatchPolicy.java"));
         String recipes = Files.readString(ROOT.resolve(
                 "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/ModRecipeProvider.java"));
 
@@ -329,7 +335,11 @@ class ReleaseContractAuditTest {
         assertTrue(entityLoot.contains("SmeltItemFunction.smelted().when(onFire())"));
         assertTrue(entityLoot.contains("ModItems.RAW_ATLANTIC_COD"));
         assertTrue(entityLoot.contains("ModItems.RAW_ATLANTIC_SALMON"));
-        assertEquals(2, countOccurrences(fishingLoot, "0.125f"));
+        assertTrue(fishingLoot.contains("replace_fishing_fish"));
+        assertFalse(fishingLoot.contains("add_atlantic_cod_fishing"));
+        assertFalse(fishingLoot.contains("add_atlantic_salmon_fishing"));
+        assertTrue(fishingPolicy.contains("ATLANTIC_SELECTION_SHARE = 0.25F"));
+        assertTrue(fishingPolicy.contains("drops.size() != 1"));
         assertTrue(recipes.contains("ModItems.RAW_ATLANTIC_COD"));
         assertTrue(recipes.contains("ModItems.COOKED_ATLANTIC_COD"));
         assertTrue(recipes.contains("ModItems.RAW_ATLANTIC_SALMON"));
@@ -337,13 +347,11 @@ class ReleaseContractAuditTest {
         assertTrue(recipes.contains("SimpleCookingRecipeBuilder.smelting"));
         assertTrue(recipes.contains("SimpleCookingRecipeBuilder.smoking"));
 
+        JsonObject fishingModifier = readJson(GENERATED.resolve(
+                "data/bensfintasticsharks/loot_modifiers/replace_fishing_fish.json"));
+        assertEquals("bensfintasticsharks:replace_fishing_fish", fishingModifier.get("type").getAsString());
+
         for (String fish : List.of("atlantic_cod", "atlantic_salmon")) {
-            JsonObject modifier = readJson(GENERATED.resolve(
-                    "data/bensfintasticsharks/loot_modifiers/add_" + fish + "_fishing.json"));
-            assertEquals(0.125D, modifier.get("chance").getAsDouble(), 0.000001D, fish);
-            assertEquals("bensfintasticsharks:raw_" + fish, modifier.get("item").getAsString(), fish);
-            assertEquals(1, modifier.get("min").getAsInt(), fish);
-            assertEquals(1, modifier.get("max").getAsInt(), fish);
             String entityLootJson = Files.readString(GENERATED.resolve(
                     "data/bensfintasticsharks/loot_tables/entities/" + fish + ".json"));
             assertTrue(entityLootJson.contains("raw_" + fish), fish);
@@ -447,7 +455,7 @@ class ReleaseContractAuditTest {
         assertTrue(blacktip.contains("implements BfsVariantHolder, SharkGrabber"));
         String config = Files.readString(ROOT.resolve(
                 "forge/src/main/java/tfar/bensfintasticsharks/config/BfsConfig.java"));
-        assertEquals(2, config.split("\\.worldRestart\\(\\)", -1).length - 1);
+        assertEquals(3, config.split("\\.worldRestart\\(\\)", -1).length - 1);
     }
 
     @Test

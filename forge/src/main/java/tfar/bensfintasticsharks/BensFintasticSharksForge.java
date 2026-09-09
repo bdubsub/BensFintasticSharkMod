@@ -67,6 +67,8 @@ public class BensFintasticSharksForge {
         MinecraftForge.EVENT_BUS.addListener(this::onLivingDeath);
         MinecraftForge.EVENT_BUS.addListener(this::onRegisterCommands);
         MinecraftForge.EVENT_BUS.addListener(this::onEntityJoin);
+        MinecraftForge.EVENT_BUS.addListener(net.minecraftforge.eventbus.api.EventPriority.LOWEST, true,
+                tfar.bensfintasticsharks.fishing.FishingCatchDelivery::onItemFished);
         MinecraftForge.EVENT_BUS.register(new tfar.bensfintasticsharks.spawn.MobCapManager());
         WaterDisturbanceListeners.register(MinecraftForge.EVENT_BUS);
         tfar.bensfintasticsharks.debug.BfsDebugManager.register(MinecraftForge.EVENT_BUS);
@@ -344,6 +346,7 @@ public class BensFintasticSharksForge {
         }
         e.register(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, BensFintasticSharks.id("add_item_chance"),() -> LootModifiers.ADD_ITEM_CHANCE);
         e.register(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, BensFintasticSharks.id("add_once_per_world"),() -> LootModifiers.ADD_ONCE_PER_WORLD);
+        e.register(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, BensFintasticSharks.id("replace_fishing_fish"),() -> LootModifiers.REPLACE_FISHING_FISH);
     }
 
 }

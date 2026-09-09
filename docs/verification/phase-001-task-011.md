@@ -1,5 +1,7 @@
 # Phase 001 task 011 evidence
 
+The results below bind earlier candidates. DEC-014 expands creation-source replacement and introduces live/item fishing. Do not reuse the historical aggregate closure statement for the amended contract. The [current transaction regressions](../test/phase-001-fishing-transactions.md) cover only their stated delivery boundary; current source, mode, restart and population evidence remains required.
+
 ## Scope
 
 This record covers `P001-TASK-011`, `BFS-REQ-010`, and `BFS-REQ-011` for

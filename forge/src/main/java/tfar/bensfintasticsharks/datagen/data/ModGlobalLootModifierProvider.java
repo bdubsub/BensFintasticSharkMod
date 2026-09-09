@@ -9,6 +9,7 @@ import net.minecraftforge.common.loot.LootTableIdCondition;
 import tfar.bensfintasticsharks.AddItemChanceLootModifier;
 import tfar.bensfintasticsharks.AddOncePerWorldLootModifier;
 import tfar.bensfintasticsharks.BensFintasticSharks;
+import tfar.bensfintasticsharks.ReplaceFishingFishLootModifier;
 import tfar.bensfintasticsharks.init.ModItems;
 
 import java.util.HashSet;
@@ -46,12 +47,8 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new LootItemCondition[]{ LootTableIdCondition.builder(BuiltInLootTables.SHIPWRECK_MAP).build() },
                 ModItems.CAPTAIN_BEN_HAT, 0.03f));
 
-        add("add_atlantic_cod_fishing", new AddItemChanceLootModifier(
-                new LootItemCondition[]{LootTableIdCondition.builder(BuiltInLootTables.FISHING).build()},
-                ModItems.RAW_ATLANTIC_COD, 1, 1, 0.125f));
-        add("add_atlantic_salmon_fishing", new AddItemChanceLootModifier(
-                new LootItemCondition[]{LootTableIdCondition.builder(BuiltInLootTables.FISHING).build()},
-                ModItems.RAW_ATLANTIC_SALMON, 1, 1, 0.125f));
+        add("replace_fishing_fish", new ReplaceFishingFishLootModifier(
+                new LootItemCondition[]{LootTableIdCondition.builder(BuiltInLootTables.FISHING).build()}));
     }
 
     void addModifier(ResourceLocation table) {

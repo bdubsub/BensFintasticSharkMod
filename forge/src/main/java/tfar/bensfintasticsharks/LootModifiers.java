@@ -7,5 +7,6 @@ public class LootModifiers {
 
     public static final Codec<? extends IGlobalLootModifier> ADD_ITEM_CHANCE = AddItemChanceLootModifier.CODEC;
     public static final Codec<? extends IGlobalLootModifier> ADD_ONCE_PER_WORLD = AddOncePerWorldLootModifier.CODEC;
+    public static final Codec<? extends IGlobalLootModifier> REPLACE_FISHING_FISH = ReplaceFishingFishLootModifier.CODEC;
 
 }

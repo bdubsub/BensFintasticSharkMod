@@ -1,5 +1,7 @@
 # Phase 001 task 012, retained advancement evidence
 
+The earlier artifact results below do not close DEC-014 live/item delivery and its failure or replay cases. The [current transaction regressions](../test/phase-001-fishing-transactions.md) verify matching advancement timing for their bounded live Cod fixtures; the remaining species, mode, progress and client matrix remains open.
+
 This record covers `P001-TASK-012` and `BFS-REQ-012` for Shark Spotter and the
 four retained Atlantic fish advancements.
 

@@ -1,11 +1,21 @@
 package tfar.bensfintasticsharks.gametest;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -22,11 +32,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.MobBucketItem;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.SimpleContainer;
@@ -41,7 +56,6 @@ import net.minecraft.network.protocol.PacketFlow;
 import com.mojang.authlib.GameProfile;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
 import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
 import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
@@ -57,6 +71,7 @@ import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 import tfar.bensfintasticsharks.init.ModItems;
 import tfar.bensfintasticsharks.config.BfsConfig;
+import tfar.bensfintasticsharks.fishing.FishingCatchPolicy;
 import tfar.bensfintasticsharks.spawn.MobCapManager;
 
 import java.io.IOException;
@@ -71,6 +86,7 @@ public final class BfsGameTests {
 
     private static final BlockPos ALGAE_POS = new BlockPos(1, 1, 1);
     private static final BlockPos SUPPORT_POS = new BlockPos(1, 0, 1);
+    private static final int POPULATION_SOAK_TICKS = 24_000;
 
     private BfsGameTests() {
     }
@@ -130,7 +146,7 @@ public final class BfsGameTests {
                     "chest slot must empty before re-equipping");
             player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.PRISMARINE_CHESTPLATE));
             assertPrismarineArmor(helper, player, "re-equipped water armor");
-            helper.succeed();
+            finishAfterRemovingTestPlayer(helper, player);
         });
     }
 
@@ -216,6 +232,218 @@ public final class BfsGameTests {
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
             helper.fail("BFS debug start command failed: " + exception.getMessage());
         }
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_population", timeoutTicks = 1_300)
+    public static void serverDebugPopulationCaptureRecordsLoadedCounts(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 3, 3));
+        BfsDebugManager.stop("gametest_setup");
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(helper.absolutePos(new BlockPos(3, 3, 3)).getCenter())
+                .withPermission(4);
+        try {
+            int started = server.getCommands().getDispatcher().execute("bfs debug on population 1200", source);
+            helper.assertTrue(started >= 0, "population capture must start through the operator debug command");
+            helper.runAfterDelay(1_204, () -> {
+                helper.assertTrue(!BfsDebugManager.status().active(),
+                        "population capture must stop after its requested tick duration");
+                verifyPopulationCapture(helper, BfsDebugManager.status().lastStop().outputPath(), 20, 1_200);
+            });
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+            helper.fail("BFS population diagnostic start command failed: " + exception.getMessage());
+        }
+    }
+
+    private static void verifyPopulationCapture(GameTestHelper helper, Path output, int remainingChecks,
+                                                int expectedFinalOffsetTicks) {
+        helper.runAfterDelay(1, () -> {
+            try {
+                if (!Files.exists(output)) {
+                    retryPopulationCapture(helper, output, remainingChecks, expectedFinalOffsetTicks);
+                    return;
+                }
+                String contents = Files.readString(output);
+                if (!contents.contains("\"event\":\"population_sample\"")) {
+                    retryPopulationCapture(helper, output, remainingChecks, expectedFinalOffsetTicks);
+                    return;
+                }
+                helper.assertTrue(contents.contains("\"sampleIntervalTicks\":1200"),
+                        "population records must declare the fixed 1,200 tick sample interval");
+                helper.assertTrue(contents.contains("\"loadedWaterAmbientEntities\":"),
+                        "population records must report loaded water ambient counts");
+                helper.assertTrue(contents.contains("\"loadedAtlanticCodEntities\":"),
+                        "population records must report Atlantic Cod counts");
+                helper.assertTrue(contents.contains("\"replaceVanillaMobs\":"),
+                        "population records must identify the active replacement mode");
+                helper.assertTrue(contents.contains("\"sampleOffsetTicks\":" + expectedFinalOffsetTicks),
+                        "population records must include the final requested tick sample");
+                Files.deleteIfExists(output);
+                helper.succeed();
+            } catch (IOException exception) {
+                helper.fail("unable to read BFS population diagnostic output: " + exception.getMessage());
+            }
+        });
+    }
+
+    private static void retryPopulationCapture(GameTestHelper helper, Path output, int remainingChecks,
+                                               int expectedFinalOffsetTicks) {
+        if (remainingChecks > 1) {
+            verifyPopulationCapture(helper, output, remainingChecks - 1, expectedFinalOffsetTicks);
+            return;
+        }
+        helper.fail("BFS population diagnostic output has no population sample: " + output);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_population_soak", timeoutTicks = 50_000)
+    public static void naturalFishReplacementPopulationRemainsBoundedInBothModes(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        boolean previousReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
+        runPopulationSoak(helper, true, previousReplacement);
+    }
+
+    private static void runPopulationSoak(GameTestHelper helper, boolean replacementEnabled,
+                                          boolean previousReplacement) {
+        BfsConfig.COMMON.replaceVanillaMobs.set(replacementEnabled);
+        BfsDebugManager.stop("population_soak_setup");
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(helper.absolutePos(new BlockPos(4, 3, 4)).getCenter())
+                .withPermission(4);
+        try {
+            int started = server.getCommands().getDispatcher().execute(
+                    "bfs debug on population " + POPULATION_SOAK_TICKS, source);
+            helper.assertTrue(started >= 0, "population soak must start through the operator debug command");
+            for (int wave = 0; wave < 8; wave++) {
+                int scheduledWave = wave;
+                helper.runAfterDelay(1 + wave * BfsDebugManager.POPULATION_SAMPLE_INTERVAL_TICKS,
+                        () -> spawnPopulationSoakWave(helper, scheduledWave));
+            }
+            helper.runAfterDelay(POPULATION_SOAK_TICKS + 4,
+                    () -> verifyPopulationSoak(helper, BfsDebugManager.status().lastStop().outputPath(),
+                            replacementEnabled, previousReplacement, 20));
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+            BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
+            helper.fail("BFS population soak command failed: " + exception.getMessage());
+        }
+    }
+
+    private static void spawnPopulationSoakWave(GameTestHelper helper, int wave) {
+        BlockPos codPosition = helper.absolutePos(new BlockPos(2 + (wave % 4) * 2, 3, 2 + (wave / 4) * 4));
+        BlockPos salmonPosition = codPosition.east();
+        spawnVanillaFishForWorldGeneration(helper, EntityType.COD, codPosition, MobSpawnType.NATURAL);
+        preservePopulationSoakFish(helper, codPosition);
+        spawnVanillaFishForWorldGeneration(helper, EntityType.SALMON, salmonPosition, MobSpawnType.NATURAL);
+        preservePopulationSoakFish(helper, salmonPosition);
+    }
+
+    private static void preservePopulationSoakFish(GameTestHelper helper, BlockPos position) {
+        helper.getLevel().getEntitiesOfClass(Mob.class, new AABB(position).inflate(0.25D),
+                        BfsGameTests::isPopulationSoakFish)
+                .forEach(fish -> {
+                    fish.setPersistenceRequired();
+                    fish.setNoAi(true);
+                });
+    }
+
+    private static void verifyPopulationSoak(GameTestHelper helper, Path output, boolean replacementEnabled,
+                                             boolean previousReplacement, int remainingChecks) {
+        helper.runAfterDelay(1, () -> {
+            try {
+                if (!Files.exists(output)) {
+                    retryPopulationSoak(helper, output, replacementEnabled, previousReplacement, remainingChecks);
+                    return;
+                }
+                List<JsonObject> samples = Files.readAllLines(output).stream()
+                        .map(JsonParser::parseString)
+                        .map(json -> json.getAsJsonObject())
+                        .filter(record -> "population_sample".equals(record.get("event").getAsString()))
+                        .toList();
+                assertPopulationSoak(helper, samples, replacementEnabled);
+                assertControlledPopulationSoakFish(helper, replacementEnabled);
+                Files.deleteIfExists(output);
+                clearPopulationSoakFish(helper);
+                if (replacementEnabled) {
+                    helper.runAfterDelay(2, () -> runPopulationSoak(helper, false, previousReplacement));
+                } else {
+                    BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
+                    helper.succeed();
+                }
+            } catch (IOException | RuntimeException exception) {
+                BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
+                helper.fail("unable to verify BFS population soak: " + exception.getMessage());
+            }
+        });
+    }
+
+    private static void retryPopulationSoak(GameTestHelper helper, Path output, boolean replacementEnabled,
+                                            boolean previousReplacement, int remainingChecks) {
+        if (remainingChecks > 1) {
+            verifyPopulationSoak(helper, output, replacementEnabled, previousReplacement, remainingChecks - 1);
+            return;
+        }
+        BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
+        helper.fail("BFS population soak output has no final record: " + output);
+    }
+
+    private static void assertPopulationSoak(GameTestHelper helper, List<JsonObject> samples,
+                                             boolean replacementEnabled) {
+        helper.assertTrue(samples.size() == 21,
+                "population soak must record a start sample and every 1,200 tick sample through 24,000 ticks");
+
+        for (int index = 0; index < samples.size(); index++) {
+            JsonObject sample = samples.get(index);
+            helper.assertTrue(sample.get("sampleOffsetTicks").getAsInt()
+                            == index * BfsDebugManager.POPULATION_SAMPLE_INTERVAL_TICKS,
+                    "population soak must preserve fixed 1,200 tick sample offsets");
+            helper.assertTrue(sample.get("replaceVanillaMobs").getAsBoolean() == replacementEnabled,
+                    "population soak record must preserve its active replacement mode");
+            int waterAmbient = sample.get("loadedWaterAmbientEntities").getAsInt();
+            int bfsWaterAmbient = sample.get("loadedBfsWaterAmbientEntities").getAsInt();
+            helper.assertTrue(waterAmbient >= 0 && bfsWaterAmbient >= 0 && bfsWaterAmbient <= waterAmbient,
+                    "population soak records must report valid ambient population counts");
+            helper.assertTrue(sample.get("waterAmbientCategoryCapPerChunk").getAsInt() > 0,
+                    "population soak records must report the configured ambient category cap");
+        }
+    }
+
+    private static void assertControlledPopulationSoakFish(GameTestHelper helper, boolean replacementEnabled) {
+        AABB bounds = new AABB(helper.absolutePos(new BlockPos(1, 2, 1)),
+                helper.absolutePos(new BlockPos(10, 4, 8))).inflate(0.25D);
+        List<Mob> fish = helper.getLevel().getEntitiesOfClass(Mob.class, bounds, BfsGameTests::isPopulationSoakFish);
+        int atlanticCod = countPopulationSoakFish(fish, ModEntityTypes.ATLANTIC_COD);
+        int atlanticSalmon = countPopulationSoakFish(fish, ModEntityTypes.ATLANTIC_SALMON);
+        int vanillaCod = countPopulationSoakFish(fish, EntityType.COD);
+        int vanillaSalmon = countPopulationSoakFish(fish, EntityType.SALMON);
+        if (replacementEnabled) {
+            helper.assertTrue(atlanticCod == 8 && atlanticSalmon == 8 && vanillaCod == 0 && vanillaSalmon == 0,
+                    "replacement-enabled natural sources must remain one-for-one and bounded at eight Atlantic Cod and eight Atlantic Salmon");
+        } else {
+            helper.assertTrue(atlanticCod == 0 && atlanticSalmon == 0 && vanillaCod == 8 && vanillaSalmon == 8,
+                    "replacement-disabled natural sources must remain one-for-one and bounded at eight vanilla Cod and eight vanilla Salmon");
+        }
+    }
+
+    private static int countPopulationSoakFish(List<Mob> fish, EntityType<?> type) {
+        return (int) fish.stream().filter(entity -> entity.getType() == type).count();
+    }
+
+    private static void clearPopulationSoakFish(GameTestHelper helper) {
+        AABB bounds = new AABB(helper.absolutePos(new BlockPos(1, 2, 1)),
+                helper.absolutePos(new BlockPos(10, 4, 8))).inflate(1.0D);
+        helper.getLevel().getEntitiesOfClass(Mob.class, bounds, BfsGameTests::isPopulationSoakFish)
+                .forEach(Mob::discard);
+    }
+
+    private static boolean isPopulationSoakFish(Mob fish) {
+        EntityType<?> type = fish.getType();
+        return type == EntityType.COD
+                || type == EntityType.SALMON
+                || type == ModEntityTypes.ATLANTIC_COD
+                || type == ModEntityTypes.ATLANTIC_SALMON;
     }
 
     @GameTest(template = "empty", batch = "bfs_debug_permissions", timeoutTicks = 80)
@@ -578,6 +806,8 @@ public final class BfsGameTests {
     @GameTest(template = "empty", batch = "bfs_fish_items", timeoutTicks = 120)
     public static void atlanticFishItemsLootRecipesAndFishingRoundTrip(GameTestHelper helper) {
         prepareWaterVolume(helper);
+        helper.assertTrue(BfsConfig.COMMON.fishEntities.get(),
+                "the dedicated server fixture must use the default live fish fishing delivery");
         assertFishRecipe(helper, ModItems.RAW_ATLANTIC_COD, ModItems.COOKED_ATLANTIC_COD, "atlantic cod");
         assertFishRecipe(helper, ModItems.RAW_ATLANTIC_SALMON, ModItems.COOKED_ATLANTIC_SALMON,
                 "atlantic salmon");
@@ -587,6 +817,8 @@ public final class BfsGameTests {
         assertFishLoot(helper, cod, ModItems.RAW_ATLANTIC_COD, ModItems.COOKED_ATLANTIC_COD, "atlantic cod");
         assertFishLoot(helper, salmon, ModItems.RAW_ATLANTIC_SALMON, ModItems.COOKED_ATLANTIC_SALMON,
                 "atlantic salmon");
+        cod.discard();
+        salmon.discard();
 
         ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
                 new GameProfile(java.util.UUID.randomUUID(), "fish-loot-player"));
@@ -608,6 +840,77 @@ public final class BfsGameTests {
                 "real fishing must complete the Atlantic Cod catch advancement");
         helper.assertTrue(player.getAdvancements().getOrStartProgress(salmonCatch).isDone(),
                 "real fishing must complete the Atlantic Salmon catch advancement");
+    }
+
+    @GameTest(template = "empty", batch = "bfs_advancements", timeoutTicks = 80)
+    public static void sharkSpotterAndAtlanticAdvancementsRequireTheirGameplaySignals(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+                new GameProfile(java.util.UUID.randomUUID(), "advancement-fixture-player"));
+        player.connection = new ServerGamePacketListenerImpl(helper.getLevel().getServer(),
+                new Connection(PacketFlow.SERVERBOUND), player);
+        player.setPos(helper.absolutePos(new BlockPos(5, 2, 2)).getX() + 0.5D,
+                helper.absolutePos(new BlockPos(5, 2, 2)).getY(),
+                helper.absolutePos(new BlockPos(5, 2, 2)).getZ() + 0.5D);
+        player.setYRot(0.0F);
+        player.setXRot(0.0F);
+
+        net.minecraft.server.ServerAdvancementManager manager = helper.getLevel().getServer().getAdvancements();
+        net.minecraft.advancements.Advancement sharkSpotter = advancement(helper, manager, "shark_spotter");
+        net.minecraft.advancements.Advancement codCatch = advancement(helper, manager, "oh_my_cod");
+        net.minecraft.advancements.Advancement salmonCatch = advancement(helper, manager, "why_arent_you_red");
+        net.minecraft.advancements.Advancement codEncounter = advancement(helper, manager, "gadus_morhua");
+        net.minecraft.advancements.Advancement salmonEncounter = advancement(helper, manager, "salmo_salar");
+        assertAdvancementIcon(helper, codCatch, ModItems.COOKED_ATLANTIC_COD, "oh_my_cod");
+        assertAdvancementIcon(helper, salmonCatch, ModItems.COOKED_ATLANTIC_SALMON, "why_arent_you_red");
+        assertAdvancementIcon(helper, codEncounter, ModItems.RAW_ATLANTIC_COD, "gadus_morhua");
+        assertAdvancementIcon(helper, salmonEncounter, ModItems.RAW_ATLANTIC_SALMON, "salmo_salar");
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SPYGLASS));
+        BensFintasticSharks.playerTick(player);
+        helper.assertTrue(!player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
+                "holding a Spyglass without using it must not grant Shark Spotter");
+        player.startUsingItem(InteractionHand.MAIN_HAND);
+        BensFintasticSharks.playerTick(player);
+        helper.assertTrue(!player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
+                "an active Spyglass with no shark must not grant Shark Spotter");
+
+        helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(5, 3, 7));
+        helper.spawn(ModEntityTypes.ATLANTIC_SALMON, new BlockPos(6, 3, 7));
+        BensFintasticSharks.playerTick(player);
+        helper.assertTrue(player.getAdvancements().getOrStartProgress(codEncounter).isDone()
+                        && player.getAdvancements().getOrStartProgress(salmonEncounter).isDone(),
+                "nearby Atlantic fish must grant their encounter advancements through the production player found trigger");
+        helper.assertTrue(!player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
+                "an active Spyglass looking only at nonshark BFS entities must not grant Shark Spotter");
+
+        AbstractSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(5, 3, 8));
+        shark.setNoAi(true);
+        BlockPos obstruction = new BlockPos(5, 3, 5);
+        helper.setBlock(obstruction, Blocks.STONE.defaultBlockState());
+        BensFintasticSharks.playerTick(player);
+        helper.assertTrue(!player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
+                "a solid obstruction before the viewed shark must prevent Shark Spotter");
+        helper.setBlock(obstruction, Blocks.WATER.defaultBlockState());
+        BensFintasticSharks.playerTick(player);
+        helper.assertTrue(player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
+                "an actively used Spyglass with an unobstructed BFS shark must grant Shark Spotter");
+        player.stopUsingItem();
+        helper.succeed();
+    }
+
+    private static net.minecraft.advancements.Advancement advancement(GameTestHelper helper,
+                                                                        net.minecraft.server.ServerAdvancementManager manager,
+                                                                        String id) {
+        net.minecraft.advancements.Advancement advancement = manager.getAdvancement(BensFintasticSharks.id(id));
+        helper.assertTrue(advancement != null, "generated advancement must load: " + id);
+        return advancement;
+    }
+
+    private static void assertAdvancementIcon(GameTestHelper helper, net.minecraft.advancements.Advancement advancement,
+                                              net.minecraft.world.item.Item expectedIcon, String id) {
+        helper.assertTrue(advancement.getDisplay().getIcon().is(expectedIcon),
+                "generated advancement must retain its required display item: " + id);
     }
 
     private static void assertFishRecipe(GameTestHelper helper, net.minecraft.world.item.Item raw,
@@ -649,7 +952,7 @@ public final class BfsGameTests {
 
     private static void fishFromRealRodCast(GameTestHelper helper, ServerPlayer player) {
         FishingRodItem rod = (FishingRodItem) Items.FISHING_ROD;
-        boolean caughtRealFishingItem = false;
+        boolean caughtLiveFishingEntity = false;
         try {
             java.lang.reflect.Field nibble = FishingHook.class.getDeclaredField("nibble");
             nibble.setAccessible(true);
@@ -659,10 +962,29 @@ public final class BfsGameTests {
                 FishingHook hook = player.fishing;
                 helper.assertTrue(hook != null, "a real rod use must create a fishing hook");
                 nibble.setInt(hook, 1);
-                hook.retrieve(player.getMainHandItem());
+                Vec3 catchPosition = hook.position();
+                int rodDamageBefore = player.getMainHandItem().getDamageValue();
+                rod.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+                helper.assertTrue(player.getMainHandItem().getDamageValue() == rodDamageBefore + 1,
+                        "a live fish catch must preserve the normal fishing rod durability cost once");
+                List<Mob> caughtFish = helper.getLevel().getEntitiesOfClass(Mob.class,
+                                player.getBoundingBox().inflate(32.0D))
+                        .stream()
+                        .filter(BfsGameTests::isSupportedFishingEntity)
+                        .toList();
+                helper.assertTrue(caughtFish.size() <= 1,
+                        "one fishing resolution must create at most one supported fish entity");
+                if (!caughtFish.isEmpty()) {
+                    Mob fish = caughtFish.get(0);
+                    helper.assertTrue(fish.position().distanceToSqr(catchPosition) < 0.0001D,
+                            "the live fishing catch must spawn at the hook catch position");
+                    caughtLiveFishingEntity = true;
+                    fish.discard();
+                }
                 for (ItemEntity item : helper.getLevel().getEntitiesOfClass(ItemEntity.class,
                         player.getBoundingBox().inflate(32.0D))) {
-                    caughtRealFishingItem = true;
+                    helper.assertTrue(!FishingCatchPolicy.isSupportedFishingFish(item.getItem()),
+                            "a supported fishing catch must not also create an immediate fish item");
                     item.discard();
                 }
             }
@@ -670,29 +992,40 @@ public final class BfsGameTests {
             helper.fail("unable to arm the real fishing bite fixture: " + exception.getMessage());
             return;
         }
-        helper.assertTrue(caughtRealFishingItem, "real fishing casts must resolve a fishing loot item");
-        assertFishingWeights(helper, player);
+        helper.assertTrue(caughtLiveFishingEntity, "real fishing casts must resolve at least one live fish entity");
+        assertFishingPolicyMatrix(helper);
         helper.succeed();
     }
 
-    private static void assertFishingWeights(GameTestHelper helper, ServerPlayer player) {
-        LootTable table = helper.getLevel().getServer().getLootData().getLootTable(BuiltInLootTables.FISHING);
-        FishingHook hook = new FishingHook(player, helper.getLevel(), 0, 0);
-        LootParams params = new LootParams.Builder(helper.getLevel())
-                .withParameter(LootContextParams.ORIGIN, hook.position())
-                .withParameter(LootContextParams.THIS_ENTITY, hook)
-                .withParameter(LootContextParams.TOOL, new ItemStack(Items.FISHING_ROD))
-                .create(LootContextParamSets.FISHING);
-        int cod = 0;
-        int salmon = 0;
-        for (int draw = 0; draw < 256; draw++) {
-            for (ItemStack stack : table.getRandomItems(params)) {
-                if (stack.is(ModItems.RAW_ATLANTIC_COD)) cod += stack.getCount();
-                if (stack.is(ModItems.RAW_ATLANTIC_SALMON)) salmon += stack.getCount();
-            }
-        }
-        helper.assertTrue(cod > 0, "fishing loot must retain the Atlantic Cod 0.125 weight");
-        helper.assertTrue(salmon > 0, "fishing loot must retain the Atlantic Salmon 0.125 weight");
+    private static boolean isSupportedFishingEntity(Mob fish) {
+        EntityType<?> type = fish.getType();
+        return type == EntityType.COD
+                || type == EntityType.SALMON
+                || type == EntityType.TROPICAL_FISH
+                || type == EntityType.PUFFERFISH
+                || type == ModEntityTypes.ATLANTIC_COD
+                || type == ModEntityTypes.ATLANTIC_SALMON;
+    }
+
+    private static void assertFishingPolicyMatrix(GameTestHelper helper) {
+        helper.assertTrue(FishingCatchPolicy.selectFishingItem(new ItemStack(Items.COD), true, 0.99F, true)
+                        .is(ModItems.RAW_ATLANTIC_COD),
+                "replacement enabled Cod fishing must select Atlantic Cod");
+        helper.assertTrue(FishingCatchPolicy.selectFishingItem(new ItemStack(Items.SALMON), true, 0.99F, false)
+                        .is(ModItems.RAW_ATLANTIC_SALMON),
+                "replacement enabled Salmon fishing must select Atlantic Salmon");
+        helper.assertTrue(FishingCatchPolicy.selectFishingItem(new ItemStack(Items.COD), false, 0.99F, false)
+                        .is(Items.COD),
+                "replacement disabled fishing must retain vanilla fish outside the Atlantic selection");
+        helper.assertTrue(FishingCatchPolicy.selectFishingItem(new ItemStack(Items.COD), false, 0.0F, false)
+                        .is(ModItems.RAW_ATLANTIC_COD),
+                "one Atlantic selection must replace the vanilla fish instead of adding a second fish");
+        helper.assertTrue(FishingCatchPolicy.selectFishingItem(new ItemStack(Items.TROPICAL_FISH), false, 0.0F, false)
+                        .is(Items.TROPICAL_FISH),
+                "Atlantic selection must preserve Tropical Fish species");
+        helper.assertTrue(FishingCatchPolicy.onlySupportedFishingFish(List.of(
+                        new ItemStack(Items.COD), new ItemStack(Items.SALMON))) == null,
+                "mixed drops must never be converted into a duplicate fishing catch");
     }
 
     @GameTest(template = "empty", batch = "bfs_debug_cod_movement", timeoutTicks = 120)
@@ -933,14 +1266,16 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_curiosity_water_exit", timeoutTicks = 160)
+    @GameTest(template = "empty", batch = "bfs_curiosity_water_exit", timeoutTicks = 260)
     public static void tigerCuriosityClearsWhenItemLeavesWater(GameTestHelper helper) {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
         freezeCuriosityItem(item);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
-        runWhenTigerCurious(helper, shark, item, 80, () -> {
+        // The scan has a bounded empty-result cooldown and path discovery can begin after the
+        // fixture's first tick. Allow one full retry window before testing the water exit.
+        runWhenTigerCurious(helper, shark, item, 180, () -> {
             item.setPos(item.getX(), item.getY() + 10.0D, item.getZ());
             helper.runAfterDelay(2, () -> {
                 helper.assertTrue(!item.isInWater(), "leaving water fixture must invalidate the item");
@@ -1055,35 +1390,38 @@ public final class BfsGameTests {
         prepareWaterVolume(helper);
         clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
-        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
-        helper.getLevel().getEntitiesOfClass(LivingEntity.class, shark.getBoundingBox().inflate(64.0D),
-                entity -> entity != shark && entity.isInWater() && !(entity instanceof Player))
-                .forEach(LivingEntity::discard);
         freezeCuriosityItem(item);
-        helper.runAfterDelay(1, () -> {
-            helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.CURIOUS,
-                    "target preemption fixture must begin while the shark is curious, state="
-                            + shark.getSharkState() + ", item=" + item.position()
-                            + ", navDone=" + shark.getNavigation().isDone());
-            Mob prey = helper.spawn(EntityType.DROWNED, new BlockPos(8, 3, 5));
-            prey.setNoAi(true);
-            shark.setTarget(prey);
-            helper.runAfterDelay(5, () -> {
-                helper.assertTrue(shark.getTarget() == prey,
-                        "combat target must remain authoritative during curiosity preemption");
-                helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
-                        "combat target must clear curiosity state");
-                helper.assertTrue(item.isAlive() && item.getItem().getCount() == 1,
-                        "curiosity preemption must not consume the item");
-                prey.kill();
-                item.discard();
-                helper.runAfterDelay(10, () -> {
-                    helper.assertTrue(shark.getTarget() == null,
-                            "target loss must clear the combat target, target=" + shark.getTarget()
-                                    + ", state=" + shark.getSharkState());
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(item.isInWater(), "The edible item must tick in water before the shark can scan it.");
+            TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
+            helper.getLevel().getEntitiesOfClass(LivingEntity.class, shark.getBoundingBox().inflate(64.0D),
+                    entity -> entity != shark && entity.isInWater() && !(entity instanceof Player))
+                    .forEach(LivingEntity::discard);
+            runWhenTigerCurious(helper, shark, item, 80, () -> {
+                helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.CURIOUS,
+                        "target preemption fixture must begin while the shark is curious, state="
+                                + shark.getSharkState() + ", item=" + item.position()
+                                + ", navDone=" + shark.getNavigation().isDone());
+                Mob prey = helper.spawn(EntityType.DROWNED, new BlockPos(8, 3, 5));
+                prey.setNoAi(true);
+                shark.setTarget(prey);
+                helper.runAfterDelay(5, () -> {
+                    helper.assertTrue(shark.getTarget() == prey,
+                            "combat target must remain authoritative during curiosity preemption");
                     helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
-                            "item loss must leave curiosity idle");
-                    helper.succeed();
+                            "combat target must clear curiosity state");
+                    helper.assertTrue(item.isAlive() && item.getItem().getCount() == 1,
+                            "curiosity preemption must not consume the item");
+                    prey.kill();
+                    item.discard();
+                    helper.runAfterDelay(10, () -> {
+                        helper.assertTrue(shark.getTarget() == null,
+                                "target loss must clear the combat target, target=" + shark.getTarget()
+                                        + ", state=" + shark.getSharkState());
+                        helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
+                                "item loss must leave curiosity idle");
+                        helper.succeed();
+                    });
                 });
             });
         });
@@ -1272,7 +1610,7 @@ public final class BfsGameTests {
                 helper.assertTrue(shark.getGrabTimer() == 0 && !player.isPassenger()
                                 && shark.getPassengers().isEmpty(),
                         "target invalidation must release the oceanic grab");
-                helper.succeed();
+                finishAfterRemovingTestPlayer(helper, player);
             });
         });
     }
@@ -1294,7 +1632,7 @@ public final class BfsGameTests {
                 helper.assertTrue(shark.getGrabTimer() == 0 && !player.isPassenger()
                                 && shark.getPassengers().isEmpty(),
                         "leaving water must release the oceanic grab");
-                helper.succeed();
+                finishAfterRemovingTestPlayer(helper, player);
             });
         });
     }
@@ -1316,7 +1654,7 @@ public final class BfsGameTests {
                 helper.assertTrue(shark.getGrabTimer() == 0 && !player.isPassenger()
                                 && shark.getPassengers().isEmpty(),
                         "player death must release the oceanic grab");
-                helper.succeed();
+                finishAfterRemovingTestPlayer(helper, player);
             });
         });
     }
@@ -1337,7 +1675,7 @@ public final class BfsGameTests {
             helper.runAfterDelay(2, () -> {
                 helper.assertTrue(!player.isPassenger(),
                         "shark removal must release the passenger");
-                helper.succeed();
+                finishAfterRemovingTestPlayer(helper, player);
             });
         });
     }
@@ -1378,7 +1716,7 @@ public final class BfsGameTests {
                                     "oceanic whitetip grab timer must expire");
                             helper.assertTrue(!prey.isPassenger() && shark.getPassengers().isEmpty(),
                                     "oceanic whitetip must release its passenger when the grab expires");
-                            helper.succeed();
+                            finishAfterRemovingTestPlayer(helper, prey);
                         });
                     });
                 });
@@ -1425,7 +1763,7 @@ public final class BfsGameTests {
                                 "blacktip latch timer must expire");
                         helper.assertTrue(!player.isPassenger() && shark.getPassengers().isEmpty(),
                                 "blacktip latch must release its passenger when the timer expires");
-                        helper.succeed();
+                        finishAfterRemovingTestPlayer(helper, player);
                     });
                 });
                 return;
@@ -1466,6 +1804,14 @@ public final class BfsGameTests {
                 return false;
             }
         };
+    }
+
+    private static void finishAfterRemovingTestPlayer(GameTestHelper helper, Player player) {
+        if (!player.isRemoved()) {
+            player.stopRiding();
+            player.remove(Entity.RemovalReason.DISCARDED);
+        }
+        helper.runAfterDelay(1, helper::succeed);
     }
 
     @GameTest(template = "empty", batch = "bfs_spawn_controls", timeoutTicks = 40)
@@ -1535,54 +1881,52 @@ public final class BfsGameTests {
             helper.assertTrue(!pufferfishEvent.isSpawnCancelled(),
                     "Pufferfish natural spawn must remain unchanged");
 
-            for (MobSpawnType reason : List.of(MobSpawnType.COMMAND, MobSpawnType.BUCKET,
-                    MobSpawnType.SPAWNER, MobSpawnType.STRUCTURE)) {
-                Cod unchanged = EntityType.COD.create(helper.getLevel());
-                helper.assertTrue(unchanged != null, "vanilla Cod fixture must construct for " + reason);
-                unchanged.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D,
-                        absolute.getZ() + 5.5D, 0.0F, 0.0F);
-                MobSpawnEvent.FinalizeSpawn unchangedEvent = newFinalizeSpawn(helper, unchanged,
-                        absolute.offset(0, 0, 5), reason, null);
-                manager.onFinalizeSpawn(unchangedEvent);
-                helper.assertTrue(!unchangedEvent.isSpawnCancelled(),
-                        "vanilla Cod " + reason + " path must remain unchanged");
+            List<MobSpawnType> joinSources = List.of(MobSpawnType.SPAWN_EGG, MobSpawnType.COMMAND,
+                    MobSpawnType.BUCKET, MobSpawnType.DISPENSER, MobSpawnType.SPAWNER, MobSpawnType.STRUCTURE);
+            BlockPos bucketPosition = helper.absolutePos(joinSourcePosition(2));
+            for (int index = 0; index < joinSources.size(); index++) {
+                MobSpawnType reason = joinSources.get(index);
+                boolean salmonSource = index % 2 == 1;
+                EntityType<? extends Mob> sourceType = salmonSource ? EntityType.SALMON : EntityType.COD;
+                EntityType<?> replacementType = salmonSource
+                        ? ModEntityTypes.ATLANTIC_SALMON
+                        : ModEntityTypes.ATLANTIC_COD;
+                BlockPos sourcePosition = helper.absolutePos(joinSourcePosition(index));
+                String sourceName = "join source " + reason;
+                spawnVanillaFishForJoinSource(helper, sourceType, sourcePosition, reason, sourceName);
+
+                if (reason == MobSpawnType.BUCKET) {
+                    continue;
+                }
+                List<Mob> joinedFish = helper.getLevel().getEntitiesOfClass(Mob.class,
+                        new AABB(sourcePosition).inflate(0.25D));
+                helper.assertTrue(joinedFish.size() == 1 && joinedFish.get(0).getType() == replacementType,
+                        "new vanilla fish from " + reason + " must become exactly one matching Atlantic fish, actual="
+                                + joinedFish.stream().map(mob -> String.valueOf(mob.getType())).toList());
+                helper.assertTrue(joinedFish.get(0).hasCustomName()
+                                && sourceName.equals(joinedFish.get(0).getCustomName().getString()),
+                        "new vanilla fish from " + reason + " must preserve its safe custom name");
             }
 
             Cod existing = EntityType.COD.create(helper.getLevel());
             helper.assertTrue(existing != null, "existing vanilla Cod fixture must construct");
             existing.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 6.5D,
                     0.0F, 0.0F);
-            setSpawnTypeForTest(existing, MobSpawnType.NATURAL);
-            EntityJoinLevelEvent existingEvent = new EntityJoinLevelEvent(existing, helper.getLevel());
-            manager.onEntityJoin(existingEvent);
-            helper.assertTrue(!existingEvent.isCanceled(),
-                    "existing loaded vanilla Cod must remain unchanged");
+            helper.getLevel().addFreshEntity(existing);
+            helper.assertTrue(helper.getLevel().getEntitiesOfClass(Cod.class,
+                            new AABB(absolute.offset(0, 0, 6)).inflate(1.0D)).contains(existing),
+                    "existing loaded vanilla Cod must remain unchanged by the real entity join path");
 
             AtlanticCodEntity bfsEgg = ModEntityTypes.ATLANTIC_COD.create(helper.getLevel());
             helper.assertTrue(bfsEgg != null, "BFS Cod spawn egg fixture must construct");
             bfsEgg.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 7.5D,
                     0.0F, 0.0F);
-            setSpawnTypeForTest(bfsEgg, MobSpawnType.SPAWN_EGG);
-            EntityJoinLevelEvent bfsEggEvent = new EntityJoinLevelEvent(bfsEgg, helper.getLevel());
-            manager.onEntityJoin(bfsEggEvent);
-            helper.assertTrue(!bfsEggEvent.isCanceled(),
-                    "BFS Cod spawn egg must remain unchanged");
-
-            Cod eggSource = EntityType.COD.create(helper.getLevel());
-            helper.assertTrue(eggSource != null, "vanilla Cod egg fixture must construct");
-            eggSource.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D, absolute.getZ() + 3.5D,
-                    0.0F, 0.0F);
-            eggSource.setCustomName(Component.literal("egg source cod"));
-            setSpawnTypeForTest(eggSource, MobSpawnType.SPAWN_EGG);
-            EntityJoinLevelEvent eggEvent = new EntityJoinLevelEvent(eggSource, helper.getLevel());
-            manager.onEntityJoin(eggEvent);
-            helper.assertTrue(eggEvent.isCanceled(),
-                    "vanilla Cod spawn egg must convert through the join path");
+            bfsEgg.finalizeSpawn(helper.getLevel(), helper.getLevel().getCurrentDifficultyAt(absolute),
+                    MobSpawnType.SPAWN_EGG, null, null);
+            helper.getLevel().addFreshEntity(bfsEgg);
             helper.assertTrue(helper.getLevel().getEntitiesOfClass(AtlanticCodEntity.class,
-                    new AABB(absolute).inflate(5.0D)).stream()
-                            .anyMatch(entity -> entity.hasCustomName()
-                                    && "egg source cod".equals(entity.getCustomName().getString())),
-                    "spawn egg replacement must preserve custom name");
+                            new AABB(absolute.offset(0, 0, 7)).inflate(1.0D)).contains(bfsEgg),
+                    "BFS Cod spawn egg must remain unchanged by the real entity join path");
 
             BfsConfig.COMMON.replaceVanillaMobs.set(false);
             Salmon unchanged = EntityType.SALMON.create(helper.getLevel());
@@ -1602,16 +1946,409 @@ public final class BfsGameTests {
             helper.assertTrue(disabledEggSource != null, "replacement disabled egg fixture must construct");
             disabledEggSource.moveTo(absolute.getX() + 0.5D, absolute.getY() + 0.5D,
                     absolute.getZ() + 8.5D, 0.0F, 0.0F);
-            setSpawnTypeForTest(disabledEggSource, MobSpawnType.SPAWN_EGG);
-            EntityJoinLevelEvent disabledEggEvent = new EntityJoinLevelEvent(disabledEggSource, helper.getLevel());
-            manager.onEntityJoin(disabledEggEvent);
-            helper.assertTrue(!disabledEggEvent.isCanceled(),
-                    "replacement disabled must preserve vanilla Cod spawn eggs");
-            helper.succeed();
+            disabledEggSource.finalizeSpawn(helper.getLevel(), helper.getLevel().getCurrentDifficultyAt(
+                    absolute.offset(0, 0, 8)), MobSpawnType.SPAWN_EGG, null, null);
+            helper.getLevel().addFreshEntity(disabledEggSource);
+            helper.assertTrue(helper.getLevel().getEntitiesOfClass(Cod.class,
+                            new AABB(absolute.offset(0, 0, 8)).inflate(1.0D)).contains(disabledEggSource),
+                    "replacement disabled must preserve vanilla Cod spawn eggs through the real entity join path");
+            helper.runAfterDelay(2, () -> {
+                List<Mob> bucketReplacement = helper.getLevel().getEntitiesOfClass(Mob.class,
+                        new AABB(bucketPosition).inflate(0.25D));
+                helper.assertTrue(bucketReplacement.size() == 1
+                                && bucketReplacement.get(0).getType() == ModEntityTypes.ATLANTIC_COD,
+                        "real bucket release must become exactly one Atlantic Cod after vanilla applies bucket state");
+                Mob bucketFish = bucketReplacement.get(0);
+                helper.assertTrue(bucketFish.hasCustomName()
+                                && "join source BUCKET".equals(bucketFish.getCustomName().getString())
+                                && bucketFish.isNoAi()
+                                && bucketFish.isSilent()
+                                && bucketFish.isNoGravity()
+                                && bucketFish.isCurrentlyGlowing()
+                                && bucketFish.isInvulnerable()
+                                && bucketFish.getHealth() == 1.0F,
+                        "real bucket release must preserve compatible bucket state on its replacement");
+                helper.succeed();
+            });
         } finally {
             BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
             BfsConfig.COMMON.disableVanillaAquaticSpawns.set(previousSuppression);
         }
+    }
+
+    private static void spawnVanillaFishForJoinSource(GameTestHelper helper, EntityType<? extends Mob> sourceType,
+                                                       BlockPos position, MobSpawnType reason, String sourceName) {
+        if (reason == MobSpawnType.SPAWN_EGG) {
+            ItemStack spawnEgg = new ItemStack(sourceType == EntityType.SALMON
+                    ? Items.SALMON_SPAWN_EGG : Items.COD_SPAWN_EGG);
+            spawnEgg.setHoverName(Component.literal(sourceName));
+            helper.assertTrue(spawnEgg.getItem() instanceof SpawnEggItem,
+                    "vanilla fish spawn egg fixture must use the production SpawnEggItem path");
+            Player eggUser = makeSurvivalTestPlayer(helper);
+            eggUser.setItemInHand(InteractionHand.MAIN_HAND, spawnEgg);
+            InteractionResult result = ((SpawnEggItem) spawnEgg.getItem()).useOn(new UseOnContext(
+                    eggUser,
+                    InteractionHand.MAIN_HAND,
+                    new net.minecraft.world.phys.BlockHitResult(position.getCenter(), Direction.UP, position, false)
+            ));
+            helper.assertTrue(result.consumesAction(),
+                    "vanilla fish spawn egg fixture must use the production item-use path");
+            return;
+        }
+
+        if (reason == MobSpawnType.COMMAND) {
+            String entityId = sourceType == EntityType.SALMON ? "minecraft:salmon" : "minecraft:cod";
+            String command = "summon " + entityId + " " + position.getX() + " " + position.getY() + " "
+                    + position.getZ() + " {CustomName:'{\"text\":\"" + sourceName + "\"}'}";
+            int result = helper.getLevel().getServer().getCommands().performPrefixedCommand(
+                    helper.getLevel().getServer().createCommandSourceStack()
+                            .withLevel(helper.getLevel())
+                            .withPermission(4),
+                    command);
+            helper.assertTrue(result > 0,
+                    "vanilla fish command fixture must dispatch the production summon command");
+            return;
+        }
+
+        if (reason == MobSpawnType.BUCKET) {
+            ItemStack bucket = new ItemStack(sourceType == EntityType.SALMON
+                    ? Items.SALMON_BUCKET : Items.COD_BUCKET);
+            bucket.setHoverName(Component.literal(sourceName));
+            bucket.getOrCreateTag().putBoolean("NoAI", true);
+            bucket.getOrCreateTag().putBoolean("Silent", true);
+            bucket.getOrCreateTag().putBoolean("NoGravity", true);
+            bucket.getOrCreateTag().putBoolean("Glowing", true);
+            bucket.getOrCreateTag().putBoolean("Invulnerable", true);
+            bucket.getOrCreateTag().putFloat("Health", 1.0F);
+            helper.assertTrue(bucket.getItem() instanceof MobBucketItem,
+                    "vanilla fish bucket fixture must use the production MobBucketItem path");
+            ((MobBucketItem) bucket.getItem()).checkExtraContent(null, helper.getLevel(), bucket, position);
+            return;
+        }
+
+        Mob sourceFish = sourceType.spawn(helper.getLevel(), (net.minecraft.nbt.CompoundTag) null,
+                fish -> fish.setCustomName(Component.literal(sourceName)), position, reason, true, false);
+        helper.assertTrue(sourceFish != null,
+                "vanilla fish fixture must construct through the production spawn path for " + reason);
+    }
+
+    private static BlockPos joinSourcePosition(int index) {
+        return new BlockPos(2 + index % 3 * 3, 3, 7 + index / 3 * 2);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_spawn_controls", timeoutTicks = 120)
+    public static void vanillaFishReplacementUsesActualCreationSources(GameTestHelper helper) {
+        prepareActualSourceWaterVolume(helper);
+        boolean previousReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
+        boolean previousSuppression = BfsConfig.COMMON.disableVanillaAquaticSpawns.get();
+        BfsConfig.COMMON.replaceVanillaMobs.set(true);
+        BfsConfig.COMMON.disableVanillaAquaticSpawns.set(false);
+        ServerPlayer spawnerPlayer = makeSpawnerTestPlayer(helper);
+        try {
+            for (int fishIndex = 0; fishIndex < 2; fishIndex++) {
+                EntityType<? extends Mob> sourceType = sourceFishType(fishIndex);
+                EntityType<? extends Mob> replacementType = replacementFishType(fishIndex);
+                BlockPos naturalPosition = helper.absolutePos(actualSourcePosition(0, fishIndex));
+                BlockPos chunkPosition = helper.absolutePos(actualSourcePosition(1, fishIndex));
+                spawnVanillaFishForWorldGeneration(helper, sourceType, naturalPosition, MobSpawnType.NATURAL);
+                assertSingleReplacement(helper, naturalPosition, replacementType, "natural spawn");
+                spawnVanillaFishForWorldGeneration(helper, sourceType, chunkPosition, MobSpawnType.CHUNK_GENERATION);
+                assertSingleReplacement(helper, chunkPosition, replacementType, "chunk generation");
+            }
+
+            for (int fishIndex = 0; fishIndex < 2; fishIndex++) {
+                EntityType<? extends Mob> sourceType = sourceFishType(fishIndex);
+                EntityType<? extends Mob> replacementType = replacementFishType(fishIndex);
+
+                BlockPos spawnEggPosition = helper.absolutePos(actualSourcePosition(2, fishIndex));
+                String spawnEggName = "actual spawn egg " + sourceFishName(fishIndex);
+                spawnVanillaFishForJoinSource(helper, sourceType, spawnEggPosition, MobSpawnType.SPAWN_EGG,
+                        spawnEggName);
+                assertSingleReplacement(helper, spawnEggPosition, replacementType, spawnEggName);
+
+                BlockPos commandPosition = helper.absolutePos(actualSourcePosition(3, fishIndex));
+                String commandName = "actual summon " + sourceFishName(fishIndex);
+                spawnVanillaFishForJoinSource(helper, sourceType, commandPosition, MobSpawnType.COMMAND,
+                        commandName);
+                assertSingleReplacement(helper, commandPosition, replacementType, commandName);
+
+                String spawnerName = "actual spawner " + sourceFishName(fishIndex);
+                BlockPos spawnerPosition = spawnVanillaFishWithSpawner(helper, sourceType, spawnerPlayer,
+                        fishIndex, spawnerName);
+                assertSingleReplacement(helper, spawnerPosition, replacementType, spawnerName);
+
+                BlockPos structurePosition = helper.absolutePos(actualSourcePosition(7, fishIndex));
+                String structureName = "actual structure " + sourceFishName(fishIndex);
+                spawnVanillaFishWithStructure(helper, sourceType, structurePosition, structureName);
+                assertSingleReplacement(helper, structurePosition, replacementType, structureName);
+
+                BlockPos savedPosition = helper.absolutePos(actualSourcePosition(8, fishIndex));
+                String savedName = "actual saved " + sourceFishName(fishIndex);
+                loadSavedVanillaFish(helper, sourceType, savedPosition, savedName);
+                List<Mob> loadedFish = helper.getLevel().getEntitiesOfClass(Mob.class,
+                        new AABB(savedPosition).inflate(0.25D));
+                helper.assertTrue(loadedFish.size() == 1 && loadedFish.get(0).getType() == sourceType,
+                        "saved vanilla " + sourceFishName(fishIndex) + " must remain unchanged, actual="
+                                + loadedFish.stream().map(mob -> String.valueOf(mob.getType())).toList());
+                helper.assertTrue(loadedFish.get(0).hasCustomName()
+                                && savedName.equals(loadedFish.get(0).getCustomName().getString()),
+                        "saved vanilla " + sourceFishName(fishIndex) + " must preserve its saved name");
+
+                BlockPos bucketPosition = helper.absolutePos(actualSourcePosition(4, fishIndex));
+                String bucketName = "actual player bucket " + sourceFishName(fishIndex);
+                releaseVanillaFishFromPlayerBucket(helper, sourceType, bucketPosition, bucketName);
+
+                BlockPos dispenserPosition = helper.absolutePos(actualSourcePosition(5, fishIndex));
+                String dispenserName = "actual dispenser bucket " + sourceFishName(fishIndex);
+                releaseVanillaFishFromDispenser(helper, sourceType, dispenserPosition, dispenserName);
+            }
+            helper.runAfterDelay(4, () -> {
+                try {
+                    for (int fishIndex = 0; fishIndex < 2; fishIndex++) {
+                        EntityType<? extends Mob> replacementType = replacementFishType(fishIndex);
+                        BlockPos bucketPosition = helper.absolutePos(actualSourcePosition(4, fishIndex));
+                        String bucketName = "actual player bucket " + sourceFishName(fishIndex);
+                        assertStatefulBucketReplacement(helper, bucketPosition, replacementType, bucketName);
+
+                        BlockPos dispenserPosition = helper.absolutePos(actualSourcePosition(5, fishIndex));
+                        String dispenserName = "actual dispenser bucket " + sourceFishName(fishIndex);
+                        assertStatefulBucketReplacement(helper, dispenserPosition, replacementType, dispenserName);
+                    }
+                } finally {
+                    try {
+                        BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
+                        BfsConfig.COMMON.disableVanillaAquaticSpawns.set(previousSuppression);
+                    } finally {
+                        helper.getLevel().removePlayerImmediately(spawnerPlayer, Entity.RemovalReason.DISCARDED);
+                    }
+                }
+                helper.succeed();
+            });
+        } catch (RuntimeException exception) {
+            try {
+                BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
+                BfsConfig.COMMON.disableVanillaAquaticSpawns.set(previousSuppression);
+            } finally {
+                helper.getLevel().removePlayerImmediately(spawnerPlayer, Entity.RemovalReason.DISCARDED);
+            }
+            throw exception;
+        }
+    }
+
+    @GameTest(template = "empty", batch = "bfs_spawn_controls", timeoutTicks = 120)
+    public static void naturalVanillaFishReplacementHonorsPopulationCap(GameTestHelper helper) {
+        prepareActualSourceWaterVolume(helper);
+        boolean previousReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
+        BfsConfig.COMMON.replaceVanillaMobs.set(true);
+        MobCapManager.setRuntimeCap(ModEntityTypes.ATLANTIC_COD, 1);
+        try {
+            for (int attempt = 0; attempt < 6; attempt++) {
+                BlockPos position = helper.absolutePos(new BlockPos(2 + attempt * 2, 3, 2));
+                EntityType.COD.spawn(helper.getLevel(), (CompoundTag) null, fish -> fish.setNoAi(true), position,
+                        MobSpawnType.NATURAL, true, false);
+            }
+            List<AtlanticCodEntity> atlanticCod = helper.getLevel().getEntitiesOfClass(AtlanticCodEntity.class,
+                    new AABB(helper.absolutePos(new BlockPos(7, 3, 2))).inflate(8.0D));
+            List<Cod> vanillaCod = helper.getLevel().getEntitiesOfClass(Cod.class,
+                    new AABB(helper.absolutePos(new BlockPos(7, 3, 2))).inflate(8.0D),
+                    cod -> cod.getType() == EntityType.COD);
+            helper.assertTrue(atlanticCod.size() == 1,
+                    "natural vanilla Cod replacement must honor the configured Atlantic Cod population cap");
+            helper.assertTrue(vanillaCod.isEmpty(),
+                    "a rejected natural vanilla Cod replacement must not leak a vanilla Cod");
+            helper.succeed();
+        } finally {
+            MobCapManager.resetRuntimeCap(ModEntityTypes.ATLANTIC_COD);
+            BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
+        }
+    }
+
+    private static EntityType<? extends Mob> sourceFishType(int fishIndex) {
+        return fishIndex == 0 ? EntityType.COD : EntityType.SALMON;
+    }
+
+    private static EntityType<? extends Mob> replacementFishType(int fishIndex) {
+        return fishIndex == 0 ? ModEntityTypes.ATLANTIC_COD : ModEntityTypes.ATLANTIC_SALMON;
+    }
+
+    private static String sourceFishName(int fishIndex) {
+        return fishIndex == 0 ? "cod" : "salmon";
+    }
+
+    private static BlockPos actualSourcePosition(int sourceIndex, int fishIndex) {
+        return new BlockPos(2 + (sourceIndex % 3 + fishIndex * 3) * 2, 3,
+                2 + sourceIndex / 3 * 3);
+    }
+
+    private static void spawnVanillaFishForWorldGeneration(GameTestHelper helper, EntityType<? extends Mob> sourceType,
+                                                            BlockPos position, MobSpawnType reason) {
+        Mob sourceFish = sourceType.spawn(helper.getLevel(), (CompoundTag) null,
+                fish -> fish.setNoAi(true), position, reason, true, false);
+        helper.assertTrue(sourceFish != null,
+                "vanilla fish fixture must construct through the production " + reason + " path");
+    }
+
+    private static void assertSingleReplacement(GameTestHelper helper, BlockPos position,
+                                                EntityType<? extends Mob> replacementType, String sourceName) {
+        List<Mob> replacement = helper.getLevel().getEntitiesOfClass(Mob.class,
+                new AABB(position).inflate(0.25D));
+        helper.assertTrue(replacement.size() == 1 && replacement.get(0).getType() == replacementType,
+                sourceName + " must produce exactly one matching Atlantic fish, actual="
+                        + replacement.stream().map(mob -> String.valueOf(mob.getType())).toList());
+        if (!sourceName.startsWith("natural") && !sourceName.startsWith("chunk")) {
+            helper.assertTrue(replacement.get(0).hasCustomName()
+                            && sourceName.equals(replacement.get(0).getCustomName().getString()),
+                    sourceName + " must preserve its safe custom name");
+        }
+    }
+
+    private static void releaseVanillaFishFromPlayerBucket(GameTestHelper helper, EntityType<? extends Mob> sourceType,
+                                                           BlockPos position, String sourceName) {
+        ItemStack bucket = statefulVanillaFishBucket(sourceType, sourceName);
+        ((MobBucketItem) bucket.getItem()).checkExtraContent(null, helper.getLevel(), bucket, position);
+    }
+
+    private static void releaseVanillaFishFromDispenser(GameTestHelper helper, EntityType<? extends Mob> sourceType,
+                                                        BlockPos position, String sourceName) {
+        BlockPos dispenserPosition = position.relative(Direction.WEST);
+        var dispenserState = Blocks.DISPENSER.defaultBlockState().setValue(DispenserBlock.FACING, Direction.EAST);
+        helper.getLevel().setBlock(dispenserPosition, dispenserState, 3);
+        helper.getLevel().setBlock(dispenserPosition.relative(Direction.WEST), Blocks.REDSTONE_BLOCK.defaultBlockState(), 3);
+        helper.assertTrue(helper.getLevel().getBlockEntity(dispenserPosition) instanceof DispenserBlockEntity,
+                "actual dispenser bucket fixture must create a dispenser block entity");
+        DispenserBlockEntity dispenser = (DispenserBlockEntity) helper.getLevel().getBlockEntity(dispenserPosition);
+        dispenser.setItem(0, statefulVanillaFishBucket(sourceType, sourceName));
+        ((DispenserBlock) dispenserState.getBlock()).tick(dispenserState, helper.getLevel(), dispenserPosition,
+                helper.getLevel().getRandom());
+    }
+
+    private static ItemStack statefulVanillaFishBucket(EntityType<? extends Mob> sourceType, String sourceName) {
+        ItemStack bucket = new ItemStack(sourceType == EntityType.SALMON ? Items.SALMON_BUCKET : Items.COD_BUCKET);
+        bucket.setHoverName(Component.literal(sourceName));
+        CompoundTag tag = bucket.getOrCreateTag();
+        tag.putBoolean("NoAI", true);
+        tag.putBoolean("Silent", true);
+        tag.putBoolean("NoGravity", true);
+        tag.putBoolean("Glowing", true);
+        tag.putBoolean("Invulnerable", true);
+        tag.putFloat("Health", 1.0F);
+        return bucket;
+    }
+
+    private static void assertStatefulBucketReplacement(GameTestHelper helper, BlockPos position,
+                                                        EntityType<? extends Mob> replacementType, String sourceName) {
+        List<Mob> replacement = helper.getLevel().getEntitiesOfClass(Mob.class,
+                new AABB(position).inflate(0.5D));
+        helper.assertTrue(replacement.size() == 1 && replacement.get(0).getType() == replacementType,
+                sourceName + " must become exactly one matching Atlantic fish, actual="
+                        + replacement.stream().map(mob -> String.valueOf(mob.getType())).toList());
+        Mob fish = replacement.get(0);
+        helper.assertTrue(fish.hasCustomName()
+                        && sourceName.equals(fish.getCustomName().getString())
+                        && fish.isNoAi()
+                        && fish.isSilent()
+                        && fish.isNoGravity()
+                        && fish.isCurrentlyGlowing()
+                        && fish.isInvulnerable()
+                        && fish.getHealth() == 1.0F,
+                sourceName + " must preserve compatible bucket state on its replacement");
+    }
+
+    private static BlockPos spawnVanillaFishWithSpawner(GameTestHelper helper, EntityType<? extends Mob> sourceType,
+                                                        ServerPlayer nearbyPlayer, int fishIndex, String sourceName) {
+        BlockPos playerPosition = nearbyPlayer.blockPosition();
+        BlockPos position = new BlockPos(playerPosition.getX() + 4 + fishIndex * 4,
+                helper.getLevel().getSeaLevel() - 2, playerPosition.getZ());
+        prepareSpawnerWaterFixture(helper, position);
+        BlockPos spawnerPosition = position.below(2);
+        helper.getLevel().setBlock(spawnerPosition, Blocks.SPAWNER.defaultBlockState(), 3);
+        helper.assertTrue(helper.getLevel().getBlockEntity(spawnerPosition) instanceof SpawnerBlockEntity,
+                "actual spawner fixture must create a spawner block entity");
+        SpawnerBlockEntity spawner = (SpawnerBlockEntity) helper.getLevel().getBlockEntity(spawnerPosition);
+        spawner.setEntityId(sourceType, helper.getLevel().getRandom());
+        CompoundTag settings = spawner.getSpawner().save(new CompoundTag());
+        settings.putShort("Delay", (short) 0);
+        settings.putShort("MinSpawnDelay", (short) 200);
+        settings.putShort("MaxSpawnDelay", (short) 200);
+        settings.putShort("SpawnCount", (short) 1);
+        settings.putShort("MaxNearbyEntities", (short) 8);
+        settings.putShort("RequiredPlayerRange", (short) 16);
+        settings.putShort("SpawnRange", (short) 0);
+        CompoundTag spawnData = settings.getCompound("SpawnData");
+        CompoundTag entityData = spawnData.getCompound("entity");
+        entityData.putString("id", sourceType == EntityType.SALMON ? "minecraft:salmon" : "minecraft:cod");
+        entityData.putString("CustomName", Component.Serializer.toJson(Component.literal(sourceName)));
+        entityData.putBoolean("NoAI", true);
+        ListTag positionTag = new ListTag();
+        positionTag.add(DoubleTag.valueOf(position.getX() + 0.5D));
+        positionTag.add(DoubleTag.valueOf(position.getY() + 0.5D));
+        positionTag.add(DoubleTag.valueOf(position.getZ() + 0.5D));
+        entityData.put("Pos", positionTag);
+        spawnData.put("entity", entityData);
+        settings.put("SpawnData", spawnData);
+        spawner.getSpawner().load(helper.getLevel(), spawnerPosition, settings);
+
+        helper.assertTrue(helper.getLevel().hasNearbyAlivePlayer(position.getX() + 0.5D,
+                        position.getY() + 0.5D, position.getZ() + 0.5D, 16.0D),
+                "actual spawner fixture must have a nearby player");
+        spawner.getSpawner().serverTick(helper.getLevel(), spawnerPosition);
+        return position;
+    }
+
+    private static ServerPlayer makeSpawnerTestPlayer(GameTestHelper helper) {
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+                new GameProfile(java.util.UUID.randomUUID(), "spawner-fixture-player"));
+        player.connection = new ServerGamePacketListenerImpl(helper.getLevel().getServer(),
+                new Connection(PacketFlow.SERVERBOUND), player);
+        player.setPos(0.5D, helper.getLevel().getSeaLevel() - 1.0D, 0.5D);
+        helper.getLevel().addNewPlayer(player);
+        return player;
+    }
+
+    private static void prepareSpawnerWaterFixture(GameTestHelper helper, BlockPos position) {
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                for (int y = -2; y <= 1; y++) {
+                    helper.getLevel().setBlock(position.offset(x, y, z), Blocks.WATER.defaultBlockState(), 3);
+                }
+            }
+        }
+    }
+
+    private static void spawnVanillaFishWithStructure(GameTestHelper helper, EntityType<? extends Mob> sourceType,
+                                                      BlockPos position, String sourceName) {
+        BlockPos capturePosition = position.above();
+        Mob sourceFish = sourceType.create(helper.getLevel());
+        helper.assertTrue(sourceFish != null, "actual structure fixture must construct a vanilla fish source");
+        sourceFish.moveTo(capturePosition.getX() + 0.5D, capturePosition.getY() + 0.5D,
+                capturePosition.getZ() + 0.5D);
+        sourceFish.setCustomName(Component.literal(sourceName));
+        sourceFish.setNoAi(true);
+        helper.getLevel().addFreshEntity(sourceFish);
+
+        StructureTemplate template = new StructureTemplate();
+        template.fillFromWorld(helper.getLevel(), capturePosition, new net.minecraft.core.Vec3i(1, 1, 1),
+                true, Blocks.AIR);
+        sourceFish.discard();
+        boolean placed = template.placeInWorld(helper.getLevel(), position, position,
+                new StructurePlaceSettings().setFinalizeEntities(true), helper.getLevel().getRandom(), 2);
+        helper.assertTrue(placed, "actual structure fixture must place captured vanilla fish data");
+    }
+
+    private static void loadSavedVanillaFish(GameTestHelper helper, EntityType<? extends Mob> sourceType,
+                                             BlockPos position, String sourceName) {
+        Mob sourceFish = sourceType.create(helper.getLevel());
+        helper.assertTrue(sourceFish != null, "saved fish fixture must construct a vanilla fish source");
+        sourceFish.moveTo(position.getX() + 0.5D, position.getY() + 0.5D, position.getZ() + 0.5D);
+        sourceFish.setCustomName(Component.literal(sourceName));
+        sourceFish.setNoAi(true);
+        CompoundTag savedData = new CompoundTag();
+        sourceFish.saveWithoutId(savedData);
+        helper.assertTrue(savedData.contains("Pos"), "saved fish fixture must serialize vanilla fish data");
+        savedData.putString("id", sourceType == EntityType.SALMON ? "minecraft:salmon" : "minecraft:cod");
+        Entity loadedFish = EntityType.loadEntityRecursive(savedData, helper.getLevel(), entity -> entity);
+        helper.assertTrue(loadedFish instanceof Mob, "saved fish fixture must deserialize a vanilla fish");
+        helper.getLevel().addFreshEntity(loadedFish);
     }
 
     private static MobSpawnEvent.FinalizeSpawn newFinalizeSpawn(GameTestHelper helper, Mob mob,
@@ -1629,16 +2366,6 @@ public final class BfsGameTests {
                 spawnTag,
                 null
         );
-    }
-
-    private static void setSpawnTypeForTest(Mob mob, MobSpawnType spawnType) {
-        try {
-            java.lang.reflect.Field field = Mob.class.getDeclaredField("spawnType");
-            field.setAccessible(true);
-            field.set(mob, spawnType);
-        } catch (ReflectiveOperationException exception) {
-            throw new AssertionError("unable to set the bounded spawn reason fixture", exception);
-        }
     }
 
     @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
@@ -1920,6 +2647,18 @@ public final class BfsGameTests {
 
     private static void prepareWaterVolume(GameTestHelper helper) {
         for (int x = 1; x <= 10; x++) {
+            for (int z = 1; z <= 10; z++) {
+                helper.setBlock(new BlockPos(x, 0, z), Blocks.SAND.defaultBlockState());
+                for (int y = 1; y <= 5; y++) {
+                    helper.setBlock(new BlockPos(x, y, z), Blocks.WATER.defaultBlockState());
+                }
+            }
+        }
+    }
+
+    private static void prepareActualSourceWaterVolume(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        for (int x = 11; x <= 12; x++) {
             for (int z = 1; z <= 10; z++) {
                 helper.setBlock(new BlockPos(x, 0, z), Blocks.SAND.defaultBlockState());
                 for (int y = 1; y <= 5; y++) {

@@ -1,5 +1,7 @@
 # Phase 001 task 010 evidence
 
+The fishing results below predate DEC-014. The additive modifiers are superseded and those results do not prove the current exclusive live/item delivery contract. See the [current transaction regressions](../test/phase-001-fishing-transactions.md); the complete four-mode matrix remains required.
+
 ## Scope
 
 This record covers `P001-TASK-010` and `BFS-REQ-009` for Atlantic Cod and
