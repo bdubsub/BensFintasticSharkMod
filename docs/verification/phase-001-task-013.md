@@ -372,10 +372,11 @@ server excerpt and
 client excerpt.
 
 This closes the live Atlantic Salmon catch, matching advancement, and normal
-raw-drop row for the current candidate. The full fishing matrix still requires
-the remaining Cod and item-mode controls, replay and cancellation checks, and
-the final phase integration gates. The disposable server and client remain
-owned test resources until those consumers finish.
+raw-drop row for the current candidate. The remaining Cod and item-mode
+controls are recorded below. Replay, cancellation, rejected insertion, hook
+removal, and nested reentry are covered by the nine transaction GameTests in
+the current 63-test deterministic run. The final phase integration gates
+remain.
 
 ## Item-mode Cod fishing transaction
 
@@ -406,6 +407,5 @@ Sanitized copies of both logs are retained at
 This closes the interactive item-mode Cod delivery and matching advancement
 row. Together with the live Salmon transaction above, it covers the two
 delivery modes and both supported fish species on the exact candidate. The
-remaining Phase 001 gates are the bounded replay and cancellation checks,
-final documentation consistency, and sequential review, merge, default branch
-verification, and signed phase tag integration.
+remaining Phase 001 gates are final documentation consistency and sequential
+review, merge, default branch verification, and signed phase tag integration.
