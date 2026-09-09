@@ -26,6 +26,15 @@ The fishing listener runs at `LOWEST` priority and receives cancelled events so 
 
 This change does not tune swimming, replace authored animation, change fishing weights, or alter the reel impulse. The complete four-mode, creation-source, restart/progress, population, packaged multiplayer and client presentation gates remain separate.
 
+The delivery invariant is explicit in `FishingCatchDelivery`: the live `Mob`
+and the fallback `ItemEntity` both receive the same `reelImpulse` before they
+are inserted into the level. Its horizontal components point from the hook to
+the angler at one tenth of the separation, and its vertical component uses the
+same one tenth term plus the vanilla square-root distance lift. This gives a
+live catch the same initial short pull as an item catch. The impulse is bounded
+external displacement; after insertion the fish resumes its ordinary AI and
+the player must kill it for normal loot.
+
 ## Reproduction procedure
 
 Use Java 17, Minecraft 1.20.1, Forge 47.2.0, GeckoLib 4.4.7 and SmartBrainLib 1.14.2. The tests run on node-1 through the genuinely server-only GameTest entry point, with no client, renderer or display. Inspect the Gradle task graph before execution. Development GameTests are not packaged multiplayer verification.
