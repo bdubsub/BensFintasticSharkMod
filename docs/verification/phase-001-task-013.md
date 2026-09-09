@@ -286,3 +286,41 @@ The rebuilt candidate passed `unzip -tqq` with SHA-256
 `b15100caf674020193872a06772e045d127905299672d5643ac8e01b2681fe6e`.
 The fixture repairs address stale entities left by neighboring GameTests and
 do not weaken the production fishing or advancement assertions.
+
+## Current data, build, and packaged server binding
+
+On 2026-09-08, `./gradlew :forge:Data --no-daemon` completed successfully.
+The generated resource tree produced no new tracked content changes; only the
+pre-existing generated `.cache` edits remained outside the phase commit. The
+subsequent full GameTest run reported all `63` required tests passed. Its
+retained log is `/tmp/bfsm-p001-gametest-1788923400.log` with SHA-256
+`d1d73dadc184e1e2cd4a9921b1054af0355631e1f66b0f57d223db92ab9fddc2`.
+`./gradlew :forge:build --no-daemon` then completed successfully and produced
+the exact candidate
+`forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` with SHA-256
+`01da439051ec17ad8dbfff680f4f2716484ac9b5611882d1c2694c6e7688d21c` and
+SHA-512
+`31de02131b387f16f1c4f967654c6a2f8f5f2ecb5bc34f15d7aad27e49e3d721bd6cc8a978a1a2b82f777935c2d65676c14c44d1d2e7f64e676b4580960efd6d`.
+`unzip -tqq` passed.
+
+That exact candidate was copied without modification to the disposable
+production Forge runtime `/tmp/bfsm-p001-prod-1788923400` on node 1. The
+runtime used Java `17.0.19`, Forge `47.2.0`, GeckoLib `4.4.7` with SHA-256
+`6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0`, and
+SmartBrainLib `1.14.2` with SHA-256
+`3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b`.
+The exact runtime `eula.txt` read back `eula=true`, the server listened on
+port `25852`, and the dedicated server reached `Done (12.876s)!`. No client,
+renderer, display server, or virtual display was started.
+
+The generated common configuration read back the defaults
+`replace_vanilla_mobs=true`, `fish_entities=true`, and
+`disable_vanilla_aquatic_spawns=false`. The operator command
+`bfs debug on population 20` completed with two records, zero dropped
+records, and `incomplete=false`; its population sample recorded the same
+three effective values. The JSONL SHA-256 was
+`5419b9030d3e28611c6d3da2a6d09e5b13066b7d3cdb966abae5406c2ce5e580` and the
+server log SHA-256 was
+`9664ceebb48d5a3d44613b159416fcd9c355ed9283b6061a9ef9982c281189af`.
+The runtime was stopped cleanly and removed after the evidence hashes were
+recorded.
