@@ -335,3 +335,38 @@ manifest, generated output, or dependency file changed in that descendant
 range. The previously verified candidate therefore remains byte identical at
 SHA-256 `01da439051ec17ad8dbfff680f4f2716484ac9b5611882d1c2694c6e7688d21c`
 until the next implementation change.
+
+## Live Atlantic Salmon fishing transaction
+
+On 2026-09-08, EnVy used the exact packaged candidate above from the
+authorized laptop client against the running production Forge test server.
+The client process was PID `3269445`, used Java 17, and carried source
+revision `91f536b` and artifact SHA-256
+`01da439051ec17ad8dbfff680f4f2716484ac9b5611882d1c2694c6e7688d21c` in its
+launch metadata. The owned Minecraft window was the verified client in the
+Hyprland session and its playback stream remained muted.
+
+At `23:07:25.575` the server recorded
+`EnVyOnMyMind has made the advancement [Why aren't you red?]`. The matching
+laptop client recorded the same advancement at `23:07:25.584`. No advancement
+grant command was used. The server log SHA-256 at the end of the interaction
+was `fc866c49dd79685216f0df54e3baa00b8835d759cfd7a8c6a5bb7c385bea9c96` and
+the client log SHA-256 was
+`e637cc8b1f112cfaacf6c3a97acdfe2bcd0ea1dae67e2d027f650239c35dc9b0`.
+
+The server saved the player profile at `23:08:01.986` after the transaction.
+The playerdata file SHA-256 was
+`8d77b0de7a6cba031aac319337423be1026868ae140cdde012470ef7c3539afb`.
+A sanitized NBT read showed inventory slot `2` containing one
+`bensfintasticsharks:raw_atlantic_salmon`, alongside the test fishing rod and
+sword. This proves the live catch was later killed or otherwise completed its
+ordinary loot path and that the matching raw salmon reached the player
+inventory. The advancement is intentionally granted at live delivery before
+death, so its timestamp and the later saved inventory are recorded as separate
+events.
+
+This closes the live Atlantic Salmon catch, matching advancement, and normal
+raw-drop row for the current candidate. The full fishing matrix still requires
+the remaining Cod and item-mode controls, replay and cancellation checks, and
+the final phase integration gates. The disposable server and client remain
+owned test resources until those consumers finish.
