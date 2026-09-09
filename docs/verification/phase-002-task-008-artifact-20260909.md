@@ -2,14 +2,14 @@
 
 Date: September 9, 2026
 
-The exact Forge artifact built from the Phase 002 candidate passed
+The exact Forge artifact built from Phase 002 revision `ca7fc11` passed
 `unzip -tqq`.
 
 Artifact: `forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar`
 
-SHA 256: `66ac5b99de5359ca90b28e2b5aa59df066e83b0f9d7e40f42c184c23a835a37b`
+SHA 256: `0e025a8c0c3e6ee05f273e1526e77d02921692f136a1bb36efc9f6eeccadf283`
 
-SHA 512: `ab0deaf8f12f4ee0796471437cda5363fab7136f586384c24dce0b101405158509b82a3447b4212bd0bd45e1e7175c1c8141390eb8ff1cb03b7bc34e4b4d69fd`
+SHA 512: `06b77edad372d486d3aa3fc1c031cda9b31079a9c5a71ea277f359c0f0eade451f5b03be781f9f7493e37246aa05bedf1aa4a9fd3c38c1dff09b29786d16d984`
 
 The packaged archive contains exactly one entry for each required Phase 002
 animation and geometry resource. The extracted entry hashes match the source

@@ -2,7 +2,7 @@
 
 Date: September 9, 2026
 
-The Phase 002 source working tree at branch head `1a91baa3ced4cbe27674d129c98cc0cd93f147aa`, with the scoped target invalidation and walk target cleanup change recorded below, passed the complete Forge GameTest discovery on headless node 1. No client, renderer, display, or graphical runtime was started.
+The Phase 002 source revision `ca7fc11`, with the scoped target invalidation and walk target cleanup change recorded below, passed the complete Forge GameTest discovery on headless node 1. No client, renderer, display, or graphical runtime was started.
 
 Scoped change under verification: delayed bite victims and active or remembered targets are rejected when removed, dead, or from another level. Clearing such a target also clears the shark owned `WALK_TARGET` memory. The production change is covered by the existing target loss and recovery GameTests; a separate discard fixture was rejected as harness invalid because its out of scope shark was removed by the test runtime before the assertion.
 
