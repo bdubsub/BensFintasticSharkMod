@@ -324,3 +324,14 @@ server log SHA-256 was
 `9664ceebb48d5a3d44613b159416fcd9c355ed9283b6061a9ef9982c281189af`.
 The runtime was stopped cleanly and removed after the evidence hashes were
 recorded.
+
+## Documentation descendant binding
+
+The current Phase 001 head is `8e35e1b2a9fa97a0c73ad4cbf6bc6290453dc301`.
+Its only change after the packaged verification head
+`91f536bb6c3c4e685bae27a666a619bb664ad330` is the tracked fishing evidence
+document `docs/test/phase-001-fishing-transactions.md`. No source, resource,
+build, manifest, generated output, or dependency file changed between those
+heads. The previously verified candidate therefore remains byte identical at
+SHA-256 `01da439051ec17ad8dbfff680f4f2716484ac9b5611882d1c2694c6e7688d21c`
+until the next implementation change.
