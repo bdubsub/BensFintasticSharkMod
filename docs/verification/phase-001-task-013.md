@@ -370,3 +370,34 @@ raw-drop row for the current candidate. The full fishing matrix still requires
 the remaining Cod and item-mode controls, replay and cancellation checks, and
 the final phase integration gates. The disposable server and client remain
 owned test resources until those consumers finish.
+
+## Item-mode Cod fishing transaction
+
+On 2026-09-08, the same packaged candidate was tested in a second disposable
+production Forge runtime at `100.76.164.109:25855`. The runtime used Java
+`17.0.19`, Forge `47.2.0`, the matching GeckoLib and SmartBrainLib jars, and
+an exact `eula=true` file. Its generated common configuration was read back
+with `replace_vanilla_mobs=true`, `fish_entities=false`, and
+`disable_vanilla_aquatic_spawns=false`. The configuration file SHA-256 was
+`122c13c47537bbbeeffa11b9607ed683786c4e6a10acb48a443b5fca6aa51180`.
+
+EnVy connected with the authorized laptop client and completed a real cast,
+hook, reel, and Cod catch. At `23:17:53.682` the item-mode server recorded
+`EnVyOnMyMind has made the advancement [Oh My Cod]`; the laptop client
+received the matching chat event at `23:17:53.690`. No advancement grant
+command was used. After an explicit `save-all flush` at `23:19:01`, the saved
+playerdata SHA-256 was
+`3bbbd1e9d6f87836c6629914818aa46c46fcf288bf6e0d53dfcf227aaffc14f5`.
+A sanitized NBT read showed inventory slot `1` containing three
+`bensfintasticsharks:raw_atlantic_cod` items, with the test fishing rod in
+slot `0`. The item-mode server log SHA-256 was
+`5798a294b1279732da8632086192c283ec2a2ec78be7f3d3f80c4b2274dff05a`, and the
+laptop client log SHA-256 was
+`11c8badbb5e3b9fc3b99bd6e74a5028be97ff92153038a5f004fef5a41160c20`.
+
+This closes the interactive item-mode Cod delivery and matching advancement
+row. Together with the live Salmon transaction above, it covers the two
+delivery modes and both supported fish species on the exact candidate. The
+remaining Phase 001 gates are the bounded replay and cancellation checks,
+final documentation consistency, and sequential review, merge, default branch
+verification, and signed phase tag integration.
