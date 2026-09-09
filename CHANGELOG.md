@@ -2,6 +2,10 @@
 
 ## 0.24 (2026-09-02)
 
+### Phase 001 verification correction
+
+Atlantic Cod and Atlantic Salmon fishing modifiers now attach to the vanilla fishing root table used by real rod retrieval. The retained advancement and packaged server verification records are linked from the documentation index.
+
 ### Added
 
 - **Advancement artwork.** The seven supplied 16×16 icons are installed for their matching advancement entries.

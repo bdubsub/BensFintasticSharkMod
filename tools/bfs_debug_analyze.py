@@ -158,6 +158,8 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
     # capture ticks and contiguous record sequences.
     metrics = movement_metrics(movement_history, errors, strict_tick_continuity=header.get("side") == "server")
     checks = apply_manifest_checks(header, metrics, manifest, errors)
+    if "fishing" in manifest:
+        metrics["fishing"] = validate_fishing(records, manifest["fishing"], errors)
     verdict = "invalid" if errors else "incomplete" if warnings else "complete"
     coverage = {
         "movementEntityCount": len(movement_history),
@@ -166,6 +168,137 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
         "hasTerminalRecord": len(end_records) == 1,
     }
     return result(verdict, errors, warnings, metrics, records, manifest, dict(events), checks, coverage)
+
+
+def validate_fishing(records: list[dict[str, Any]], contract: Any, errors: list[str]) -> dict[str, Any]:
+    """Check correlated delivery and post reel observations without inventing missing evidence."""
+    if not isinstance(contract, dict):
+        errors.append("fishing manifest must be an object")
+        return {}
+    attempts: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    outcomes: defaultdict[str, int] = defaultdict(int)
+    for row in records:
+        if row.get("event") != "fishing":
+            continue
+        attempt = row.get("attemptId")
+        if not isinstance(attempt, str) or not attempt:
+            errors.append("fishing record has no attemptId")
+            continue
+        attempts[attempt].append(row)
+    minimum = contract.get("minimumAttempts", 1)
+    if type(minimum) is not int or minimum < 1:
+        errors.append("fishing minimumAttempts must be a positive integer")
+    elif len(attempts) < minimum:
+        errors.append(f"fishing observed {len(attempts)} attempts, requires {minimum}")
+    failure_outcomes = {"attempt_already_reserved", "previously_cancelled", "invalid_hook_or_owner",
+                        "missing_entity_mapping", "entity_creation_failed", "insertion_rejected",
+                        "hook_invalidated_after_insertion"}
+    for attempt, rows in attempts.items():
+        prefix = f"fishing {attempt}"
+        deliveries = [row for row in rows if row.get("stage") == "delivery"]
+        settlements = [row for row in rows if row.get("stage") == "settled"]
+        if not deliveries:
+            errors.append(f"{prefix} has no delivery observation")
+        committed = 0
+        for row in deliveries:
+            outcome = row.get("outcome")
+            if not isinstance(outcome, str):
+                errors.append(f"{prefix} has no outcome")
+                continue
+            outcomes[outcome] += 1
+            if not isinstance(row.get("angler"), str) or not row["angler"].startswith("player_"):
+                errors.append(f"{prefix} has no pseudonymous angler")
+            if row.get("dropListTruncated") is not False or row.get("rodEnchantmentsTruncated") is not False:
+                errors.append(f"{prefix} contains missing or truncated item evidence")
+            for field in ("replaceVanillaMobs", "fishEntities", "cancelledBefore", "cancelledAfter"):
+                if type(row.get(field)) is not bool:
+                    errors.append(f"{prefix} has no boolean {field}")
+            for field in ("deliveryCount", "selectedCount", "fishStatisticDelta", "xpRequested", "xpAccepted"):
+                if type(row.get(field)) is not int or row[field] < 0:
+                    errors.append(f"{prefix} has no nonnegative integer {field}")
+            if outcome == "unmodified_loot_passthrough":
+                if row.get("deliveryCount") != 0 or row.get("xpAccepted") != 0:
+                    errors.append(f"{prefix} added a BFS reward to passthrough loot")
+                continue
+            before, after = row.get("advancementsBefore"), row.get("advancementsAfter")
+            if not isinstance(before, dict) or not isinstance(after, dict) or any(
+                    type(progress.get(key)) is not bool for progress in (before, after)
+                    for key in ("oh_my_cod", "why_arent_you_red")):
+                errors.append(f"{prefix} is missing catch advancement progress")
+                before, after = {}, {}
+            if outcome == "committed":
+                committed += 1
+                if row.get("deliveryCount") != 1 or row.get("selectedCount") != 1:
+                    errors.append(f"{prefix} did not commit exactly one fish")
+                if row.get("insertionAccepted") is not True or row.get("fishStatisticDelta") != 1:
+                    errors.append(f"{prefix} lacks accepted insertion or one catch statistic")
+                if row.get("cancelledBefore") is not False:
+                    errors.append(f"{prefix} committed a previously cancelled catch")
+                xp = row.get("xpAccepted")
+                if type(xp) is not int or not 1 <= xp <= 6 or xp != row.get("xpRequested"):
+                    errors.append(f"{prefix} lacks its accepted XP reward")
+                expected_kind = "live" if row.get("fishEntities") is True else "item"
+                if row.get("deliveryKind") != expected_kind:
+                    errors.append(f"{prefix} has the wrong delivery mode")
+                expected_type = row.get("selectedSpecies") if expected_kind == "live" else "minecraft:item"
+                if not isinstance(expected_type, str) or expected_type.startswith("unavailable:") \
+                        or row.get("deliveryType") != expected_type:
+                    errors.append(f"{prefix} has the wrong delivered entity type")
+                selected = row.get("selectedItem")
+                species = {
+                    "minecraft:cod": "minecraft:cod", "minecraft:salmon": "minecraft:salmon",
+                    "minecraft:tropical_fish": "minecraft:tropical_fish", "minecraft:pufferfish": "minecraft:pufferfish",
+                    "bensfintasticsharks:raw_atlantic_cod": "bensfintasticsharks:atlantic_cod",
+                    "bensfintasticsharks:raw_atlantic_salmon": "bensfintasticsharks:atlantic_salmon",
+                }
+                if selected not in species or row.get("selectedSpecies") != species.get(selected):
+                    errors.append(f"{prefix} has an inconsistent selected species")
+                if row.get("replaceVanillaMobs") is True and selected in {"minecraft:cod", "minecraft:salmon"}:
+                    errors.append(f"{prefix} leaked a replaced vanilla fish")
+                for item, key in (("bensfintasticsharks:raw_atlantic_cod", "oh_my_cod"),
+                                  ("bensfintasticsharks:raw_atlantic_salmon", "why_arent_you_red")):
+                    if selected == item and after.get(key) is not True:
+                        errors.append(f"{prefix} did not grant its matching advancement")
+                    elif selected != item and after.get(key) != before.get(key):
+                        errors.append(f"{prefix} changed an unrelated catch advancement")
+                impulse = row.get("reelImpulse")
+                if not isinstance(impulse, dict) or any(type(impulse.get(axis)) not in (int, float)
+                        or not math.isfinite(impulse[axis]) for axis in ("x", "y", "z")):
+                    errors.append(f"{prefix} has no finite reel impulse")
+            elif outcome in failure_outcomes:
+                if row.get("deliveryCount") != 0 or row.get("fishStatisticDelta") != 0 \
+                        or row.get("xpAccepted") != 0 or before != after:
+                    errors.append(f"{prefix} awarded success for a failed attempt")
+            else:
+                errors.append(f"{prefix} has an unverified outcome {outcome}")
+        if committed > 1:
+            errors.append(f"{prefix} committed more than once")
+        if len(settlements) != 1:
+            errors.append(f"{prefix} requires exactly one post-reel settlement")
+        else:
+            settled = settlements[0]
+            if settled.get("ambiguousSettlement") is not False:
+                errors.append(f"{prefix} has ambiguous same-tick rod settlement")
+            if settled.get("hookRemoved") is not True or settled.get("hookStillOwned") is not False:
+                errors.append(f"{prefix} did not clear its hook")
+            for field in ("rodDamageBefore", "rodDamageAfter", "rodCountAfter"):
+                if type(settled.get(field)) is not int or settled[field] < 0:
+                    errors.append(f"{prefix} lacks observed {field}")
+            expected_damage = contract.get("expectedRodDamageDelta")
+            if expected_damage is not None:
+                if type(expected_damage) is not int or expected_damage < 0:
+                    errors.append("fishing expectedRodDamageDelta must be a nonnegative integer")
+                elif type(settled.get("rodDamageBefore")) is int and type(settled.get("rodDamageAfter")) is int \
+                        and settled["rodDamageAfter"] - settled["rodDamageBefore"] != expected_damage:
+                    errors.append(f"{prefix} has the wrong observed rod damage")
+    required = contract.get("requiredOutcomes", [])
+    if not isinstance(required, list) or any(not isinstance(value, str) for value in required):
+        errors.append("fishing requiredOutcomes must be a string list")
+    else:
+        for outcome in required:
+            if not outcomes[outcome]:
+                errors.append(f"fishing did not observe required outcome {outcome}")
+    return {"attemptCount": len(attempts), "outcomes": dict(outcomes)}
 
 
 def validate_candidate_binding(header: dict[str, Any], manifest: dict[str, Any], scenario: str | None,
@@ -414,6 +547,10 @@ def write_result(output: Path, analysis: dict[str, Any], scenario: str, requirem
         f"Dropped records: {coverage.get('droppedRecords', 'unavailable')}",
         f"Terminal record: {coverage.get('hasTerminalRecord', False)}",
     ]
+    fishing = analysis["metrics"].get("fishing")
+    if fishing is not None:
+        coverage_lines.append(f"Fishing attempts: {fishing['attemptCount']}")
+        coverage_lines.extend(f"Fishing {outcome}: {count}" for outcome, count in sorted(fishing["outcomes"].items()))
     extrema_lines = []
     for entity_id, metrics in sorted(analysis["metrics"].get("entities", {}).items()):
         extrema_lines.append(

@@ -204,7 +204,12 @@ class ReleaseContractAuditTest {
         }
         assertTrue(forgeSource.indexOf("DEATH") < forgeSource.indexOf("THRASH"));
         assertTrue(forgeSource.contains("if (this.onGround() && !this.isInWaterOrBubble())"));
-        assertTrue(forgeSource.contains("if (!this.getPassengers().isEmpty())"));
+        assertTrue(forgeSource.contains(".triggerableAnim(\"bite\", BITE)"));
+        assertTrue(forgeSource.contains(".triggerableAnim(\"death\", DEATH)"));
+        assertTrue(forgeSource.contains("if (!this.isDeadOrDying() && this.isInWaterOrBubble()"));
+        assertTrue(forgeSource.contains("&& this.getGrabTimer() > 0 && !this.getPassengers().isEmpty()"));
+        assertTrue(forgeSource.indexOf("if (this.isDeadOrDying())")
+                < forgeSource.indexOf("if (this.getSharkState() == SharkState.HOSTILE)"));
     }
 
     @Test
@@ -215,25 +220,205 @@ class ReleaseContractAuditTest {
                 "common/src/main/java/tfar/bensfintasticsharks/entity/AtlanticSalmonEntity.java"));
         String salmonForge = Files.readString(ROOT.resolve(
                 "forge/src/main/java/tfar/bensfintasticsharks/entity/AtlanticSalmonEntityForge.java"));
+        String platform = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/platform/ForgePlatformHelper.java"));
+        String spawnPlacements = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/spawn/BfsSpawnPlacements.java"));
         assertTrue(cod.contains("extends Cod"));
         assertTrue(salmon.contains("extends Salmon"));
         assertTrue(salmon.contains("\"Spin\".equals(getCustomName().getString())"));
         assertTrue(salmonForge.contains("if (isNamedSpin())"));
         assertTrue(salmonForge.contains("animation.atlantic_salmon.spin"));
+        assertTrue(platform.contains(".sized(0.5f, 0.3f)"));
+        assertTrue(platform.contains(".sized(0.7f, 0.4f)"));
+        assertEquals(2, countOccurrences(platform, ".clientTrackingRange(4)"));
+        assertTrue(spawnPlacements.contains("registerFish(event, ModEntityTypes.ATLANTIC_COD)"));
+        assertTrue(spawnPlacements.contains("registerFish(event, ModEntityTypes.ATLANTIC_SALMON)"));
+        assertTrue(spawnPlacements.contains("Heightmap.Types.MOTION_BLOCKING_NO_LEAVES"));
 
         Path resources = GENERATED.resolve("data/bensfintasticsharks");
         for (String fish : List.of("atlantic_cod", "atlantic_salmon")) {
             assertTrue(Files.exists(resources.resolve("loot_tables/entities/" + fish + ".json")), fish);
             assertTrue(Files.exists(resources.resolve("recipes/cooked_" + fish + "_from_smelting.json")), fish);
             assertTrue(Files.exists(resources.resolve("recipes/cooked_" + fish + "_from_smoking.json")), fish);
-            assertTrue(Files.exists(resources.resolve("loot_modifiers/add_" + fish + "_fishing.json")), fish);
         }
+        assertTrue(Files.exists(resources.resolve("loot_modifiers/replace_fishing_fish.json")));
+        assertFalse(Files.exists(resources.resolve("loot_modifiers/add_atlantic_cod_fishing.json")));
+        assertFalse(Files.exists(resources.resolve("loot_modifiers/add_atlantic_salmon_fishing.json")));
         String speciesInfo = Files.readString(ROOT.resolve(
                 "forge/src/main/java/tfar/bensfintasticsharks/command/BfsSpeciesInfo.java"));
         assertTrue(speciesInfo.contains("atlantic_cod\", species(\"Gadus morhua\""));
         assertTrue(speciesInfo.contains("atlantic_salmon\", species(\"Salmo salar\""));
         assertFalse(speciesInfo.contains("atlantic_cod\", species(\"Gadus morhua\", \"Passive schooling fish\",\n                    \"TBD\""));
         assertFalse(speciesInfo.contains("atlantic_salmon\", species(\"Salmo salar\", \"Passive schooling fish\",\n                    \"TBD\""));
+    }
+
+    @Test
+    void vanillaFishReplacementContractIsExplicit() throws IOException {
+        String config = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/config/BfsConfig.java"));
+        String manager = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/spawn/MobCapManager.java"));
+        String policy = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/spawn/VanillaFishReplacementPolicy.java"));
+        String categories = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/init/ModMobCategories.java"));
+        String platform = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/platform/ForgePlatformHelper.java"));
+
+        assertTrue(config.contains(".worldRestart()\n                    .define(\"replace_vanilla_mobs\", true)"));
+        assertTrue(config.contains(".worldRestart()\n                    .define(\"fish_entities\", true)"));
+        assertTrue(config.contains(".worldRestart()\n                    .define(\"disable_vanilla_aquatic_spawns\", false)"));
+        assertTrue(policy.contains("if (!\"minecraft\".equals(namespace)) {\n            return null;\n        }"));
+        assertTrue(policy.contains("case \"cod\" -> Replacement.ATLANTIC_COD"));
+        assertTrue(policy.contains("case \"salmon\" -> Replacement.ATLANTIC_SALMON"));
+        assertTrue(policy.contains("case SPAWN_EGG, COMMAND, BUCKET, DISPENSER, SPAWNER, STRUCTURE -> true"));
+        assertTrue(manager.contains("MobSpawnType.NATURAL"));
+        assertTrue(manager.contains("MobSpawnType.CHUNK_GENERATION"));
+        assertTrue(manager.contains("replacesEntityJoinSource(reason)"));
+        assertTrue(manager.contains("REPLACING_VANILLA_FISH.get()"));
+        assertTrue(manager.contains("copySafeSpawnState(original, replacement, event.getSpawnTag())"));
+        assertTrue(manager.contains("data.remove(\"Passengers\")"));
+        assertTrue(manager.contains("data.remove(\"Leash\")"));
+        assertTrue(manager.indexOf("replaceNaturalFish(event)")
+                < manager.indexOf("disableVanillaAquaticSpawns.get()"));
+        assertTrue(manager.contains("REPLACEMENT_CATEGORY_ERROR_REPORTED.compareAndSet(false, true)"));
+        assertTrue(manager.contains("event.setSpawnCancelled(true)"));
+        assertTrue(categories.contains("BFS_WATER_AMBIENT"));
+        assertTrue(platform.contains("MobCategory.WATER_AMBIENT"));
+        assertTrue(platform.contains("registerAtlanticCod"));
+        assertTrue(platform.contains("registerAtlanticSalmon"));
+
+        Path modifierDir = GENERATED.resolve("data/bensfintasticsharks/forge/biome_modifier");
+        assertTrue(Files.exists(modifierDir.resolve("atlantic_cod_spawns.json")));
+        assertTrue(Files.exists(modifierDir.resolve("atlantic_salmon_spawns.json")));
+    }
+
+    @Test
+    void fishItemRecipeLootAndCreativeContractsAreComplete() throws IOException {
+        String items = Files.readString(ROOT.resolve(
+                "common/src/main/java/tfar/bensfintasticsharks/init/ModItems.java"));
+        String models = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/ModItemModelProvider.java"));
+        String creative = Files.readString(ROOT.resolve(
+                "common/src/main/java/tfar/bensfintasticsharks/init/ModCreativeTabs.java"));
+        String entityLoot = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/loot/ModEntityLoot.java"));
+        String fishingLoot = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/ModGlobalLootModifierProvider.java"));
+        String fishingPolicy = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/fishing/FishingCatchPolicy.java"));
+        String recipes = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/ModRecipeProvider.java"));
+
+        Path itemTextures = SOURCE_ASSETS.resolve("textures/item");
+        for (String item : List.of("atlantic_cod_spawn_egg", "atlantic_salmon_spawn_egg",
+                "raw_atlantic_cod", "cooked_atlantic_cod", "raw_atlantic_salmon", "cooked_atlantic_salmon")) {
+            assertTexture(itemTextures.resolve(item + ".png"), 16, 16);
+            assertTrue(Files.exists(GENERATED.resolve("assets/bensfintasticsharks/models/item/" + item + ".json")), item);
+            String field = switch (item) {
+                case "atlantic_cod_spawn_egg" -> "ATLANTIC_COD_SPAWN_EGG";
+                case "atlantic_salmon_spawn_egg" -> "ATLANTIC_SALMON_SPAWN_EGG";
+                case "raw_atlantic_cod" -> "RAW_ATLANTIC_COD";
+                case "cooked_atlantic_cod" -> "COOKED_ATLANTIC_COD";
+                case "raw_atlantic_salmon" -> "RAW_ATLANTIC_SALMON";
+                case "cooked_atlantic_salmon" -> "COOKED_ATLANTIC_SALMON";
+                default -> throw new IllegalStateException(item);
+            };
+            assertTrue(models.contains("ModItems." + field), item);
+        }
+        for (String item : List.of("ATLANTIC_COD_SPAWN_EGG", "ATLANTIC_SALMON_SPAWN_EGG",
+                "RAW_ATLANTIC_COD", "COOKED_ATLANTIC_COD", "RAW_ATLANTIC_SALMON", "COOKED_ATLANTIC_SALMON")) {
+            assertTrue(items.contains("public static final Item " + item), item);
+        }
+        assertTrue(creative.contains("!(item instanceof HiddenItem)"));
+        assertTrue(entityLoot.contains("SmeltItemFunction.smelted().when(onFire())"));
+        assertTrue(entityLoot.contains("ModItems.RAW_ATLANTIC_COD"));
+        assertTrue(entityLoot.contains("ModItems.RAW_ATLANTIC_SALMON"));
+        assertTrue(fishingLoot.contains("replace_fishing_fish"));
+        assertFalse(fishingLoot.contains("add_atlantic_cod_fishing"));
+        assertFalse(fishingLoot.contains("add_atlantic_salmon_fishing"));
+        assertTrue(fishingPolicy.contains("ATLANTIC_SELECTION_SHARE = 0.25F"));
+        assertTrue(fishingPolicy.contains("drops.size() != 1"));
+        assertTrue(recipes.contains("ModItems.RAW_ATLANTIC_COD"));
+        assertTrue(recipes.contains("ModItems.COOKED_ATLANTIC_COD"));
+        assertTrue(recipes.contains("ModItems.RAW_ATLANTIC_SALMON"));
+        assertTrue(recipes.contains("ModItems.COOKED_ATLANTIC_SALMON"));
+        assertTrue(recipes.contains("SimpleCookingRecipeBuilder.smelting"));
+        assertTrue(recipes.contains("SimpleCookingRecipeBuilder.smoking"));
+
+        JsonObject fishingModifier = readJson(GENERATED.resolve(
+                "data/bensfintasticsharks/loot_modifiers/replace_fishing_fish.json"));
+        assertEquals("bensfintasticsharks:replace_fishing_fish", fishingModifier.get("type").getAsString());
+
+        for (String fish : List.of("atlantic_cod", "atlantic_salmon")) {
+            String entityLootJson = Files.readString(GENERATED.resolve(
+                    "data/bensfintasticsharks/loot_tables/entities/" + fish + ".json"));
+            assertTrue(entityLootJson.contains("raw_" + fish), fish);
+            assertTrue(entityLootJson.contains("minecraft:furnace_smelt"), fish);
+            for (String station : List.of("smelting", "smoking")) {
+                JsonObject recipe = readJson(GENERATED.resolve(
+                        "data/bensfintasticsharks/recipes/cooked_" + fish + "_from_" + station + ".json"));
+                assertEquals("bensfintasticsharks:raw_" + fish,
+                        recipe.getAsJsonObject("ingredient").get("item").getAsString(), fish);
+                assertEquals("bensfintasticsharks:cooked_" + fish, recipe.get("result").getAsString(), fish);
+                assertTrue(recipe.get("cookingtime").getAsInt() > 0, fish);
+            }
+        }
+    }
+
+    private static int countOccurrences(String text, String needle) {
+        int count = 0;
+        int offset = 0;
+        while ((offset = text.indexOf(needle, offset)) >= 0) {
+            count++;
+            offset += needle.length();
+        }
+        return count;
+    }
+
+    @Test
+    void showcaseCardsAndOceanicHabitatBindToAuthoritativeSources() throws IOException {
+        String speciesInfo = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/command/BfsSpeciesInfo.java"));
+        String commands = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/command/BfsCommands.java"));
+        String biomeProvider = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/tags/ModBiomeTagsProvider.java"));
+
+        List<String> retainedTbd = List.of(
+                "orca", "bottlenose_dolphin", "common_octopus", "caribbean_reef_octopus", "nautilus",
+                "giant_moray_eel", "green_sea_turtle", "american_lobster", "common_stingray", "harbor_seal",
+                "black_sea_nettle_jellyfish", "cannonball_jellyfish");
+        for (String id : retainedTbd) {
+            assertTrue(speciesInfo.contains("Map.entry(\"" + id + "\", species("), id);
+        }
+        assertEquals(12, retainedTbd.size());
+        assertTrue(speciesInfo.contains("\"TBD\""));
+        assertFalse(speciesInfo.contains("VANILLA_REPLACEMENT_HABITATS"));
+        assertTrue(speciesInfo.contains("getMobSettings().getMobs"));
+        assertTrue(speciesInfo.contains("EntityType.COD"));
+        assertTrue(speciesInfo.contains("EntityType.SALMON"));
+
+        assertTrue(commands.contains("\"Scientific name\""));
+        assertTrue(commands.contains("\"Habitats\""));
+        assertTrue(commands.contains("\"Behavior\""));
+        assertTrue(commands.contains("\"Diet\""));
+        assertTrue(commands.contains("\"Health\""));
+        assertTrue(commands.contains("\"Variants\""));
+        assertTrue(commands.contains("\"Registry ID\""));
+        assertTrue(commands.contains("\"Spawn category\""));
+        assertTrue(commands.contains("\"Natural spawning\""));
+        assertTrue(commands.contains("\"Natural cap\""));
+
+        assertTrue(biomeProvider.contains(
+                "tag(ModTags.Biomes.OCEANIC_WHITETIP_SHARK_SPAWNS).add(Biomes.DEEP_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN)"));
+        assertFalse(biomeProvider.contains("OCEANIC_WHITETIP_SHARK_SPAWNS).add(Biomes.DEEP_COLD_OCEAN"));
+
+        JsonObject oceanic = readJson(GENERATED.resolve(
+                "data/bensfintasticsharks/tags/worldgen/biome/oceanic_whitetip_shark_spawns.json"));
+        assertEquals(List.of("minecraft:deep_ocean", "minecraft:deep_lukewarm_ocean"),
+                stringValues(oceanic.getAsJsonArray("values")));
     }
 
     @Test
@@ -270,7 +455,7 @@ class ReleaseContractAuditTest {
         assertTrue(blacktip.contains("implements BfsVariantHolder, SharkGrabber"));
         String config = Files.readString(ROOT.resolve(
                 "forge/src/main/java/tfar/bensfintasticsharks/config/BfsConfig.java"));
-        assertEquals(2, config.split("\\.worldRestart\\(\\)", -1).length - 1);
+        assertEquals(3, config.split("\\.worldRestart\\(\\)", -1).length - 1);
     }
 
     @Test
@@ -307,6 +492,43 @@ class ReleaseContractAuditTest {
         ), stringValues(blocks.getAsJsonArray("values")));
         JsonObject biomes = readJson(GENERATED.resolve("data/bensfintasticsharks/tags/worldgen/biome/algae_spawns.json"));
         assertEquals(9, biomes.getAsJsonArray("values").size());
+    }
+
+    @Test
+    void prismarineArmorGeometryAndLivePoseBindingAreComplete() throws IOException {
+        JsonObject geometry = readJson(SOURCE_ASSETS.resolve("geo/item/armor/prismarine_armor.geo.json"));
+        Map<String, Integer> cubeCounts = new LinkedHashMap<>();
+        Set<String> bones = new HashSet<>();
+        for (JsonElement geometryEntry : geometry.getAsJsonArray("minecraft:geometry")) {
+            for (JsonElement boneElement : geometryEntry.getAsJsonObject().getAsJsonArray("bones")) {
+                JsonObject bone = boneElement.getAsJsonObject();
+                String name = bone.get("name").getAsString();
+                bones.add(name);
+                cubeCounts.put(name, bone.has("cubes") ? bone.getAsJsonArray("cubes").size() : 0);
+            }
+        }
+        assertTrue(bones.containsAll(Set.of("bipedHead", "armorHead", "bipedBody", "armorBody",
+                "bipedRightArm", "armorRightArm", "bipedLeftArm", "armorLeftArm", "bipedLeftLeg",
+                "armorLeftLeg", "armorLeftBoot", "bipedRightLeg", "armorRightLeg", "armorRightBoot")));
+        assertEquals(5, cubeCounts.get("armorHead"));
+        assertEquals(5, cubeCounts.get("armorBody"));
+        assertEquals(3, cubeCounts.get("armorRightArm"));
+        assertEquals(3, cubeCounts.get("armorLeftArm"));
+        assertEquals(2, cubeCounts.get("armorLeftLeg"));
+        assertEquals(2, cubeCounts.get("armorRightLeg"));
+        assertEquals(3, cubeCounts.get("armorLeftBoot"));
+        assertEquals(3, cubeCounts.get("armorRightBoot"));
+
+        String armorItem = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/item/PrismarineArmorItem.java"));
+        String armorModel = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/client/model/PrismarineArmorModel.java"));
+        String armorRenderer = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/client/renderer/PrismarineArmorRenderer.java"));
+        assertTrue(armorItem.contains("livingRenderer.getModel()"));
+        assertTrue(armorItem.contains("this.renderer.prepForRender(livingEntity, itemStack, equipmentSlot, poseSource)"));
+        assertTrue(armorModel.contains("armor/prismarine_armor"));
+        assertTrue(armorRenderer.contains("PrismarineArmorModel"));
     }
 
     private static void assertClipHasFivePointMotion(String fileName, String clipName) throws IOException {

@@ -94,7 +94,8 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
                 .triggerableAnim("death", DEATH));
 
         controllers.add(new AnimationController<>(this, "thrash_controller", 5, event -> {
-            if (!this.getPassengers().isEmpty()) {
+            if (!this.isDeadOrDying() && this.isInWaterOrBubble()
+                    && this.getGrabTimer() > 0 && !this.getPassengers().isEmpty()) {
                 return event.setAndContinue(THRASH);
             }
             return PlayState.STOP;
@@ -114,9 +115,7 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     @Override
     protected void onBiteLanded(LivingEntity target) {
         if (level().isClientSide || target.isDeadOrDying()) return;
-        if (getRandom().nextFloat() < 0.10f) {
-            grabMob(target);
-        }
+        grabMob(target);
     }
 
     @Override

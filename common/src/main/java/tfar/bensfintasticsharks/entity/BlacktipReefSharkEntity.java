@@ -149,7 +149,10 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
 
     @Override
     protected double biteRangeAgainst(net.minecraft.world.entity.LivingEntity target) {
-        return closeBiteRangeAgainst(target, 0.3);
+        // The small collision box stops against large prey before the jaw geometry reaches the
+        // prey center. Keep the contact rule bounded by the authored snout extension instead of
+        // requiring the whole body boxes to overlap.
+        return closeBiteRangeAgainst(target, 0.85);
     }
 
     protected void latchMob(LivingEntity target) {
@@ -179,8 +182,7 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
         boolean livingPassenger = getPassengers().stream()
                 .anyMatch(passenger -> passenger instanceof LivingEntity living && living.isAlive());
         if (next <= 0 || !isAlive() || !isInWaterOrBubble() || !livingPassenger) {
-            setGrabTimer(0);
-            ejectPassengers();
+            releaseGrab();
         } else {
             setGrabTimer(next);
         }
@@ -191,14 +193,24 @@ public class BlacktipReefSharkEntity extends AbstractSharkEntity<BlacktipReefSha
     }
 
     @Override
+    public void releaseGrabPassengers() {
+        setGrabTimer(0);
+        // SharkGrabber.releaseGrabPassengers performs ejectPassengers() and passenger packet sync.
+        SharkGrabber.super.releaseGrabPassengers();
+    }
+
+    private void releaseGrab() {
+        releaseGrabPassengers();
+    }
+
+    @Override
     public int getGrabTimer() {
         return entityData.get(DATA_LATCH_TIMER);
     }
 
     @Override
     public void remove(RemovalReason reason) {
-        setGrabTimer(0);
-        ejectPassengers();
+        releaseGrab();
         super.remove(reason);
     }
 

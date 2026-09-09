@@ -77,6 +77,7 @@ public class BfsConfig {
         public final ForgeConfigSpec.IntValue nearbyBlacktipSharkCap;
         public final ForgeConfigSpec.IntValue sharkSpacingRadius;
         public final ForgeConfigSpec.BooleanValue replaceVanillaMobs;
+        public final ForgeConfigSpec.BooleanValue fishEntities;
         public final ForgeConfigSpec.BooleanValue disableVanillaAquaticSpawns;
 
         // Per-species caps. Keyed by species path (lowercase, matches the entity registry
@@ -141,11 +142,18 @@ public class BfsConfig {
                             "size, but still do not naturally stack beside a different shark species.")
                     .defineInRange("nearby_blacktip_shark_cap", 3, 1, 16);
             replaceVanillaMobs = b.comment(
-                            "Replace natural vanilla Cod and Salmon with Atlantic Cod and Atlantic Salmon.",
-                            "The vanilla Cod and Salmon spawn eggs also create the matching Atlantic fish.",
+                            "Replace newly created vanilla Cod and Salmon with Atlantic Cod and Atlantic Salmon.",
+                            "This covers natural spawning, chunk generation, spawn eggs, commands, bucket releases,",
+                            "spawners, structures, and fishing. Existing saved fish are not converted.",
                             "When disabled, vanilla fish remain unchanged and Atlantic fish use their own biome spawns.")
                     .worldRestart()
                     .define("replace_vanilla_mobs", true);
+            fishEntities = b.comment(
+                            "Deliver supported fishing catches as live fish instead of immediate items.",
+                            "When disabled, supported fishing catches use their normal item delivery.",
+                            "Restart the game or dedicated server after changing this value.")
+                    .worldRestart()
+                    .define("fish_entities", true);
             disableVanillaAquaticSpawns = b.comment(
                             "Disable natural spawning for vanilla fish, dolphins, squid, axolotls, and turtles.",
                             "Restart the game or dedicated server after changing this value.")

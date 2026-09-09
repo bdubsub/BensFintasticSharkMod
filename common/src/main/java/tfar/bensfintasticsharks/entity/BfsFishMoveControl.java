@@ -36,7 +36,12 @@ public final class BfsFishMoveControl extends MoveControl {
     static void travel(AbstractFish fish, Vec3 movementInput) {
         fish.moveRelative(0.01F, new Vec3(movementInput.x, 0.0, movementInput.z));
         fish.move(MoverType.SELF, fish.getDeltaMovement());
-        fish.setDeltaMovement(fish.getDeltaMovement().scale(0.9));
+        Vec3 velocity = fish.getDeltaMovement().scale(0.9);
+        double verticalLimit = Math.abs(fish.getSpeed()) * AquaticMovement.VERTICAL_SPEED_RATIO;
+        if (Math.abs(velocity.y) > verticalLimit) {
+            velocity = new Vec3(velocity.x, Math.copySign(verticalLimit, velocity.y), velocity.z);
+        }
+        fish.setDeltaMovement(velocity);
     }
 
     @Override
@@ -61,6 +66,8 @@ public final class BfsFishMoveControl extends MoveControl {
             if (distance > 0.5) {
                 targetVerticalImpulse = AquaticMovement.affectedVerticalVelocity(
                         fish.getSpeed(), dx, routeDy, dz);
+                double arrivalDamping = Mth.clamp(Math.abs(routeDy), 0.0D, 1.0D);
+                targetVerticalImpulse *= arrivalDamping;
 
                 if (Math.abs(dx) > 1.0e-8 || Math.abs(dz) > 1.0e-8) {
                     float desiredYaw = (float) (Mth.atan2(dz, dx) * Mth.RAD_TO_DEG) - 90.0F;

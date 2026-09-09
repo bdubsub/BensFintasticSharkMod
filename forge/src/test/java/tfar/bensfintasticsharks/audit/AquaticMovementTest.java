@@ -1,5 +1,6 @@
 package tfar.bensfintasticsharks.audit;
 
+import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;
 import tfar.bensfintasticsharks.entity.AquaticMovement;
 
@@ -59,5 +60,38 @@ class AquaticMovementTest {
         assertEquals(0.4, limited, 0.00001);
         assertEquals(-0.4,
                 AquaticMovement.smoothAndLimitVerticalVelocity(-4.0, -0.4, 4.0), 0.00001);
+    }
+
+    @Test
+    void bodyAlignedInputDerivesVerticalThrustFromPitchOnly() {
+        Vec3 level = AquaticMovement.bodyAlignedInput(new Vec3(0.25, 0.8, 1.0), 0.0f);
+        assertEquals(0.25, level.x, 0.00001);
+        assertEquals(0.0, level.y, 0.00001);
+        assertEquals(1.0, level.z, 0.00001);
+
+        Vec3 upright = AquaticMovement.bodyAlignedInput(new Vec3(0.0, 0.0, 1.0), -90.0f);
+        assertEquals(0.0, upright.x, 0.00001);
+        assertEquals(1.0, upright.y, 0.00001);
+        assertEquals(0.0, upright.z, 0.00001);
+    }
+
+    @Test
+    void poweredVelocityCapsVerticalComponentWithoutChangingDirection() {
+        Vec3 forward = AquaticMovement.forwardVector(0.0f, -45.0f);
+        Vec3 limited = AquaticMovement.limitPoweredVelocity(forward.scale(2.0), forward, 0.5, 0.1);
+
+        assertEquals(0.1 / Math.abs(forward.y), limited.dot(forward), 0.00001);
+        assertEquals(forward.x / forward.z, limited.x / limited.z, 0.00001);
+        assertTrue(Math.abs(limited.y) <= 0.1 + 0.00001);
+    }
+
+    @Test
+    void unalignedVerticalSlipIsRemovedWhileLateralDriftRemains() {
+        Vec3 velocity = AquaticMovement.removeUnalignedVerticalSlip(
+                new Vec3(0.25, 0.4, 1.0), new Vec3(0.0, 0.0, 1.0));
+
+        assertEquals(0.25, velocity.x, 0.00001);
+        assertEquals(0.0, velocity.y, 0.00001);
+        assertEquals(1.0, velocity.z, 0.00001);
     }
 }

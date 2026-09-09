@@ -27,6 +27,43 @@ Server captures are written under the server game directory at `logs/bfs-debug/b
 
 The server header identifies the mod, Minecraft, Forge, Java, GeckoLib, and SmartBrainLib versions. It also records GeckoLib's registered `geckolib:main` protocol version, the source revision or an explicit unavailable reason, artifact and configuration bindings, host role, side, tick rate, and units. `dedicated_server`, `integrated_server`, and `gametest_server` are distinct host roles. A GameTest run is server side evidence, but its `gametest_server` label must not be presented as a dedicated server or laptop client acceptance result.
 
+## Fishing capture
+
+Use `all` or `advancement` for fishing investigations. Fishing events do not require a selected animal or a connected owner. Ordinary players still fish normally; the capture is enabled only by the existing trusted command source. No separate fishing command or permission is added.
+
+```text
+/bfs debug on advancement 1200
+/bfs debug status
+```
+
+Perform the failing cast and reel, allow at least one server tick for post-reel observation, then run `/bfs debug off`. For an actual player-input or appearance problem, use the matching packaged laptop client. For server delivery regressions, use the real rod GameTest fixture without asking a person to join.
+
+Each hook UUID is an `attemptId`. The `fishing` event has two stages. `delivery` records the actual fishing callback, and `settled` observes the rod and removed hook at server tick end after the callback returns. Reentry and replay have separate delivery observations with the same attempt ID and cannot masquerade as new committed catches.
+
+The allowlisted fields include effective replacement and entity-catch settings, source loot table and original item when the loot context is available, selected item/count/species, up to 16 observed item IDs/counts, mapping disposition, actual tool hand and enchantment IDs/levels, prior cancellation, insertion acceptance, delivery identity/kind, reel impulse in blocks per tick, requested and accepted XP, catch-statistic delta, and before/after Cod and Salmon advancement completion. Post-reel records include observed rod damage/count and hook cleanup. An advancement earned during the active delivery callback includes its catch attempt ID. Player identifiers are pseudonymous within the server capture; names and arbitrary item NBT are not included.
+
+An event-boundary test or third-party caller may lack the original loot context. Such fields explicitly report `unavailable:`. An unsupported item is left on the vanilla item path and recorded as `unmodified_loot_passthrough`; its underlying junk, treasure or custom pool is not inferable reliably from the final item alone and is reported unavailable. This is not proof of its later vanilla delivery. Do not use these observations to claim an unobserved pool identity or successful passthrough insertion.
+
+At most 32 hook settlements may be pending. Exceeding this bound stops the capture as incomplete without changing fishing. Several catches by one angler before settlement mark the rod observations ambiguous, because the eventual damage could include several uses. Stopping before settlement also marks the capture incomplete. Unbreaking, breakage and other tool behavior mean requested rod cost is not always equal to the measured durability change. Choose a fixture-specific expectation; never turn an unavailable or ambiguous value into zero.
+
+Add a fishing section to the existing candidate manifest to request strict fishing validation:
+
+```json
+{
+  "scenarioId": "phase-001-fishing-diagnostics",
+  "requirementId": "BFS-REQ-009",
+  "fishing": {
+    "minimumAttempts": 5,
+    "requiredOutcomes": ["committed", "previously_cancelled"],
+    "expectedRodDamageDelta": 1
+  }
+}
+```
+
+Bind artifact/configuration fields as required for the actual candidate. The rod-damage expectation above is for an unbroken fixture rod without Unbreaking; omit it when that is not the scenario. The analyzer rejects absent attempts or settlement, duplicate commits, wrong live/item delivery, replaced vanilla fish leakage, failed catches with rewards, incorrect matching advancements, missing or nonfinite impulse, ambiguous rod evidence, and required outcomes that never occurred. Retain the ordinary JSONL completeness checks and current-candidate bindings. A passing delivery trace does not establish mouse input, rendering, natural spawning or restart persistence.
+
+`BfsFishingDiagnosticGameTests` exercises real rod use with diagnostics off and on, four delivery modes, offhand tools and preceding cancellation. Its known Cod selection isolates observation and delivery from fishing randomness; the separate mode suite covers unmodified table selection. The capture is retained only until its bounded offline analysis and evidence collection finish, then cleaned with the owned runtime.
+
 ## Local client capture
 
 The local client command is separate from the server command:

@@ -11,8 +11,11 @@ import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.level.Level;
@@ -24,13 +27,16 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.AdvancementEvent;
+import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.fml.ModList;
 import tfar.bensfintasticsharks.BensFintasticSharks;
+import tfar.bensfintasticsharks.config.BfsConfig;
 import tfar.bensfintasticsharks.init.ModBlocks;
+import tfar.bensfintasticsharks.init.ModEntityTypes;
 
 import javax.annotation.Nullable;
 import java.io.BufferedWriter;
@@ -67,6 +73,7 @@ public final class BfsDebugManager {
     public static final int MIN_DURATION_TICKS = 20;
     public static final int MAX_DURATION_TICKS = 36_000;
     public static final int DEFAULT_DURATION_TICKS = 1_200;
+    public static final int POPULATION_SAMPLE_INTERVAL_TICKS = 1_200;
     public static final int MAX_TARGETS = 32;
     public static final int MAX_QUEUE_RECORDS = 8_192;
     public static final int MAX_RECORD_BYTES = 16 * 1024;
@@ -160,6 +167,9 @@ public final class BfsDebugManager {
                 eligible, excluded, startTick, startTick + durationTicks, wallDeadlineMillis, outputDirectory);
         session = created;
         enqueue(created, header(created));
+        if (created.category.capturesPopulation()) {
+            enqueue(created, populationRecord(created, level, startTick));
+        }
         BensFintasticSharks.LOG.info("BFS debug capture {} started. category={}, targets={}, output={}",
                 created.id, created.category.id, created.targetCount(), created.outputPath);
         return StartResult.success(created, requestedTargets.isEmpty());
@@ -177,6 +187,51 @@ public final class BfsDebugManager {
     public static Status status() {
         Session active = session;
         return active == null ? Status.inactive(lastStop) : Status.active(active);
+    }
+
+    @Nullable
+    public static FishingCatchTrace beginFishing(ItemFishedEvent event, ItemStack rod, String originalItem,
+                                                  String lootTable, boolean replace, boolean live) {
+        Session active = session;
+        if (active == null || !active.category.capturesAdvancement()
+                || !(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)
+                || player.server != active.server || !player.level().dimension().equals(active.dimension)) {
+            return null;
+        }
+        UUID hookId = event.getHookEntity().getUUID();
+        boolean pending = active.pendingFishing.containsKey(hookId);
+        if (!pending && active.pendingFishing.size() >= MAX_TARGETS) {
+            active.drop("pending fishing settlements reached the capture limit");
+            finish(active, "fishing_settlement_limit");
+            return null;
+        }
+        FishingCatchTrace trace = new FishingCatchTrace(active.id, playerPseudonym(active, player.getUUID()),
+                event, rod, originalItem, lootTable, replace, live);
+        if (!pending) {
+            for (FishingCatchTrace previous : active.pendingFishing.values()) {
+                if (previous.playerId().equals(player.getUUID())) {
+                    previous.markAmbiguousSettlement();
+                    trace.markAmbiguousSettlement();
+                }
+            }
+            active.pendingFishing.put(hookId, trace);
+        }
+        return trace;
+    }
+
+    static void recordFishing(UUID sessionId, long tick, JsonObject details) {
+        Session active = session;
+        if (active == null || !active.id.equals(sessionId)) {
+            return;
+        }
+        JsonObject record = baseRecord(active, "fishing", tick);
+        details.entrySet().forEach(entry -> record.add(entry.getKey(), entry.getValue()));
+        enqueue(active, record);
+    }
+
+    private static String playerPseudonym(Session active, UUID playerId) {
+        return "player_" + UUID.nameUUIDFromBytes((active.id + ":" + playerId)
+                .getBytes(StandardCharsets.UTF_8));
     }
 
     private static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -197,7 +252,16 @@ public final class BfsDebugManager {
         }
         long tick = level.getGameTime();
         active.lastTick = tick;
+        for (FishingCatchTrace trace : active.pendingFishing.values()) {
+            recordFishing(active.id, tick, trace.settlement());
+        }
+        active.pendingFishing.clear();
         if (tick >= active.endTick) {
+            if (active.category.capturesPopulation()
+                    && tick > active.startTick
+                    && (tick - active.startTick) % POPULATION_SAMPLE_INTERVAL_TICKS == 0) {
+                enqueue(active, populationRecord(active, level, tick));
+            }
             stop("duration_elapsed");
             return;
         }
@@ -205,6 +269,11 @@ public final class BfsDebugManager {
             active.markIncomplete("wall deadline elapsed before the requested tick duration");
             stop("wall_deadline_elapsed");
             return;
+        }
+        if (active.category.capturesPopulation()
+                && tick > active.startTick
+                && (tick - active.startTick) % POPULATION_SAMPLE_INTERVAL_TICKS == 0) {
+            enqueue(active, populationRecord(active, level, tick));
         }
         if (!active.category.capturesMovement()) {
             return;
@@ -273,7 +342,12 @@ public final class BfsDebugManager {
             return;
         }
         JsonObject record = baseRecord(active, "advancement", event.getEntity().level().getGameTime());
-        record.addProperty("playerUuid", event.getEntity().getUUID().toString());
+        record.addProperty("playerUuid", playerPseudonym(active, event.getEntity().getUUID()));
+        for (FishingCatchTrace trace : active.pendingFishing.values()) {
+            if (trace.isResolving() && trace.playerId().equals(event.getEntity().getUUID())) {
+                record.addProperty("catchAttemptId", trace.attemptId().toString());
+            }
+        }
         record.addProperty("advancement", event.getAdvancement().getId().toString());
         enqueue(active, record);
     }
@@ -510,6 +584,55 @@ public final class BfsDebugManager {
         return record;
     }
 
+    private static JsonObject populationRecord(Session active, ServerLevel level, long tick) {
+        JsonObject record = baseRecord(active, "population_sample", tick);
+        int loadedEntities = 0;
+        int waterAmbientEntities = 0;
+        int bfsWaterAmbientEntities = 0;
+        int atlanticCodEntities = 0;
+        int atlanticSalmonEntities = 0;
+        int vanillaCodEntities = 0;
+        int vanillaSalmonEntities = 0;
+
+        for (Entity entity : level.getAllEntities()) {
+            if (!entity.isAlive()) {
+                continue;
+            }
+            loadedEntities++;
+            EntityType<?> type = entity.getType();
+            if (type.getCategory() == MobCategory.WATER_AMBIENT) {
+                waterAmbientEntities++;
+                if (isBfsEntity(entity)) {
+                    bfsWaterAmbientEntities++;
+                }
+            }
+            if (type == ModEntityTypes.ATLANTIC_COD) {
+                atlanticCodEntities++;
+            } else if (type == ModEntityTypes.ATLANTIC_SALMON) {
+                atlanticSalmonEntities++;
+            } else if (type == EntityType.COD) {
+                vanillaCodEntities++;
+            } else if (type == EntityType.SALMON) {
+                vanillaSalmonEntities++;
+            }
+        }
+
+        record.addProperty("sampleIntervalTicks", POPULATION_SAMPLE_INTERVAL_TICKS);
+        record.addProperty("sampleOffsetTicks", tick - active.startTick);
+        record.addProperty("loadedEntities", loadedEntities);
+        record.addProperty("loadedWaterAmbientEntities", waterAmbientEntities);
+        record.addProperty("loadedBfsWaterAmbientEntities", bfsWaterAmbientEntities);
+        record.addProperty("loadedAtlanticCodEntities", atlanticCodEntities);
+        record.addProperty("loadedAtlanticSalmonEntities", atlanticSalmonEntities);
+        record.addProperty("loadedVanillaCodEntities", vanillaCodEntities);
+        record.addProperty("loadedVanillaSalmonEntities", vanillaSalmonEntities);
+        record.addProperty("waterAmbientCategoryCapPerChunk", MobCategory.WATER_AMBIENT.getMaxInstancesPerChunk());
+        record.addProperty("replaceVanillaMobs", BfsConfig.COMMON.replaceVanillaMobs.get());
+        record.addProperty("fishEntities", BfsConfig.COMMON.fishEntities.get());
+        record.addProperty("disableVanillaAquaticSpawns", BfsConfig.COMMON.disableVanillaAquaticSpawns.get());
+        return record;
+    }
+
     private static JsonObject blockRecord(Session active, String event, Entity actor, net.minecraft.core.BlockPos pos) {
         JsonObject record = baseRecord(active, event, actor.level().getGameTime());
         record.addProperty("actorUuid", actor.getUUID().toString());
@@ -666,6 +789,10 @@ public final class BfsDebugManager {
         }
         if (session == active) {
             session = null;
+        }
+        if (!active.pendingFishing.isEmpty()) {
+            active.markIncomplete("capture stopped before fishing settlement");
+            active.pendingFishing.clear();
         }
         active.stopReason = reason;
         active.terminalRecord = GSON.toJson(endRecord(active, reason));
@@ -876,6 +1003,7 @@ public final class BfsDebugManager {
         private final Map<UUID, Long> previousSampleNanos = new HashMap<>();
         private final Map<UUID, Float> previousYaw = new HashMap<>();
         private final Map<UUID, Float> previousPitch = new HashMap<>();
+        private final Map<UUID, FishingCatchTrace> pendingFishing = new java.util.concurrent.ConcurrentHashMap<>();
         private final long startNanos = System.nanoTime();
         private volatile String incompleteReason = "none";
         private volatile long writtenBytes;

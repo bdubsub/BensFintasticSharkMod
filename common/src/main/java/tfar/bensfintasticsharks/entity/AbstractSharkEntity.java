@@ -248,7 +248,8 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                 // pendingBiteTarget forever and the shark could never bite again.
                 LivingEntity victim = pendingBiteTarget;
                 pendingBiteTarget = null;
-                if (victim != null && victim.isAlive()) {
+                if (victim != null && victim.isAlive() && !victim.isPassenger()
+                        && getPassengers().isEmpty()) {
                     double reach = biteRangeAgainst(victim);
                     if (this.distanceToSqr(victim) <= reach * reach) {
                         this.doHurtTarget(victim);
@@ -428,7 +429,10 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             // overshoot-orbit loop.
             if (inBiteRange
                     && biteCooldown <= 0
-                    && pendingBiteTarget == null) {
+                    && pendingBiteTarget == null
+                    // A latched passenger is already inside the active attack. Do not
+                    // schedule another bite while the grab or latch timer is running.
+                    && getPassengers().isEmpty()) {
                 this.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
                 onBiteAttack(tgt);
                 pendingBiteTarget = tgt;
@@ -844,6 +848,9 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         float scale = shallowWaterSpeedScale();
         if (chasing || fleeing) scale *= chaseAccelBoost();
         Vec3 effectiveInput = braking ? Vec3.ZERO : scaleVerticalSwimInput(movementInput);
+        if (!braking && usesPitchDrivenVerticalMovement()) {
+            effectiveInput = AquaticMovement.bodyAlignedInput(effectiveInput, this.getXRot());
+        }
         float accel = useSwimMultiplier
                 ? this.getSpeed() * swimSpeedMultiplier() * scale
                 : this.getSpeed() * scale;
@@ -854,7 +861,21 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         Vec3 dm = this.getDeltaMovement();
         double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
         float cap = maxHorizontalSpeed();
-        if (horiz > cap) {
+        if (usesPitchDrivenVerticalMovement() && !braking) {
+            Vec3 forward = AquaticMovement.forwardVector(this.getYRot(), this.getXRot());
+            dm = AquaticMovement.limitPoweredVelocity(dm, forward, cap,
+                    this.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO);
+            double verticalCap = Math.abs(this.getSpeed()) * AquaticMovement.VERTICAL_SPEED_RATIO;
+            if (Math.abs(dm.y) > verticalCap) {
+                dm = new Vec3(dm.x, Math.copySign(verticalCap, dm.y), dm.z);
+            }
+            if (movementInput.z > 0.0F) {
+                dm = AquaticMovement.removeUnalignedVerticalSlip(dm, forward);
+            }
+            this.setDeltaMovement(dm);
+            horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
+        }
+        if (!usesPitchDrivenVerticalMovement() && horiz > cap) {
             double s = cap / horiz;
             this.setDeltaMovement(dm.x * s, dm.y, dm.z * s);
         } else {
