@@ -678,14 +678,13 @@ public final class BfsGameTests {
                 .withPosition(capturedStart)
                 .withPermission(4);
         helper.runAfterDelay(1, () -> {
-            try {
-                int started = server.getCommands().getDispatcher().execute(
-                        "bfs debug on movement 70 @e[type=bensfintasticsharks:atlantic_cod,sort=nearest,limit=1]", source);
-                helper.assertTrue(started == 1, "diagnostic parity fixture must select only its captured Cod");
-                sampleDiagnosticParity(helper, server, source, captured, control, capturedStart, controlStart, 20);
-            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
-                helper.fail("BFS diagnostic parity start command failed: " + exception.getMessage());
-            }
+            helper.assertTrue(captured.isAlive(),
+                    "diagnostic parity fixture captured Cod must remain loaded before capture selection");
+            BfsDebugManager.StartResult started = BfsDebugManager.start(
+                    source, "movement", 70, List.of(captured));
+            helper.assertTrue(started.started() && started.activeSession().targetCount() == 1,
+                    "diagnostic parity fixture must select only its captured Cod");
+            sampleDiagnosticParity(helper, server, source, captured, control, capturedStart, controlStart, 20);
         });
     }
 
@@ -1019,6 +1018,7 @@ public final class BfsGameTests {
                 helper.absolutePos(new BlockPos(5, 2, 2)).getZ() + 0.5D);
         player.setYRot(0.0F);
         player.setXRot(0.0F);
+        helper.getLevel().addNewPlayer(player);
 
         net.minecraft.server.ServerAdvancementManager manager = helper.getLevel().getServer().getAdvancements();
         net.minecraft.advancements.Advancement sharkSpotter = advancement(helper, manager, "shark_spotter");
@@ -1040,29 +1040,34 @@ public final class BfsGameTests {
         helper.assertTrue(!player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
                 "an active Spyglass with no shark must not grant Shark Spotter");
 
-        helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(5, 3, 7));
-        helper.spawn(ModEntityTypes.ATLANTIC_SALMON, new BlockPos(6, 3, 7));
-        player.tickCount = 0;
-        BensFintasticSharks.playerTick(player);
-        helper.assertTrue(player.getAdvancements().getOrStartProgress(codEncounter).isDone()
-                        && player.getAdvancements().getOrStartProgress(salmonEncounter).isDone(),
-                "nearby Atlantic fish must grant their encounter advancements through the production player found trigger");
-        helper.assertTrue(!player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
-                "an active Spyglass looking only at nonshark BFS entities must not grant Shark Spotter");
+        AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(5, 3, 7));
+        AtlanticSalmonEntity salmon = helper.spawn(ModEntityTypes.ATLANTIC_SALMON, new BlockPos(6, 3, 7));
+        cod.setNoAi(true);
+        salmon.setNoAi(true);
+        helper.runAfterDelay(1, () -> {
+            player.tickCount = 0;
+            BensFintasticSharks.playerTick(player);
+            helper.assertTrue(player.getAdvancements().getOrStartProgress(codEncounter).isDone()
+                            && player.getAdvancements().getOrStartProgress(salmonEncounter).isDone(),
+                    "nearby Atlantic fish must grant their encounter advancements through the production player found trigger");
+            helper.assertTrue(!player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
+                    "an active Spyglass looking only at nonshark BFS entities must not grant Shark Spotter");
 
-        AbstractSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(5, 3, 8));
-        shark.setNoAi(true);
-        BlockPos obstruction = new BlockPos(5, 3, 5);
-        helper.setBlock(obstruction, Blocks.STONE.defaultBlockState());
-        BensFintasticSharks.playerTick(player);
-        helper.assertTrue(!player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
-                "a solid obstruction before the viewed shark must prevent Shark Spotter");
-        helper.setBlock(obstruction, Blocks.WATER.defaultBlockState());
-        BensFintasticSharks.playerTick(player);
-        helper.assertTrue(player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
-                "an actively used Spyglass with an unobstructed BFS shark must grant Shark Spotter");
-        player.stopUsingItem();
-        helper.succeed();
+            AbstractSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(5, 3, 8));
+            shark.setNoAi(true);
+            BlockPos obstruction = new BlockPos(5, 3, 5);
+            helper.setBlock(obstruction, Blocks.STONE.defaultBlockState());
+            BensFintasticSharks.playerTick(player);
+            helper.assertTrue(!player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
+                    "a solid obstruction before the viewed shark must prevent Shark Spotter");
+            helper.setBlock(obstruction, Blocks.WATER.defaultBlockState());
+            BensFintasticSharks.playerTick(player);
+            helper.assertTrue(player.getAdvancements().getOrStartProgress(sharkSpotter).isDone(),
+                    "an actively used Spyglass with an unobstructed BFS shark must grant Shark Spotter");
+            player.stopUsingItem();
+            helper.getLevel().removePlayerImmediately(player, Entity.RemovalReason.DISCARDED);
+            helper.runAfterDelay(1, helper::succeed);
+        });
     }
 
     private static net.minecraft.advancements.Advancement advancement(GameTestHelper helper,
@@ -1799,9 +1804,11 @@ public final class BfsGameTests {
             Vec3 anchor = helper.absolutePos(new BlockPos(4, 3, 3)).getCenter();
             shark.setPos(anchor.x, anchor.y, anchor.z);
             shark.setDeltaMovement(Vec3.ZERO);
+            shark.setNoAi(true);
             armOceanicGrab(shark, player);
             helper.assertTrue(player.isPassenger() && shark.getGrabTimer() > 0,
                     "oceanic grab lifecycle fixture must be armed");
+            shark.setNoAi(false);
             player.stopRiding();
             helper.runAfterDelay(2, () -> {
                 helper.assertTrue(shark.getGrabTimer() == 0 && !player.isPassenger()

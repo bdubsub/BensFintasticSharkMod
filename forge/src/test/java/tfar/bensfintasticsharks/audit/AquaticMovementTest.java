@@ -31,6 +31,18 @@ class AquaticMovementTest {
         assertEquals(-8.0, AquaticMovement.affectedPitch(0.001, 100.0, 0.0, 8.0f, 8.0f), 0.00001);
         assertEquals(5.0, AquaticMovement.affectedPitch(0.001, -100.0, 0.0, 14.0f, 5.0f), 0.00001);
         assertTrue(Math.abs(AquaticMovement.affectedPitch(0.001, 100.0, 0.0, 10.0f, 10.0f)) <= 10.0f);
+        assertEquals(-AquaticMovement.FISH_HARD_UPWARD_PITCH_LIMIT,
+                AquaticMovement.affectedPitch(0.0, 100.0, 0.0, 8.0f, 8.0f,
+                        AquaticMovement.FISH_HARD_UPWARD_PITCH_LIMIT,
+                        AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT), 0.00001);
+        assertEquals(AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT,
+                AquaticMovement.affectedPitch(0.0, -100.0, 0.0, 8.0f, 8.0f,
+                        AquaticMovement.FISH_HARD_UPWARD_PITCH_LIMIT,
+                        AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT), 0.00001);
+        assertEquals(AquaticMovement.SHARK_HARD_DOWNWARD_PITCH_LIMIT,
+                AquaticMovement.affectedPitch(0.0, -100.0, 0.0, 14.0f, 5.0f,
+                        AquaticMovement.SHARK_HARD_UPWARD_PITCH_LIMIT,
+                        AquaticMovement.SHARK_HARD_DOWNWARD_PITCH_LIMIT), 0.00001);
         assertEquals(0.30f, AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK, 0.00001f);
     }
 

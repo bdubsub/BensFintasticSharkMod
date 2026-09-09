@@ -141,9 +141,13 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
             // body eases through its entry arc. The pitch-aligned travel step supplies the
             // vertical component; zero forward input would create stationary pitch acquisition.
             this.mob.setZza(1.0F);
+            float desiredPitch = pitchDrivenTravel && verticalOnly
+                    ? AquaticMovement.affectedPitch(pitchDx, routeDy, pitchDz,
+                    pitchUpLimit(), pitchDownLimit(), hardPitchUpLimit(), hardPitchDownLimit())
+                    : AquaticMovement.affectedPitch(pitchDx, routeDy, pitchDz,
+                    pitchUpLimit(), pitchDownLimit());
             this.mob.setXRot(this.rotlerp(previousPitch,
-                    AquaticMovement.affectedPitch(pitchDx, routeDy, pitchDz,
-                            pitchUpLimit(), pitchDownLimit()),
+                    desiredPitch,
                     AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
 
             if (verticalOnly) {
@@ -169,5 +173,15 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
     private float pitchDownLimit() {
         return this.mob instanceof AbstractSharkEntity<?> shark
                 ? shark.downwardPitchLimitDegrees() : AquaticMovement.DEFAULT_DOWNWARD_PITCH_LIMIT;
+    }
+
+    private float hardPitchUpLimit() {
+        return this.mob instanceof AbstractSharkEntity<?> shark
+                ? shark.hardUpwardPitchLimitDegrees() : AquaticMovement.DEFAULT_UPWARD_PITCH_LIMIT;
+    }
+
+    private float hardPitchDownLimit() {
+        return this.mob instanceof AbstractSharkEntity<?> shark
+                ? shark.hardDownwardPitchLimitDegrees() : AquaticMovement.DEFAULT_DOWNWARD_PITCH_LIMIT;
     }
 }

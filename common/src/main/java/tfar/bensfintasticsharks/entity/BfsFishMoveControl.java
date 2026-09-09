@@ -14,6 +14,8 @@ public final class BfsFishMoveControl extends MoveControl {
     private final AbstractFish fish;
     private final float upwardPitchLimit;
     private final float downwardPitchLimit;
+    private final float verticalUpwardPitchLimit;
+    private final float verticalDownwardPitchLimit;
 
     public BfsFishMoveControl(AbstractFish fish) {
         this(fish, AquaticMovement.DEFAULT_UPWARD_PITCH_LIMIT,
@@ -21,10 +23,18 @@ public final class BfsFishMoveControl extends MoveControl {
     }
 
     public BfsFishMoveControl(AbstractFish fish, float upwardPitchLimit, float downwardPitchLimit) {
+        this(fish, upwardPitchLimit, downwardPitchLimit,
+                AquaticMovement.VERTICAL_UPWARD_PITCH, AquaticMovement.VERTICAL_DOWNWARD_PITCH);
+    }
+
+    public BfsFishMoveControl(AbstractFish fish, float upwardPitchLimit, float downwardPitchLimit,
+                               float verticalUpwardPitchLimit, float verticalDownwardPitchLimit) {
         super(fish);
         this.fish = fish;
         this.upwardPitchLimit = upwardPitchLimit;
         this.downwardPitchLimit = downwardPitchLimit;
+        this.verticalUpwardPitchLimit = verticalUpwardPitchLimit;
+        this.verticalDownwardPitchLimit = verticalDownwardPitchLimit;
     }
 
     /**
@@ -83,7 +93,8 @@ public final class BfsFishMoveControl extends MoveControl {
                 fish.setZza(1.0F);
 
                 fish.setXRot(this.rotlerp(previousPitch,
-                        AquaticMovement.affectedPitch(dx, routeDy, dz, upwardPitchLimit, downwardPitchLimit),
+                        AquaticMovement.affectedPitch(dx, routeDy, dz, upwardPitchLimit, downwardPitchLimit,
+                                verticalUpwardPitchLimit, verticalDownwardPitchLimit),
                         AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
             } else {
                 this.operation = Operation.WAIT;

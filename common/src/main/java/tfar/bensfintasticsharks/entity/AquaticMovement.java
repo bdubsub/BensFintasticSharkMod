@@ -15,6 +15,11 @@ public final class AquaticMovement {
     public static final float OCEANIC_WHITETIP_PITCH_LIMIT = 10.0f;
     public static final float TIGER_UPWARD_PITCH_LIMIT = 14.0f;
     public static final float TIGER_DOWNWARD_PITCH_LIMIT = 5.0f;
+    /** Profile-permitted steep maneuver endpoints, not routine cruise limits. */
+    public static final float FISH_HARD_UPWARD_PITCH_LIMIT = 45.0f;
+    public static final float FISH_HARD_DOWNWARD_PITCH_LIMIT = 90.0f;
+    public static final float SHARK_HARD_UPWARD_PITCH_LIMIT = 45.0f;
+    public static final float SHARK_HARD_DOWNWARD_PITCH_LIMIT = 60.0f;
     public static final float DEFAULT_UPWARD_PITCH_LIMIT = 10.0f;
     public static final float DEFAULT_DOWNWARD_PITCH_LIMIT = 10.0f;
 
@@ -45,12 +50,24 @@ public final class AquaticMovement {
      */
     public static float affectedPitch(double dx, double dy, double dz,
                                       float upwardLimit, float downwardLimit) {
+        return affectedPitch(dx, dy, dz, upwardLimit, downwardLimit,
+                VERTICAL_UPWARD_PITCH, VERTICAL_DOWNWARD_PITCH);
+    }
+
+    /**
+     * Returns a bounded pitch using separate routine and steep-route envelopes. A direct vertical
+     * route is allowed to use its species profile endpoint only after the caller has selected that
+     * route; ordinary routes remain inside their shallow cruise limits.
+     */
+    public static float affectedPitch(double dx, double dy, double dz,
+                                      float upwardLimit, float downwardLimit,
+                                      float verticalUpwardLimit, float verticalDownwardLimit) {
         double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
         if (horizontalDistance <= 1.0e-8 && Math.abs(dy) <= 1.0e-8) {
             return 0.0f;
         }
         if (horizontalDistance <= 1.0e-8) {
-            return dy > 0.0 ? VERTICAL_UPWARD_PITCH : VERTICAL_DOWNWARD_PITCH;
+            return dy > 0.0 ? -Math.abs(verticalUpwardLimit) : Math.abs(verticalDownwardLimit);
         }
         float pitch = (float) -(Math.atan2(dy * VERTICAL_SPEED_RATIO, horizontalDistance) * Mth.RAD_TO_DEG);
         return Mth.clamp(pitch, -Math.abs(upwardLimit), Math.abs(downwardLimit));

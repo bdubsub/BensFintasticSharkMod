@@ -84,6 +84,10 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     protected float upwardPitchLimitDegrees() { return AquaticMovement.DEFAULT_UPWARD_PITCH_LIMIT; }
     protected float downwardPitchLimitDegrees() { return AquaticMovement.DEFAULT_DOWNWARD_PITCH_LIMIT; }
 
+    /** Profile-permitted steep-route endpoints, distinct from routine cruise pitch. */
+    protected float hardUpwardPitchLimitDegrees() { return AquaticMovement.SHARK_HARD_UPWARD_PITCH_LIMIT; }
+    protected float hardDownwardPitchLimitDegrees() { return AquaticMovement.SHARK_HARD_DOWNWARD_PITCH_LIMIT; }
+
     @Override
     protected boolean usesPitchDrivenVerticalMovement() {
         return true;

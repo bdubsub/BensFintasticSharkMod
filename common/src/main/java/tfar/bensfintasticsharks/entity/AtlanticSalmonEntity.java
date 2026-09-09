@@ -18,7 +18,9 @@ public class AtlanticSalmonEntity extends Salmon {
     protected AtlanticSalmonEntity(EntityType<? extends Salmon> type, Level level) {
         super(type, level);
         this.moveControl = new BfsFishMoveControl(this,
-                AquaticMovement.SALMON_PITCH_LIMIT, AquaticMovement.SALMON_PITCH_LIMIT);
+                AquaticMovement.SALMON_PITCH_LIMIT, AquaticMovement.SALMON_PITCH_LIMIT,
+                AquaticMovement.FISH_HARD_UPWARD_PITCH_LIMIT,
+                AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT);
         this.lookControl = new BfsFishLookControl(this);
     }
 
