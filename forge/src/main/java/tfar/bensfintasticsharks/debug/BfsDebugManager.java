@@ -37,6 +37,9 @@ import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.config.BfsConfig;
 import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
+import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
+import tfar.bensfintasticsharks.entity.SmartWaterAnimal;
+import tfar.bensfintasticsharks.entity.SpeciesBehaviorProfile;
 
 import javax.annotation.Nullable;
 import java.io.BufferedWriter;
@@ -440,8 +443,18 @@ public final class BfsDebugManager {
         record.addProperty("selectedWaypoint", "unavailable:navigation_waypoint_not_exposed");
         record.addProperty("routeProgress", "unavailable:navigation_attempt_identity_not_exposed");
         record.addProperty("arrivalReason", "unavailable:navigation_attempt_identity_not_exposed");
-        record.addProperty("locomotionMode", "unavailable:species_locomotion_mode_not_exposed");
-        record.addProperty("scalarPropulsionSpeed", "unavailable:movement_controller_scalar_speed_not_exposed");
+        SpeciesBehaviorProfile.Profile profile = SpeciesBehaviorProfile.forEntity(entity);
+        record.addProperty("speciesProfile", profile == null ? "unavailable:profile_not_registered" : profile.id());
+        record.addProperty("locomotionMode", profile == null
+                ? "unavailable:species_locomotion_mode_not_exposed" : profile.locomotion().name().toLowerCase(Locale.ROOT));
+        if (entity instanceof AbstractSharkEntity<?> shark) {
+            record.addProperty("behaviorAction", shark.getSharkState().name().toLowerCase(Locale.ROOT));
+        } else if (entity instanceof SmartWaterAnimal<?> aquatic) {
+            record.addProperty("behaviorAction", aquatic.getBfsBehaviorAction());
+        } else {
+            record.addProperty("behaviorAction", "unavailable:not_a_policy_entity");
+        }
+        record.addProperty("scalarPropulsionSpeed", entity.getDeltaMovement().length());
         record.addProperty("motionWriter", entity instanceof Mob mob ? mob.getMoveControl().getClass().getName()
                 : "unavailable:not_a_mob");
         addTrajectoryPitch(record, entity.getDeltaMovement());

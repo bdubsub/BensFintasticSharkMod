@@ -38,6 +38,7 @@ public class AtlanticSalmonEntity extends Salmon {
         if (!level().isClientSide) {
             entityData.set(DATA_FAST_SWIM,
                     isInWaterOrBubble() && getDeltaMovement().lengthSqr() > 0.0225D);
+            SpeciesBehaviorEngine.tickFish(this);
         }
     }
 

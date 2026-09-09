@@ -57,6 +57,9 @@ import com.mojang.authlib.GameProfile;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
+import tfar.bensfintasticsharks.entity.CannonballJellyfishEntity;
+import tfar.bensfintasticsharks.entity.CaribbeanReefOctopusEntity;
+import tfar.bensfintasticsharks.entity.CommonOctopusEntity;
 import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
 import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
 import tfar.bensfintasticsharks.BensFintasticSharks;
@@ -677,7 +680,7 @@ public final class BfsGameTests {
         helper.runAfterDelay(1, () -> {
             try {
                 int started = server.getCommands().getDispatcher().execute(
-                        "bfs debug on movement 70 @e[distance=..8,sort=nearest,limit=1]", source);
+                        "bfs debug on movement 70 @e[type=bensfintasticsharks:atlantic_cod,sort=nearest,limit=1]", source);
                 helper.assertTrue(started == 1, "diagnostic parity fixture must select only its captured Cod");
                 sampleDiagnosticParity(helper, server, source, captured, control, capturedStart, controlStart, 20);
             } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
@@ -743,6 +746,85 @@ public final class BfsGameTests {
                         "salmon fast swim state must clear when server movement returns below the threshold");
                 helper.succeed();
             });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 100)
+    public static void speciesPolicyAssignsSocialIntentAndKeepsJellyfishPassive(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        BottlenoseDolphinEntity first = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN,
+                new BlockPos(3, 3, 3));
+        BottlenoseDolphinEntity second = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN,
+                new BlockPos(5, 3, 3));
+        first.setNoAi(true);
+        second.setNoAi(true);
+        first.setNoGravity(true);
+        second.setNoGravity(true);
+        CannonballJellyfishEntity jellyfish = helper.spawn(ModEntityTypes.CANNONBALL_JELLYFISH,
+                new BlockPos(8, 3, 3));
+        jellyfish.setNoGravity(true);
+        helper.runAfterDelay(60, () -> {
+            helper.assertTrue(!"none".equals(first.getBfsBehaviorAction())
+                            || !"none".equals(second.getBfsBehaviorAction()),
+                    "social species must claim one bounded group route");
+            helper.assertTrue("none".equals(jellyfish.getBfsBehaviorAction()),
+                    "jellyfish must retain pulse drift without a pursuit route");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 140)
+    public static void octopusCamouflageSamplesSupportAndReleasesWhenSupportIsRemoved(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        CommonOctopusEntity common = helper.spawn(ModEntityTypes.COMMON_OCTOPUS,
+                new BlockPos(3, 1, 3));
+        CaribbeanReefOctopusEntity reef = helper.spawn(ModEntityTypes.CARIBBEAN_REEF_OCTOPUS,
+                new BlockPos(7, 1, 3));
+        common.setNoAi(true);
+        reef.setNoAi(true);
+        common.setNoGravity(true);
+        reef.setNoGravity(true);
+        helper.runAfterDelay(60, () -> {
+            helper.assertTrue(common.camouflageTargetWeight() > 0.5f,
+                    "common octopus must select a bounded concealment blend over supported substrate");
+            helper.assertTrue(reef.camouflageTargetWeight() > 0.5f,
+                    "reef octopus must select a bounded concealment blend over supported substrate");
+            helper.setBlock(new BlockPos(3, 0, 3), Blocks.WATER.defaultBlockState());
+            helper.setBlock(new BlockPos(7, 0, 3), Blocks.WATER.defaultBlockState());
+            helper.runAfterDelay(40, () -> {
+                helper.assertTrue(common.camouflageTargetWeight() == 0.0f
+                                && reef.camouflageTargetWeight() == 0.0f,
+                        "removing support must release concealment without changing entity identity");
+                common.discard();
+                reef.discard();
+                helper.succeed();
+            });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 130)
+    public static void octopusInkCloudIsFiniteAndNotDuplicated(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        CommonOctopusEntity octopus = helper.spawn(ModEntityTypes.COMMON_OCTOPUS,
+                new BlockPos(5, 3, 5));
+        octopus.setPos(helper.absolutePos(new BlockPos(5, 2, 5)).getX() + 0.5D,
+                helper.absolutePos(new BlockPos(5, 2, 5)).getY() + 0.25D,
+                helper.absolutePos(new BlockPos(5, 2, 5)).getZ() + 0.5D);
+        octopus.setNoAi(true);
+        octopus.setNoGravity(true);
+        helper.assertTrue(helper.getLevel().getFluidState(octopus.blockPosition())
+                        .is(net.minecraft.tags.FluidTags.WATER),
+                "ink fixture must keep the octopus in a water cell");
+        helper.assertTrue(octopus.hurt(helper.getLevel().damageSources().generic(), 1.0f),
+                "a submerged octopus must accept the bounded hurt fixture");
+        helper.assertTrue(octopus.isInkCloudActive(),
+                "a submerged hurt octopus must own one finite ink cloud");
+        octopus.hurt(helper.getLevel().damageSources().generic(), 1.0f);
+        helper.runAfterDelay(81, () -> {
+            helper.assertTrue(!octopus.isInkCloudActive(),
+                    "an ink cloud must expire instead of persisting or duplicating");
+            octopus.discard();
+            helper.succeed();
         });
     }
 
@@ -960,6 +1042,7 @@ public final class BfsGameTests {
 
         helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(5, 3, 7));
         helper.spawn(ModEntityTypes.ATLANTIC_SALMON, new BlockPos(6, 3, 7));
+        player.tickCount = 0;
         BensFintasticSharks.playerTick(player);
         helper.assertTrue(player.getAdvancements().getOrStartProgress(codEncounter).isDone()
                         && player.getAdvancements().getOrStartProgress(salmonEncounter).isDone(),
@@ -1704,6 +1787,7 @@ public final class BfsGameTests {
     @GameTest(template = "empty", batch = "bfs_combat_oceanic_invalidation", timeoutTicks = 80)
     public static void oceanicGrabReleasesOnTargetInvalidation(GameTestHelper helper) {
         prepareWaterVolume(helper);
+        clearCombatFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(6, 3, 3));
         OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
                 new BlockPos(4, 3, 3));
         shark.setNoGravity(true);
@@ -1712,6 +1796,9 @@ public final class BfsGameTests {
         player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
         helper.getLevel().addFreshEntity(player);
         helper.runAfterDelay(2, () -> {
+            Vec3 anchor = helper.absolutePos(new BlockPos(4, 3, 3)).getCenter();
+            shark.setPos(anchor.x, anchor.y, anchor.z);
+            shark.setDeltaMovement(Vec3.ZERO);
             armOceanicGrab(shark, player);
             helper.assertTrue(player.isPassenger() && shark.getGrabTimer() > 0,
                     "oceanic grab lifecycle fixture must be armed");

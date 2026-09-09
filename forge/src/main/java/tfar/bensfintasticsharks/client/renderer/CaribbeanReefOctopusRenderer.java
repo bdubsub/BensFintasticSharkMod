@@ -24,6 +24,11 @@ public class CaribbeanReefOctopusRenderer extends GeoEntityRenderer<CaribbeanRee
     public void preRender(com.mojang.blaze3d.vertex.PoseStack poseStack, CaribbeanReefOctopusEntityForge animatable, software.bernie.geckolib.cache.object.BakedGeoModel model, net.minecraft.client.renderer.MultiBufferSource bufferSource, com.mojang.blaze3d.vertex.VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         float s = animatable.getBfsScale();
         if (Math.abs(s - 1.0f) > 0.001f) poseStack.scale(s, s, s);
+        float concealment = animatable.camouflageWeight();
+        int color = animatable.camouflageColor();
+        red *= net.minecraft.util.Mth.lerp(concealment, 1.0f, (color >> 16 & 0xff) / 255.0f);
+        green *= net.minecraft.util.Mth.lerp(concealment, 1.0f, (color >> 8 & 0xff) / 255.0f);
+        blue *= net.minecraft.util.Mth.lerp(concealment, 1.0f, (color & 0xff) / 255.0f);
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
     }
 

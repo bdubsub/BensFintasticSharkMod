@@ -103,6 +103,12 @@ remains the qualitative smoothness reference and is not included in that fish an
 shark cap assertion. A first tick must not inherit the full unscaled vanilla vertical
 impulse.
 
+Movement records also expose `speciesProfile`, `locomotionMode`, `behaviorAction`, and
+`scalarPropulsionSpeed` when the selected entity has a registered species policy.
+Shark actions use the authoritative shark state. SmartBrain aquatic animals use the
+bounded policy action. These fields are observations, not acceptance thresholds by
+themselves.
+
 The first movement sample for each selected entity has no prior position or orientation sample. Its derived deltas, rates, and angular differences therefore use the explicit `unavailable:no_previous_sample` value. The analyzer accepts that reason only on the first sample for those derived fields. Later samples must contain finite values whenever the field is part of the selected candidate manifest.
 
 ```json
