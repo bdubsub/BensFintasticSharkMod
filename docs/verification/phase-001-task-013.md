@@ -455,3 +455,11 @@ It observed loaded Atlantic fish, but no fishing event occurred during that
 window. This capture proves the repaired client launch and diagnostic path
 only. It does not close the live fishing interaction row, which still needs
 an owner performed cast and reel on the connected client.
+
+## Current ForgeGradle CI binding
+
+On 2026-09-09, the phase branch head `8213c080fd3578997bba9ad86e8ce08fe5ae1466` was rebuilt with Java 17 after adding a settings-level resolution rule for the existing ForgeGradle 6.0.54 release. The rule leaves the protected root build file unchanged while making the Forge plugin resolution deterministic on clean CI runners.
+
+The ordered Forge build completed successfully, including compilation, test compilation, unit tests, packaging, and archive integrity. The exact Forge artifact `forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` passed `unzip -tqq` with SHA-256 `3d5b4365993758819c8cd5eacd25b6927defcc2ac08e80ae4d6520d8fd652b54` and SHA-512 `0e7ed1128649ce4d3feb315af7f15b47bbeb4470e4a30a1cb9684c8a80a8aae3f33ce9489311d16a5e18ab12945a7e8287a18e9bd1337abb79f7090219307ec1`.
+
+Pull request 16 reports passing `build`, `analyze`, and `CodeQL` checks for this head. This binding closes the CI resolution failure only. It does not close the owner performed laptop fishing visual gate or the phase integration, merge, default branch, and signed tag gates.
