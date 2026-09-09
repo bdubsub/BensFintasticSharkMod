@@ -78,6 +78,11 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
             if (this.isDeadOrDying()) {
                 return event.setAndContinue(DEATH);
             }
+            // Thrash owns the overlapping bones during an authoritative passenger grab.
+            // The locomotion controller must stop rather than blend its transforms.
+            if (OceanicPresentationState.hasActiveGrab(this.getGrabTimer(), !this.getPassengers().isEmpty())) {
+                return PlayState.STOP;
+            }
             if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(BEACHED);
             }
@@ -121,7 +126,9 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     @Override
     protected void tickDeath() {
         ++this.deathTime;
-        this.triggerAnim("controller", "death");
+        if (this.deathTime == 1) {
+            this.triggerAnim("controller", "death");
+        }
         if (this.deathTime == 30) {
             this.remove(Entity.RemovalReason.KILLED);
             this.dropExperience();
