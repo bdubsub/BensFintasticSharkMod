@@ -151,8 +151,18 @@ public final class SpeciesBehaviorEngine {
         if (profile.threatResponse() == SpeciesBehaviorProfile.ThreatResponse.NONE) return null;
         return nearby(entity, profile.scanRadius(), other -> other != entity && other.isAlive()
                 && other.getType().is(APEX_PREDATOR)
-                && !(other instanceof Player player && (player.isCreative() || player.isSpectator())))
+                && !(other instanceof Player player && (player.isCreative() || player.isSpectator()))
+                && !visualThreatHidden(entity, other))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+    }
+
+    private static boolean visualThreatHidden(SmartWaterAnimal<?> entity, LivingEntity threat) {
+        if (!(entity instanceof OctopusCamouflageHost)
+                || !(entity.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+            return false;
+        }
+        return OctopusInkCloudRegistry.obscuresVisualRay(serverLevel, entity.getUUID(),
+                threat.getEyePosition());
     }
 
     @Nullable

@@ -19,6 +19,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -44,12 +45,18 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity>
             SynchedEntityData.defineId(CommonOctopusEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> DATA_INK_TICKS =
             SynchedEntityData.defineId(CommonOctopusEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_INK_EVENT =
+            SynchedEntityData.defineId(CommonOctopusEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_JET_TICKS =
+            SynchedEntityData.defineId(CommonOctopusEntity.class, EntityDataSerializers.INT);
 
     private int camouflageColor = 0x6b5c4e;
     private float camouflageWeight;
 
     private int playerProxCooldown;
     private int inkCooldown;
+    private int jetTicks;
+    private Vec3 jetDirection = Vec3.ZERO;
     private int hideTicks;
     private int hideCheckTimer;
 
@@ -73,6 +80,8 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity>
         this.entityData.define(DATA_CAMO_TARGET, 0x6b5c4e);
         this.entityData.define(DATA_CAMO_WEIGHT, 0.0f);
         this.entityData.define(DATA_INK_TICKS, 0);
+        this.entityData.define(DATA_INK_EVENT, 0);
+        this.entityData.define(DATA_JET_TICKS, 0);
     }
 
     public Variant getVariant() { return Variant.byId(this.entityData.get(DATA_VARIANT)); }
@@ -154,6 +163,7 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity>
             entityData.set(DATA_INK_TICKS, OctopusInkCloudRegistry.active(sl, getUUID())
                     ? Math.max(0, entityData.get(DATA_INK_TICKS) - 1) : 0);
         }
+        tickJet();
         if (inkCooldown > 0) inkCooldown--;
         // Cosmetic hide state — slows movement and switches anim. Cancels on threat.
         if (hideTicks > 0) {
@@ -165,13 +175,15 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity>
         AABB area = getBoundingBox().inflate(5.0);
         List<Player> nearby = level().getEntitiesOfClass(Player.class, area,
                 p -> !p.isCreative() && !p.isSpectator() && p.isInWater());
-        if (!nearby.isEmpty() && inkCooldown == 0 && level() instanceof ServerLevel sl) {
-            if (emitInk(sl)) {
-                Player p = nearby.get(0);
-                startJetAway(p);
-                inkCooldown = 120;
-                hideTicks = 0;
-            }
+        if (!nearby.isEmpty() && inkCooldown == 0 && jetTicks == 0 && level() instanceof ServerLevel sl) {
+            Player p = nearby.get(0);
+            OctopusEscapePolicy.findRoute(this, p).ifPresent(route -> {
+                if (emitInk(sl)) {
+                    startJetAway(route);
+                    inkCooldown = OctopusEscapePolicy.EMISSION_COOLDOWN_TICKS;
+                    hideTicks = 0;
+                }
+            });
         }
         playerProxCooldown = 20;
         // 35% chance every 600t to "hide" (rest in place) for 200-500t.
@@ -200,7 +212,7 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity>
 
     protected boolean emitInk(ServerLevel level) {
         if (!isSubmerged() || !OctopusInkCloudRegistry.tryCreate(level, this)) return false;
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < OctopusInkCloudRegistry.MAX_PARTICLE_BIRTHS; i++) {
             double dx = (random.nextDouble() - 0.5) * 0.4;
             double dy = (random.nextDouble() - 0.5) * 0.4;
             double dz = (random.nextDouble() - 0.5) * 0.4;
@@ -208,16 +220,27 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity>
         }
         level.playSound(null, blockPosition(), SoundEvents.SQUID_SQUIRT, SoundSource.NEUTRAL, 1.0F, 1.0F);
         entityData.set(DATA_INK_TICKS, OctopusInkCloudRegistry.LIFETIME_TICKS);
+        entityData.set(DATA_INK_EVENT, OctopusInkCloudRegistry.snapshot(level, getUUID())
+                .map(OctopusInkCloudRegistry.Snapshot::event).orElse(0));
         return true;
     }
 
-    private void startJetAway(Player threat) {
-        Vec3 away = position().subtract(threat.position());
-        if (away.lengthSqr() < 1.0e-4) away = new Vec3(1, 0, 0);
-        away = away.normalize();
-        Vec3 candidate = position().add(away.scale(4.0));
-        if (!level().getFluidState(BlockPos.containing(candidate)).is(net.minecraft.tags.FluidTags.WATER)) return;
-        setDeltaMovement(getDeltaMovement().add(away.scale(0.18)));
+    private void startJetAway(OctopusEscapePolicy.Route route) {
+        jetDirection = route.direction();
+        jetTicks = OctopusEscapePolicy.JET_DURATION_TICKS;
+        entityData.set(DATA_JET_TICKS, jetTicks);
+    }
+
+    private void tickJet() {
+        if (jetTicks <= 0) return;
+        Vec3 velocity = OctopusEscapePolicy.applyJet(getDeltaMovement(), jetDirection);
+        setDeltaMovement(velocity);
+        // No-AI fixtures and externally suppressed brains do not enter Mob.travel. Move the
+        // bounded retreat directly in that case so the server-authoritative escape still occurs.
+        if (!isEffectiveAi()) move(MoverType.SELF, velocity);
+        jetTicks--;
+        entityData.set(DATA_JET_TICKS, jetTicks);
+        if (jetTicks == 0) jetDirection = Vec3.ZERO;
     }
 
     private boolean isSubmerged() {
@@ -230,9 +253,15 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity>
         return entityData.get(DATA_INK_TICKS) > 0;
     }
 
+    public boolean isJetting() {
+        return entityData.get(DATA_JET_TICKS) > 0;
+    }
+
     @Override
     public void remove(RemovalReason reason) {
         if (level() instanceof ServerLevel sl) OctopusInkCloudRegistry.remove(sl, getUUID());
+        jetTicks = 0;
+        jetDirection = Vec3.ZERO;
         super.remove(reason);
     }
 

@@ -827,6 +827,42 @@ public final class BfsGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 150)
+    public static void octopusThreatUsesBoundedSafeJetAndCooldown(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        CommonOctopusEntity octopus = helper.spawn(ModEntityTypes.COMMON_OCTOPUS,
+                new BlockPos(5, 3, 5));
+        octopus.setPos(helper.absolutePos(new BlockPos(5, 2, 5)).getX() + 0.5D,
+                helper.absolutePos(new BlockPos(5, 2, 5)).getY() + 0.25D,
+                helper.absolutePos(new BlockPos(5, 2, 5)).getZ() + 0.5D);
+        octopus.setNoAi(true);
+        octopus.setNoGravity(true);
+        Player threat = makeSurvivalTestPlayer(helper);
+        threat.setPos(helper.absolutePos(new BlockPos(7, 2, 5)).getCenter());
+        threat.setNoGravity(true);
+        helper.getLevel().addFreshEntity(threat);
+        Vec3 start = octopus.position();
+        // The production proximity sampler is intentionally bounded to one check per 20 ticks.
+        // Observe after that first sampling window instead of treating the sampling budget as a
+        // failed reaction.
+        helper.runAfterDelay(25, () -> {
+            helper.assertTrue(octopus.isInkCloudActive() && octopus.isJetting(),
+                    "a submerged closing threat must start one bounded ink and jet action");
+            helper.assertTrue(octopus.distanceToSqr(start) > 0.01,
+                    "a successful octopus jet must produce physical retreat");
+            helper.runAfterDelay(25, () -> {
+                helper.assertTrue(!octopus.isJetting(),
+                        "an octopus jet must end after its finite action window");
+                helper.runAfterDelay(81, () -> {
+                    helper.assertTrue(!octopus.isInkCloudActive(),
+                            "the transient cloud must expire before the emission cooldown");
+                    finishAfterRemovingTestPlayer(helper, threat);
+                    octopus.discard();
+                });
+            });
+        });
+    }
+
     @GameTest(template = "empty", batch = "bfs_fish_parity", timeoutTicks = 40)
     public static void atlanticFishMatchVanillaParityAndPlacement(GameTestHelper helper) {
         prepareWaterVolume(helper);
@@ -1045,7 +1081,9 @@ public final class BfsGameTests {
         cod.setNoAi(true);
         salmon.setNoAi(true);
         helper.runAfterDelay(1, () -> {
-            player.tickCount = 0;
+            // The production encounter scan is intentionally sampled every 20 ticks. Align the
+            // fixture with that boundary instead of testing an unsampled tick.
+            player.tickCount = 20;
             BensFintasticSharks.playerTick(player);
             helper.assertTrue(player.getAdvancements().getOrStartProgress(codEncounter).isDone()
                             && player.getAdvancements().getOrStartProgress(salmonEncounter).isDone(),
@@ -1796,6 +1834,7 @@ public final class BfsGameTests {
         OceanicWhitetipSharkEntity shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK,
                 new BlockPos(4, 3, 3));
         shark.setNoGravity(true);
+        shark.setNoAi(true);
         Player player = makeSurvivalTestPlayer(helper);
         player.setNoGravity(true);
         player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
@@ -1804,7 +1843,6 @@ public final class BfsGameTests {
             Vec3 anchor = helper.absolutePos(new BlockPos(4, 3, 3)).getCenter();
             shark.setPos(anchor.x, anchor.y, anchor.z);
             shark.setDeltaMovement(Vec3.ZERO);
-            shark.setNoAi(true);
             armOceanicGrab(shark, player);
             helper.assertTrue(player.isPassenger() && shark.getGrabTimer() > 0,
                     "oceanic grab lifecycle fixture must be armed");
