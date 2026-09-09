@@ -13,4 +13,10 @@ class OceanicPresentationStateTest {
         assertFalse(OceanicPresentationState.hasActiveGrab(1, false));
         assertFalse(OceanicPresentationState.hasActiveGrab(-1, true));
     }
+
+    @Test
+    void biteDamageUsesAuthoredJawImpactFrame() {
+        assertTrue(OceanicPresentationState.biteImpactDelayTicks() == 5,
+                "the authored jaw peak is at 0.25 seconds, or five server ticks");
+    }
 }

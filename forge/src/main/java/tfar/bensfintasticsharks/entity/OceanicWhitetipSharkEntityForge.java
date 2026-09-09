@@ -57,6 +57,11 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
                 || level().isClientSide && visuallyStillTicks == 0;
     }
 
+    private boolean hasLivingGrabPassenger() {
+        return getPassengers().stream()
+                .anyMatch(passenger -> passenger instanceof LivingEntity living && living.isAlive());
+    }
+
     @Override
     protected void onPostDisturbance(BlockPos source, DisturbanceType type, @Nullable LivingEntity sourceEntity) {
         super.onPostDisturbance(source, type, sourceEntity);
@@ -80,7 +85,7 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
             }
             // Thrash owns the overlapping bones during an authoritative passenger grab.
             // The locomotion controller must stop rather than blend its transforms.
-            if (OceanicPresentationState.hasActiveGrab(this.getGrabTimer(), !this.getPassengers().isEmpty())) {
+            if (OceanicPresentationState.hasActiveGrab(this.getGrabTimer(), hasLivingGrabPassenger())) {
                 return PlayState.STOP;
             }
             if (this.onGround() && !this.isInWaterOrBubble()) {
@@ -100,7 +105,8 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
 
         controllers.add(new AnimationController<>(this, "thrash_controller", 5, event -> {
             if (!this.isDeadOrDying() && this.isInWaterOrBubble()
-                    && this.getGrabTimer() > 0 && !this.getPassengers().isEmpty()) {
+                    && this.getGrabTimer() > 0 && !this.getPassengers().isEmpty()
+                    && hasLivingGrabPassenger()) {
                 return event.setAndContinue(THRASH);
             }
             return PlayState.STOP;

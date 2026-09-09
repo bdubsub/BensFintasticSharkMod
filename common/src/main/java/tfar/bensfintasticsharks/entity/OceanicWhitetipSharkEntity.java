@@ -209,7 +209,9 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
         return entityData.get(DATA_GRAB_TIMER);
     }
 
-    @Override protected int biteImpactDelayTicks() { return 6; }
+    @Override protected int biteImpactDelayTicks() {
+        return 5;
+    }
 
     @Override
     protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {
