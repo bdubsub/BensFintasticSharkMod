@@ -78,7 +78,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /** Server safe smoke fixtures for the shared Phase 000 harness. */
 @GameTestHolder("bensfintasticsharks")
@@ -300,6 +302,7 @@ public final class BfsGameTests {
     @GameTest(template = "empty", batch = "bfs_population_soak", timeoutTicks = 50_000)
     public static void naturalFishReplacementPopulationRemainsBoundedInBothModes(GameTestHelper helper) {
         prepareWaterVolume(helper);
+        clearPopulationSoakFish(helper);
         boolean previousReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
         runPopulationSoak(helper, true, previousReplacement);
     }
@@ -845,6 +848,7 @@ public final class BfsGameTests {
     @GameTest(template = "empty", batch = "bfs_advancements", timeoutTicks = 80)
     public static void sharkSpotterAndAtlanticAdvancementsRequireTheirGameplaySignals(GameTestHelper helper) {
         prepareWaterVolume(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(1, 1, 1), new BlockPos(10, 5, 10));
         ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
                 new GameProfile(java.util.UUID.randomUUID(), "advancement-fixture-player"));
         player.connection = new ServerGamePacketListenerImpl(helper.getLevel().getServer(),
@@ -957,6 +961,12 @@ public final class BfsGameTests {
             java.lang.reflect.Field nibble = FishingHook.class.getDeclaredField("nibble");
             nibble.setAccessible(true);
             for (int attempt = 0; attempt < 128; attempt++) {
+                Set<java.util.UUID> existingSupportedFish = helper.getLevel()
+                        .getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(32.0D))
+                        .stream()
+                        .filter(BfsGameTests::isSupportedFishingEntity)
+                        .map(Entity::getUUID)
+                        .collect(java.util.stream.Collectors.toCollection(HashSet::new));
                 player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FISHING_ROD));
                 rod.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
                 FishingHook hook = player.fishing;
@@ -968,12 +978,15 @@ public final class BfsGameTests {
                 helper.assertTrue(player.getMainHandItem().getDamageValue() == rodDamageBefore + 1,
                         "a live fish catch must preserve the normal fishing rod durability cost once");
                 List<Mob> caughtFish = helper.getLevel().getEntitiesOfClass(Mob.class,
-                                player.getBoundingBox().inflate(32.0D))
+                        player.getBoundingBox().inflate(32.0D))
                         .stream()
                         .filter(BfsGameTests::isSupportedFishingEntity)
+                        .filter(fish -> !existingSupportedFish.contains(fish.getUUID()))
                         .toList();
                 helper.assertTrue(caughtFish.size() <= 1,
-                        "one fishing resolution must create at most one supported fish entity");
+                        "one fishing resolution must create at most one newly created supported fish entity, actual="
+                                + caughtFish.stream().map(fish -> fish.getType() + "@" + fish.position()
+                                + "/removed=" + fish.isRemoved()).toList());
                 if (!caughtFish.isEmpty()) {
                     Mob fish = caughtFish.get(0);
                     helper.assertTrue(fish.position().distanceToSqr(catchPosition) < 0.0001D,
@@ -1392,7 +1405,9 @@ public final class BfsGameTests {
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
         freezeCuriosityItem(item);
         helper.runAfterDelay(2, () -> {
-            helper.assertTrue(item.isInWater(), "The edible item must tick in water before the shark can scan it.");
+            helper.assertTrue(item.isInWater(), "The edible item must tick in water before the shark can scan it, position="
+                    + item.position() + ", block=" + item.blockPosition() + ", fluid="
+                    + helper.getLevel().getFluidState(item.blockPosition()));
             TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
             helper.getLevel().getEntitiesOfClass(LivingEntity.class, shark.getBoundingBox().inflate(64.0D),
                     entity -> entity != shark && entity.isInWater() && !(entity instanceof Player))

@@ -166,3 +166,41 @@ These packaged runs close the sustained two mode population and
 non destructive recovery gates for `P001-TASK-011`. They do not close the
 remaining Phase 001 advancement, full matrix, review, merge, default branch,
 or signed tag gates owned by `P001-TASK-012` through `P001-TASK-014`.
+
+## Restart bound configuration probe
+
+On 2026-09-08, the current Phase 001 candidate artifact
+`forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` was copied
+without modification to the disposable packaged Forge runtime
+`/tmp/bfsm-p001-restart-1788922139` on node 1. The artifact SHA-256 was
+`b15100caf674020193872a06772e045d127905299672d5643ac8e01b2681fe6e` and
+the SHA-512 was
+`d59ca51d39b0b35ddbd0b9826f40096ea0cb522eb07b8397a6461d144f94382fda86f840df31469d372f2fcc1c181730072127c281c819942ebe558a9eec14bb`.
+The runtime used Java `17.0.19`, Forge `47.2.0`, the dependency hashes above,
+port `25851`, and an exact `eula=true` file. No client, renderer, display
+server, or virtual display was started.
+
+The first clean startup generated the common configuration with
+`replace_vanilla_mobs=true`, `fish_entities=true`, and
+`disable_vanilla_aquatic_spawns=false`. The server reached `Done`, and the
+`bfs debug on population 20` capture completed with two records, zero dropped
+records, and `incomplete=false`. Its population sample recorded the same
+three effective values. The JSONL SHA-256 was
+`aa715b0b23924daff1c23eb19040544e7671a32404c862b2b67b2adae67042ea`.
+
+After a clean stop, only the exact runtime configuration was edited to
+`replace_vanilla_mobs=false`, `fish_entities=false`, and
+`disable_vanilla_aquatic_spawns=true`. The same packaged runtime was started
+again and reached `Done` without regenerating or losing the settings. A second
+`bfs debug on population 20` capture completed with two records, zero dropped
+records, and `incomplete=false`; its sample recorded the three changed values
+after restart. The JSONL SHA-256 was
+`c374518ea11eb5d1c02d3c2df3190ed64ee7f94eb2ad836ab962730e7cb29fc5`.
+The final server log SHA-256 was
+`7c46b4c9fd88dafab73fe8749a1df57909bf25e896ea793c2d1fbc0542cd6d06`.
+
+This closes the packaged restart persistence portion of `P001-TASK-011` for
+the current candidate. The runtime was stopped cleanly and removed after the
+hashes were recorded. This probe does not replace the required sustained
+population, laptop visual, multiplayer, review, merge, default branch, or
+signed tag gates.

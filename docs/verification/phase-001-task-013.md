@@ -262,3 +262,27 @@ the dry state visibility checkpoint, and the fresh tree screenshot checkpoint.
 It does not close the complete fishing interaction matrix or the final phase
 integration gate. Those remain mandatory before `P001-TASK-013` and
 `P001-TASK-014` can close.
+
+## Current deterministic rerun after fixture isolation repairs
+
+On 2026-09-08, Java 17 compilation, Forge tests, the full Forge build, and a
+fresh server-only GameTest run were repeated after tightening shared fixture
+cleanup and restricting the fishing one-for-one assertion to fish created by
+the current cast. The ordered commands were:
+
+```text
+./gradlew :forge:compileJava :forge:compileTestJava --no-daemon
+./gradlew :forge:test --no-daemon
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks
+./gradlew :forge:build --no-daemon
+```
+
+All commands passed. The GameTest server reported all `63` required tests
+passed. The retained log is `/tmp/bfsm-p001-gametest-1788921746.log` with
+SHA-256 `c7870dfe8d1fa79d168be6c03fac59fe0497b9ceec2f3bf62242f84e51d1cb5f`
+and SHA-512
+`302313d1acf362031d88b40823487164e123f81ef2bce41dea2dde3d2f0019e11b451d20704dc7c4080fd32369b2d7127bd9edb885cbed8ba6fbcd537f072e77`.
+The rebuilt candidate passed `unzip -tqq` with SHA-256
+`b15100caf674020193872a06772e045d127905299672d5643ac8e01b2681fe6e`.
+The fixture repairs address stale entities left by neighboring GameTests and
+do not weaken the production fishing or advancement assertions.
