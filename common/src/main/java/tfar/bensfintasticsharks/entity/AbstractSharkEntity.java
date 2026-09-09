@@ -252,7 +252,8 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                 // pendingBiteTarget forever and the shark could never bite again.
                 LivingEntity victim = pendingBiteTarget;
                 pendingBiteTarget = null;
-                if (victim != null && victim.isAlive() && !victim.isPassenger()
+                if (victim != null && victim.isAlive() && !victim.isRemoved()
+                        && victim.level() == level() && !victim.isPassenger()
                         && getPassengers().isEmpty()) {
                     double reach = biteRangeAgainst(victim);
                     if (this.distanceToSqr(victim) <= reach * reach) {
@@ -316,7 +317,8 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         // to getLastHurtByMob(), which is the last MOB to hit it (= us, when we land the kill).
         // A schooling packmate that merely targeted but never bit the prey is still not the last
         // mob hitter, so this does not reopen the whole-school satiation bug.
-        if (lastHuntTarget != null && !lastHuntTarget.isAlive()) {
+        if (lastHuntTarget != null && (!lastHuntTarget.isAlive() || lastHuntTarget.isRemoved()
+                || lastHuntTarget.level() != level())) {
             boolean ourKill = lastHuntTarget.getKillCredit() == this
                     || lastHuntTarget.getLastHurtByMob() == this;
             lastHuntTarget = null;
@@ -324,13 +326,15 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                 huntCooldown = HUNT_COOLDOWN_TICKS;
             }
             this.setTarget(null);
+            BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
             setSharkState(SharkState.IDLE);
             ticksTargetOutOfWater = 0;
             tgt = null;
         }
         if (tgt != null) {
-            if (!tgt.isAlive() || tgt.isDeadOrDying()) {
+            if (!tgt.isAlive() || tgt.isRemoved() || tgt.level() != level() || tgt.isDeadOrDying()) {
                 this.setTarget(null);
+                BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
                 setSharkState(SharkState.IDLE);
                 ticksTargetOutOfWater = 0;
                 tgt = null;
@@ -341,6 +345,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                 ticksTargetOutOfWater++;
                 if (ticksTargetOutOfWater >= 60) {
                     this.setTarget(null);
+                    BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
                     setSharkState(SharkState.IDLE);
                     ticksTargetOutOfWater = 0;
                 }
@@ -350,6 +355,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             // Also disengage if target is creative/spectator now.
             if (tgt instanceof Player p && (p.isCreative() || p.isSpectator())) {
                 this.setTarget(null);
+                BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
                 setSharkState(SharkState.IDLE);
             }
         } else {

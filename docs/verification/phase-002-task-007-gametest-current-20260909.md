@@ -2,7 +2,9 @@
 
 Date: September 9, 2026
 
-The exact checked in Phase 002 source revision `02671b000f0436e62ba8bc026aef14afa2cff3ea` passed the complete Forge GameTest discovery on headless node 1. This rerun was performed after the diagnostic only assertion change used by the earlier exploratory run had been reverted. No client, renderer, display, or graphical runtime was started.
+The Phase 002 source working tree at branch head `1a91baa3ced4cbe27674d129c98cc0cd93f147aa`, with the scoped target invalidation and walk target cleanup change recorded below, passed the complete Forge GameTest discovery on headless node 1. No client, renderer, display, or graphical runtime was started.
+
+Scoped change under verification: delayed bite victims and active or remembered targets are rejected when removed, dead, or from another level. Clearing such a target also clears the shark owned `WALK_TARGET` memory. The production change is covered by the existing target loss and recovery GameTests; a separate discard fixture was rejected as harness invalid because its out of scope shark was removed by the test runtime before the assertion.
 
 Environment:
 
@@ -10,12 +12,12 @@ Environment:
 * Forge 47.2.0
 * Java 17.0.19
 * EULA file preloaded and verified as `eula=true`
-* disposable runtime `/tmp/bfsm-p002-current-r34.yXZQDd`
+* disposable runtime `/tmp/bfsm-p002-gametest-20260909-r6`
 
 Command:
 
 ```text
-./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-p002-current-r34.yXZQDd
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-p002-gametest-20260909-r6
 ```
 
 Result:
@@ -32,7 +34,7 @@ The final dedicated runtime log hashes are:
 
 | File | SHA-256 | SHA-512 |
 | --- | --- | --- |
-| `logs/latest.log` | `49b3fe1e4905bd4270ca27ea27f0fc561c4609264001debe310adeb96f612f5b` | `08a8140486d5504936a764b808f1452e4a0686023242f187bd08dbfbbd9f68144a0a60bbbed42389bf3819459812138658597cbed442a1750e0038aa090a0a3b` |
-| `logs/debug.log` | `fcc9450a63422be57c71810ce8c4b6e8461678bd428c1e79c7bcf60a035c89ce` | `993cabcaae324a62b9b691cdc7b87fa04b30647c4eff958ea073c9d4524c6e9839646bb1bd1665874bdd0ba07fb98cde118162c60890a32e0652a828b0593b29` |
+| `logs/latest.log` | `24118776608a7b6b1020f902a7a0cdf6a00de493f8d81d7836d8e7eb946e43ae` | `e365c9add63df860eef51860c6d22604444ae818ca749de8cf19227dcf40f5bd3a6d461bf027b8b45f4343f028a8e06fabd01b03e0c3ccd164ef07d08dfd5c33` |
+| `logs/debug.log` | `9d6a01e3216b16d665825a7e5f95549c46ee0778261e63d6dad33351117154fb` | `36cd2410d9fa3f6c2ae8b46a7c628103aa5273ba655de2067495a8ca1ec741cfced9cb1616691aab41b4996598db82e27b4e9c38c33019731991a265b39116fc` |
 
 The run was stopped by the GameTest harness after saving all dimensions. The disposable runtime, worlds, generated configuration, and debug captures were removed after the log and result markers were inspected. Cleanup was verified. This closes the exact current source automated GameTest gate only. Packaged production server parity, laptop visual approval, multiplayer lifecycle, performance soak, documentation review, and phase integration remain open.
