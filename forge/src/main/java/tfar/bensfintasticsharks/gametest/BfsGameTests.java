@@ -774,6 +774,30 @@ public final class BfsGameTests {
     }
 
     @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 140)
+    public static void speciesPolicyReleasesSocialRouteWhenTargetDisappears(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        BottlenoseDolphinEntity actor = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN,
+                new BlockPos(3, 3, 3));
+        BottlenoseDolphinEntity target = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN,
+                new BlockPos(5, 3, 3));
+        actor.setNoAi(true);
+        target.setNoAi(true);
+        actor.setNoGravity(true);
+        target.setNoGravity(true);
+        helper.runAfterDelay(60, () -> {
+            helper.assertTrue(!"none".equals(actor.getBfsBehaviorAction()),
+                    "social actor must claim a bounded route before the target is removed");
+            target.kill();
+            helper.runAfterDelay(5, () -> {
+                helper.assertTrue("none".equals(actor.getBfsBehaviorAction()),
+                        "social route must clear when its remembered target disappears, action="
+                                + actor.getBfsBehaviorAction() + ", targetRemoved=" + target.isRemoved());
+                helper.succeed();
+            });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 140)
     public static void octopusCamouflageSamplesSupportAndReleasesWhenSupportIsRemoved(GameTestHelper helper) {
         prepareWaterVolume(helper);
         CommonOctopusEntity common = helper.spawn(ModEntityTypes.COMMON_OCTOPUS,

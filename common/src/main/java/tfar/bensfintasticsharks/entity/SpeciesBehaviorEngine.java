@@ -86,6 +86,11 @@ public final class SpeciesBehaviorEngine {
         if (profile == null || profile.family() == SpeciesBehaviorProfile.Family.SHARK) return;
 
         entity.tickBfsBehaviorAction();
+        entity.tickBfsBehaviorMemory();
+        if (entity.hasBfsBehaviorAction()
+                && (entity.hasLostBfsBehaviorTarget() || entity.hasExpiredBfsBehaviorMemory())) {
+            clearOwnedRoute(entity);
+        }
         if (entity.hasExpiredBfsBehaviorAction()) {
             BrainUtils.clearMemory(entity.getBrain(), MemoryModuleType.WALK_TARGET);
             entity.clearBfsBehaviorAction();
@@ -105,20 +110,23 @@ public final class SpeciesBehaviorEngine {
         LivingEntity threat = findThreat(entity, profile);
         if (threat != null && profile.threatResponse() != SpeciesBehaviorProfile.ThreatResponse.NONE) {
             Vec3 escape = findEscape(entity, threat, profile.scanRadius());
-            if (escape != null && claimRoute(entity, "escape", profile.actionTimeoutTicks(), escape, 1.35f)) return;
+            if (escape != null && claimRoute(entity, "escape", profile.actionTimeoutTicks(), escape,
+                    1.35f, threat, profile.memoryTicks())) return;
         }
 
         if (profile.needsSurface() && entity.getAirSupply() < 120) {
             Vec3 surface = findSurface(entity);
-            if (surface != null && claimRoute(entity, "breathe", profile.actionTimeoutTicks(), surface, 1.0f)) return;
+            if (surface != null && claimRoute(entity, "breathe", profile.actionTimeoutTicks(), surface,
+                    1.0f, null, 0)) return;
         }
 
         if (profile.social() && claimSocialRoute(entity, profile)) return;
 
         if (profile.foodMode() != SpeciesBehaviorProfile.FoodMode.PASSIVE
                 && profile.foodMode() != SpeciesBehaviorProfile.FoodMode.PLANKTON) {
-            Vec3 food = findFood(entity, profile);
-            if (food != null && claimRoute(entity, "feed", profile.actionTimeoutTicks(), food, 0.9f)) return;
+            TargetRoute food = findFood(entity, profile);
+            if (food != null && claimRoute(entity, "feed", profile.actionTimeoutTicks(), food.position(),
+                    0.9f, food.target(), profile.memoryTicks())) return;
         }
 
         if (profile.habitat() == SpeciesBehaviorProfile.Habitat.SEAFLOOR
@@ -126,7 +134,8 @@ public final class SpeciesBehaviorEngine {
                 || profile.locomotion() == SpeciesBehaviorProfile.Locomotion.BOTTOM_GLIDE
                 || profile.locomotion() == SpeciesBehaviorProfile.Locomotion.BOTTOM_GRAZE)) {
             Vec3 floor = findFloorRoute(entity);
-            if (floor != null) claimRoute(entity, "habitat", profile.actionTimeoutTicks(), floor, 0.65f);
+            if (floor != null) claimRoute(entity, "habitat", profile.actionTimeoutTicks(), floor,
+                    0.65f, null, 0);
         }
     }
 
@@ -143,7 +152,8 @@ public final class SpeciesBehaviorEngine {
             separation = entity.position().subtract(neighbors.get(0).position());
         }
         Vec3 target = center.add(separation.normalize().scale(2.5));
-        return claimRoute(entity, "social", profile.actionTimeoutTicks(), target, 0.85f);
+        return claimRoute(entity, "social", profile.actionTimeoutTicks(), target, 0.85f,
+                neighbors.get(0), profile.memoryTicks());
     }
 
     @Nullable
@@ -166,15 +176,15 @@ public final class SpeciesBehaviorEngine {
     }
 
     @Nullable
-    private static Vec3 findFood(SmartWaterAnimal<?> entity, SpeciesBehaviorProfile.Profile profile) {
+    private static TargetRoute findFood(SmartWaterAnimal<?> entity, SpeciesBehaviorProfile.Profile profile) {
         List<LivingEntity> candidates = nearby(entity, profile.scanRadius(), other ->
                 other != entity && other.isAlive() && isFood(entity, other, profile));
         LivingEntity prey = candidates.stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-        if (prey != null) return prey.position();
+        if (prey != null) return new TargetRoute(prey.position(), prey);
         if (profile.foodMode() == SpeciesBehaviorProfile.FoodMode.BENTHIC_INVERTEBRATE
                 || profile.foodMode() == SpeciesBehaviorProfile.FoodMode.ALGAE) {
             BlockPos block = findFoodBlock(entity, profile);
-            return block == null ? null : Vec3.atCenterOf(block);
+            return block == null ? null : new TargetRoute(Vec3.atCenterOf(block), null);
         }
         return findNearbyFoodItem(entity);
     }
@@ -195,12 +205,12 @@ public final class SpeciesBehaviorEngine {
     }
 
     @Nullable
-    private static Vec3 findNearbyFoodItem(SmartWaterAnimal<?> entity) {
+    private static TargetRoute findNearbyFoodItem(SmartWaterAnimal<?> entity) {
         List<ItemEntity> items = new ArrayList<>(MAX_CANDIDATES);
         entity.level().getEntities(EntityTypeTest.forClass(ItemEntity.class),
                 entity.getBoundingBox().inflate(8.0), ItemEntity::isAlive, items, MAX_CANDIDATES);
         ItemEntity item = items.stream().findFirst().orElse(null);
-        return item == null ? null : item.position();
+        return item == null ? null : new TargetRoute(item.position(), item);
     }
 
     @Nullable
@@ -267,10 +277,12 @@ public final class SpeciesBehaviorEngine {
     }
 
     private static boolean claimRoute(SmartWaterAnimal<?> entity, String action, int timeout,
-                                      Vec3 target, float speed) {
+                                      Vec3 target, float speed, @Nullable Entity trackedTarget,
+                                      int memoryTicks) {
         if (hasAnyWalkTarget(entity)) return false;
         BrainUtils.setMemory(entity.getBrain(), MemoryModuleType.WALK_TARGET, new WalkTarget(target, speed, 1));
         entity.beginBfsBehaviorAction(action, timeout);
+        entity.rememberBfsBehaviorTarget(trackedTarget, memoryTicks);
         return true;
     }
 
@@ -280,7 +292,7 @@ public final class SpeciesBehaviorEngine {
     }
 
     private static void clearOwnedRoute(SmartWaterAnimal<?> entity) {
-        if (entity.hasBfsBehaviorAction()) {
+        if (entity.hasBfsBehaviorAction() || entity.hasBfsBehaviorTarget()) {
             BrainUtils.clearMemory(entity.getBrain(), MemoryModuleType.WALK_TARGET);
             entity.clearBfsBehaviorAction();
         }
@@ -302,5 +314,8 @@ public final class SpeciesBehaviorEngine {
         source.level().getEntities(EntityTypeTest.forClass(LivingEntity.class), area, filter,
                 result, MAX_CANDIDATES);
         return List.copyOf(result);
+    }
+
+    private record TargetRoute(Vec3 position, @Nullable Entity target) {
     }
 }
