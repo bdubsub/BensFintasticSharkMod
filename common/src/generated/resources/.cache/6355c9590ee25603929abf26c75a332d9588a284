@@ -1,4 +1,5 @@
-// 1.20.1	2026-07-28T22:54:57.626416929	Tags for minecraft:worldgen/biome mod id bensfintasticsharks
+// 1.20.1	2026-09-10T18:27:39.172887707	Tags for minecraft:worldgen/biome mod id bensfintasticsharks
+1aa070a87fa86fbdcfe42fe151f6c30ec6a1957f data/bensfintasticsharks/tags/worldgen/biome/algae_spawns.json
 be20b245cf5a745a40579121d3b109a362774684 data/bensfintasticsharks/tags/worldgen/biome/american_lobster_spawns.json
 d5e853500010738b473ff0826db8d3625374dd6b data/bensfintasticsharks/tags/worldgen/biome/atlantic_cod_spawns.json
 41187f4b1a647075be3b57d1d120c13cd244841e data/bensfintasticsharks/tags/worldgen/biome/atlantic_salmon_spawns.json

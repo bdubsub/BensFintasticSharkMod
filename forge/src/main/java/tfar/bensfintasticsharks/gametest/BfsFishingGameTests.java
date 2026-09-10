@@ -40,47 +40,47 @@ public final class BfsFishingGameTests {
     private BfsFishingGameTests() {
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_transaction", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_nested_live", timeoutTicks = 20)
     public static void nestedFishInsertionCommitsOneCatch(GameTestHelper helper) {
         verifyDelivery(helper, FailureMode.REENTER, true);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_transaction", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_rejected_live", timeoutTicks = 20)
     public static void rejectedFishInsertionCannotRetryOrAwardCatch(GameTestHelper helper) {
         verifyDelivery(helper, FailureMode.REJECT, false);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_transaction", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_cancelled_live", timeoutTicks = 20)
     public static void cancelledFishingCannotCreateLiveRewards(GameTestHelper helper) {
         verifyDelivery(helper, FailureMode.CANCEL, false);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_transaction", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_replay_live", timeoutTicks = 20)
     public static void committedFishingCannotReplayAfterHookRemoval(GameTestHelper helper) {
         verifyDelivery(helper, FailureMode.NONE, true);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_transaction", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_removed_live", timeoutTicks = 20)
     public static void removedHookDuringInsertionCannotAwardCatch(GameTestHelper helper) {
         verifyDelivery(helper, FailureMode.REMOVE_HOOK, false);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_transaction", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_nested_item", timeoutTicks = 20)
     public static void nestedItemInsertionCommitsOneCatch(GameTestHelper helper) {
         verifyDelivery(helper, FailureMode.REENTER, true, false);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_transaction", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_rejected_item", timeoutTicks = 20)
     public static void rejectedItemInsertionCannotRetryOrAwardCatch(GameTestHelper helper) {
         verifyDelivery(helper, FailureMode.REJECT, false, false);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_transaction", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_cancelled_item", timeoutTicks = 20)
     public static void cancelledItemFishingCannotCreateRewards(GameTestHelper helper) {
         verifyDelivery(helper, FailureMode.CANCEL, false, false);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_transaction", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_removed_item", timeoutTicks = 20)
     public static void removedHookDuringItemInsertionCannotAwardCatch(GameTestHelper helper) {
         verifyDelivery(helper, FailureMode.REMOVE_HOOK, false, false);
     }

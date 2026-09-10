@@ -6,6 +6,10 @@
 
 Atlantic Cod and Atlantic Salmon fishing modifiers now attach to the vanilla fishing root table used by real rod retrieval. The retained advancement and packaged server verification records are linked from the documentation index.
 
+### Phase 003 verification
+
+The advancement graph, supplied icon presentation, copy audit, generated resources, dedicated server load, fresh progression path, and existing profile compatibility path were verified on the exact Forge candidate. Existing `shark_whisperer` progress is ignored without migration, and the surviving advancement progress file remains unchanged.
+
 ### Added
 
 - **Advancement artwork.** The seven supplied 16×16 icons are installed for their matching advancement entries.

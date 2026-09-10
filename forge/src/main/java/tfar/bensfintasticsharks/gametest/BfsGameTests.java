@@ -749,7 +749,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 100)
+    @GameTest(template = "empty", batch = "bfs_species_social_intent", timeoutTicks = 100)
     public static void speciesPolicyAssignsSocialIntentAndKeepsJellyfishPassive(GameTestHelper helper) {
         prepareWaterVolume(helper);
         BottlenoseDolphinEntity first = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN,
@@ -773,9 +773,10 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 140)
+    @GameTest(template = "empty", batch = "bfs_species_social_target_loss", timeoutTicks = 140)
     public static void speciesPolicyReleasesSocialRouteWhenTargetDisappears(GameTestHelper helper) {
         prepareWaterVolume(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(1, 1, 1), new BlockPos(10, 5, 10));
         BottlenoseDolphinEntity actor = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN,
                 new BlockPos(3, 3, 3));
         BottlenoseDolphinEntity target = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN,
@@ -797,7 +798,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 140)
+    @GameTest(template = "empty", batch = "bfs_species_camouflage", timeoutTicks = 140)
     public static void octopusCamouflageSamplesSupportAndReleasesWhenSupportIsRemoved(GameTestHelper helper) {
         prepareWaterVolume(helper);
         CommonOctopusEntity common = helper.spawn(ModEntityTypes.COMMON_OCTOPUS,
@@ -816,9 +817,13 @@ public final class BfsGameTests {
             helper.setBlock(new BlockPos(3, 0, 3), Blocks.WATER.defaultBlockState());
             helper.setBlock(new BlockPos(7, 0, 3), Blocks.WATER.defaultBlockState());
             helper.runAfterDelay(40, () -> {
-                helper.assertTrue(common.camouflageTargetWeight() == 0.0f
+                        helper.assertTrue(common.camouflageTargetWeight() == 0.0f
                                 && reef.camouflageTargetWeight() == 0.0f,
-                        "removing support must release concealment without changing entity identity");
+                                "removing support must release concealment without changing entity identity, common="
+                                + common.camouflageTargetWeight() + ", reef=" + reef.camouflageTargetWeight()
+                                + ", commonPos=" + common.position() + ", reefPos=" + reef.position()
+                                + ", commonBelow=" + helper.getLevel().getBlockState(common.blockPosition().below())
+                                + ", reefBelow=" + helper.getLevel().getBlockState(reef.blockPosition().below()));
                 common.discard();
                 reef.discard();
                 helper.succeed();
@@ -826,7 +831,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 130)
+    @GameTest(template = "empty", batch = "bfs_species_ink", timeoutTicks = 130)
     public static void octopusInkCloudIsFiniteAndNotDuplicated(GameTestHelper helper) {
         prepareWaterVolume(helper);
         CommonOctopusEntity octopus = helper.spawn(ModEntityTypes.COMMON_OCTOPUS,
@@ -852,7 +857,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 180)
+    @GameTest(template = "empty", batch = "bfs_species_threat_jet", timeoutTicks = 180)
     public static void octopusThreatUsesBoundedSafeJetAndCooldown(GameTestHelper helper) {
         prepareWaterVolume(helper);
         CommonOctopusEntity octopus = helper.spawn(ModEntityTypes.COMMON_OCTOPUS,
@@ -892,7 +897,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_species_policy", timeoutTicks = 80)
+    @GameTest(template = "empty", batch = "bfs_species_threat_no_route", timeoutTicks = 80)
     public static void octopusThreatWithoutSafeWaterRouteDoesNotEmit(GameTestHelper helper) {
         prepareWaterVolume(helper);
         CommonOctopusEntity octopus = helper.spawn(ModEntityTypes.COMMON_OCTOPUS,

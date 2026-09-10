@@ -86,3 +86,27 @@ The phase remains open. P003-TASK-002 is the next action and must resolve the
 Harbor Seal effective-model conflict before any icon visual or interim artifact
 gate can close. No owner plan, goal, phase sequence, archive, advancement
 identifier, or supplied pixel was changed.
+
+## P003-TASK-007 runtime and artifact checkpoint
+
+The exact packaged server, fresh encounter progression, deterministic checks,
+laptop handshake, visual approval, and old-profile compatibility evidence are
+recorded in `phase-003-task-007-runtime.md`. The approved candidate is
+`8a4127ce5f2b13ae034656fd639b4e3675f40a03e62183852b75a849250536d0`.
+
+The disposable production Forge server loaded the exact candidate from its
+`mods` directory with Forge 47.2.0, Java 17.0.19, GeckoLib 4.4.7, and
+SmartBrainLib 1.14.2. A fresh profile naturally completed `sharks_galore`,
+`marine_biologist`, `apex_of_apex`, and the retained Atlantic encounter
+advancements after fixture encounters. The retired ID is absent from the
+archive. The deterministic unit, data, GameTest, and build checks passed,
+including all 82 required GameTests.
+
+The exact candidate connected from the approved laptop Prism profile through
+the private server endpoint on the RTX 5090 client. EnVy approved the
+connected world, remastered presentation, and smooth movement result, closing
+the task 007 visual gate. The copied old-profile server accepted login,
+ignored the retired `shark_whisperer` progress entry, and left the progress
+file byte-identical before and after login. Phase 003 task 007 is complete.
+Task 008 remains for documentation, review, merge, cleanup, and signed phase
+tagging.

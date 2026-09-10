@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "phase": "BFS-PHASE-003",
-  "task": "P003-TASK-001",
+  "task": "P003-TASK-007",
   "date": "2026-09-10",
   "repository": {
     "branch": "envy/0.24-phase-003",
@@ -53,23 +53,25 @@
     "nodeIds": ["albino_encounter", "american_lobster_encounter", "apex_awareness", "apex_of_apex", "black_sea_nettle_encounter", "blacktip_reef_encounter", "cannonball_jellyfish_encounter", "captains_heir", "caribbean_reef_octopus_encounter", "common_octopus_encounter", "common_thresher_encounter", "conservationist", "deep_blue_encounter", "dolphin_friend", "fancy_fork", "fresh_catch", "gadus_morhua", "giant_moray_eel_encounter", "great_hammerhead_encounter", "great_white_encounter", "green_sea_turtle_encounter", "harbor_seal_encounter", "hidden_trove", "illegal_poaching", "inked", "justice_for_steve", "level_shark_codex", "lost_manuscript", "marine_biologist", "marine_curious", "nautilus_encounter", "oceanic_whitetip_encounter", "oh_my_cod", "prismarine_armor", "root", "salmo_salar", "sandtiger_encounter", "shark_codex", "shark_spotter", "sharks_galore", "shortfin_mako_encounter", "sleeping_with_the_fishes", "source_trust_me_bro", "specimen_8_encounter", "stung", "tiger_shark_encounter", "why_arent_you_red", "wrong_place_wrong_time", "zippy_encounter"]
   },
   "models": {
-    "flatGenerated": ["albino", "sharks_galore", "sleeping_with_the_fishes", "specimen_8", "mommy_shark", "zippy_pixel_art"],
-    "harborSealModelPath": "common/src/main/resources/assets/bensfintasticsharks/models/item/harbor_seal_block.json",
-    "harborSealModelKind": "hand-authored 3D",
-    "harborSealConflict": true
+    "flatGenerated": ["albino", "sharks_galore", "sleeping_with_the_fishes", "specimen_8", "mommy_shark", "zippy_pixel_art", "harbor_seal_block"],
+    "harborSealModelPath": "common/src/generated/resources/assets/bensfintasticsharks/models/item/harbor_seal_block.json",
+    "harborSealModelKind": "generated flat",
+    "harborSealConflict": false
   },
   "profiles": {
-    "freshProfile": "reserved for P003-TASK-007",
-    "oldProfile": "reserved for P003-TASK-007",
+    "freshProfile": "/tmp/bfsm-p003-prod-final4-20260910",
+    "oldProfile": "/tmp/bfsm-p003-old-profile-final-20260910",
     "ownerDataModified": false
   },
   "verification": {
-    "command": "./gradlew :forge:test --no-daemon --console=plain",
-    "exitCode": 0,
-    "logSha256": "9471287040a53d62ef8fe70d1cf2bc95e353e195e73056b7c44e47cfa1aeb3c2",
-    "logSha512": "26226b50d5b80cf07b3d61d4a282fe51cdb3122adef0932dce7e35bb8ea10900b6a2cff052315de2f3395bf59646a11aa173d501e5f53ed108cb1f3331f9a0bc",
+    "unitTests": {"command": "./gradlew :forge:test --no-daemon --console=plain", "exitCode": 0, "logSha256": "1108644024504dc5706efd0fba8eb7b14cd61cd7fd40549ea8aeb995332289cd"},
+    "data": {"command": "./gradlew :forge:Data --no-daemon --console=plain", "exitCode": 0, "logSha256": "54c413c6b8ce8d933b3d569a6f3391d9e2b5d9b403613bcdf039ac07f2f8d353", "generatedTreeDeterministic": true},
+    "gameTests": {"command": "./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain", "exitCode": 0, "requiredTestsPassed": 82, "logSha256": "e5edb3ff654ccfe5d92593f323245959cb05f8f69c455034402f7a2e502e3e4c"},
+    "build": {"command": "./gradlew :forge:build --no-daemon --console=plain", "exitCode": 0, "logSha256": "0cfc8a2f27e06b7b62fbddb84887f5f4da4de8140b77ce03d7837a2bd19517d6"},
+    "artifact": {"path": "forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar", "sha256": "8a4127ce5f2b13ae034656fd639b4e3675f40a03e62183852b75a849250536d0", "sha512": "f18257d43122c0e50fba8eab1c2fbe9720239ddf63882c484ef0c666f2436c9a42730ce12053f9cf2643eaed032f4ee122e3413870fb974b548aeb23232b708e", "zipTest": "passed"},
+    "runtime": {"serverRuntime": "/tmp/bfsm-p003-prod-final4-20260910", "serverEndpoint": "100.76.164.109:25982", "serverJava": "17.0.19", "serverLogSha256": "d20e13749e26095ab121c82e0470193452916d55436047cf1a393e64176d1f4b", "serverLogSha512": "3b66447cef307d52a5a1182b34bfdf80cbab01646b6edc605bc1ed8000dfe70634de98abe1ecba67bf428e35cd855f29d800b2740060c1885aec7aad9b5bcc9d", "clientJava": "17.0.15", "clientGpu": "NVIDIA GeForce RTX 5090 Laptop GPU", "clientLogSha256": "a35ce4126df8d620d2919b241bf626f5c31e8cf44d15da9a7152b02d06778dc", "clientCapture": "/tmp/bfsm-p003-final4-connected.png", "clientCaptureSha256": "fc83a9258c2528a58181db27e843240f7cdbbcaa68fc80923fdc601f07551e4a", "oldProfileRuntime": "/tmp/bfsm-p003-old-profile-final-20260910", "oldProfileServerEndpoint": "100.76.164.109:25984", "oldProfileProgressSha256": "cc79789df53e5c84a5b78e5b680cad118a2e990c8f916c7deb1e7c6f2ce73df7", "oldProfileServerLogSha256": "5b1b8bd72fbdfa6f152e0f9fd298797c026fc6d5fd6d23d8327654ebe4f47319", "oldProfileClientLogSha256": "2e30e2c6dc9cde350e968704fd835cbabb365388982c446cbada69ffbc15c601", "ownerVisualApproval": true, "ownerDataModified": false},
     "inheritedAudit": "passed",
     "phaseStatus": "open",
-    "nextTask": "P003-TASK-002"
+    "nextTask": "P003-TASK-008"
   }
 }
