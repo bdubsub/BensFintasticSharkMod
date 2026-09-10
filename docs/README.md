@@ -32,6 +32,7 @@
 * [Phase 003 task 003 advancement graph](verification/phase-003/phase-003-task-003-graph.md)
 * [Phase 003 task 004 advancement copy](verification/phase-003/phase-003-task-004-copy.md)
 * [Phase 003 task 005 deterministic audit](verification/phase-003/phase-003-task-005-audit.md)
+* [Phase 003 task 006 data generation](verification/phase-003/phase-003-task-006-data.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
 * [Phase 000 test runbook](test/phase-000-runbook.md)
