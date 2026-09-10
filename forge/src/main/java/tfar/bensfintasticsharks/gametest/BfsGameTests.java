@@ -2799,6 +2799,29 @@ public final class BfsGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_pitch_progress", timeoutTicks = 120)
+    public static void fishKeepsForwardPropulsionWhileLevelingPitch(GameTestHelper helper) {
+        prepareVerticalWaterVolume(helper);
+        AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(8, 8, 8));
+        cod.getBrain().removeAllBehaviors();
+        cod.goalSelector.removeAllGoals(goal -> true);
+        cod.targetSelector.removeAllGoals(goal -> true);
+        cod.setPersistenceRequired();
+        cod.setYRot(0.0F);
+        cod.yBodyRot = 0.0F;
+        cod.yHeadRot = 0.0F;
+        cod.setXRot(-40.0F);
+        Vec3 start = cod.position();
+        cod.getMoveControl().setWantedPosition(start.x, start.y, start.z + 4.0, 1.0);
+        helper.runAfterDelay(1, () -> {
+            helper.assertTrue(cod.position().z > start.z + 1.0e-8,
+                    "a fish must keep forward propulsion while leveling from an opposing pitch");
+            helper.assertTrue(Math.abs(cod.getXRot()) < 40.0F,
+                    "a fish must begin a smooth pitch correction while it continues forward");
+            helper.succeed();
+        });
+    }
+
     private static void verifyDepthEntryProgress(GameTestHelper helper, EntityType<? extends Mob> type, int height) {
         prepareVerticalWaterVolume(helper);
         Mob mob = helper.spawn(type, new BlockPos(12, 10, 8));

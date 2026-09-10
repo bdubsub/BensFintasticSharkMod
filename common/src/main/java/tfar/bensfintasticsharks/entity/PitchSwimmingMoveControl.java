@@ -356,8 +356,17 @@ public class PitchSwimmingMoveControl extends MoveControl {
             speedCap = Math.min(speedCap,
                     Math.abs(mob.getSpeed()) * verticalSpeedRatio / Math.abs(forward.y));
             if (meaningfulVerticalError) {
-                if (remainingVerticalDistance * forward.y < -1.0e-6) speedCap = 0;
-                else speedCap = Math.min(speedCap, Math.abs(remainingVerticalDistance) / Math.abs(forward.y));
+                boolean correctingVerticalDirection = remainingVerticalDistance * forward.y < -1.0e-6;
+                if (correctingVerticalDirection) {
+                    // Keep a small forward crawl while the nose crosses level. This
+                    // prevents a stationary nose-up pose without letting the temporary
+                    // opposing vertical component create a horizontal orbit.
+                    double levelingCap = Math.max(0.01,
+                            Math.abs(mob.getSpeed()) * verticalSpeedRatio * 0.125);
+                    speedCap = Math.min(speedCap, levelingCap);
+                } else {
+                    speedCap = Math.min(speedCap, Math.abs(remainingVerticalDistance) / Math.abs(forward.y));
+                }
             }
         }
         if (propulsionInput > 0) speed = Math.min(speed, speedCap);
