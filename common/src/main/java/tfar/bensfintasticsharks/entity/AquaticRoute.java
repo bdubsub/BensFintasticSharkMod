@@ -19,7 +19,8 @@ public final class AquaticRoute {
                                       float pitchLimit, double clearance) {
         Vec3 delta = destination.subtract(position);
         double horizontal = delta.horizontalDistance();
-        double minimumRun = Math.abs(delta.y) / Math.tan(Math.toRadians(Math.min(90, Math.abs(pitchLimit))));
+        double minimumRun = 1.5 * Math.abs(delta.y)
+                / Math.tan(Math.toRadians(Math.min(90, Math.abs(pitchLimit))));
         if (Math.abs(delta.y) <= 0.35 || horizontal >= Math.max(0.35, minimumRun)) return null;
         double required = minimumRun + clearance;
         Vec3 bearing = horizontal > clearance

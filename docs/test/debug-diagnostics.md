@@ -35,6 +35,10 @@ For fish and sharks using the pitch route controller, movement samples include `
 
 For an arrival regression, capture the full starting position, intended destination, transition, final position and the next requested destination. Reaching the destination's height alone is not arrival. Compare actual position deltas with pitch and both yaw values. Check route retries, terrain contact and progress before requesting visual review. A headless pass still does not approve appearance or animation.
 
+`pitchExitActive` identifies a translating level exit after a route stops. The original `routeState` retains its terminal reason. `pitchRate` records the controller's angular state in degrees per tick. `depthCurvature` is the signed planned vertical plane curvature in inverse blocks, and `routeSpeedCap` is the resulting scalar limit in blocks per tick, or `unbounded` when no route limit exists. Compare these fields with measured position and pitch deltas. An active exit is not proof that the full destination was reached, and a speed cap is not measured travel.
+
+To investigate a nose held up without travel, capture at least 200 ticks through the active approach and its exit. Check forward displacement during pitch changes and continued movement while leveling, not just whether the pitch eventually changes. A physically obstructed exit must retain a safe pose rather than rotate against terrain. The dedicated depth entry and settling fixtures cover these cases without requiring a player connection.
+
 ## Fishing capture
 
 Use `all` or `advancement` for fishing investigations. Fishing events do not require a selected animal or a connected owner. Ordinary players still fish normally; the capture is enabled only by the existing trusted command source. No separate fishing command or permission is added.

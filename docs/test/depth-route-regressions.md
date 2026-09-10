@@ -73,6 +73,23 @@ The replacement cruise capture, `27fabcb8-a944-4f36-940b-4f4f7b68ce85`, ran for 
 
 The completed headless test runtimes and local deployment scratch were removed after preserving these results. The isolated multiplayer server, laptop client and exact client audio watcher remain active only for the pending bounded visual review. Their teardown is still pending; the complete multiplayer workflow is not cleanup complete.
 
+## Translating pitch and level exit repair
+
+The later owner video and server trace exposed another failure in source revision `73678d936f8fb61362fad13e21f922676bfacd4f`. Pitch error and remaining pitch margin independently reduced scalar travel while the nose continued turning. Arrival or cancellation then entered `WAIT` without completing a level exit. One captured Cod held a 28.410141 degree upward pose for 3.2 seconds while moving only 0.024956 blocks horizontally, without terrain collision. Increasing the class vertical ceiling did not repair this route control failure.
+
+The repaired approach uses a parametric cubic curve with the current forward tangent and a level terminal tangent. It calculates turning demand without dividing by horizontal velocity or taking a tangent at a vertical pole. Scalar speed follows the curve's bounded pitch demand instead of the former pitch error and margin brakes. The clearance run reserves the level exit as well as depth gain. Pitch integrates during powered travel, with angular braking before the existing hard limits. Route termination retains its reason and may finish a forward translating level exit after checking its water and collision clearance. The movement controller continues to own heading during that exit. It does not rotate a blocked actor against terrain.
+
+Seven new dedicated GameTests cover Cod, Salmon and Tiger recovery from a tilted arrival, plus Cod, Salmon, Tiger and Oceanic forward progress during depth entry. The progress fixtures require more than one block of forward displacement and more than ten degrees of body pitch within 201 sampled ticks, retain the pitch rate and acceleration ceilings, and reject a sideways heading sweep on the clear forward route. The level exit fixtures require less than one degree of residual pitch and more than a quarter block of forward displacement. Sharks in these controlled locomotion fixtures receive a hunt cooldown so nearby test actors cannot replace the requested route. This is motion isolation, not natural predation or rendering evidence.
+
+The Oceanic invalidation fixture now waits for a real water state update before arming its grab, within its unchanged timeout. An earlier run attempted to arm the grab while that cached state was still false. Another run reused a populated test world and failed the population observation; that result was rejected and the final suite used a fresh world. No population assertion or production cap was weakened.
+
+The final Java 17 run on node 1 passed all 43 unit tests with no skips, all 80 required dedicated server GameTests and the Forge build. ZIP integrity and packaged controller checks passed. The verified candidate is `BensFintasticSharks-forge-1.20.1-0.24.jar`, 2,002,524 bytes.
+
+* SHA 256: `44f197c0026ba6891bee1baa114b730abc2c00d162d5c00ba4af9e8484c835c9`.
+* SHA 512: `e88845bb09a7a300f07ab7415329141a211c5ba5897eb4970ba1d4a96ce9603dea8e40c1f4928b2357d05e7f3ddfdf01963f1bd5ac96eb5940669fec67c129fc`.
+
+The 25 percent shark and 20 percent fish ceilings, accepted level speed and yaw, authored animations, external velocity accounting and original progress timeout are unchanged. These results establish the focused server regression, not owner approval of the rendered candidate or complete species calibration.
+
 ## Limits and next acceptance
 
 Accumulated heading is a useful regression detector, not a complete implementation of the plan's path topology checks. Swept rendered body geometry, measured anatomical length, spatial pitch curvature, acceleration and jerk calibration, explicit external-force attribution, mixed-species behavior and the final presentation matrix remain separate Phase 002 gates. Do not infer those passes from destination arrival.

@@ -490,6 +490,14 @@ public final class BfsDebugManager {
                 record.addProperty("arrivalReason", steering.state());
                 record.addProperty("remainingDistance", steering.remainingDistance());
                 record.addProperty("stalledTicks", steering.stalledTicks());
+                record.addProperty("pitchExitActive", steering.settling());
+                record.addProperty("pitchRate", steering.pitchRate());
+                record.addProperty("depthCurvature", steering.depthCurvature());
+                if (Double.isFinite(steering.routeSpeedCap())) {
+                    record.addProperty("routeSpeedCap", steering.routeSpeedCap());
+                } else {
+                    record.addProperty("routeSpeedCap", "unbounded");
+                }
                 record.addProperty("scalarPropulsionSpeed", steering.poweredVelocity().length());
                 record.addProperty("verticalSpeedRatio", steering.verticalSpeedRatio());
                 record.addProperty("verticalReferenceSpeed", steering.verticalReferenceSpeed());

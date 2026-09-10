@@ -1914,7 +1914,9 @@ public final class BfsGameTests {
         player.setNoGravity(true);
         player.setPos(helper.absolutePos(new BlockPos(5, 3, 3)).getCenter());
         helper.getLevel().addFreshEntity(player);
-        helper.runAfterDelay(2, () -> {
+        helper.startSequence().thenWaitUntil(() -> helper.assertTrue(shark.isInWater(),
+                "The grab fixture must finish its first water state update before arming."))
+                .thenExecute(() -> {
             Vec3 anchor = helper.absolutePos(new BlockPos(4, 3, 3)).getCenter();
             shark.setPos(anchor.x, anchor.y, anchor.z);
             shark.setDeltaMovement(Vec3.ZERO);
@@ -2720,6 +2722,98 @@ public final class BfsGameTests {
     public static void sharkVerticalRouteFollowsDolphinWithoutOrbit(GameTestHelper helper) {
         runVerticalRoute(helper, new BlockPos(4, 5, 4), new BlockPos(4, 9, 4),
                 new BlockPos(20, 5, 20), new BlockPos(20, 9, 20), 1);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_pitch_settling", timeoutTicks = 400)
+    public static void codLevelsWhileTranslatingAfterArrival(GameTestHelper helper) {
+        verifyPitchSettling(helper, ModEntityTypes.ATLANTIC_COD, -28);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_pitch_settling", timeoutTicks = 400)
+    public static void salmonLevelsWhileTranslatingAfterArrival(GameTestHelper helper) {
+        verifyPitchSettling(helper, ModEntityTypes.ATLANTIC_SALMON, 35);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_pitch_settling", timeoutTicks = 400)
+    public static void tigerLevelsWhileTranslatingAfterArrival(GameTestHelper helper) {
+        verifyPitchSettling(helper, ModEntityTypes.TIGER_SHARK, -28);
+    }
+
+    private static void verifyPitchSettling(GameTestHelper helper, EntityType<? extends Mob> type, float pitch) {
+        prepareVerticalWaterVolume(helper);
+        Mob mob = helper.spawn(type, new BlockPos(12, 5, 12));
+        mob.getBrain().removeAllBehaviors();
+        mob.goalSelector.removeAllGoals(goal -> true);
+        mob.targetSelector.removeAllGoals(goal -> true);
+        if (mob instanceof AbstractSharkEntity<?> shark) shark.setHuntCooldown(500);
+        mob.setPersistenceRequired();
+        mob.setXRot(pitch);
+        Vec3 start = mob.position();
+        mob.getMoveControl().setWantedPosition(start.x, start.y, start.z, 1);
+        helper.runAfterDelay(160, () -> {
+            helper.assertTrue(Math.abs(mob.getXRot()) < 1,
+                    "Arrival must finish the level exit. pitch=" + mob.getXRot());
+            helper.assertTrue(mob.position().subtract(start).horizontalDistance() > 0.25,
+                    "Leveling must include forward travel rather than a stationary swivel.");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_pitch_progress", timeoutTicks = 500)
+    public static void codTranslatesThroughoutDepthEntry(GameTestHelper helper) {
+        verifyDepthEntryProgress(helper, ModEntityTypes.ATLANTIC_COD, 4);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_pitch_progress", timeoutTicks = 500)
+    public static void salmonTranslatesThroughoutDepthEntry(GameTestHelper helper) {
+        verifyDepthEntryProgress(helper, ModEntityTypes.ATLANTIC_SALMON, -4);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_pitch_progress", timeoutTicks = 500)
+    public static void tigerTranslatesThroughoutDepthEntry(GameTestHelper helper) {
+        verifyDepthEntryProgress(helper, ModEntityTypes.TIGER_SHARK, 4);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_pitch_progress", timeoutTicks = 500)
+    public static void oceanicTranslatesThroughoutDepthEntry(GameTestHelper helper) {
+        verifyDepthEntryProgress(helper, ModEntityTypes.OCEANIC_WHITETIP_SHARK, -4);
+    }
+
+    private static void verifyDepthEntryProgress(GameTestHelper helper, EntityType<? extends Mob> type, int height) {
+        prepareVerticalWaterVolume(helper);
+        Mob mob = helper.spawn(type, new BlockPos(12, 10, 8));
+        mob.getBrain().removeAllBehaviors();
+        mob.goalSelector.removeAllGoals(goal -> true);
+        mob.targetSelector.removeAllGoals(goal -> true);
+        if (mob instanceof AbstractSharkEntity<?> shark) shark.setHuntCooldown(500);
+        mob.setPersistenceRequired();
+        Vec3 start = mob.position();
+        mob.getMoveControl().setWantedPosition(start.x, start.y + height, start.z + 7, 1);
+        sampleDepthEntryProgress(helper, mob, start, 0, mob.getXRot(), 0, 0);
+    }
+
+    private static void sampleDepthEntryProgress(GameTestHelper helper, Mob mob, Vec3 start, int tick,
+                                                  float previousPitch, float previousRate, float largestPitch) {
+        helper.runAfterDelay(1, () -> {
+            float rate = mob.getXRot() - previousPitch;
+            float peak = Math.max(largestPitch, Math.abs(mob.getXRot()));
+            helper.assertTrue(Math.abs(rate) <= AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK + 0.0001,
+                    "Depth entry must preserve the pitch rate ceiling.");
+            helper.assertTrue(Math.abs(rate - previousRate) <= AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK + 0.0001,
+                    "Depth entry must preserve angular acceleration.");
+            helper.assertTrue(Math.abs(Mth.wrapDegrees(mob.getYRot())) < 1,
+                    "A clear forward depth route must not sweep left and right. tick=" + tick
+                            + ", yaw=" + mob.getYRot() + ", target=" + mob.getTarget());
+            if (tick == 200) {
+                double horizontal = mob.position().subtract(start).horizontalDistance();
+                helper.assertTrue(horizontal > 1.0 && peak > 10,
+                        "Depth entry must translate while visibly pitching. horizontal=" + horizontal
+                                + ", peakPitch=" + peak + ", position=" + mob.position());
+                helper.succeed();
+            } else {
+                sampleDepthEntryProgress(helper, mob, start, tick + 1, mob.getXRot(), rate, peak);
+            }
+        });
     }
 
     @GameTest(template = "empty", batch = "bfs_route_arrival", timeoutTicks = 3250)
