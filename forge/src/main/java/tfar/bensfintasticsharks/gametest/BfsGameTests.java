@@ -2826,10 +2826,12 @@ public final class BfsGameTests {
         cod.yHeadRot = 0.0F;
         cod.setXRot(-40.0F);
         Vec3 start = cod.position();
-        cod.getMoveControl().setWantedPosition(start.x, start.y, start.z + 4.0, 1.0);
-        helper.runAfterDelay(1, () -> {
-            helper.assertTrue(cod.position().z > start.z + 1.0e-8,
-                    "a fish must keep forward propulsion while leveling from an opposing pitch");
+        cod.getMoveControl().setWantedPosition(start.x, start.y - 4.0, start.z + 4.0, 1.0);
+        helper.runAfterDelay(20, () -> {
+            helper.assertTrue(cod.position().z > start.z + 0.25,
+                    "a fish must keep meaningful forward propulsion while leveling from an opposing pitch. start="
+                            + start + ", position=" + cod.position() + ", delta=" + cod.getDeltaMovement()
+                            + ", pitch=" + cod.getXRot() + ", steering=" + cod.getMoveControl());
             helper.assertTrue(Math.abs(cod.getXRot()) < 40.0F,
                     "a fish must begin a smooth pitch correction while it continues forward");
             helper.succeed();

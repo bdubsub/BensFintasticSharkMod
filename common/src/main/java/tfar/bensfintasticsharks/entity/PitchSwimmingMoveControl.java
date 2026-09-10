@@ -39,6 +39,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
     private boolean committedHeading;
     private float committedYaw;
     private double remainingVerticalDistance;
+    private boolean routeStartedWithOpposingPitch;
 
     @Override
     public boolean hasWanted() {
@@ -127,6 +128,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
             requestedGoal = goal;
             routeAttempt++;
             navigationOwned = path != null;
+            routeStartedWithOpposingPitch = isOpposingPitch(
+                    AquaticMovement.forwardVector(mob.getYRot(), mob.getXRot()), goal.y - mob.getY());
             route = createRoute(goal);
             if (route == null && path == null && !clearSegment(mob.position(), goal)) {
                 blockedGoal = goal;
@@ -210,9 +213,15 @@ public class PitchSwimmingMoveControl extends MoveControl {
         // telemetry and pitch-rate ceiling, but retain enough scalar propulsion to make the
         // approved class vertical component attainable. The travel integrator applies the same
         // ceiling again to the actual body-forward vector.
-        double verticalTravelFloor = Math.abs(mob.getSpeed()) * verticalSpeedRatio;
+        Vec3 routeForward = AquaticMovement.forwardVector(mob.getYRot(), mob.getXRot());
+        boolean opposingPitch = routeStartedWithOpposingPitch && isOpposingPitch(routeForward)
+                && (route == null || route.isApproaching() || !navigationOwned);
+        // Keep scalar propulsion at cruise speed while an already pitched body reorients. The
+        // established vertical floor remains in force for ordinary routes and final approach.
+        double forwardTravelFloor = Math.abs(mob.getSpeed())
+                * (opposingPitch ? 1.0 : verticalSpeedRatio);
         routeSpeedCap = Math.min(distance * 0.1,
-                Math.max(depthGuidance.speedLimit(), verticalTravelFloor));
+                Math.max(depthGuidance.speedLimit(), forwardTravelFloor));
         routeSpeedCap *= Math.max(0.25, headingThrottle);
 
         if (distance < bestWaypointDistance - 1.0e-4) {
@@ -293,9 +302,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
         if (mob.getSpeed() <= 0) {
             mob.setSpeed((float) mob.getAttributeValue(Attributes.MOVEMENT_SPEED) * waterSpeedMultiplier);
         }
-        // Leveling is powered swimming, not a stationary pose correction. Use the existing
-        // species vertical travel class as the conservative forward floor, then let travel()
-        // enforce the same projection cap for every intermediate pitch.
+        // Leveling is powered swimming, not a stationary pose correction. Keep the existing
+        // species vertical travel class as the conservative floor for the final pose exit.
         double exitSpeed = Math.abs(mob.getSpeed()) * verticalSpeedRatio;
         if (!reserved) {
             // A full-speed level exit can be valid in open water but exceed a bounded fixture or
@@ -351,19 +359,18 @@ public class PitchSwimmingMoveControl extends MoveControl {
         if (propulsionInput > 0) speed = Math.max(speed, speedFloor);
         Vec3 forward = AquaticMovement.forwardVector(mob.getYRot(), mob.getXRot());
         boolean meaningfulVerticalError = Math.abs(remainingVerticalDistance) > 0.05;
+        boolean opposingPitch = routeStartedWithOpposingPitch && isOpposingPitch(forward)
+                && (route == null || route.isApproaching() || !navigationOwned);
         double speedCap = Math.min(horizontalCap / Math.max(1.0e-8, forward.horizontalDistance()), routeSpeedCap);
-        if (Math.abs(forward.y) > 1.0e-8) {
+        if (Math.abs(forward.y) > 1.0e-8 && !opposingPitch) {
             speedCap = Math.min(speedCap,
                     Math.abs(mob.getSpeed()) * verticalSpeedRatio / Math.abs(forward.y));
             if (meaningfulVerticalError) {
                 boolean correctingVerticalDirection = remainingVerticalDistance * forward.y < -1.0e-6;
                 if (correctingVerticalDirection) {
-                    // Keep a small forward crawl while the nose crosses level. This
-                    // prevents a stationary nose-up pose without letting the temporary
-                    // opposing vertical component create a horizontal orbit.
-                    double levelingCap = Math.max(0.01,
-                            Math.abs(mob.getSpeed()) * verticalSpeedRatio * 0.125);
-                    speedCap = Math.min(speedCap, levelingCap);
+                    double levelingCap = Math.abs(mob.getSpeed()) * verticalSpeedRatio
+                            * (route == null || route.isApproaching() ? 1.0 : 0.125);
+                    speedCap = Math.min(speedCap, Math.max(0.01, levelingCap));
                 } else {
                     speedCap = Math.min(speedCap, Math.abs(remainingVerticalDistance) / Math.abs(forward.y));
                 }
@@ -399,19 +406,18 @@ public class PitchSwimmingMoveControl extends MoveControl {
             nextRate = Mth.clamp(nextRate, pitchRate - accelerationMargin, pitchRate + accelerationMargin);
             float nextPitch = Mth.clamp(mob.getXRot() + nextRate, -upwardLimit, downwardLimit);
             Vec3 nextForward = AquaticMovement.forwardVector(mob.getYRot(), nextPitch);
-            if (Math.abs(nextForward.y) > 1.0e-8) {
-                speed = Math.min(speed, Math.abs(mob.getSpeed()) * verticalSpeedRatio / Math.abs(nextForward.y));
-                if (meaningfulVerticalError) {
-                    speed = Math.min(speed, Math.abs(remainingVerticalDistance) / Math.abs(nextForward.y));
-                }
+            if (meaningfulVerticalError && Math.abs(nextForward.y) > 1.0e-8) {
+                speed = Math.min(speed, Math.abs(remainingVerticalDistance) / Math.abs(nextForward.y));
             }
-            if (clearSegment(mob.position(), mob.position().add(nextForward.scale(speed)))) {
+            Vec3 nextPowered = opposingPitch
+                    ? limitVerticalTravel(nextForward.scale(speed)) : nextForward.scale(speed);
+            if (clearSegment(mob.position(), mob.position().add(nextPowered))) {
                 pitchRate = nextPitch - mob.getXRot();
                 mob.setXRot(nextPitch);
                 forward = nextForward;
             }
         }
-        Vec3 powered = forward.scale(speed);
+        Vec3 powered = opposingPitch ? limitVerticalTravel(forward.scale(speed)) : forward.scale(speed);
         mob.setDeltaMovement(external.add(powered));
         mob.move(MoverType.SELF, mob.getDeltaMovement());
         Vec3 afterCollision = mob.getDeltaMovement();
@@ -423,5 +429,21 @@ public class PitchSwimmingMoveControl extends MoveControl {
 
     private static double externalComponent(double observed, double owned) {
         return observed == 0 && Math.abs(owned) < 0.003 ? 0 : observed - owned;
+    }
+
+    private Vec3 limitVerticalTravel(Vec3 powered) {
+        double verticalCeiling = Math.abs(mob.getSpeed()) * verticalSpeedRatio;
+        if (Math.abs(powered.y) <= verticalCeiling) return powered;
+        return new Vec3(powered.x, Math.copySign(verticalCeiling, powered.y), powered.z);
+    }
+
+    private boolean isOpposingPitch(Vec3 forward) {
+        return isOpposingPitch(forward, remainingVerticalDistance);
+    }
+
+    private boolean isOpposingPitch(Vec3 forward, double verticalDistance) {
+        return Math.abs(verticalDistance) > 0.05
+                && Math.abs(mob.getXRot()) > 0.05F
+                && verticalDistance * forward.y < -1.0e-6;
     }
 }
