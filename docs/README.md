@@ -29,6 +29,7 @@
 * [Phase 003 baseline evidence](verification/phase-003/phase-003-evidence.md)
 * [Phase 003 baseline manifest](verification/phase-003/phase-003-manifest.json)
 * [Phase 003 task 002 icon pipeline](verification/phase-003/phase-003-task-002-icons.md)
+* [Phase 003 task 003 advancement graph](verification/phase-003/phase-003-task-003-graph.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
 * [Phase 000 test runbook](test/phase-000-runbook.md)
