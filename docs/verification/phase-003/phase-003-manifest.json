@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "phase": "BFS-PHASE-003",
+  "task": "P003-TASK-001",
+  "date": "2026-09-10",
+  "repository": {
+    "branch": "envy/0.24-phase-003",
+    "baseRef": "origin/envy/0.24",
+    "baseCommit": "1ff812cba6863eec9580c7255927aee0511fc8a2",
+    "upstreamTag": "bfs-0.24-phase-002",
+    "game": "1.20.1",
+    "forge": "47.2.0",
+    "java": "17"
+  },
+  "archives": {
+    "bfs-0.24-content.zip": {
+      "path": "/mnt/hermes/projects/BFSMOD/Content/BFS 0.24 Content.zip",
+      "sha256": "25290e8d019339aff68c8ba168bd750d5c445aa915720d249aeed5700c9f3274",
+      "sha512": "cc18be0e963823e8cd2c220a8ee3a565a626311c8c4e66a0c0674d58fa93f61d2600558a539f575cbfdec02ee113ccbda5ba8a2a57c3185bc9a3ad6baf42f63e"
+    },
+    "bfs-0.23-content.zip": {
+      "path": "/mnt/hermes/projects/BFSMOD/Content/BFS 0.23 Content.zip",
+      "sha256": "1dcfd0db544184bffd467255ba294b57f0a1376b06023f10034f380b9e5d0eaa",
+      "sha512": "09a8bb217d25cb146f6b63c38c2b269c0c7b8d862459cc0916f4d93b12da81001a6bd308d745ef5b86c0cb3816bc9e7ae222b5b7aaae96eb4b42ba26e7a11527"
+    }
+  },
+  "icons": [
+    {"archiveEntry": "Awkward Advancement Icon 16x.png", "advancement": "harbor_seal_encounter", "item": "harbor_seal_block", "sha256": "e5e531f62b458fea3ab50b1e61abc4504c75453fa7cd06c8640aabf794b0abd1", "dimensions": "16x16"},
+    {"archiveEntry": "Its A Shiny Advancement Icon 16x.png", "advancement": "albino_encounter", "item": "albino", "sha256": "e0638a22ee40480f03a7e4361ff324e4a8d9b1cb93590a2ec695b2830f79ab76", "dimensions": "16x16"},
+    {"archiveEntry": "Sharks Galore Advancement Icon 16x.png", "advancement": "sharks_galore", "item": "sharks_galore", "sha256": "11f66a72567bb8ae16aa2022ca21778d43eb0d0fcbb531b21d34e03fa4e020f6", "dimensions": "16x16"},
+    {"archiveEntry": "Sleeping With The Fishes Advancement Icon 16x.png", "advancement": "sleeping_with_the_fishes", "item": "sleeping_with_the_fishes", "sha256": "6c01085423275d602fbad91924a8772249c1a8dbeee749f5e1e9907df0995977", "dimensions": "16x16"},
+    {"archiveEntry": "Specimen8 Advancement Icon 16x.png", "advancement": "specimen_8_encounter", "item": "specimen_8", "sha256": "88f6dc345a7c399034142cf2bebc54fdd488e41b9f36f19d470806d393c1fc65", "dimensions": "16x16"},
+    {"archiveEntry": "Mommy Shark Advancement 16x.png", "advancement": "deep_blue_encounter", "item": "mommy_shark", "sha256": "58fb46c5267ea9b6e027fdaf4532ad2d76de7dcf75aa046367f3720f18c00cde", "dimensions": "16x16"},
+    {"archiveEntry": "Thunder Bringer Advancement 16x.png", "advancement": "zippy_encounter", "item": "zippy_pixel_art", "sha256": "4f54793625dc71ab456ca58de55b6bfe015f586c81930d11b72d5a3d6942595d", "dimensions": "16x16"}
+  ],
+  "providers": {
+    "advancements": {"path": "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/BensFintasticSharksAdvancements.java", "sha256": "b72c584682e07fde3f86cf9d7afc64ea3327338ae3cc6c5e11ba0d57fff99c89"},
+    "language": {"path": "forge/src/main/java/tfar/bensfintasticsharks/datagen/ModLangProvider.java", "sha256": "e154edd5da47913d984f0926b599ad09c54f32f307d27e7be6ee916095463b81"},
+    "generatedLanguage": {"path": "common/src/generated/resources/assets/bensfintasticsharks/lang/en_us.json", "sha256": "1ab4da32d7267324c6f73bf93a9cbfa6fe410e28186164bfdc8d6b06bbb12238", "advancementKeyCount": 98},
+    "generatedAdvancementCount": 49,
+    "retiredNode": "shark_whisperer",
+    "retiredNodePresent": false,
+    "requiredParents": {
+      "marine_biologist": "bensfintasticsharks:sharks_galore",
+      "apex_of_apex": "bensfintasticsharks:sharks_galore"
+    }
+  },
+  "graphInventory": {
+    "root": "root",
+    "marineCuriousCriteria": 22,
+    "sharksGaloreCriteria": 8,
+    "marineBiologistCriteria": 22,
+    "nodeIds": ["albino_encounter", "american_lobster_encounter", "apex_awareness", "apex_of_apex", "black_sea_nettle_encounter", "blacktip_reef_encounter", "cannonball_jellyfish_encounter", "captains_heir", "caribbean_reef_octopus_encounter", "common_octopus_encounter", "common_thresher_encounter", "conservationist", "deep_blue_encounter", "dolphin_friend", "fancy_fork", "fresh_catch", "gadus_morhua", "giant_moray_eel_encounter", "great_hammerhead_encounter", "great_white_encounter", "green_sea_turtle_encounter", "harbor_seal_encounter", "hidden_trove", "illegal_poaching", "inked", "justice_for_steve", "level_shark_codex", "lost_manuscript", "marine_biologist", "marine_curious", "nautilus_encounter", "oceanic_whitetip_encounter", "oh_my_cod", "prismarine_armor", "root", "salmo_salar", "sandtiger_encounter", "shark_codex", "shark_spotter", "sharks_galore", "shortfin_mako_encounter", "sleeping_with_the_fishes", "source_trust_me_bro", "specimen_8_encounter", "stung", "tiger_shark_encounter", "why_arent_you_red", "wrong_place_wrong_time", "zippy_encounter"]
+  },
+  "models": {
+    "flatGenerated": ["albino", "sharks_galore", "sleeping_with_the_fishes", "specimen_8", "mommy_shark", "zippy_pixel_art"],
+    "harborSealModelPath": "common/src/main/resources/assets/bensfintasticsharks/models/item/harbor_seal_block.json",
+    "harborSealModelKind": "hand-authored 3D",
+    "harborSealConflict": true
+  },
+  "profiles": {
+    "freshProfile": "reserved for P003-TASK-007",
+    "oldProfile": "reserved for P003-TASK-007",
+    "ownerDataModified": false
+  },
+  "verification": {
+    "command": "./gradlew :forge:test --no-daemon --console=plain",
+    "exitCode": 0,
+    "logSha256": "9471287040a53d62ef8fe70d1cf2bc95e353e195e73056b7c44e47cfa1aeb3c2",
+    "logSha512": "26226b50d5b80cf07b3d61d4a282fe51cdb3122adef0932dce7e35bb8ea10900b6a2cff052315de2f3395bf59646a11aa173d501e5f53ed108cb1f3331f9a0bc",
+    "inheritedAudit": "passed",
+    "phaseStatus": "open",
+    "nextTask": "P003-TASK-002"
+  }
+}
