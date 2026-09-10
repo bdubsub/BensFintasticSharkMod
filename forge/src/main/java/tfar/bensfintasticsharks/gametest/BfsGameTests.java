@@ -2393,33 +2393,33 @@ public final class BfsGameTests {
 
                 BlockPos spawnEggPosition = helper.absolutePos(actualSourcePosition(2, fishIndex));
                 String spawnEggName = "actual spawn egg " + sourceFishName(fishIndex);
-                if (fishIndex == 0) clearReplacementFixtureFish(helper);
+                clearReplacementFixtureFish(helper);
                 spawnVanillaFishForJoinSource(helper, sourceType, spawnEggPosition, MobSpawnType.SPAWN_EGG,
                         spawnEggName);
                 assertSingleReplacement(helper, spawnEggPosition, replacementType, spawnEggName);
 
                 BlockPos commandPosition = helper.absolutePos(actualSourcePosition(3, fishIndex));
                 String commandName = "actual summon " + sourceFishName(fishIndex);
-                if (fishIndex == 0) clearReplacementFixtureFish(helper);
+                clearReplacementFixtureFish(helper);
                 spawnVanillaFishForJoinSource(helper, sourceType, commandPosition, MobSpawnType.COMMAND,
                         commandName);
                 assertSingleReplacement(helper, commandPosition, replacementType, commandName);
 
                 String spawnerName = "actual spawner " + sourceFishName(fishIndex);
-                if (fishIndex == 0) clearReplacementFixtureFish(helper);
+                clearReplacementFixtureFish(helper);
                 BlockPos spawnerPosition = spawnVanillaFishWithSpawner(helper, sourceType, spawnerPlayer,
                         fishIndex, spawnerName);
                 assertSingleReplacement(helper, spawnerPosition, replacementType, spawnerName);
 
                 BlockPos structurePosition = helper.absolutePos(actualSourcePosition(7, fishIndex));
                 String structureName = "actual structure " + sourceFishName(fishIndex);
-                if (fishIndex == 0) clearReplacementFixtureFish(helper);
+                clearReplacementFixtureFish(helper);
                 spawnVanillaFishWithStructure(helper, sourceType, structurePosition, structureName);
                 assertSingleReplacement(helper, structurePosition, replacementType, structureName);
 
                 BlockPos savedPosition = helper.absolutePos(actualSourcePosition(8, fishIndex));
                 String savedName = "actual saved " + sourceFishName(fishIndex);
-                if (fishIndex == 0) clearReplacementFixtureFish(helper);
+                clearReplacementFixtureFish(helper);
                 loadSavedVanillaFish(helper, sourceType, savedPosition, savedName);
                 List<Mob> loadedFish = helper.getLevel().getEntitiesOfClass(Mob.class,
                         new AABB(savedPosition).inflate(0.25D));
@@ -2505,14 +2505,21 @@ public final class BfsGameTests {
         AABB localArea = new AABB(helper.absolutePos(new BlockPos(0, 0, 0)),
                 helper.absolutePos(new BlockPos(14, 7, 13)));
         helper.getLevel().getEntitiesOfClass(Entity.class, localArea,
-                entity -> !(entity instanceof Player)).forEach(Entity::discard);
+                entity -> !(entity instanceof Player) && !isDeferredBucketFish(entity)).forEach(Entity::discard);
         AABB accountingArea = new AABB(helper.absolutePos(new BlockPos(2, 3, 2)),
                 helper.absolutePos(new BlockPos(13, 4, 12))).inflate(MobCapManager.COUNT_RADIUS);
-        helper.getLevel().getEntitiesOfClass(Mob.class, accountingArea, BfsGameTests::isPopulationSoakFish)
+        helper.getLevel().getEntitiesOfClass(Mob.class, accountingArea,
+                        entity -> isPopulationSoakFish(entity) && !isDeferredBucketFish(entity))
                 .forEach(Mob::discard);
         helper.assertTrue(helper.getLevel().getEntitiesOfClass(Mob.class, accountingArea,
-                        BfsGameTests::isPopulationSoakFish).isEmpty(),
+                        entity -> isPopulationSoakFish(entity) && !isDeferredBucketFish(entity)).isEmpty(),
                 "the isolated replacement fixture must start without neighboring Cod or Salmon");
+    }
+
+    private static boolean isDeferredBucketFish(Entity entity) {
+        if (!(entity instanceof Mob mob) || !mob.hasCustomName()) return false;
+        String name = mob.getCustomName().getString();
+        return name.startsWith("actual player bucket ") || name.startsWith("actual dispenser bucket ");
     }
 
     private static EntityType<? extends Mob> sourceFishType(int fishIndex) {
