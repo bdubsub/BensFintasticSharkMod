@@ -2437,7 +2437,6 @@ public final class BfsGameTests {
 
                 BlockPos dispenserPosition = helper.absolutePos(actualSourcePosition(5, fishIndex));
                 String dispenserName = "actual dispenser bucket " + sourceFishName(fishIndex);
-                clearReplacementFixtureFish(helper);
                 releaseVanillaFishFromDispenser(helper, sourceType, dispenserPosition, dispenserName);
             }
             helper.runAfterDelay(4, () -> {
