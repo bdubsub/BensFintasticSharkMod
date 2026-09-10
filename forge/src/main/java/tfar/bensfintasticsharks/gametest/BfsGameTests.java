@@ -2432,7 +2432,6 @@ public final class BfsGameTests {
 
                 BlockPos bucketPosition = helper.absolutePos(actualSourcePosition(4, fishIndex));
                 String bucketName = "actual player bucket " + sourceFishName(fishIndex);
-                clearReplacementFixtureFish(helper);
                 releaseVanillaFishFromPlayerBucket(helper, sourceType, bucketPosition, bucketName);
 
                 BlockPos dispenserPosition = helper.absolutePos(actualSourcePosition(5, fishIndex));
