@@ -27,6 +27,7 @@ Install Forge, place the mod and its required dependencies in the `mods` directo
 * Optional suppression of other natural vanilla aquatic spawning for packs that want BFS wildlife to fill the oceans.
 * Creative showcase commands, including a guaranteed trade villager and detailed species information.
 * Bounded server and local client diagnostics for movement, behavior, combat, population, fishing, advancement, and algae investigations. Movement captures expose route state, selected waypoint, body orientation, pitch exit, curve speed limit and separately tracked propulsion. Fishing captures correlate delivery, rewards and actual rod cleanup without requiring an owner connection for server tests.
+* Pitched fish and sharks retain forward propulsion while smoothly reorienting, with vertical travel still limited by their species movement profile.
 * Shark tools, armor, a Prismarine armor set fitted to swimming poses, Captain Ben's Hat, collectible items, and advancements.
 * The Shark Codex and the Sunken Trove ocean structure.
 * Three permanent algae blocks with animated large green and red variants and ocean biome generation.
