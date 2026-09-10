@@ -97,6 +97,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         makeOneLayerItem(ModItems.COMMON_THRESHER_SHARK_PIXEL_ART);
         makeOneLayerItem(ModItems.STINGRAY_PIXEL_ART);
         makeOneLayerItem(ModItems.ILLEGAL_POACHING);
+        makeOneLayerItem(ModItems.HARBOR_SEAL_BLOCK);
         makeOneLayerItem(ModItems.ALBINO);
         makeOneLayerItem(ModItems.ZIPPY_PIXEL_ART);
         makeOneLayerItem(ModItems.JUSTICE_FOR_STEVE);
