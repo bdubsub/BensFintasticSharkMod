@@ -69,6 +69,20 @@ class AquaticMovementTest {
     }
 
     @Test
+    void fishAndSharkProfilesUseTheirOwnCurrentVerticalRatiosExactlyOnce() {
+        assertEquals(0.20d, AquaticMovement.FISH_VERTICAL_SPEED_RATIO, 0.00001d);
+        assertEquals(0.25d, AquaticMovement.SHARK_VERTICAL_SPEED_RATIO, 0.00001d);
+        assertEquals(-2.0d, AquaticMovement.affectedVerticalVelocity(10.0d, 0.0d, -10.0d, 0.0d,
+                AquaticMovement.FISH_VERTICAL_SPEED_RATIO), 0.00001d);
+        assertEquals(-2.5d, AquaticMovement.affectedVerticalVelocity(10.0d, 0.0d, -10.0d, 0.0d,
+                AquaticMovement.SHARK_VERTICAL_SPEED_RATIO), 0.00001d);
+        assertEquals(0.8d, AquaticMovement.smoothAndLimitVerticalVelocity(4.0d, 0.8d, 4.0d,
+                AquaticMovement.FISH_VERTICAL_SPEED_RATIO), 0.00001d);
+        assertEquals(1.0d, AquaticMovement.smoothAndLimitVerticalVelocity(4.0d, 1.0d, 4.0d,
+                AquaticMovement.SHARK_VERTICAL_SPEED_RATIO), 0.00001d);
+    }
+
+    @Test
     void verticalControlEasesTowardTargetAndThroughReversal() {
         double first = AquaticMovement.smoothVerticalVelocity(0.0, 1.0);
         double second = AquaticMovement.smoothVerticalVelocity(first, 1.0);

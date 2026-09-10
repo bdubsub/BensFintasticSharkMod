@@ -38,6 +38,7 @@ import tfar.bensfintasticsharks.config.BfsConfig;
 import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
+import tfar.bensfintasticsharks.entity.AquaticMovement;
 import tfar.bensfintasticsharks.entity.SmartWaterAnimal;
 import tfar.bensfintasticsharks.entity.SpeciesBehaviorProfile;
 
@@ -463,6 +464,18 @@ public final class BfsDebugManager {
                 : "unavailable:not_a_mob");
         addTrajectoryPitch(record, entity.getDeltaMovement());
         if (entity instanceof Mob mob) {
+            double verticalSpeedRatio = AquaticMovement.verticalSpeedRatioFor(mob);
+            record.addProperty("verticalTravelClass", AquaticMovement.verticalTravelClassFor(mob));
+            if (Double.isFinite(verticalSpeedRatio)) {
+                double verticalReferenceSpeed = Math.abs(mob.getSpeed());
+                record.addProperty("verticalSpeedRatio", verticalSpeedRatio);
+                record.addProperty("verticalReferenceSpeed", verticalReferenceSpeed);
+                record.addProperty("verticalSpeedCeiling", verticalReferenceSpeed * verticalSpeedRatio);
+            } else {
+                record.addProperty("verticalSpeedRatio", "unavailable:not_a_dec_006_fish_or_shark");
+                record.addProperty("verticalReferenceSpeed", "unavailable:not_a_dec_006_fish_or_shark");
+                record.addProperty("verticalSpeedCeiling", "unavailable:not_a_dec_006_fish_or_shark");
+            }
             record.addProperty("moveControl", mob.getMoveControl().getClass().getName());
             tfar.bensfintasticsharks.entity.PitchSwimmingMoveControl.Snapshot steering = null;
             if (mob.getMoveControl() instanceof tfar.bensfintasticsharks.entity.PitchSwimmingMoveControl control) {
@@ -478,6 +491,9 @@ public final class BfsDebugManager {
                 record.addProperty("remainingDistance", steering.remainingDistance());
                 record.addProperty("stalledTicks", steering.stalledTicks());
                 record.addProperty("scalarPropulsionSpeed", steering.poweredVelocity().length());
+                record.addProperty("verticalSpeedRatio", steering.verticalSpeedRatio());
+                record.addProperty("verticalReferenceSpeed", steering.verticalReferenceSpeed());
+                record.addProperty("verticalSpeedCeiling", steering.verticalSpeedCeiling());
                 record.addProperty("poweredVelocityX", steering.poweredVelocity().x);
                 record.addProperty("poweredVelocityY", steering.poweredVelocity().y);
                 record.addProperty("poweredVelocityZ", steering.poweredVelocity().z);

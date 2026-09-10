@@ -20,7 +20,8 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
         this.trackPitch = trackPitch;
         pitchControl = mob instanceof AbstractSharkEntity<?> shark && shark.usesPitchDrivenVerticalMovement()
                 ? new PitchSwimmingMoveControl(mob, inWaterSpeedModifier, false,
-                shark.hardUpwardPitchLimitDegrees(), shark.hardDownwardPitchLimitDegrees()) : null;
+                shark.hardUpwardPitchLimitDegrees(), shark.hardDownwardPitchLimitDegrees(),
+                AquaticMovement.SHARK_VERTICAL_SPEED_RATIO) : null;
     }
 
     @Override

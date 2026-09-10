@@ -104,15 +104,19 @@ The parser preserves the raw sample history and writes `verdict.json` and `summa
 The candidate manifest supplies the scenario and requirement identity plus the only acceptance thresholds applied by the parser. For example, a scenario can bind an expected artifact hash and entity-specific sample count, moving transitions, net vertical displacement, coordinate continuity, pitch transition limits, required implemented fields, and route-shape limits. A field with an `unavailable:` reason is valid telemetry only when no current claim requires it. The analyzer reports measured peaks and complete history instead of inventing limits.
 
 For the current fish and shark vertical profile, server movement captures must also be
-checked against the approved ten percent vertical speed ratio. Cod, Salmon, and shark
-fixtures are expected to remain within `abs(vertical velocity) <= speed * 0.10`, with
-the transition eased from the controller's prior controlled value. Bottlenose Dolphin
-remains the qualitative smoothness reference and is not included in that fish and
-shark cap assertion. A first tick must not inherit the full unscaled vanilla vertical
-impulse.
+checked against the selected class ratio and the matching pre-ceiling scalar speed.
+Atlantic Cod and Atlantic Salmon fixtures are expected to remain within
+`abs(powered vertical velocity) <= Vreference * 0.20`. Shark fixtures are expected to
+remain within `abs(powered vertical velocity) <= Vreference * 0.25`. Each ratio applies
+once to the accepted same-species, same-state scalar speed. The controller eases the
+transition from its prior controlled value. Bottlenose Dolphin remains the qualitative
+smoothness reference and is not included in either class cap assertion. A first tick
+must not inherit the full unscaled vanilla vertical impulse.
 
-Movement records also expose `speciesProfile`, `locomotionMode`, `behaviorAction`, and
-`scalarPropulsionSpeed` when the selected entity has a registered species policy.
+Movement records also expose `speciesProfile`, `locomotionMode`, `behaviorAction`,
+`scalarPropulsionSpeed`, `verticalTravelClass`, `verticalSpeedRatio`,
+`verticalReferenceSpeed`, and `verticalSpeedCeiling` when the selected entity has a
+registered species policy.
 Shark actions use the authoritative shark state. SmartBrain aquatic animals use the
 bounded policy action. These fields are observations, not acceptance thresholds by
 themselves.

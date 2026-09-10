@@ -18,6 +18,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
     private final boolean easeSpeed;
     private final float upwardLimit;
     private final float downwardLimit;
+    private final double verticalSpeedRatio;
     private AquaticRoute route;
     private Vec3 requestedGoal;
     private Vec3 progressWaypoint;
@@ -45,12 +46,13 @@ public class PitchSwimmingMoveControl extends MoveControl {
     }
 
     protected PitchSwimmingMoveControl(Mob mob, float waterSpeedMultiplier, boolean easeSpeed,
-                                        float upwardLimit, float downwardLimit) {
+                                        float upwardLimit, float downwardLimit, double verticalSpeedRatio) {
         super(mob);
         this.waterSpeedMultiplier = waterSpeedMultiplier;
         this.easeSpeed = easeSpeed;
         this.upwardLimit = Math.abs(upwardLimit);
         this.downwardLimit = Math.abs(downwardLimit);
+        this.verticalSpeedRatio = verticalSpeedRatio;
     }
 
     public String routeState() {
@@ -58,13 +60,16 @@ public class PitchSwimmingMoveControl extends MoveControl {
     }
 
     public Snapshot snapshot() {
+        double verticalReferenceSpeed = Math.abs(mob.getSpeed());
         return new Snapshot(routeAttempt, routeState, requestedGoal, selectedWaypoint, targetPitch,
                 requestedGoal == null ? 0 : mob.position().distanceTo(requestedGoal), stalledTicks,
-                poweredCarry, mob.getDeltaMovement().subtract(poweredCarry));
+                poweredCarry, mob.getDeltaMovement().subtract(poweredCarry), verticalSpeedRatio,
+                verticalReferenceSpeed, verticalReferenceSpeed * verticalSpeedRatio);
     }
 
     public record Snapshot(long attempt, String state, Vec3 destination, Vec3 waypoint, float desiredPitch,
-                           double remainingDistance, int stalledTicks, Vec3 poweredVelocity, Vec3 externalVelocity) {}
+                           double remainingDistance, int stalledTicks, Vec3 poweredVelocity, Vec3 externalVelocity,
+                           double verticalSpeedRatio, double verticalReferenceSpeed, double verticalSpeedCeiling) {}
 
     @Override
     public void tick() {
@@ -221,7 +226,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
         double speedCap = Math.min(horizontalCap / Math.max(1.0e-8, forward.horizontalDistance()), routeSpeedCap);
         if (Math.abs(forward.y) > 1.0e-8) {
             speedCap = Math.min(speedCap,
-                    Math.abs(mob.getSpeed()) * AquaticMovement.VERTICAL_SPEED_RATIO / Math.abs(forward.y));
+                    Math.abs(mob.getSpeed()) * verticalSpeedRatio / Math.abs(forward.y));
         }
         if (input.z > 0) speed = Math.min(speed, speedCap);
         Vec3 powered = forward.scale(speed);

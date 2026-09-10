@@ -1371,9 +1371,10 @@ public final class BfsGameTests {
             aquatic.getNavigation().moveTo(target.x, target.y, target.z, 1.0D);
             if (aquatic instanceof AbstractSharkEntity<?> || aquatic instanceof AtlanticCodEntity
                     || aquatic instanceof AtlanticSalmonEntity) {
-                double verticalLimit = aquatic.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO + 1.0e-5D;
+                double verticalLimit = Math.abs(aquatic.getSpeed()) * AquaticMovement.verticalSpeedRatioFor(aquatic)
+                        + 1.0e-5D;
                 helper.assertTrue(Math.abs(aquatic.getDeltaMovement().y) <= verticalLimit,
-                        "depth movement must stay within the approved ten percent vertical profile, "
+                        "depth movement must stay within the approved species vertical profile, "
                                 + "entity=" + aquatic.getType() + ", vertical=" + aquatic.getDeltaMovement().y
                                 + ", limit=" + verticalLimit);
             }
@@ -2952,10 +2953,10 @@ public final class BfsGameTests {
                             <= AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK + 0.0001F,
                     "shark pitch must transition smoothly, maxStep=" + maxPitchStep(sharkPitches));
             helper.assertTrue(max(sharkVerticalSpeeds)
-                            <= shark.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO + 0.0001D,
-                    "shark powered vertical speed must remain at the ten percent cap, max="
+                            <= shark.getSpeed() * AquaticMovement.SHARK_VERTICAL_SPEED_RATIO + 0.0001D,
+                    "shark powered vertical speed must remain at the shark class cap, max="
                             + max(sharkVerticalSpeeds) + ", cap="
-                            + shark.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO);
+                            + shark.getSpeed() * AquaticMovement.SHARK_VERTICAL_SPEED_RATIO);
             helper.assertTrue(hasNoDirectionReversal(sharkHeights, verticalDirection),
                     "shark vertical travel must not repeatedly reverse direction, reversals="
                             + directionReversals(sharkHeights) + ", heights=" + sharkHeights);
@@ -2991,8 +2992,8 @@ public final class BfsGameTests {
                             && totalYawTravel(yaws) < 360,
                     "atlantic cod depth approach must turn smoothly without a full orbit, maxYawStep="
                             + maxYawStep(yaws) + ", yaws=" + yaws);
-            helper.assertTrue(AquaticMovement.VERTICAL_SPEED_RATIO == 0.10D,
-                    "affected aquatic vertical ratio must remain the approved oracle");
+            helper.assertTrue(AquaticMovement.FISH_VERTICAL_SPEED_RATIO == 0.20D,
+                    "atlantic cod must use the fish vertical ratio");
             helper.assertTrue(hasNoDirectionReversal(heights, 1),
                     "atlantic cod vertical travel must not reverse direction, reversals="
                             + directionReversals(heights) + ", heights=" + heights + ", pitches=" + pitches

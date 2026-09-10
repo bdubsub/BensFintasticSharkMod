@@ -77,7 +77,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
 
     @Override
     protected float verticalSwimSpeedMultiplier() {
-        return (float) AquaticMovement.VERTICAL_SPEED_RATIO;
+        return (float) AquaticMovement.SHARK_VERTICAL_SPEED_RATIO;
     }
 
     /** Maximum nose pitch while powered swimming upward or downward. */
@@ -896,8 +896,8 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         if (usesPitchDrivenVerticalMovement() && !braking) {
             Vec3 forward = AquaticMovement.forwardVector(this.getYRot(), this.getXRot());
             dm = AquaticMovement.limitPoweredVelocity(dm, forward, cap,
-                    this.getSpeed() * AquaticMovement.VERTICAL_SPEED_RATIO);
-            double verticalCap = Math.abs(this.getSpeed()) * AquaticMovement.VERTICAL_SPEED_RATIO;
+                    this.getSpeed() * AquaticMovement.SHARK_VERTICAL_SPEED_RATIO);
+            double verticalCap = Math.abs(this.getSpeed()) * AquaticMovement.SHARK_VERTICAL_SPEED_RATIO;
             if (Math.abs(dm.y) > verticalCap) {
                 dm = new Vec3(dm.x, Math.copySign(verticalCap, dm.y), dm.z);
             }

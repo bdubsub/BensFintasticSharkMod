@@ -18,7 +18,8 @@ public final class BfsFishMoveControl extends PitchSwimmingMoveControl {
 
     public BfsFishMoveControl(AbstractFish fish, float upwardPitchLimit, float downwardPitchLimit,
                                float verticalUpwardPitchLimit, float verticalDownwardPitchLimit) {
-        super(fish, 1.0F, true, verticalUpwardPitchLimit, verticalDownwardPitchLimit);
+        super(fish, 1.0F, true, verticalUpwardPitchLimit, verticalDownwardPitchLimit,
+                AquaticMovement.FISH_VERTICAL_SPEED_RATIO);
     }
 
     static void travel(AbstractFish fish, Vec3 movementInput) {
