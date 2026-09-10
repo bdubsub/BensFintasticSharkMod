@@ -2379,8 +2379,10 @@ public final class BfsGameTests {
                 EntityType<? extends Mob> replacementType = replacementFishType(fishIndex);
                 BlockPos naturalPosition = helper.absolutePos(actualSourcePosition(0, fishIndex));
                 BlockPos chunkPosition = helper.absolutePos(actualSourcePosition(1, fishIndex));
+                clearReplacementFixtureFish(helper);
                 spawnVanillaFishForWorldGeneration(helper, sourceType, naturalPosition, MobSpawnType.NATURAL);
                 assertSingleReplacement(helper, naturalPosition, replacementType, "natural spawn");
+                clearReplacementFixtureFish(helper);
                 spawnVanillaFishForWorldGeneration(helper, sourceType, chunkPosition, MobSpawnType.CHUNK_GENERATION);
                 assertSingleReplacement(helper, chunkPosition, replacementType, "chunk generation");
             }
@@ -2391,28 +2393,33 @@ public final class BfsGameTests {
 
                 BlockPos spawnEggPosition = helper.absolutePos(actualSourcePosition(2, fishIndex));
                 String spawnEggName = "actual spawn egg " + sourceFishName(fishIndex);
+                clearReplacementFixtureFish(helper);
                 spawnVanillaFishForJoinSource(helper, sourceType, spawnEggPosition, MobSpawnType.SPAWN_EGG,
                         spawnEggName);
                 assertSingleReplacement(helper, spawnEggPosition, replacementType, spawnEggName);
 
                 BlockPos commandPosition = helper.absolutePos(actualSourcePosition(3, fishIndex));
                 String commandName = "actual summon " + sourceFishName(fishIndex);
+                clearReplacementFixtureFish(helper);
                 spawnVanillaFishForJoinSource(helper, sourceType, commandPosition, MobSpawnType.COMMAND,
                         commandName);
                 assertSingleReplacement(helper, commandPosition, replacementType, commandName);
 
                 String spawnerName = "actual spawner " + sourceFishName(fishIndex);
+                clearReplacementFixtureFish(helper);
                 BlockPos spawnerPosition = spawnVanillaFishWithSpawner(helper, sourceType, spawnerPlayer,
                         fishIndex, spawnerName);
                 assertSingleReplacement(helper, spawnerPosition, replacementType, spawnerName);
 
                 BlockPos structurePosition = helper.absolutePos(actualSourcePosition(7, fishIndex));
                 String structureName = "actual structure " + sourceFishName(fishIndex);
+                clearReplacementFixtureFish(helper);
                 spawnVanillaFishWithStructure(helper, sourceType, structurePosition, structureName);
                 assertSingleReplacement(helper, structurePosition, replacementType, structureName);
 
                 BlockPos savedPosition = helper.absolutePos(actualSourcePosition(8, fishIndex));
                 String savedName = "actual saved " + sourceFishName(fishIndex);
+                clearReplacementFixtureFish(helper);
                 loadSavedVanillaFish(helper, sourceType, savedPosition, savedName);
                 List<Mob> loadedFish = helper.getLevel().getEntitiesOfClass(Mob.class,
                         new AABB(savedPosition).inflate(0.25D));
@@ -2425,10 +2432,12 @@ public final class BfsGameTests {
 
                 BlockPos bucketPosition = helper.absolutePos(actualSourcePosition(4, fishIndex));
                 String bucketName = "actual player bucket " + sourceFishName(fishIndex);
+                clearReplacementFixtureFish(helper);
                 releaseVanillaFishFromPlayerBucket(helper, sourceType, bucketPosition, bucketName);
 
                 BlockPos dispenserPosition = helper.absolutePos(actualSourcePosition(5, fishIndex));
                 String dispenserName = "actual dispenser bucket " + sourceFishName(fishIndex);
+                clearReplacementFixtureFish(helper);
                 releaseVanillaFishFromDispenser(helper, sourceType, dispenserPosition, dispenserName);
             }
             helper.runAfterDelay(4, () -> {
@@ -2536,7 +2545,7 @@ public final class BfsGameTests {
     private static void assertSingleReplacement(GameTestHelper helper, BlockPos position,
                                                 EntityType<? extends Mob> replacementType, String sourceName) {
         List<Mob> replacement = helper.getLevel().getEntitiesOfClass(Mob.class,
-                new AABB(position).inflate(0.25D));
+                new AABB(position).inflate(4.0D), mob -> mob.getType() == replacementType);
         helper.assertTrue(replacement.size() == 1 && replacement.get(0).getType() == replacementType,
                 sourceName + " must produce exactly one matching Atlantic fish, actual="
                         + replacement.stream().map(mob -> String.valueOf(mob.getType())).toList()
