@@ -1,20 +1,10 @@
 package tfar.bensfintasticsharks.entity;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.animal.AbstractFish;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.Vec3;
 
-/** Fish movement control with the vanilla fish response and an explicit three dimensional pitch. */
-public final class BfsFishMoveControl extends MoveControl {
-
-    private final AbstractFish fish;
-    private final float upwardPitchLimit;
-    private final float downwardPitchLimit;
+/** Fish swimming with finite destination approaches and pitch aligned propulsion. */
+public final class BfsFishMoveControl extends PitchSwimmingMoveControl {
 
     public BfsFishMoveControl(AbstractFish fish) {
         this(fish, AquaticMovement.DEFAULT_UPWARD_PITCH_LIMIT,
@@ -22,88 +12,19 @@ public final class BfsFishMoveControl extends MoveControl {
     }
 
     public BfsFishMoveControl(AbstractFish fish, float upwardPitchLimit, float downwardPitchLimit) {
-        super(fish);
-        this.fish = fish;
-        this.upwardPitchLimit = upwardPitchLimit;
-        this.downwardPitchLimit = downwardPitchLimit;
+        this(fish, upwardPitchLimit, downwardPitchLimit,
+                AquaticMovement.FISH_HARD_UPWARD_PITCH_LIMIT, AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT);
     }
 
-    /**
-     * Mirrors AbstractFish water travel without its unconditional idle sink. Vertical velocity
-     * is supplied by this controller, so a fish can only rise or dive while its nose is moving
-     * toward that same target vector.
-     */
+    public BfsFishMoveControl(AbstractFish fish, float upwardPitchLimit, float downwardPitchLimit,
+                               float verticalUpwardPitchLimit, float verticalDownwardPitchLimit) {
+        super(fish, 1.0F, true, verticalUpwardPitchLimit, verticalDownwardPitchLimit,
+                AquaticMovement.FISH_VERTICAL_SPEED_RATIO);
+    }
+
     static void travel(AbstractFish fish, Vec3 movementInput) {
-        fish.moveRelative(0.01F, new Vec3(movementInput.x, 0.0, movementInput.z));
-        fish.move(MoverType.SELF, fish.getDeltaMovement());
-        Vec3 velocity = fish.getDeltaMovement().scale(0.9);
-        double verticalLimit = Math.abs(fish.getSpeed()) * AquaticMovement.VERTICAL_SPEED_RATIO;
-        if (Math.abs(velocity.y) > verticalLimit) {
-            velocity = new Vec3(velocity.x, Math.copySign(verticalLimit, velocity.y), velocity.z);
-        }
-        fish.setDeltaMovement(velocity);
-    }
-
-    @Override
-    public void tick() {
-        double targetVerticalImpulse = 0.0;
-        float previousPitch = fish.getXRot();
-        if (this.operation == Operation.MOVE_TO) {
-            float targetSpeed = (float) (this.speedModifier
-                    * fish.getAttributeValue(Attributes.MOVEMENT_SPEED));
-            fish.setSpeed(Mth.lerp(0.125F, fish.getSpeed(), targetSpeed));
-
-            double dx = this.wantedX - fish.getX();
-            double dy = this.wantedY - fish.getY();
-            double dz = this.wantedZ - fish.getZ();
-            BlockPos routeTargetPos = fish.getNavigation().getTargetPos();
-            double routeDy = dy;
-            if (routeTargetPos != null) {
-                routeDy = Vec3.atCenterOf(routeTargetPos).y - fish.getY();
-            }
-            double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-            if (distance > 0.5) {
-                targetVerticalImpulse = AquaticMovement.affectedVerticalVelocity(
-                        fish.getSpeed(), dx, routeDy, dz);
-                double arrivalDamping = Mth.clamp(Math.abs(routeDy), 0.0D, 1.0D);
-                targetVerticalImpulse *= arrivalDamping;
-
-                if (Math.abs(dx) > 1.0e-8 || Math.abs(dz) > 1.0e-8) {
-                    float desiredYaw = (float) (Mth.atan2(dz, dx) * Mth.RAD_TO_DEG) - 90.0F;
-                    fish.setYRot(this.rotlerp(fish.getYRot(), desiredYaw, 90.0F));
-                    fish.yBodyRot = fish.getYRot();
-                    fish.yHeadRot = fish.getYRot();
-                }
-
-                fish.setXxa(0.0F);
-                double horizontalDistanceSqr = dx * dx + dz * dz;
-                fish.setZza(horizontalDistanceSqr > 0.25 ? 1.0F : 0.0F);
-
-                fish.setXRot(this.rotlerp(previousPitch,
-                        AquaticMovement.affectedPitch(dx, routeDy, dz, upwardPitchLimit, downwardPitchLimit),
-                        AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
-            } else {
-                this.operation = Operation.WAIT;
-                fish.setSpeed(0.0F);
-                fish.setXxa(0.0F);
-                fish.setZza(0.0F);
-                fish.setXRot(this.rotlerp(previousPitch, 0.0F,
-                        AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
-            }
-        } else {
-            fish.setSpeed(0.0F);
-            fish.setXxa(0.0F);
-            fish.setZza(0.0F);
-            fish.setXRot(this.rotlerp(previousPitch, 0.0F,
-                    AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK));
-        }
-
-        if (fish.isEyeInFluid(FluidTags.WATER)) {
-            double verticalVelocity = AquaticMovement.smoothAndLimitVerticalVelocity(
-                    fish.getDeltaMovement().y, targetVerticalImpulse, fish.getSpeed());
-            fish.setDeltaMovement(fish.getDeltaMovement().x, verticalVelocity,
-                    fish.getDeltaMovement().z);
+        if (fish.getMoveControl() instanceof BfsFishMoveControl control) {
+            control.travel(0.01, 0.9, Math.abs(fish.getSpeed()), 0, movementInput);
         }
     }
 }

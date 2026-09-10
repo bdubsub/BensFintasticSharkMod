@@ -37,6 +37,10 @@ import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.config.BfsConfig;
 import tfar.bensfintasticsharks.init.ModBlocks;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
+import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
+import tfar.bensfintasticsharks.entity.AquaticMovement;
+import tfar.bensfintasticsharks.entity.SmartWaterAnimal;
+import tfar.bensfintasticsharks.entity.SpeciesBehaviorProfile;
 
 import javax.annotation.Nullable;
 import java.io.BufferedWriter;
@@ -425,6 +429,10 @@ public final class BfsDebugManager {
         addPositionDelta(active, record, entity);
         record.addProperty("yaw", entity.getYRot());
         record.addProperty("pitch", entity.getXRot());
+        if (entity instanceof LivingEntity living) {
+            record.addProperty("bodyYaw", living.yBodyRot);
+            record.addProperty("headYaw", living.yHeadRot);
+        }
         addAngularDeltas(active, record, entity);
         record.addProperty("lookX", entity.getLookAngle().x);
         record.addProperty("lookY", entity.getLookAngle().y);
@@ -440,13 +448,74 @@ public final class BfsDebugManager {
         record.addProperty("selectedWaypoint", "unavailable:navigation_waypoint_not_exposed");
         record.addProperty("routeProgress", "unavailable:navigation_attempt_identity_not_exposed");
         record.addProperty("arrivalReason", "unavailable:navigation_attempt_identity_not_exposed");
-        record.addProperty("locomotionMode", "unavailable:species_locomotion_mode_not_exposed");
-        record.addProperty("scalarPropulsionSpeed", "unavailable:movement_controller_scalar_speed_not_exposed");
+        SpeciesBehaviorProfile.Profile profile = SpeciesBehaviorProfile.forEntity(entity);
+        record.addProperty("speciesProfile", profile == null ? "unavailable:profile_not_registered" : profile.id());
+        record.addProperty("locomotionMode", profile == null
+                ? "unavailable:species_locomotion_mode_not_exposed" : profile.locomotion().name().toLowerCase(Locale.ROOT));
+        if (entity instanceof AbstractSharkEntity<?> shark) {
+            record.addProperty("behaviorAction", shark.getSharkState().name().toLowerCase(Locale.ROOT));
+        } else if (entity instanceof SmartWaterAnimal<?> aquatic) {
+            record.addProperty("behaviorAction", aquatic.getBfsBehaviorAction());
+        } else {
+            record.addProperty("behaviorAction", "unavailable:not_a_policy_entity");
+        }
+        record.addProperty("scalarPropulsionSpeed", entity.getDeltaMovement().length());
         record.addProperty("motionWriter", entity instanceof Mob mob ? mob.getMoveControl().getClass().getName()
                 : "unavailable:not_a_mob");
         addTrajectoryPitch(record, entity.getDeltaMovement());
         if (entity instanceof Mob mob) {
+            double verticalSpeedRatio = AquaticMovement.verticalSpeedRatioFor(mob);
+            record.addProperty("verticalTravelClass", AquaticMovement.verticalTravelClassFor(mob));
+            if (Double.isFinite(verticalSpeedRatio)) {
+                double verticalReferenceSpeed = Math.abs(mob.getSpeed());
+                record.addProperty("verticalSpeedRatio", verticalSpeedRatio);
+                record.addProperty("verticalReferenceSpeed", verticalReferenceSpeed);
+                record.addProperty("verticalSpeedCeiling", verticalReferenceSpeed * verticalSpeedRatio);
+            } else {
+                record.addProperty("verticalSpeedRatio", "unavailable:not_a_dec_006_fish_or_shark");
+                record.addProperty("verticalReferenceSpeed", "unavailable:not_a_dec_006_fish_or_shark");
+                record.addProperty("verticalSpeedCeiling", "unavailable:not_a_dec_006_fish_or_shark");
+            }
             record.addProperty("moveControl", mob.getMoveControl().getClass().getName());
+            tfar.bensfintasticsharks.entity.PitchSwimmingMoveControl.Snapshot steering = null;
+            if (mob.getMoveControl() instanceof tfar.bensfintasticsharks.entity.PitchSwimmingMoveControl control) {
+                steering = control.snapshot();
+            } else if (mob.getMoveControl() instanceof tfar.bensfintasticsharks.entity.SharkSwimmingMoveControl control) {
+                steering = control.snapshot();
+            }
+            if (steering != null) {
+                record.addProperty("routeAttemptId", steering.attempt());
+                record.addProperty("desiredPitch", steering.desiredPitch());
+                record.addProperty("routeState", steering.state());
+                record.addProperty("arrivalReason", steering.state());
+                record.addProperty("remainingDistance", steering.remainingDistance());
+                record.addProperty("stalledTicks", steering.stalledTicks());
+                record.addProperty("pitchExitActive", steering.settling());
+                record.addProperty("pitchRate", steering.pitchRate());
+                record.addProperty("depthCurvature", steering.depthCurvature());
+                if (Double.isFinite(steering.routeSpeedCap())) {
+                    record.addProperty("routeSpeedCap", steering.routeSpeedCap());
+                } else {
+                    record.addProperty("routeSpeedCap", "unbounded");
+                }
+                record.addProperty("scalarPropulsionSpeed", steering.poweredVelocity().length());
+                record.addProperty("verticalSpeedRatio", steering.verticalSpeedRatio());
+                record.addProperty("verticalReferenceSpeed", steering.verticalReferenceSpeed());
+                record.addProperty("verticalSpeedCeiling", steering.verticalSpeedCeiling());
+                record.addProperty("poweredVelocityX", steering.poweredVelocity().x);
+                record.addProperty("poweredVelocityY", steering.poweredVelocity().y);
+                record.addProperty("poweredVelocityZ", steering.poweredVelocity().z);
+                record.addProperty("externalVelocityX", steering.externalVelocity().x);
+                record.addProperty("externalVelocityY", steering.externalVelocity().y);
+                record.addProperty("externalVelocityZ", steering.externalVelocity().z);
+                if (steering.waypoint() != null) {
+                    JsonObject waypoint = new JsonObject();
+                    waypoint.addProperty("x", steering.waypoint().x);
+                    waypoint.addProperty("y", steering.waypoint().y);
+                    waypoint.addProperty("z", steering.waypoint().z);
+                    record.add("selectedWaypoint", waypoint);
+                }
+            }
             record.addProperty("navigationDone", mob.getNavigation().isDone());
             record.addProperty("targetUuid", mob.getTarget() == null ? "none" : mob.getTarget().getUUID().toString());
             record.addProperty("targetType", mob.getTarget() == null ? "none" : entityId(mob.getTarget()));

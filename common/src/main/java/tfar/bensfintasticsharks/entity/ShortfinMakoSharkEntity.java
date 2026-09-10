@@ -206,7 +206,7 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
 
     @Override
     protected @NotNull PathNavigation createNavigation(@NotNull Level pLevel) {
-        return new WaterBoundPathNavigation(this, pLevel) {
+        return new PitchSwimmingNavigation(this, pLevel) {
             @Override
             protected boolean canUpdatePath() {
                 return true;

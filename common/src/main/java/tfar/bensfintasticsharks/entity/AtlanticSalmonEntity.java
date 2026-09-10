@@ -18,12 +18,19 @@ public class AtlanticSalmonEntity extends Salmon {
     protected AtlanticSalmonEntity(EntityType<? extends Salmon> type, Level level) {
         super(type, level);
         this.moveControl = new BfsFishMoveControl(this,
-                AquaticMovement.SALMON_PITCH_LIMIT, AquaticMovement.SALMON_PITCH_LIMIT);
+                AquaticMovement.SALMON_PITCH_LIMIT, AquaticMovement.SALMON_PITCH_LIMIT,
+                AquaticMovement.FISH_HARD_UPWARD_PITCH_LIMIT,
+                AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT);
         this.lookControl = new BfsFishLookControl(this);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return AbstractFish.createAttributes();
+    }
+
+    @Override
+    protected net.minecraft.world.entity.ai.navigation.PathNavigation createNavigation(Level level) {
+        return new PitchSwimmingNavigation(this, level);
     }
 
     @Override
@@ -38,6 +45,7 @@ public class AtlanticSalmonEntity extends Salmon {
         if (!level().isClientSide) {
             entityData.set(DATA_FAST_SWIM,
                     isInWaterOrBubble() && getDeltaMovement().lengthSqr() > 0.0225D);
+            SpeciesBehaviorEngine.tickFish(this);
         }
     }
 

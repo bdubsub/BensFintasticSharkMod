@@ -15,6 +15,15 @@ final class BfsSharkLookControl extends SmoothSwimmingLookControl {
 
     @Override
     public void tick() {
+        if (mob.getMoveControl() instanceof SharkSwimmingMoveControl moveControl && mob.isInWater()
+                && moveControl.hasWanted()) {
+            // Keep navigation as the single body yaw writer during powered swimming. A separate
+            // look target must not steer the body sideways and turn a depth leg into an orbit.
+            float movementYaw = mob.getYRot();
+            mob.yBodyRot = movementYaw;
+            mob.yHeadRot = movementYaw;
+            return;
+        }
         float movementPitch = mob.getXRot();
         super.tick();
         mob.setXRot(movementPitch);

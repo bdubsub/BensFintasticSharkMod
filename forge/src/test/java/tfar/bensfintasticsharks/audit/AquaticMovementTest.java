@@ -10,6 +10,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AquaticMovementTest {
 
     @Test
+    void pitchBrakesBeforeItsEndpointAndReversesWithBoundedAcceleration() {
+        float pitch = 0;
+        float rate = 0;
+        for (int tick = 0; tick < 600; tick++) {
+            var step = AquaticMovement.stepPitch(pitch, rate, tick < 250 ? -45 : 60);
+            assertTrue(Math.abs(step.rate() - rate) <= AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK + 0.00001);
+            assertTrue(Math.abs(step.rate()) <= AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK + 0.00001);
+            assertTrue(step.pitch() >= -45.001 && step.pitch() <= 60.001);
+            pitch = step.pitch();
+            rate = step.rate();
+        }
+    }
+
+    @Test
     void affectedPitchUsesTheScaledThreeDimensionalVector() {
         float pitch = AquaticMovement.affectedPitch(10.0, 10.0, 0.0);
         assertEquals(-Math.toDegrees(Math.atan2(0.1, 1.0)), pitch, 0.00001);
@@ -31,6 +45,18 @@ class AquaticMovementTest {
         assertEquals(-8.0, AquaticMovement.affectedPitch(0.001, 100.0, 0.0, 8.0f, 8.0f), 0.00001);
         assertEquals(5.0, AquaticMovement.affectedPitch(0.001, -100.0, 0.0, 14.0f, 5.0f), 0.00001);
         assertTrue(Math.abs(AquaticMovement.affectedPitch(0.001, 100.0, 0.0, 10.0f, 10.0f)) <= 10.0f);
+        assertEquals(-AquaticMovement.FISH_HARD_UPWARD_PITCH_LIMIT,
+                AquaticMovement.affectedPitch(0.0, 100.0, 0.0, 8.0f, 8.0f,
+                        AquaticMovement.FISH_HARD_UPWARD_PITCH_LIMIT,
+                        AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT), 0.00001);
+        assertEquals(AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT,
+                AquaticMovement.affectedPitch(0.0, -100.0, 0.0, 8.0f, 8.0f,
+                        AquaticMovement.FISH_HARD_UPWARD_PITCH_LIMIT,
+                        AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT), 0.00001);
+        assertEquals(AquaticMovement.SHARK_HARD_DOWNWARD_PITCH_LIMIT,
+                AquaticMovement.affectedPitch(0.0, -100.0, 0.0, 14.0f, 5.0f,
+                        AquaticMovement.SHARK_HARD_UPWARD_PITCH_LIMIT,
+                        AquaticMovement.SHARK_HARD_DOWNWARD_PITCH_LIMIT), 0.00001);
         assertEquals(0.30f, AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK, 0.00001f);
     }
 
@@ -40,6 +66,20 @@ class AquaticMovementTest {
         assertEquals(-1.0, AquaticMovement.affectedVerticalVelocity(10.0, 0.0, -10.0, 0.0), 0.00001);
         assertEquals(0.0, AquaticMovement.affectedVerticalVelocity(10.0, 10.0, 0.0, 0.0), 0.00001);
         assertEquals(0.0, AquaticMovement.affectedVerticalVelocity(10.0, 0.0, 0.0, 0.0), 0.00001);
+    }
+
+    @Test
+    void fishAndSharkProfilesUseTheirOwnCurrentVerticalRatiosExactlyOnce() {
+        assertEquals(0.20d, AquaticMovement.FISH_VERTICAL_SPEED_RATIO, 0.00001d);
+        assertEquals(0.25d, AquaticMovement.SHARK_VERTICAL_SPEED_RATIO, 0.00001d);
+        assertEquals(-2.0d, AquaticMovement.affectedVerticalVelocity(10.0d, 0.0d, -10.0d, 0.0d,
+                AquaticMovement.FISH_VERTICAL_SPEED_RATIO), 0.00001d);
+        assertEquals(-2.5d, AquaticMovement.affectedVerticalVelocity(10.0d, 0.0d, -10.0d, 0.0d,
+                AquaticMovement.SHARK_VERTICAL_SPEED_RATIO), 0.00001d);
+        assertEquals(0.8d, AquaticMovement.smoothAndLimitVerticalVelocity(4.0d, 0.8d, 4.0d,
+                AquaticMovement.FISH_VERTICAL_SPEED_RATIO), 0.00001d);
+        assertEquals(1.0d, AquaticMovement.smoothAndLimitVerticalVelocity(4.0d, 1.0d, 4.0d,
+                AquaticMovement.SHARK_VERTICAL_SPEED_RATIO), 0.00001d);
     }
 
     @Test

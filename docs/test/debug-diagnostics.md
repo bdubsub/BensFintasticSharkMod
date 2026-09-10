@@ -27,6 +27,18 @@ Server captures are written under the server game directory at `logs/bfs-debug/b
 
 The server header identifies the mod, Minecraft, Forge, Java, GeckoLib, and SmartBrainLib versions. It also records GeckoLib's registered `geckolib:main` protocol version, the source revision or an explicit unavailable reason, artifact and configuration bindings, host role, side, tick rate, and units. `dedicated_server`, `integrated_server`, and `gametest_server` are distinct host roles. A GameTest run is server side evidence, but its `gametest_server` label must not be presented as a dedicated server or laptop client acceptance result.
 
+## Movement route capture
+
+For fish and sharks using the pitch route controller, movement samples include `routeAttemptId`, `routeState`, `desiredPitch`, `selectedWaypoint`, `remainingDistance`, `stalledTicks`, `bodyYaw` and `headYaw`. The controller reports `clearance`, `approach`, `path`, `arrived`, `cancelled` or `blocked` as applicable. A new attempt belongs to a changed destination, not each refreshed navigation node. A blocked attempt has a bounded retry delay; a different destination remains eligible immediately.
+
+`poweredVelocityX`, `poweredVelocityY`, `poweredVelocityZ` and `scalarPropulsionSpeed` describe the controller's retained propulsion contribution. `externalVelocityX`, `externalVelocityY` and `externalVelocityZ` describe the remaining observed velocity. They do not identify a specific external source such as a current or knockback. Do not label unexplained residual velocity as a validated external force. Other controllers retain explicit unavailable fields where they do not expose this state.
+
+For an arrival regression, capture the full starting position, intended destination, transition, final position and the next requested destination. Reaching the destination's height alone is not arrival. Compare actual position deltas with pitch and both yaw values. Check route retries, terrain contact and progress before requesting visual review. A headless pass still does not approve appearance or animation.
+
+`pitchExitActive` identifies a translating level exit after a route stops. The original `routeState` retains its terminal reason. `pitchRate` records the controller's angular state in degrees per tick. `depthCurvature` is the signed planned vertical plane curvature in inverse blocks, and `routeSpeedCap` is the resulting scalar limit in blocks per tick, or `unbounded` when no route limit exists. Compare these fields with measured position and pitch deltas. An active exit is not proof that the full destination was reached, and a speed cap is not measured travel.
+
+To investigate a nose held up without travel, capture at least 200 ticks through the active approach and its exit. Check forward displacement during pitch changes and continued movement while leveling, not just whether the pitch eventually changes. A physically obstructed exit must retain a safe pose rather than rotate against terrain. The dedicated depth entry and settling fixtures cover these cases without requiring a player connection.
+
 ## Fishing capture
 
 Use `all` or `advancement` for fishing investigations. Fishing events do not require a selected animal or a connected owner. Ordinary players still fish normally; the capture is enabled only by the existing trusted command source. No separate fishing command or permission is added.
@@ -96,12 +108,22 @@ The parser preserves the raw sample history and writes `verdict.json` and `summa
 The candidate manifest supplies the scenario and requirement identity plus the only acceptance thresholds applied by the parser. For example, a scenario can bind an expected artifact hash and entity-specific sample count, moving transitions, net vertical displacement, coordinate continuity, pitch transition limits, required implemented fields, and route-shape limits. A field with an `unavailable:` reason is valid telemetry only when no current claim requires it. The analyzer reports measured peaks and complete history instead of inventing limits.
 
 For the current fish and shark vertical profile, server movement captures must also be
-checked against the approved ten percent vertical speed ratio. Cod, Salmon, and shark
-fixtures are expected to remain within `abs(vertical velocity) <= speed * 0.10`, with
-the transition eased from the controller's prior controlled value. Bottlenose Dolphin
-remains the qualitative smoothness reference and is not included in that fish and
-shark cap assertion. A first tick must not inherit the full unscaled vanilla vertical
-impulse.
+checked against the selected class ratio and the matching pre-ceiling scalar speed.
+Atlantic Cod and Atlantic Salmon fixtures are expected to remain within
+`abs(powered vertical velocity) <= Vreference * 0.20`. Shark fixtures are expected to
+remain within `abs(powered vertical velocity) <= Vreference * 0.25`. Each ratio applies
+once to the accepted same-species, same-state scalar speed. The controller eases the
+transition from its prior controlled value. Bottlenose Dolphin remains the qualitative
+smoothness reference and is not included in either class cap assertion. A first tick
+must not inherit the full unscaled vanilla vertical impulse.
+
+Movement records also expose `speciesProfile`, `locomotionMode`, `behaviorAction`,
+`scalarPropulsionSpeed`, `verticalTravelClass`, `verticalSpeedRatio`,
+`verticalReferenceSpeed`, and `verticalSpeedCeiling` when the selected entity has a
+registered species policy.
+Shark actions use the authoritative shark state. SmartBrain aquatic animals use the
+bounded policy action. These fields are observations, not acceptance thresholds by
+themselves.
 
 The first movement sample for each selected entity has no prior position or orientation sample. Its derived deltas, rates, and angular differences therefore use the explicit `unavailable:no_previous_sample` value. The analyzer accepts that reason only on the first sample for those derived fields. Later samples must contain finite values whenever the field is part of the selected candidate manifest.
 

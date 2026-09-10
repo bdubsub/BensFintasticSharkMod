@@ -1,13 +1,18 @@
 package tfar.bensfintasticsharks.entity;
 
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 
 /** Shared movement math for aquatic entities whose vertical thrust follows the approved oracle. */
 public final class AquaticMovement {
 
-    /** Affected fish and shark vertical thrust compared with the Bottlenose Dolphin reference. */
-    public static final double VERTICAL_SPEED_RATIO = 0.10d;
+    /** Atlantic fish powered vertical travel uses the DEC 006 fish ceiling. */
+    public static final double FISH_VERTICAL_SPEED_RATIO = 0.20d;
+    /** Shark powered vertical travel uses the DEC 006 shark ceiling. */
+    public static final double SHARK_VERTICAL_SPEED_RATIO = 0.25d;
+    /** The Bottlenose Dolphin reference controller retains its separate established response. */
+    public static final double DOLPHIN_VERTICAL_SPEED_RATIO = 0.10d;
 
     /** Conservative routine powered pitch profiles from the DEC-006 engineering envelope. */
     public static final float COD_PITCH_LIMIT = 8.0f;
@@ -15,17 +20,59 @@ public final class AquaticMovement {
     public static final float OCEANIC_WHITETIP_PITCH_LIMIT = 10.0f;
     public static final float TIGER_UPWARD_PITCH_LIMIT = 14.0f;
     public static final float TIGER_DOWNWARD_PITCH_LIMIT = 5.0f;
+    /** Profile-permitted steep maneuver endpoints, not routine cruise limits. */
+    public static final float FISH_HARD_UPWARD_PITCH_LIMIT = 45.0f;
+    public static final float FISH_HARD_DOWNWARD_PITCH_LIMIT = 90.0f;
+    public static final float SHARK_HARD_UPWARD_PITCH_LIMIT = 45.0f;
+    public static final float SHARK_HARD_DOWNWARD_PITCH_LIMIT = 60.0f;
     public static final float DEFAULT_UPWARD_PITCH_LIMIT = 10.0f;
     public static final float DEFAULT_DOWNWARD_PITCH_LIMIT = 10.0f;
 
     /** Six degrees per second at the nominal 20 tick server rate. */
     public static final float MAX_PITCH_STEP_DEGREES_PER_TICK = 0.30f;
+    public static final float MAX_PITCH_ACCELERATION_PER_TICK = 0.015f;
+    public static final float MAX_YAW_STEP_DEGREES_PER_TICK = 10.0f;
 
     /** A directly vertical route requires the body to reach a true sky or ground pose. */
     public static final float VERTICAL_UPWARD_PITCH = -90.0f;
     public static final float VERTICAL_DOWNWARD_PITCH = 90.0f;
 
     private AquaticMovement() {
+    }
+
+    public static PitchStep stepPitch(float pitch, float rate, float target) {
+        float error = target - pitch;
+        // Leave a small floating point margin at the hard pitch envelope so the
+        // observed per tick angular change never exceeds the public limit after
+        // clamping and interpolation.
+        float acceleration = MAX_PITCH_ACCELERATION_PER_TICK - 0.0001F;
+        float brakingRate = (float) (Math.sqrt(2 * acceleration * Math.abs(error)
+                + acceleration * acceleration * 0.25) - acceleration * 0.5);
+        float desiredRate = Math.copySign(Math.min(MAX_PITCH_STEP_DEGREES_PER_TICK, brakingRate), error);
+        float nextRate = Mth.approach(rate, desiredRate, acceleration);
+        return new PitchStep(pitch + nextRate, nextRate);
+    }
+
+    public record PitchStep(float pitch, float rate) {}
+
+    public static double verticalSpeedRatioFor(Mob mob) {
+        if (mob instanceof AbstractSharkEntity<?>) {
+            return SHARK_VERTICAL_SPEED_RATIO;
+        }
+        if (mob instanceof AtlanticCodEntity || mob instanceof AtlanticSalmonEntity) {
+            return FISH_VERTICAL_SPEED_RATIO;
+        }
+        return Double.NaN;
+    }
+
+    public static String verticalTravelClassFor(Mob mob) {
+        if (mob instanceof AbstractSharkEntity<?>) {
+            return "shark";
+        }
+        if (mob instanceof AtlanticCodEntity || mob instanceof AtlanticSalmonEntity) {
+            return "fish";
+        }
+        return "unavailable:not_a_dec_006_fish_or_shark";
     }
 
     /**
@@ -45,14 +92,34 @@ public final class AquaticMovement {
      */
     public static float affectedPitch(double dx, double dy, double dz,
                                       float upwardLimit, float downwardLimit) {
+        return affectedPitch(dx, dy, dz, upwardLimit, downwardLimit,
+                VERTICAL_UPWARD_PITCH, VERTICAL_DOWNWARD_PITCH);
+    }
+
+    /**
+     * Returns a bounded pitch using separate routine and steep-route envelopes. A direct vertical
+     * route is allowed to use its species profile endpoint only after the caller has selected that
+     * route; ordinary routes remain inside their shallow cruise limits.
+     */
+    public static float affectedPitch(double dx, double dy, double dz,
+                                      float upwardLimit, float downwardLimit,
+                                      float verticalUpwardLimit, float verticalDownwardLimit) {
+        return affectedPitch(dx, dy, dz, upwardLimit, downwardLimit,
+                verticalUpwardLimit, verticalDownwardLimit, DOLPHIN_VERTICAL_SPEED_RATIO);
+    }
+
+    public static float affectedPitch(double dx, double dy, double dz,
+                                      float upwardLimit, float downwardLimit,
+                                      float verticalUpwardLimit, float verticalDownwardLimit,
+                                      double verticalSpeedRatio) {
         double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
         if (horizontalDistance <= 1.0e-8 && Math.abs(dy) <= 1.0e-8) {
             return 0.0f;
         }
         if (horizontalDistance <= 1.0e-8) {
-            return dy > 0.0 ? VERTICAL_UPWARD_PITCH : VERTICAL_DOWNWARD_PITCH;
+            return dy > 0.0 ? -Math.abs(verticalUpwardLimit) : Math.abs(verticalDownwardLimit);
         }
-        float pitch = (float) -(Math.atan2(dy * VERTICAL_SPEED_RATIO, horizontalDistance) * Mth.RAD_TO_DEG);
+        float pitch = (float) -(Math.atan2(dy * verticalSpeedRatio, horizontalDistance) * Mth.RAD_TO_DEG);
         return Mth.clamp(pitch, -Math.abs(upwardLimit), Math.abs(downwardLimit));
     }
 
@@ -62,11 +129,16 @@ public final class AquaticMovement {
      * movement use the same scaled three dimensional direction.
      */
     public static double affectedVerticalVelocity(double speed, double dx, double dy, double dz) {
+        return affectedVerticalVelocity(speed, dx, dy, dz, DOLPHIN_VERTICAL_SPEED_RATIO);
+    }
+
+    public static double affectedVerticalVelocity(double speed, double dx, double dy, double dz,
+                                                   double verticalSpeedRatio) {
         double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (distance <= 1.0e-8) {
             return 0.0d;
         }
-        return speed * dy / distance * VERTICAL_SPEED_RATIO;
+        return speed * dy / distance * verticalSpeedRatio;
     }
 
     /**
@@ -83,8 +155,13 @@ public final class AquaticMovement {
      * to exceed the approved fraction of the entity speed.
      */
     public static double smoothAndLimitVerticalVelocity(double current, double target, double speed) {
+        return smoothAndLimitVerticalVelocity(current, target, speed, DOLPHIN_VERTICAL_SPEED_RATIO);
+    }
+
+    public static double smoothAndLimitVerticalVelocity(double current, double target, double speed,
+                                                         double verticalSpeedRatio) {
         double eased = smoothVerticalVelocity(current, target);
-        double limit = Math.abs(speed) * VERTICAL_SPEED_RATIO;
+        double limit = Math.abs(speed) * verticalSpeedRatio;
         return Mth.clamp(eased, -limit, limit);
     }
 

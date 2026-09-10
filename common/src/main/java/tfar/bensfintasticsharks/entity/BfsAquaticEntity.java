@@ -69,7 +69,10 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
         // Find the nearest apex predator within 12 blocks and head the other way.
         var area = getBoundingBox().inflate(12.0);
         var preds = level().getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, area,
-                e -> e.isAlive() && e.getType().is(tfar.bensfintasticsharks.init.ModTags.EntityTypes.APEX_PREDATOR));
+                e -> e.isAlive() && e.getType().is(tfar.bensfintasticsharks.init.ModTags.EntityTypes.APEX_PREDATOR)
+                        && !(this instanceof OctopusCamouflageHost
+                        && level() instanceof net.minecraft.server.level.ServerLevel serverLevel
+                        && OctopusInkCloudRegistry.obscuresVisualRay(serverLevel, getUUID(), e.getEyePosition())));
         if (preds.isEmpty()) return;
         var pred = preds.stream()
                 .min(java.util.Comparator.comparingDouble(this::distanceToSqr))

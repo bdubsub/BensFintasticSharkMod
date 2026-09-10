@@ -7,6 +7,7 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class AtlanticCodEntityForge extends AtlanticCodEntity implements GeoEntity {
@@ -47,10 +48,18 @@ public class AtlanticCodEntityForge extends AtlanticCodEntity implements GeoEnti
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
-            if (!isInWaterOrBubble()) return event.setAndContinue(FLOP);
-            double movement = getDeltaMovement().lengthSqr();
-            if (isFastSwim()) return event.setAndContinue(FAST_SWIM);
-            return event.setAndContinue(movement > SWIM_MOVEMENT_EPSILON || isVisuallyMoving() ? SWIM : IDLE);
+            return switch (FishPresentationState.cod(
+                    isDeadOrDying(),
+                    isInWaterOrBubble(),
+                    isFastSwim(),
+                    getDeltaMovement().lengthSqr() > SWIM_MOVEMENT_EPSILON || isVisuallyMoving())) {
+                case STOP -> PlayState.STOP;
+                case FLOP -> event.setAndContinue(FLOP);
+                case FAST_SWIM -> event.setAndContinue(FAST_SWIM);
+                case SWIM -> event.setAndContinue(SWIM);
+                case IDLE -> event.setAndContinue(IDLE);
+                case SPIN -> throw new IllegalStateException("Cod cannot select Spin");
+            };
         }));
     }
 
