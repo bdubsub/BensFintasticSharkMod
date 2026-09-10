@@ -27,6 +27,7 @@
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
 * [Phase 000 test runbook](test/phase-000-runbook.md)
 * [BFS debug diagnostics](test/debug-diagnostics.md)
+* [Depth route regressions and acceptance boundaries](test/depth-route-regressions.md)
 * [Phase 001 fishing transaction regressions](test/phase-001-fishing-transactions.md)
 * [BFS:AO The Trench Minecraft 26.2 ModJam plan](modjam/26.2-port-plan.md)
 

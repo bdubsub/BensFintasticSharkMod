@@ -27,6 +27,14 @@ Server captures are written under the server game directory at `logs/bfs-debug/b
 
 The server header identifies the mod, Minecraft, Forge, Java, GeckoLib, and SmartBrainLib versions. It also records GeckoLib's registered `geckolib:main` protocol version, the source revision or an explicit unavailable reason, artifact and configuration bindings, host role, side, tick rate, and units. `dedicated_server`, `integrated_server`, and `gametest_server` are distinct host roles. A GameTest run is server side evidence, but its `gametest_server` label must not be presented as a dedicated server or laptop client acceptance result.
 
+## Movement route capture
+
+For fish and sharks using the pitch route controller, movement samples include `routeAttemptId`, `routeState`, `desiredPitch`, `selectedWaypoint`, `remainingDistance`, `stalledTicks`, `bodyYaw` and `headYaw`. The controller reports `clearance`, `approach`, `path`, `arrived`, `cancelled` or `blocked` as applicable. A new attempt belongs to a changed destination, not each refreshed navigation node. A blocked attempt has a bounded retry delay; a different destination remains eligible immediately.
+
+`poweredVelocityX`, `poweredVelocityY`, `poweredVelocityZ` and `scalarPropulsionSpeed` describe the controller's retained propulsion contribution. `externalVelocityX`, `externalVelocityY` and `externalVelocityZ` describe the remaining observed velocity. They do not identify a specific external source such as a current or knockback. Do not label unexplained residual velocity as a validated external force. Other controllers retain explicit unavailable fields where they do not expose this state.
+
+For an arrival regression, capture the full starting position, intended destination, transition, final position and the next requested destination. Reaching the destination's height alone is not arrival. Compare actual position deltas with pitch and both yaw values. Check route retries, terrain contact and progress before requesting visual review. A headless pass still does not approve appearance or animation.
+
 ## Fishing capture
 
 Use `all` or `advancement` for fishing investigations. Fishing events do not require a selected animal or a connected owner. Ordinary players still fish normally; the capture is enabled only by the existing trusted command source. No separate fishing command or permission is added.

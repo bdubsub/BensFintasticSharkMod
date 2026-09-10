@@ -64,10 +64,10 @@ public final class SpeciesBehaviorEngine {
             if (away.lengthSqr() < 1.0e-4) away = new Vec3(1, 0, 0);
             away = away.normalize().scale(Math.min(8.0, profile.scanRadius()));
             Vec3 target = fish.position().add(away);
-            fish.getMoveControl().setWantedPosition(target.x, target.y, target.z, 1.25D);
+            fish.getNavigation().moveTo(target.x, target.y, target.z, 1.25D);
             return;
         }
-        if (!profile.social()) return;
+        if (!profile.social() || !fish.getNavigation().isDone()) return;
         List<LivingEntity> school = boundedLiving(fish, fish.getBoundingBox().inflate(profile.scanRadius()),
                 other -> other != fish && other.getType() == fish.getType() && other.isAlive())
                 .stream().limit(MAX_NEIGHBORS).toList();
@@ -76,7 +76,7 @@ public final class SpeciesBehaviorEngine {
                     .scale(1.0 / school.size());
             Vec3 separation = fish.position().subtract(center);
             Vec3 target = center.add(separation.lengthSqr() < 1.0 ? new Vec3(1.5, 0, 0) : separation.normalize().scale(2.5));
-            fish.getMoveControl().setWantedPosition(target.x, target.y, target.z, 0.8D);
+            fish.getNavigation().moveTo(target.x, target.y, target.z, 0.8D);
         }
     }
 

@@ -10,6 +10,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AquaticMovementTest {
 
     @Test
+    void pitchBrakesBeforeItsEndpointAndReversesWithBoundedAcceleration() {
+        float pitch = 0;
+        float rate = 0;
+        for (int tick = 0; tick < 600; tick++) {
+            var step = AquaticMovement.stepPitch(pitch, rate, tick < 250 ? -45 : 60);
+            assertTrue(Math.abs(step.rate() - rate) <= AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK + 0.00001);
+            assertTrue(Math.abs(step.rate()) <= AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK + 0.00001);
+            assertTrue(step.pitch() >= -45.001 && step.pitch() <= 60.001);
+            pitch = step.pitch();
+            rate = step.rate();
+        }
+    }
+
+    @Test
     void affectedPitchUsesTheScaledThreeDimensionalVector() {
         float pitch = AquaticMovement.affectedPitch(10.0, 10.0, 0.0);
         assertEquals(-Math.toDegrees(Math.atan2(0.1, 1.0)), pitch, 0.00001);

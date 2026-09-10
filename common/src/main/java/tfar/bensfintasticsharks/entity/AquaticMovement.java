@@ -25,6 +25,8 @@ public final class AquaticMovement {
 
     /** Six degrees per second at the nominal 20 tick server rate. */
     public static final float MAX_PITCH_STEP_DEGREES_PER_TICK = 0.30f;
+    public static final float MAX_PITCH_ACCELERATION_PER_TICK = 0.015f;
+    public static final float MAX_YAW_STEP_DEGREES_PER_TICK = 10.0f;
 
     /** A directly vertical route requires the body to reach a true sky or ground pose. */
     public static final float VERTICAL_UPWARD_PITCH = -90.0f;
@@ -32,6 +34,18 @@ public final class AquaticMovement {
 
     private AquaticMovement() {
     }
+
+    public static PitchStep stepPitch(float pitch, float rate, float target) {
+        float error = target - pitch;
+        float acceleration = MAX_PITCH_ACCELERATION_PER_TICK;
+        float brakingRate = (float) (Math.sqrt(2 * acceleration * Math.abs(error)
+                + acceleration * acceleration * 0.25) - acceleration * 0.5);
+        float desiredRate = Math.copySign(Math.min(MAX_PITCH_STEP_DEGREES_PER_TICK, brakingRate), error);
+        float nextRate = Mth.approach(rate, desiredRate, acceleration);
+        return new PitchStep(pitch + nextRate, nextRate);
+    }
+
+    public record PitchStep(float pitch, float rate) {}
 
     /**
      * Returns the nose pitch for the actual affected-entity travel vector. The vertical component

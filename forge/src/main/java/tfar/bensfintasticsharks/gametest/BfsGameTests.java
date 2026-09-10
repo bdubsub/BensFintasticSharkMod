@@ -1453,7 +1453,8 @@ public final class BfsGameTests {
             clearUnexpectedAquaticFixtureEntities(helper, shark, item);
             acquired[0] |= shark.getSharkState() == TigerSharkEntity.SharkState.CURIOUS
                     || shark.justBitItem();
-            if (sample < 40) {
+            if (sample < 100 && (shark.position().distanceToSqr(start) <= 0.25
+                    || shark.distanceToSqr(item) >= startDistance)) {
                 sampleTigerItemPursuit(helper, shark, item, start, startDistance, acquired, sample + 1);
                 return;
             }
@@ -1462,7 +1463,8 @@ public final class BfsGameTests {
             helper.assertTrue(shark.position().distanceToSqr(start) > 0.25,
                     "tiger shark must leave its spawn position while pursuing an item, state="
                             + shark.getSharkState() + ", position=" + shark.position()
-                            + ", item=" + item.position() + ", navDone=" + shark.getNavigation().isDone());
+                            + ", item=" + item.position() + ", navDone=" + shark.getNavigation().isDone()
+                            + ", steering=" + ((tfar.bensfintasticsharks.entity.SharkSwimmingMoveControl) shark.getMoveControl()).snapshot());
             helper.assertTrue(shark.distanceToSqr(item) < startDistance,
                     "tiger shark must reduce distance to a reachable edible item, state="
                             + shark.getSharkState() + ", startDistance=" + startDistance
@@ -1582,7 +1584,10 @@ public final class BfsGameTests {
                 shark.getNavigation().stop();
                 helper.runAfterDelay(2, () -> {
                     helper.assertTrue(shark.getSharkState() == TigerSharkEntity.SharkState.IDLE,
-                            "failed curiosity navigation must return the shark to idle");
+                            "failed curiosity navigation must return the shark to idle, state="
+                                    + shark.getSharkState() + ", target=" + shark.getTarget()
+                                    + ", navDone=" + shark.getNavigation().isDone()
+                                    + ", distance=" + shark.distanceTo(item));
                     helper.assertTrue(item.isAlive() && item.getItem().is(Items.COD)
                                     && item.getItem().getCount() == 1,
                             "failed curiosity navigation must preserve the item stack");
@@ -1790,6 +1795,11 @@ public final class BfsGameTests {
                                         int sample, int impactSample, double nearestDistance,
                                         int scenario, boolean blacktip) {
         helper.runAfterDelay(1, () -> {
+            AABB fixture = new AABB(helper.absolutePos(new BlockPos(1, 1, 1)),
+                    helper.absolutePos(new BlockPos(11, 6, 11)));
+            helper.getLevel().getEntitiesOfClass(LivingEntity.class, fixture,
+                    other -> other != shark && other != prey && !(other instanceof Player))
+                    .forEach(Entity::discard);
             if (moving && prey.isAlive() && prey.getX() < movingLimit) {
                 prey.setPos(prey.getX() + 0.015D, prey.getY(), prey.getZ());
             }
@@ -1808,6 +1818,8 @@ public final class BfsGameTests {
             double closest = Math.min(nearestDistance, currentDistance);
             int impact = impactSample;
             if (impact < 0 && prey.getHealth() < startHealth) {
+                helper.assertTrue(prey.getLastHurtByMob() == shark,
+                        "the tested shark must own the observed bite damage, attacker=" + prey.getLastHurtByMob());
                 impact = sample;
                 prey.kill();
             }
@@ -1815,7 +1827,8 @@ public final class BfsGameTests {
                 helper.assertTrue(closest < 3.5D,
                         "bite must enter physical contact range, species=" + (blacktip ? "blacktip" : "sandtiger")
                                 + ", size=" + (scenario / 2) + ", moving=" + moving
-                                + ", closest=" + closest);
+                                + ", closest=" + closest + ", attacker=" + prey.getLastHurtByMob()
+                                + ", expectedAttacker=" + shark + ", damage=" + prey.getLastDamageSource());
                 helper.assertTrue(impact >= 3,
                         "bite damage must be delayed after the trigger, sample=" + impact
                                 + ", species=" + (blacktip ? "blacktip" : "sandtiger"));
@@ -1906,7 +1919,9 @@ public final class BfsGameTests {
             shark.setDeltaMovement(Vec3.ZERO);
             armOceanicGrab(shark, player);
             helper.assertTrue(player.isPassenger() && shark.getGrabTimer() > 0,
-                    "oceanic grab lifecycle fixture must be armed");
+                    "oceanic grab lifecycle fixture must be armed, playerAlive=" + player.isAlive()
+                            + ", playerPosition=" + player.position() + ", sharkPosition=" + shark.position()
+                            + ", sharkInWater=" + shark.isInWater() + ", vehicle=" + player.getVehicle());
             shark.setNoAi(false);
             player.stopRiding();
             helper.runAfterDelay(2, () -> {
@@ -2122,6 +2137,7 @@ public final class BfsGameTests {
     @GameTest(template = "empty", batch = "bfs_spawn_controls", timeoutTicks = 40)
     public static void vanillaFishReplacementHonorsOneForOneAndModes(GameTestHelper helper) {
         prepareWaterVolume(helper);
+        clearReplacementFixtureFish(helper);
         boolean previousReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
         boolean previousSuppression = BfsConfig.COMMON.disableVanillaAquaticSpawns.get();
         MobCapManager manager = new MobCapManager();
@@ -2341,9 +2357,14 @@ public final class BfsGameTests {
         return new BlockPos(2 + index % 3 * 3, 3, 7 + index / 3 * 2);
     }
 
-    @GameTest(template = "empty", batch = "bfs_spawn_controls", timeoutTicks = 120)
+    @GameTest(template = "empty", batch = "bfs_actual_spawn_sources", timeoutTicks = 120)
     public static void vanillaFishReplacementUsesActualCreationSources(GameTestHelper helper) {
         prepareActualSourceWaterVolume(helper);
+        helper.runAfterDelay(2, () -> verifyActualCreationSources(helper));
+    }
+
+    private static void verifyActualCreationSources(GameTestHelper helper) {
+        clearReplacementFixtureFish(helper);
         boolean previousReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
         boolean previousSuppression = BfsConfig.COMMON.disableVanillaAquaticSpawns.get();
         BfsConfig.COMMON.replaceVanillaMobs.set(true);
@@ -2440,9 +2461,10 @@ public final class BfsGameTests {
         }
     }
 
-    @GameTest(template = "empty", batch = "bfs_spawn_controls", timeoutTicks = 120)
+    @GameTest(template = "empty", batch = "bfs_natural_replacement_cap", timeoutTicks = 120)
     public static void naturalVanillaFishReplacementHonorsPopulationCap(GameTestHelper helper) {
         prepareActualSourceWaterVolume(helper);
+        clearReplacementFixtureFish(helper);
         boolean previousReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
         BfsConfig.COMMON.replaceVanillaMobs.set(true);
         MobCapManager.setRuntimeCap(ModEntityTypes.ATLANTIC_COD, 1);
@@ -2458,7 +2480,8 @@ public final class BfsGameTests {
                     new AABB(helper.absolutePos(new BlockPos(7, 3, 2))).inflate(8.0D),
                     cod -> cod.getType() == EntityType.COD);
             helper.assertTrue(atlanticCod.size() == 1,
-                    "natural vanilla Cod replacement must honor the configured Atlantic Cod population cap");
+                    "natural vanilla Cod replacement must honor the configured Atlantic Cod population cap, actual="
+                            + atlanticCod.size());
             helper.assertTrue(vanillaCod.isEmpty(),
                     "a rejected natural vanilla Cod replacement must not leak a vanilla Cod");
             helper.succeed();
@@ -2466,6 +2489,20 @@ public final class BfsGameTests {
             MobCapManager.resetRuntimeCap(ModEntityTypes.ATLANTIC_COD);
             BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
         }
+    }
+
+    private static void clearReplacementFixtureFish(GameTestHelper helper) {
+        AABB localArea = new AABB(helper.absolutePos(new BlockPos(0, 0, 0)),
+                helper.absolutePos(new BlockPos(14, 7, 13)));
+        helper.getLevel().getEntitiesOfClass(Entity.class, localArea,
+                entity -> !(entity instanceof Player)).forEach(Entity::discard);
+        AABB accountingArea = new AABB(helper.absolutePos(new BlockPos(2, 3, 2)),
+                helper.absolutePos(new BlockPos(13, 4, 12))).inflate(MobCapManager.COUNT_RADIUS);
+        helper.getLevel().getEntitiesOfClass(Mob.class, accountingArea, BfsGameTests::isPopulationSoakFish)
+                .forEach(Mob::discard);
+        helper.assertTrue(helper.getLevel().getEntitiesOfClass(Mob.class, accountingArea,
+                        BfsGameTests::isPopulationSoakFish).isEmpty(),
+                "the isolated replacement fixture must start without neighboring Cod or Salmon");
     }
 
     private static EntityType<? extends Mob> sourceFishType(int fishIndex) {
@@ -2499,7 +2536,12 @@ public final class BfsGameTests {
                 new AABB(position).inflate(0.25D));
         helper.assertTrue(replacement.size() == 1 && replacement.get(0).getType() == replacementType,
                 sourceName + " must produce exactly one matching Atlantic fish, actual="
-                        + replacement.stream().map(mob -> String.valueOf(mob.getType())).toList());
+                        + replacement.stream().map(mob -> String.valueOf(mob.getType())).toList()
+                        + ", position=" + position + ", cap=" + MobCapManager.getCap(replacementType)
+                        + ", replacementEnabled=" + BfsConfig.COMMON.replaceVanillaMobs.get()
+                        + ", nearby=" + helper.getLevel().getEntitiesOfClass(Mob.class,
+                        new AABB(position).inflate(4.0)).stream()
+                        .map(mob -> mob.getType() + " at " + mob.position()).toList());
         if (!sourceName.startsWith("natural") && !sourceName.startsWith("chunk")) {
             helper.assertTrue(replacement.get(0).hasCustomName()
                             && sourceName.equals(replacement.get(0).getCustomName().getString()),
@@ -2673,19 +2715,93 @@ public final class BfsGameTests {
         );
     }
 
-    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
+    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 1700)
     public static void sharkVerticalRouteFollowsDolphinWithoutOrbit(GameTestHelper helper) {
         runVerticalRoute(helper, new BlockPos(4, 5, 4), new BlockPos(4, 9, 4),
                 new BlockPos(20, 5, 20), new BlockPos(20, 9, 20), 1);
     }
 
-    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
+    @GameTest(template = "empty", batch = "bfs_route_arrival", timeoutTicks = 3250)
+    public static void codDepthRouteReachesPositionAndAcceptsNextGoal(GameTestHelper helper) {
+        prepareVerticalWaterVolume(helper);
+        Mob fish = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(12, 5, 12));
+        verifyDepthRouteArrival(helper, fish);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_route_arrival", timeoutTicks = 3250)
+    public static void tigerDepthRouteReachesPositionAndAcceptsNextGoal(GameTestHelper helper) {
+        prepareVerticalWaterVolume(helper);
+        Mob shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(12, 5, 12));
+        verifyDepthRouteArrival(helper, shark);
+    }
+
+    private static void verifyDepthRouteArrival(GameTestHelper helper, Mob mob) {
+        mob.getBrain().removeAllBehaviors();
+        mob.goalSelector.removeAllGoals(goal -> true);
+        mob.targetSelector.removeAllGoals(goal -> true);
+        mob.setPersistenceRequired();
+        Vec3 first = helper.absolutePos(new BlockPos(12, 9, 12)).getCenter();
+        sampleCompleteDepthRoute(helper, mob, first, 0, 0, mob.getYRot(), 0.0);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_route_recovery", timeoutTicks = 1900)
+    public static void blockedFishRouteReleasesSteeringForAnotherGoal(GameTestHelper helper) {
+        prepareVerticalWaterVolume(helper);
+        Mob fish = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(12, 5, 12));
+        fish.getBrain().removeAllBehaviors();
+        fish.goalSelector.removeAllGoals(goal -> true);
+        fish.targetSelector.removeAllGoals(goal -> true);
+        for (int x = 8; x <= 16; x++) {
+            for (int y = 1; y <= 12; y++) helper.setBlock(new BlockPos(x, y, 14), Blocks.STONE);
+        }
+        Vec3 blocked = helper.absolutePos(new BlockPos(12, 5, 17)).getCenter();
+        helper.runAfterDelay(2, () -> fish.getMoveControl().setWantedPosition(blocked.x, blocked.y, blocked.z, 1));
+        helper.runAfterDelay(220, () -> {
+            var control = (tfar.bensfintasticsharks.entity.PitchSwimmingMoveControl) fish.getMoveControl();
+            helper.assertTrue(control.routeState().equals("blocked"),
+                    "solid obstruction must produce a finite blocked result, state=" + control.snapshot());
+            Vec3 goal = helper.absolutePos(new BlockPos(8, 5, 12)).getCenter();
+            sampleCompleteDepthRoute(helper, fish, goal, 1, 0, fish.getYRot(), 0.0);
+        });
+    }
+
+    private static void sampleCompleteDepthRoute(GameTestHelper helper, Mob mob, Vec3 goal,
+                                                  int leg, int ticks, float previousYaw, double winding) {
+        helper.runAfterDelay(1, () -> {
+            double nextWinding = winding + Math.abs(Mth.wrapDegrees(mob.getYRot() - previousYaw));
+            helper.assertTrue(nextWinding < 360.0,
+                    "a depth route must not complete a horizontal orbit, winding=" + nextWinding
+                            + ", leg=" + leg + ", ticks=" + ticks + ", position=" + mob.position()
+                            + ", goal=" + goal + ", pitch=" + mob.getXRot()
+                            + ", steering=" + (mob.getMoveControl() instanceof tfar.bensfintasticsharks.entity.PitchSwimmingMoveControl control
+                            ? control.snapshot() : ((tfar.bensfintasticsharks.entity.SharkSwimmingMoveControl) mob.getMoveControl()).snapshot()));
+            if (mob.distanceToSqr(goal) <= 0.75 * 0.75) {
+                if (leg == 1) {
+                    helper.succeed();
+                    return;
+                }
+                Vec3 next = helper.absolutePos(new BlockPos(12, 6, 18)).getCenter();
+                sampleCompleteDepthRoute(helper, mob, next, 1, 0, mob.getYRot(), 0.0);
+                return;
+            }
+            helper.assertTrue(ticks < 1600,
+                    "depth arrival requires the complete destination, not height alone, leg=" + leg
+                            + ", position=" + mob.position() + ", goal=" + goal
+                            + ", pitch=" + mob.getXRot() + ", delta=" + mob.getDeltaMovement()
+                            + ", steering=" + (mob.getMoveControl() instanceof tfar.bensfintasticsharks.entity.PitchSwimmingMoveControl control
+                            ? control.snapshot() : ((tfar.bensfintasticsharks.entity.SharkSwimmingMoveControl) mob.getMoveControl()).snapshot()));
+            if (ticks % 20 == 0) mob.getNavigation().moveTo(goal.x, goal.y, goal.z, 1.0);
+            sampleCompleteDepthRoute(helper, mob, goal, leg, ticks + 1, mob.getYRot(), nextWinding);
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 1700)
     public static void sharkDescendingRouteFollowsDolphinWithoutOrbit(GameTestHelper helper) {
         runVerticalRoute(helper, new BlockPos(4, 9, 4), new BlockPos(4, 5, 4),
                 new BlockPos(20, 9, 20), new BlockPos(20, 5, 20), -1);
     }
 
-    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
+    @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 1700)
     public static void atlanticCodVerticalRouteUsesScaledPitch(GameTestHelper helper) {
         prepareVerticalWaterVolume(helper);
         AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(4, 5, 4));
@@ -2695,9 +2811,10 @@ public final class BfsGameTests {
         Vec3 target = helper.absolutePos(new BlockPos(4, 8, 4)).getCenter();
         java.util.List<Double> heights = new java.util.ArrayList<>();
         java.util.List<Float> pitches = new java.util.ArrayList<>();
+        java.util.List<Float> yaws = new java.util.ArrayList<>();
         double startY = cod.getY();
         cod.getNavigation().moveTo(target.x, target.y, target.z, 1.0D);
-        sampleFishVerticalRoute(helper, cod, target, startY, heights, pitches, 0);
+        sampleFishVerticalRoute(helper, cod, target, startY, heights, pitches, yaws, 0);
     }
 
     @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 320)
@@ -2739,6 +2856,7 @@ public final class BfsGameTests {
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, sharkStartPos);
         BottlenoseDolphinEntity dolphin = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN, dolphinStartPos);
         shark.getBrain().removeAllBehaviors();
+        shark.setHuntCooldown(3600);
         dolphin.getBrain().removeAllBehaviors();
         Vec3 sharkTarget = helper.absolutePos(sharkTargetPos).getCenter();
         Vec3 dolphinTarget = helper.absolutePos(dolphinTargetPos).getCenter();
@@ -2755,12 +2873,13 @@ public final class BfsGameTests {
         java.util.List<Double> sharkHorizontalOffsets = new java.util.ArrayList<>();
         java.util.List<Double> dolphinHorizontalOffsets = new java.util.ArrayList<>();
         java.util.List<Float> sharkPitches = new java.util.ArrayList<>();
+        java.util.List<Float> sharkYaws = new java.util.ArrayList<>();
         java.util.List<Double> sharkVerticalSpeeds = new java.util.ArrayList<>();
 
         sampleVerticalRoute(helper, shark, dolphin, sharkTarget, dolphinTarget,
                 sharkStartY, dolphinStartY, sharkStartX, sharkStartZ, dolphinStartX, dolphinStartZ,
                 sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets,
-                sharkPitches, sharkVerticalSpeeds,
+                sharkPitches, sharkYaws, sharkVerticalSpeeds,
                 verticalDirection, 0, -1);
     }
 
@@ -2774,6 +2893,7 @@ public final class BfsGameTests {
                                              java.util.List<Double> sharkHorizontalOffsets,
                                              java.util.List<Double> dolphinHorizontalOffsets,
                                              java.util.List<Float> sharkPitches,
+                                             java.util.List<Float> sharkYaws,
                                              java.util.List<Double> sharkVerticalSpeeds,
                                              int verticalDirection,
                                              int sample,
@@ -2788,8 +2908,9 @@ public final class BfsGameTests {
             sharkHorizontalOffsets.add(Math.hypot(shark.getX() - sharkStartX, shark.getZ() - sharkStartZ));
             dolphinHorizontalOffsets.add(Math.hypot(dolphin.getX() - dolphinStartX, dolphin.getZ() - dolphinStartZ));
             sharkPitches.add(Mth.wrapDegrees(shark.getXRot()));
+            sharkYaws.add(Mth.wrapDegrees(shark.getYRot()));
             sharkVerticalSpeeds.add(Math.abs(shark.getDeltaMovement().y));
-            if (sample < 260) {
+            if (sample < 1600 && shark.distanceToSqr(sharkTarget) > 0.75 * 0.75) {
                 setVerticalTarget(shark, sharkTarget);
                 if (arrival[0] < 0) {
                     setVerticalTarget(dolphin, dolphinTarget);
@@ -2797,7 +2918,7 @@ public final class BfsGameTests {
                 sampleVerticalRoute(helper, shark, dolphin, sharkTarget, dolphinTarget,
                         sharkStartY, dolphinStartY, sharkStartX, sharkStartZ, dolphinStartX, dolphinStartZ,
                         sharkHeights, dolphinHeights, sharkHorizontalOffsets, dolphinHorizontalOffsets,
-                        sharkPitches, sharkVerticalSpeeds,
+                        sharkPitches, sharkYaws, sharkVerticalSpeeds,
                         verticalDirection, sample + 1, arrival[0]);
                 return;
             }
@@ -2809,16 +2930,21 @@ public final class BfsGameTests {
                             + dolphinProgress + ", position=" + dolphin.position()
                             + ", target=" + dolphinTarget + ", navDone=" + dolphin.getNavigation().isDone()
                             + ", delta=" + dolphin.getDeltaMovement());
-            helper.assertTrue(sharkProgress * verticalDirection > 0.25,
+            helper.assertTrue(shark.distanceToSqr(sharkTarget) <= 0.75 * 0.75,
                     "shark must complete the vertical route, progress=" + sharkProgress
                             + ", dolphinProgress=" + dolphinProgress + ", position=" + shark.position()
                             + ", target=" + sharkTarget + ", navTarget=" + shark.getNavigation().getTargetPos()
-                            + ", pitch=" + shark.getXRot() + ", delta=" + shark.getDeltaMovement());
-            helper.assertTrue(hasSingleFiniteHorizontalArc(sharkHorizontalOffsets),
+                            + ", pitch=" + shark.getXRot() + ", delta=" + shark.getDeltaMovement()
+                            + ", steering=" + ((tfar.bensfintasticsharks.entity.SharkSwimmingMoveControl) shark.getMoveControl()).snapshot());
+            helper.assertTrue(significantDirectionReversals(sharkHorizontalOffsets, 0.02D) <= 2,
                     "shark must use one finite entry arc instead of sustained horizontal orbit, reversals="
                             + directionReversals(sharkHorizontalOffsets) + ", offsets=" + sharkHorizontalOffsets
                             + ", position=" + shark.position() + ", target=" + sharkTarget
                             + ", navTarget=" + shark.getNavigation().getTargetPos());
+            helper.assertTrue(maxYawStep(sharkYaws) <= AquaticMovement.MAX_YAW_STEP_DEGREES_PER_TICK + 0.0001F
+                            && totalYawTravel(sharkYaws) < 360,
+                    "shark depth approach must turn smoothly without a full orbit, maxYawStep="
+                            + maxYawStep(sharkYaws) + ", yaws=" + sharkYaws);
             helper.assertTrue(sharkPitches.stream().mapToDouble(Float::doubleValue)
                             .map(Math::abs).max().orElse(0.0) > 1.0,
                     "shark must pitch toward the vertical target, pitches=" + sharkPitches);
@@ -2840,24 +2966,31 @@ public final class BfsGameTests {
     private static void sampleFishVerticalRoute(GameTestHelper helper, AtlanticCodEntity cod,
                                                  Vec3 target, double startY,
                                                  java.util.List<Double> heights,
-                                                 java.util.List<Float> pitches, int sample) {
+                                                 java.util.List<Float> pitches,
+                                                 java.util.List<Float> yaws, int sample) {
         helper.runAfterDelay(1, () -> {
             heights.add(cod.getY());
             pitches.add(cod.getXRot());
-            if (sample < 260 && cod.distanceToSqr(target) > 0.36) {
+            yaws.add(Mth.wrapDegrees(cod.getYRot()));
+            if (sample < 1600 && cod.distanceToSqr(target) > 0.75 * 0.75) {
                 cod.getNavigation().moveTo(target.x, target.y, target.z, 1.0D);
-                sampleFishVerticalRoute(helper, cod, target, startY, heights, pitches, sample + 1);
+                sampleFishVerticalRoute(helper, cod, target, startY, heights, pitches, yaws, sample + 1);
                 return;
             }
             double progress = cod.getY() - startY;
             float peakPitch = minimumWrappedPitch(pitches);
-            helper.assertTrue(progress > 0.25,
-                    "atlantic cod must make directed vertical progress, progress=" + progress);
+            helper.assertTrue(cod.distanceToSqr(target) <= 0.75 * 0.75,
+                    "atlantic cod must reach the complete destination, progress=" + progress
+                            + ", position=" + cod.position() + ", target=" + target);
             helper.assertTrue(peakPitch < -1.0F,
                     "atlantic cod must pitch its nose toward the elevated target, peakPitch=" + peakPitch
                             + ", finalPitch=" + cod.getXRot());
             helper.assertTrue(maxPitchStep(pitches) <= AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK + 0.0001F,
                     "atlantic cod pitch must transition smoothly, maxStep=" + maxPitchStep(pitches));
+            helper.assertTrue(maxYawStep(yaws) <= AquaticMovement.MAX_YAW_STEP_DEGREES_PER_TICK + 0.0001F
+                            && totalYawTravel(yaws) < 360,
+                    "atlantic cod depth approach must turn smoothly without a full orbit, maxYawStep="
+                            + maxYawStep(yaws) + ", yaws=" + yaws);
             helper.assertTrue(AquaticMovement.VERTICAL_SPEED_RATIO == 0.10D,
                     "affected aquatic vertical ratio must remain the approved oracle");
             helper.assertTrue(hasNoDirectionReversal(heights, 1),
@@ -2875,6 +3008,20 @@ public final class BfsGameTests {
             max = Math.max(max, Math.abs(Mth.wrapDegrees(pitches.get(i) - pitches.get(i - 1))));
         }
         return max;
+    }
+
+    private static float maxYawStep(java.util.List<Float> yaws) {
+        float max = 0.0F;
+        for (int i = 1; i < yaws.size(); i++) {
+            max = Math.max(max, Math.abs(Mth.wrapDegrees(yaws.get(i) - yaws.get(i - 1))));
+        }
+        return max;
+    }
+
+    private static double totalYawTravel(java.util.List<Float> yaws) {
+        double total = 0;
+        for (int i = 1; i < yaws.size(); i++) total += Math.abs(Mth.wrapDegrees(yaws.get(i) - yaws.get(i - 1)));
+        return total;
     }
 
     private static float minimumWrappedPitch(java.util.List<Float> pitches) {
@@ -2940,9 +3087,22 @@ public final class BfsGameTests {
     }
 
     private static void prepareVerticalWaterVolume(GameTestHelper helper) {
+        AABB bounds = new AABB(helper.absolutePos(BlockPos.ZERO),
+                helper.absolutePos(new BlockPos(25, 21, 25)));
+        helper.getLevel().getEntitiesOfClass(Entity.class, bounds,
+                entity -> !(entity instanceof Player)).forEach(Entity::discard);
+        for (int edge = 0; edge <= 25; edge++) {
+            for (int y = 1; y <= 21; y++) {
+                helper.setBlock(new BlockPos(0, y, edge), Blocks.GLASS);
+                helper.setBlock(new BlockPos(25, y, edge), Blocks.GLASS);
+                helper.setBlock(new BlockPos(edge, y, 0), Blocks.GLASS);
+                helper.setBlock(new BlockPos(edge, y, 25), Blocks.GLASS);
+            }
+        }
         for (int x = 1; x <= 24; x++) {
             for (int z = 1; z <= 24; z++) {
                 helper.setBlock(new BlockPos(x, 0, z), Blocks.SAND.defaultBlockState());
+                helper.setBlock(new BlockPos(x, 21, z), Blocks.GLASS);
                 for (int y = 1; y <= 20; y++) {
                     helper.setBlock(new BlockPos(x, y, z), Blocks.WATER.defaultBlockState());
                 }

@@ -89,6 +89,11 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     protected float hardDownwardPitchLimitDegrees() { return AquaticMovement.SHARK_HARD_DOWNWARD_PITCH_LIMIT; }
 
     @Override
+    protected net.minecraft.world.entity.ai.navigation.PathNavigation createNavigation(Level level) {
+        return new PitchSwimmingNavigation(this, level);
+    }
+
+    @Override
     protected boolean usesPitchDrivenVerticalMovement() {
         return true;
     }
@@ -864,6 +869,23 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         float accel = useSwimMultiplier
                 ? this.getSpeed() * swimSpeedMultiplier() * scale
                 : this.getSpeed() * scale;
+        if (usesPitchDrivenVerticalMovement() && moveControl instanceof SharkSwimmingMoveControl control) {
+            double floor = 0;
+            if (chasing && movementInput.z > 0 && tgt != null) {
+                Vec3 targetOffset = tgt.position().subtract(position());
+                double horizontal = targetOffset.horizontalDistance();
+                double facing = horizontal > 1.0e-4
+                        ? AquaticMovement.forwardVector(getYRot(), 0).dot(targetOffset) / horizontal : 0;
+                if (facing > 0.5 && Math.abs(targetOffset.y) <= horizontal * 1.5) {
+                    double band = brakeRange + 2.0;
+                    floor = (distanceToSqr(tgt) <= band * band
+                            ? Math.min(chaseSpeedFloor(), 0.30F) : chaseSpeedFloor()) * shallowWaterSpeedScale();
+                }
+            }
+            control.travel(accel, braking ? 0.30 : (wasTouchingWater ? waterFriction : 0.25),
+                    maxHorizontalSpeed(), floor, braking ? Vec3.ZERO : movementInput);
+            return;
+        }
         this.moveRelative(accel, effectiveInput);
         this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
         double friction = braking ? 0.30 : (this.wasTouchingWater ? waterFriction : 0.25);

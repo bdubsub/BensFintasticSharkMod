@@ -194,7 +194,7 @@ public class CommonThresherSharkEntity extends AbstractSharkEntity<CommonThreshe
 
     @Override
     protected PathNavigation createNavigation(Level pLevel) {
-        return new WaterBoundPathNavigation(this, pLevel) {
+        return new PitchSwimmingNavigation(this, pLevel) {
             @Override
             protected boolean canUpdatePath() {
                 return true;

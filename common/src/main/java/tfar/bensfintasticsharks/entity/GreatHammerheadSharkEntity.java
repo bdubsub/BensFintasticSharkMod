@@ -146,7 +146,7 @@ public class GreatHammerheadSharkEntity extends AbstractSharkEntity<GreatHammerh
 
     @Override
     protected PathNavigation createNavigation(Level pLevel) {
-        return new WaterBoundPathNavigation(this, pLevel) {
+        return new PitchSwimmingNavigation(this, pLevel) {
             @Override
             protected boolean canUpdatePath() {
                 return true;

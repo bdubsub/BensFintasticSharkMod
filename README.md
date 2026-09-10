@@ -26,7 +26,7 @@ Install Forge, place the mod and its required dependencies in the `mods` directo
 * Atlantic Cod and Atlantic Salmon replace newly created vanilla Cod and Salmon by default from natural and chunk spawning, spawn eggs, commands, bucket release, dispensers, spawners, and structures. Existing saved fish and unrelated species remain untouched. Replacements share vanilla's water ambient population ceiling, and a server config switch restores separate vanilla and BFS spawn sources.
 * Optional suppression of other natural vanilla aquatic spawning for packs that want BFS wildlife to fill the oceans.
 * Creative showcase commands, including a guaranteed trade villager and detailed species information.
-* Bounded server and local client diagnostics for movement, behavior, combat, population, fishing, advancement, and algae investigations. Fishing captures correlate delivery, rewards and actual rod cleanup without requiring an owner connection for server tests.
+* Bounded server and local client diagnostics for movement, behavior, combat, population, fishing, advancement, and algae investigations. Movement captures expose route state, selected waypoint, body orientation and separately tracked propulsion. Fishing captures correlate delivery, rewards and actual rod cleanup without requiring an owner connection for server tests.
 * Shark tools, armor, a Prismarine armor set fitted to swimming poses, Captain Ben's Hat, collectible items, and advancements.
 * The Shark Codex and the Sunken Trove ocean structure.
 * Three permanent algae blocks with animated large green and red variants and ocean biome generation.

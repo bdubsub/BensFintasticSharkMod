@@ -15,6 +15,16 @@ final class BfsFishLookControl extends LookControl {
 
     @Override
     public void tick() {
+        if (fish.getMoveControl() instanceof BfsFishMoveControl moveControl && fish.isInWater()
+                && moveControl.hasWanted()) {
+            // Movement owns the body bearing while a navigation route is active. Letting the
+            // generic look target overwrite it adds a second yaw writer and makes a fish hunt
+            // left and right around an otherwise stable path.
+            float movementYaw = fish.getYRot();
+            fish.yBodyRot = movementYaw;
+            fish.yHeadRot = movementYaw;
+            return;
+        }
         float movementPitch = fish.getXRot();
         super.tick();
         fish.setXRot(movementPitch);

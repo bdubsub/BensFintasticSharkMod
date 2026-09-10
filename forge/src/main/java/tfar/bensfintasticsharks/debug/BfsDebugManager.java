@@ -428,6 +428,10 @@ public final class BfsDebugManager {
         addPositionDelta(active, record, entity);
         record.addProperty("yaw", entity.getYRot());
         record.addProperty("pitch", entity.getXRot());
+        if (entity instanceof LivingEntity living) {
+            record.addProperty("bodyYaw", living.yBodyRot);
+            record.addProperty("headYaw", living.yHeadRot);
+        }
         addAngularDeltas(active, record, entity);
         record.addProperty("lookX", entity.getLookAngle().x);
         record.addProperty("lookY", entity.getLookAngle().y);
@@ -460,6 +464,34 @@ public final class BfsDebugManager {
         addTrajectoryPitch(record, entity.getDeltaMovement());
         if (entity instanceof Mob mob) {
             record.addProperty("moveControl", mob.getMoveControl().getClass().getName());
+            tfar.bensfintasticsharks.entity.PitchSwimmingMoveControl.Snapshot steering = null;
+            if (mob.getMoveControl() instanceof tfar.bensfintasticsharks.entity.PitchSwimmingMoveControl control) {
+                steering = control.snapshot();
+            } else if (mob.getMoveControl() instanceof tfar.bensfintasticsharks.entity.SharkSwimmingMoveControl control) {
+                steering = control.snapshot();
+            }
+            if (steering != null) {
+                record.addProperty("routeAttemptId", steering.attempt());
+                record.addProperty("desiredPitch", steering.desiredPitch());
+                record.addProperty("routeState", steering.state());
+                record.addProperty("arrivalReason", steering.state());
+                record.addProperty("remainingDistance", steering.remainingDistance());
+                record.addProperty("stalledTicks", steering.stalledTicks());
+                record.addProperty("scalarPropulsionSpeed", steering.poweredVelocity().length());
+                record.addProperty("poweredVelocityX", steering.poweredVelocity().x);
+                record.addProperty("poweredVelocityY", steering.poweredVelocity().y);
+                record.addProperty("poweredVelocityZ", steering.poweredVelocity().z);
+                record.addProperty("externalVelocityX", steering.externalVelocity().x);
+                record.addProperty("externalVelocityY", steering.externalVelocity().y);
+                record.addProperty("externalVelocityZ", steering.externalVelocity().z);
+                if (steering.waypoint() != null) {
+                    JsonObject waypoint = new JsonObject();
+                    waypoint.addProperty("x", steering.waypoint().x);
+                    waypoint.addProperty("y", steering.waypoint().y);
+                    waypoint.addProperty("z", steering.waypoint().z);
+                    record.add("selectedWaypoint", waypoint);
+                }
+            }
             record.addProperty("navigationDone", mob.getNavigation().isDone());
             record.addProperty("targetUuid", mob.getTarget() == null ? "none" : mob.getTarget().getUUID().toString());
             record.addProperty("targetType", mob.getTarget() == null ? "none" : entityId(mob.getTarget()));

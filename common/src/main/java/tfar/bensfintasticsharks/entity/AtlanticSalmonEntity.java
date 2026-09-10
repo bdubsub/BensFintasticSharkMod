@@ -29,6 +29,11 @@ public class AtlanticSalmonEntity extends Salmon {
     }
 
     @Override
+    protected net.minecraft.world.entity.ai.navigation.PathNavigation createNavigation(Level level) {
+        return new PitchSwimmingNavigation(this, level);
+    }
+
+    @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         entityData.define(DATA_FAST_SWIM, false);
