@@ -2393,33 +2393,33 @@ public final class BfsGameTests {
 
                 BlockPos spawnEggPosition = helper.absolutePos(actualSourcePosition(2, fishIndex));
                 String spawnEggName = "actual spawn egg " + sourceFishName(fishIndex);
-                clearReplacementFixtureFish(helper);
+                if (fishIndex == 0) clearReplacementFixtureFish(helper);
                 spawnVanillaFishForJoinSource(helper, sourceType, spawnEggPosition, MobSpawnType.SPAWN_EGG,
                         spawnEggName);
                 assertSingleReplacement(helper, spawnEggPosition, replacementType, spawnEggName);
 
                 BlockPos commandPosition = helper.absolutePos(actualSourcePosition(3, fishIndex));
                 String commandName = "actual summon " + sourceFishName(fishIndex);
-                clearReplacementFixtureFish(helper);
+                if (fishIndex == 0) clearReplacementFixtureFish(helper);
                 spawnVanillaFishForJoinSource(helper, sourceType, commandPosition, MobSpawnType.COMMAND,
                         commandName);
                 assertSingleReplacement(helper, commandPosition, replacementType, commandName);
 
                 String spawnerName = "actual spawner " + sourceFishName(fishIndex);
-                clearReplacementFixtureFish(helper);
+                if (fishIndex == 0) clearReplacementFixtureFish(helper);
                 BlockPos spawnerPosition = spawnVanillaFishWithSpawner(helper, sourceType, spawnerPlayer,
                         fishIndex, spawnerName);
                 assertSingleReplacement(helper, spawnerPosition, replacementType, spawnerName);
 
                 BlockPos structurePosition = helper.absolutePos(actualSourcePosition(7, fishIndex));
                 String structureName = "actual structure " + sourceFishName(fishIndex);
-                clearReplacementFixtureFish(helper);
+                if (fishIndex == 0) clearReplacementFixtureFish(helper);
                 spawnVanillaFishWithStructure(helper, sourceType, structurePosition, structureName);
                 assertSingleReplacement(helper, structurePosition, replacementType, structureName);
 
                 BlockPos savedPosition = helper.absolutePos(actualSourcePosition(8, fishIndex));
                 String savedName = "actual saved " + sourceFishName(fishIndex);
-                clearReplacementFixtureFish(helper);
+                if (fishIndex == 0) clearReplacementFixtureFish(helper);
                 loadSavedVanillaFish(helper, sourceType, savedPosition, savedName);
                 List<Mob> loadedFish = helper.getLevel().getEntitiesOfClass(Mob.class,
                         new AABB(savedPosition).inflate(0.25D));
