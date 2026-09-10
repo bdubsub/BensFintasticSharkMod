@@ -12,6 +12,8 @@ The initial dedicated GameTest reproduction failed for both Atlantic Cod and Tig
 
 `AquaticRoute` retains the destination separately from its optional clearance point. Reaching the clearance point selects the original destination. Matching its height alone never completes the route. A blocked request receives a retry delay without excluding a different goal. Fish social policy no longer overwrites movement targets while navigation is following another route.
 
+Progress means reducing the best distance to the current waypoint by at least 0.1 blocks. Sliding sideways, circling or returning toward an already visited distance does not reset the deadline. A waypoint handoff starts a new progress window. The prior displacement based check let small vertical slides along a wall postpone recovery without useful route closure.
+
 The water travel step separates previously owned propulsion from subsequent velocity changes. Minecraft 1.20.1 clears components smaller than 0.003 blocks per tick before travel. The controller accounts for that known rounding when reconstructing its carry; it must not classify the negated carry as an opposing external impulse. Actual contact still clips propulsion and must make the progress deadline expire.
 
 ## Fixtures and assertions
@@ -45,7 +47,9 @@ Candidate artifact: `BensFintasticSharks-forge-1.20.1-0.24.jar`, 1,995,947 bytes
 * SHA 256: `dd8cdffac12b455dccac767f7d7ccf2123d2620638fe14fdec6ccf8caa429ffa`.
 * SHA 512: `58a3d2eeb005a1eee0aae11aec292e7b4bcdb18501de164f4c0cd293dd8ccfb31285560d9c922ae1f0d0c26f813727e059422c896443078665dae892cf1ff190`.
 
-Packaged multiplayer and owner visual acceptance remain unverified for this artifact. This result does not close Phase 002 or authorize its integration.
+A fresh repeat exposed a wall sliding recovery failure in this artifact, so it was not deployed for visual acceptance. The progress check was corrected afterward and requires a new artifact and complete verification. The initial pass is historical evidence, not closure. Packaged multiplayer and owner visual acceptance remain unverified. Phase 002 is open.
+
+The corrected progress candidate subsequently passed all 40 unit tests, all 73 required dedicated server GameTests and the Forge build in another fresh world. Its artifact is 1,995,993 bytes, with SHA 256 `2ca7fc521a19ebde95419eb918968ac9f1e2be747e2a5028d2bdb9514331d7d3` and SHA 512 `074bd5c2a02b7d6f0e92b3b6513f75a91468335afa2ef8c4fbe90837c41cdabe2292783ff34b718e18af2dd6bf95f8fc0a3c847f19e5e6965e9c3fd076ceac37`. This supersedes the first candidate for further runtime verification.
 
 ## Limits and next acceptance
 

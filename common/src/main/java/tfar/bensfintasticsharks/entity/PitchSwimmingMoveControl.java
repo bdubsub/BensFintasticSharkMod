@@ -20,7 +20,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
     private final float downwardLimit;
     private AquaticRoute route;
     private Vec3 requestedGoal;
-    private Vec3 lastProgressPosition;
+    private Vec3 progressWaypoint;
+    private double bestWaypointDistance;
     private int stalledTicks;
     private boolean navigationOwned;
     private float pitchRate;
@@ -93,7 +94,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
             routeAttempt++;
             navigationOwned = path != null;
             route = createRoute(goal);
-            lastProgressPosition = mob.position();
+            progressWaypoint = null;
             stalledTicks = 0;
         }
         if (route != null && route.arrived(mob.position())) {
@@ -105,6 +106,11 @@ public class PitchSwimmingMoveControl extends MoveControl {
         selectedWaypoint = target;
         Vec3 delta = target.subtract(mob.position());
         double distance = delta.length();
+        if (progressWaypoint == null || progressWaypoint.distanceToSqr(target) > 1.0e-6) {
+            progressWaypoint = target;
+            bestWaypointDistance = distance;
+            stalledTicks = 0;
+        }
         if (distance <= 0.35) {
             stopInputs(route == null ? "waypoint" : "arrived");
             return;
@@ -148,8 +154,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
         }
         routeSpeedCap *= headingThrottle;
 
-        if (lastProgressPosition.distanceToSqr(mob.position()) > 0.01) {
-            lastProgressPosition = mob.position();
+        if (distance < bestWaypointDistance - 0.1) {
+            bestWaypointDistance = distance;
             stalledTicks = 0;
         } else if (++stalledTicks >= 80) {
             blockedGoal = requestedGoal;
