@@ -2753,7 +2753,7 @@ public final class BfsGameTests {
         helper.runAfterDelay(160, () -> {
             helper.assertTrue(Math.abs(mob.getXRot()) < 1,
                     "Arrival must finish the level exit. pitch=" + mob.getXRot());
-            helper.assertTrue(mob.position().subtract(start).horizontalDistance() > 0.25,
+            helper.assertTrue(mob.position().subtract(start).horizontalDistance() > 1.0,
                     "Leveling must include forward travel rather than a stationary swivel.");
             helper.succeed();
         });
@@ -2787,6 +2787,9 @@ public final class BfsGameTests {
         mob.targetSelector.removeAllGoals(goal -> true);
         if (mob instanceof AbstractSharkEntity<?> shark) shark.setHuntCooldown(500);
         mob.setPersistenceRequired();
+        mob.setYRot(0.0F);
+        mob.yBodyRot = 0.0F;
+        mob.yHeadRot = 0.0F;
         Vec3 start = mob.position();
         mob.getMoveControl().setWantedPosition(start.x, start.y + height, start.z + 7, 1);
         sampleDepthEntryProgress(helper, mob, start, 0, mob.getXRot(), 0, 0);
@@ -2800,7 +2803,11 @@ public final class BfsGameTests {
             helper.assertTrue(Math.abs(rate) <= AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK + 0.0001,
                     "Depth entry must preserve the pitch rate ceiling.");
             helper.assertTrue(Math.abs(rate - previousRate) <= AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK + 0.0001,
-                    "Depth entry must preserve angular acceleration.");
+                    "Depth entry must preserve angular acceleration. tick=" + tick + ", rate=" + rate
+                            + ", previousRate=" + previousRate + ", pitch=" + mob.getXRot()
+                            + ", yaw=" + mob.getYRot() + ", position=" + mob.position()
+                            + ", steering=" + (mob.getMoveControl() instanceof tfar.bensfintasticsharks.entity.PitchSwimmingMoveControl control
+                            ? control.snapshot() : ((tfar.bensfintasticsharks.entity.SharkSwimmingMoveControl) mob.getMoveControl()).snapshot()));
             helper.assertTrue(Math.abs(Mth.wrapDegrees(mob.getYRot())) < 1,
                     "A clear forward depth route must not sweep left and right. tick=" + tick
                             + ", yaw=" + mob.getYRot() + ", target=" + mob.getTarget());

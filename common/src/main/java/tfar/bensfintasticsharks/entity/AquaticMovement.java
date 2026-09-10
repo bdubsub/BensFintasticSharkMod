@@ -42,7 +42,10 @@ public final class AquaticMovement {
 
     public static PitchStep stepPitch(float pitch, float rate, float target) {
         float error = target - pitch;
-        float acceleration = MAX_PITCH_ACCELERATION_PER_TICK;
+        // Leave a small floating point margin at the hard pitch envelope so the
+        // observed per tick angular change never exceeds the public limit after
+        // clamping and interpolation.
+        float acceleration = MAX_PITCH_ACCELERATION_PER_TICK - 0.0001F;
         float brakingRate = (float) (Math.sqrt(2 * acceleration * Math.abs(error)
                 + acceleration * acceleration * 0.25) - acceleration * 0.5);
         float desiredRate = Math.copySign(Math.min(MAX_PITCH_STEP_DEGREES_PER_TICK, brakingRate), error);
