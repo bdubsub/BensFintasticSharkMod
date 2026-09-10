@@ -338,8 +338,17 @@ public class PitchSwimmingMoveControl extends MoveControl {
         Vec3 delta = mob.getDeltaMovement();
         Vec3 external = new Vec3(externalComponent(delta.x, poweredCarry.x),
                 externalComponent(delta.y, poweredCarry.y), externalComponent(delta.z, poweredCarry.z));
-        double speed = Math.max(0, poweredCarry.length() + acceleration * Math.max(0, input.z));
-        if (input.z > 0) speed = Math.max(speed, speedFloor);
+        // AI movement controls set zza before the entity travel callback, but a few vanilla water
+        // paths can still deliver a zero travel vector on the first tick of a new route. If the
+        // controller has a live destination, that zero would combine with an empty carry and
+        // permanently bootstrap at rest while the nose continues pitching. Own the forward input
+        // for that state so a wanted route always has a finite forward propulsion source.
+        double propulsionInput = input.z;
+        if (propulsionInput <= 0.0 && (operation == Operation.MOVE_TO || settling)) {
+            propulsionInput = 1.0;
+        }
+        double speed = Math.max(0, poweredCarry.length() + acceleration * Math.max(0, propulsionInput));
+        if (propulsionInput > 0) speed = Math.max(speed, speedFloor);
         Vec3 forward = AquaticMovement.forwardVector(mob.getYRot(), mob.getXRot());
         boolean meaningfulVerticalError = Math.abs(remainingVerticalDistance) > 0.05;
         double speedCap = Math.min(horizontalCap / Math.max(1.0e-8, forward.horizontalDistance()), routeSpeedCap);
@@ -351,8 +360,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
                 else speedCap = Math.min(speedCap, Math.abs(remainingVerticalDistance) / Math.abs(forward.y));
             }
         }
-        if (input.z > 0) speed = Math.min(speed, speedCap);
-        if (input.z > 0 && (depthGuidance != null || settling)) {
+        if (propulsionInput > 0) speed = Math.min(speed, speedCap);
+        if (propulsionInput > 0 && (depthGuidance != null || settling)) {
             boolean correctingVerticalDirection = meaningfulVerticalError
                     && forward.y * remainingVerticalDistance < -1.0e-6;
             float desiredRate = settling

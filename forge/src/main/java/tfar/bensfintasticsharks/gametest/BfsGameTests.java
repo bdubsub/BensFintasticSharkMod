@@ -2779,6 +2779,26 @@ public final class BfsGameTests {
         verifyDepthEntryProgress(helper, ModEntityTypes.OCEANIC_WHITETIP_SHARK, -4);
     }
 
+    @GameTest(template = "empty", batch = "bfs_pitch_progress", timeoutTicks = 120)
+    public static void fishRouteBootstrapsForwardWithZeroTravelInput(GameTestHelper helper) {
+        prepareVerticalWaterVolume(helper);
+        AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(8, 8, 8));
+        cod.getBrain().removeAllBehaviors();
+        cod.goalSelector.removeAllGoals(goal -> true);
+        cod.targetSelector.removeAllGoals(goal -> true);
+        cod.setPersistenceRequired();
+        Vec3 start = cod.position();
+        cod.getMoveControl().setWantedPosition(start.x + 4.0, start.y + 2.0, start.z, 1.0);
+        helper.runAfterDelay(1, () -> {
+            cod.travel(Vec3.ZERO);
+            helper.assertTrue(cod.getDeltaMovement().lengthSqr() > 1.0e-8,
+                    "a wanted fish route must bootstrap forward propulsion when travel input is zero");
+            helper.assertTrue(cod.position().subtract(start).lengthSqr() > 1.0e-8,
+                    "a wanted fish route must translate during its first zero input tick");
+            helper.succeed();
+        });
+    }
+
     private static void verifyDepthEntryProgress(GameTestHelper helper, EntityType<? extends Mob> type, int height) {
         prepareVerticalWaterVolume(helper);
         Mob mob = helper.spawn(type, new BlockPos(12, 10, 8));
