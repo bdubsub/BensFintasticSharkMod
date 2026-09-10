@@ -24,6 +24,7 @@
 * [Phase 002 task 007 headless regression evidence](verification/phase-002-task-007-gametest-20260909.md)
 * [Phase 002 pitched propulsion verification](verification/phase-002-task-007-pitched-propulsion-20260910.md)
 * [Phase 002 packaged server verification](verification/phase-002-task-008-packaged-current-20260910.md)
+* [Phase 002 client visual approval](verification/phase-002-task-008-client-visual-approval-20260910.md)
 * [Phase 002 task 011 species policy evidence](verification/phase-002-task-011-species-policy-20260909.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
