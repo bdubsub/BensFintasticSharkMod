@@ -51,6 +51,28 @@ A fresh repeat exposed a wall sliding recovery failure in this artifact, so it w
 
 The corrected progress candidate subsequently passed all 40 unit tests, all 73 required dedicated server GameTests and the Forge build in another fresh world. Its artifact is 1,995,993 bytes, with SHA 256 `2ca7fc521a19ebde95419eb918968ac9f1e2be747e2a5028d2bdb9514331d7d3` and SHA 512 `074bd5c2a02b7d6f0e92b3b6513f75a91468335afa2ef8c4fbe90837c41cdabe2292783ff34b718e18af2dd6bf95f8fc0a3c847f19e5e6965e9c3fd076ceac37`. This supersedes the first candidate for further runtime verification.
 
+The source revision is `ab3e4f4b2c5a0ee6d2757fe4b301c46a9ccd9a5b`. A second fresh world repeat passed the movement regressions but failed one of the 73 required tests, `mixedLiveCatchesMatchRealRodResults`, with `Live mode must deliver one matching fish and no immediate item.` The failure occurred in the immediate delivery assertion, before the fixture ticks the caught animal. Its cause is not established. Do not classify it as a movement regression, harmless fixture noise, or a passing repeat without additional evidence. The next diagnostic step is to record the selected item, expected entity type, observed insertions and accepted delivery entities for the failing attempt, then rerun the affected fishing batch. Human rod timing is not part of this assertion.
+
+## Packaged multiplayer observation
+
+The corrected candidate joined successfully on September 9, 2026, using the installed production Forge 47.2.0 dedicated runtime on the headless compute host and an isolated Java 17 Prism instance on the NVIDIA laptop. Both sides loaded the candidate SHA 256 above and matching dependency files. No development server was used for this connection. Authentication remained enabled on the existing private endpoint. The client renderer reported NVIDIA GeForce RTX 5090 Laptop GPU. Master audio was zero before launch, and the playback stream belonging to the exact client process was verified muted afterward. The client remained on workspace 3. Operator access, creative mode, peaceful difficulty and immediate respawn were verified for observation.
+
+Runtime identities were `bfsm-p002-packaged-r11` on the compute host and `bfsm-p002-client-20260909` on the laptop. The world was `bfs-p002-mp-r9`; its existing shoreline was retained for continuity, not represented as a fresh GameTest fixture. Matching files were verified with these hashes:
+
+* GeckoLib 4.4.7 SHA 256: `6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0`.
+* SmartBrainLib 1.14.2 SHA 256: `3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b`.
+* Common configuration SHA 256: `43efc7f2adba5e5638dc52eff420038c89fcae84e755588842ef3b78c9906c8f`.
+
+The source, artifact, movement profile, common configuration and bundled datapack fingerprints were supplied to both runtimes. The configuration fingerprint identifies the common file, not every possible configuration surface. The datapack fingerprint identifies the bundled mod artifact; the test world's external datapack directory was empty.
+
+A 600 tick natural Salmon capture completed with 1,045 accepted records and zero dropped records. One of two targets left the level before the end. Both showed depth and pitch changes, but blocked route states also occurred near the shoreline. This is observation, not an all routes arrival pass.
+
+An initial mixed Cod, Tiger Shark and Oceanic Whitetip fixture was unsuitable for independent swimming approval because the Whitetip grabbed the invulnerable Cod. The server confirmed the Cod in the shark's passenger data. Do not attribute the resulting carried trajectory or inherited movement controller to free Cod swimming. Those three test actors were removed and replaced for a separate cruise observation. The replacement sharks began with a hunting cooldown, while movement AI remained enabled. This changes the observation scope to cruise movement and does not verify combat or natural prey selection.
+
+The replacement cruise capture, `27fabcb8-a944-4f36-940b-4f4f7b68ce85`, ran for 600 ticks near the observer's shoreline position. It completed with 1,801 accepted records, zero drops and three remaining targets. All three reported no combat target. Cod pitch ranged from approximately 12.4 degrees upward to 4.1 degrees downward, with 1.35 blocks of observed depth range. Tiger Shark and Whitetip showed approximately 0.46 and 0.40 blocks of depth range. No single observed route attempt accumulated a full heading revolution, but cancellation states and incomplete destinations remained in this autonomous sample. These measurements do not establish the requested maximum tilt, terrain recovery coverage, complete route behavior, or visual acceptance. Owner approval of the actual presentation remains pending.
+
+The completed headless test runtimes and local deployment scratch were removed after preserving these results. The isolated multiplayer server, laptop client and exact client audio watcher remain active only for the pending bounded visual review. Their teardown is still pending; the complete multiplayer workflow is not cleanup complete.
+
 ## Limits and next acceptance
 
 Accumulated heading is a useful regression detector, not a complete implementation of the plan's path topology checks. Swept rendered body geometry, measured anatomical length, spatial pitch curvature, acceleration and jerk calibration, explicit external-force attribution, mixed-species behavior and the final presentation matrix remain separate Phase 002 gates. Do not infer those passes from destination arrival.
