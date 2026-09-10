@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Deterministic checks for the supplied 0.24 release contract. */
@@ -176,6 +177,21 @@ class ReleaseContractAuditTest {
             new SpeciesPresentation("atlantic_salmon", "ATLANTIC_SALMON")
     );
 
+    private static final Map<String, String> SUPPLIED_ICON_MODELS = Map.ofEntries(
+            Map.entry("albino", "albino"),
+            Map.entry("harbor_seal_block", "harbor_seal_block"),
+            Map.entry("sharks_galore", "sharks_galore"),
+            Map.entry("sleeping_with_the_fishes", "sleeping_with_the_fishes"),
+            Map.entry("specimen_8", "specimen_8"),
+            Map.entry("mommy_shark", "mommy_shark"),
+            Map.entry("zippy_pixel_art", "zippy_pixel_art")
+    );
+
+    private static final Map<String, String> CHILD_SEMANTIC_HASHES = Map.of(
+            "marine_biologist", "50948053b89d56628b1fc3ed9fa4727daf4a2b7b415e1c601664fd74aaad2807",
+            "apex_of_apex", "6c52dc0444a1038a51fd24b609795647108a85753caeb9b5f106e1454a04a443"
+    );
+
     @Test
     void suppliedAdvancementCopyAndPunctuationAreStable() throws IOException {
         JsonObject language = readJson(GENERATED.resolve("assets/bensfintasticsharks/lang/en_us.json"));
@@ -238,6 +254,71 @@ class ReleaseContractAuditTest {
         for (String id : advancements.keySet()) {
             assertFalse(hasCycle(id, advancements, visiting, visited), id);
         }
+
+        Set<String> roots = advancements.entrySet().stream()
+                .filter(entry -> !entry.getValue().has("parent"))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("root"), roots);
+        for (String id : advancements.keySet()) {
+            assertTrue(reachesRoot(id, advancements, new HashSet<>()), id + " is not rooted");
+        }
+
+        String provider = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/BensFintasticSharksAdvancements.java"));
+        String languageProvider = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/ModLangProvider.java"));
+        assertFalse(provider.contains("shark_whisperer"));
+        assertFalse(languageProvider.contains("shark_whisperer"));
+        assertFalse(Files.readString(GENERATED.resolve("assets/bensfintasticsharks/lang/en_us.json"))
+                .contains("shark_whisperer"));
+    }
+
+    @Test
+    void advancementChildSemanticsAndIconModelsAreDeterministic() throws IOException {
+        Path advancementDir = GENERATED.resolve("data/bensfintasticsharks/advancements");
+        for (Map.Entry<String, String> entry : CHILD_SEMANTIC_HASHES.entrySet()) {
+            JsonObject child = readJson(advancementDir.resolve(entry.getKey() + ".json"));
+            assertEquals("bensfintasticsharks:sharks_galore", child.get("parent").getAsString(), entry.getKey());
+            assertEquals(entry.getValue(), semanticDigest(child), entry.getKey());
+        }
+
+        Path modelDir = GENERATED.resolve("assets/bensfintasticsharks/models/item");
+        Path sourceModelDir = SOURCE_ASSETS.resolve("models/item");
+        Set<String> modelPaths = new HashSet<>();
+        for (Map.Entry<String, String> entry : SUPPLIED_ICON_MODELS.entrySet()) {
+            Path modelPath = modelDir.resolve(entry.getKey() + ".json");
+            assertTrue(modelPaths.add(modelPath.toString()), modelPath.toString());
+            assertTrue(Files.exists(modelPath), entry.getKey());
+            JsonObject model = readJson(modelPath);
+            assertEquals("minecraft:item/generated", model.get("parent").getAsString(), entry.getKey());
+            assertEquals("bensfintasticsharks:item/" + entry.getValue(),
+                    model.getAsJsonObject("textures").get("layer0").getAsString(), entry.getKey());
+            assertFalse(Files.exists(sourceModelDir.resolve(entry.getKey() + ".json")), entry.getKey());
+        }
+    }
+
+    @Test
+    void advancementMutationFixturesAreRejected() throws IOException {
+        JsonObject child = readJson(GENERATED.resolve("data/bensfintasticsharks/advancements/marine_biologist.json"));
+        JsonObject changedCriteria = JsonParser.parseString(child.toString()).getAsJsonObject();
+        changedCriteria.getAsJsonObject("criteria").remove("atlantic_cod");
+        assertNotEquals(CHILD_SEMANTIC_HASHES.get("marine_biologist"), semanticDigest(changedCriteria));
+
+        JsonObject wrongParent = JsonParser.parseString(child.toString()).getAsJsonObject();
+        wrongParent.addProperty("parent", "bensfintasticsharks:root");
+        assertEquals("bensfintasticsharks:root", wrongParent.get("parent").getAsString());
+        assertNotEquals("bensfintasticsharks:sharks_galore", wrongParent.get("parent").getAsString());
+
+        Map<String, String> missingCopy = new LinkedHashMap<>(EXPECTED_ADVANCEMENT_COPY);
+        missingCopy.remove("advancements.bensfintasticsharks.captains_heir.description");
+        assertNotEquals(EXPECTED_ADVANCEMENT_COPY, missingCopy);
+
+        JsonObject swappedModel = readJson(GENERATED.resolve(
+                "assets/bensfintasticsharks/models/item/albino.json"));
+        swappedModel.getAsJsonObject("textures").addProperty("layer0", "bensfintasticsharks:item/zippy_pixel_art");
+        assertNotEquals("bensfintasticsharks:item/albino",
+                swappedModel.getAsJsonObject("textures").get("layer0").getAsString());
     }
 
     @Test
@@ -746,6 +827,40 @@ class ReleaseContractAuditTest {
         return array.asList().stream().map(JsonElement::getAsString).collect(Collectors.toList());
     }
 
+    private static boolean reachesRoot(String id, Map<String, JsonObject> advancements, Set<String> visited) {
+        if (!visited.add(id)) return false;
+        JsonElement parent = advancements.get(id).get("parent");
+        if (parent == null) return "root".equals(id);
+        if (!parent.isJsonPrimitive() || !parent.getAsString().startsWith("bensfintasticsharks:")) return false;
+        String parentId = parent.getAsString().substring("bensfintasticsharks:".length());
+        return advancements.containsKey(parentId) && reachesRoot(parentId, advancements, visited);
+    }
+
+    private static String semanticDigest(JsonObject advancement) {
+        JsonObject semantic = JsonParser.parseString(advancement.toString()).getAsJsonObject();
+        semantic.remove("parent");
+        return sha256Bytes(canonicalJson(semantic).getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static String canonicalJson(JsonElement element) {
+        if (element.isJsonObject()) {
+            return element.getAsJsonObject().entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .map(entry -> quote(entry.getKey()) + ":" + canonicalJson(entry.getValue()))
+                    .collect(Collectors.joining(",", "{", "}"));
+        }
+        if (element.isJsonArray()) {
+            return element.getAsJsonArray().asList().stream()
+                    .map(ReleaseContractAuditTest::canonicalJson)
+                    .collect(Collectors.joining(",", "[", "]"));
+        }
+        return element.toString();
+    }
+
+    private static String quote(String value) {
+        return new com.google.gson.JsonPrimitive(value).toString();
+    }
+
     private static boolean hasCycle(String id, Map<String, JsonObject> advancements, Set<String> visiting, Set<String> visited) {
         if (visited.contains(id)) return false;
         if (!visiting.add(id)) return true;
@@ -767,10 +882,21 @@ class ReleaseContractAuditTest {
 
     private static String sha256(Path path) throws IOException {
         try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path));
-            StringBuilder result = new StringBuilder(digest.length * 2);
-            for (byte value : digest) result.append(String.format("%02x", value));
-            return result.toString();
+            return digestHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new AssertionError(exception);
+        }
+    }
+
+    private static String digestHex(byte[] digest) {
+        StringBuilder result = new StringBuilder(digest.length * 2);
+        for (byte value : digest) result.append(String.format("%02x", value));
+        return result.toString();
+    }
+
+    private static String sha256Bytes(byte[] bytes) {
+        try {
+            return digestHex(MessageDigest.getInstance("SHA-256").digest(bytes));
         } catch (NoSuchAlgorithmException exception) {
             throw new AssertionError(exception);
         }
