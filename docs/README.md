@@ -49,6 +49,7 @@
 * [Phase 005 task 002 traceability evidence](verification/phase-005/phase-005-task-002-traceability.md)
 * [Phase 005 task 003 archive and transformation provenance](verification/phase-005/phase-005-task-003-provenance.md)
 * [Phase 005 task 004 release blocking audit](verification/phase-005/phase-005-task-004-audit.md)
+* [Phase 005 task 006 Release Candidate metadata](verification/phase-005/phase-005-task-006-version.md)
 * [Phase 004 task 012 closure evidence](verification/phase-004/phase-004-task-012-closure.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
