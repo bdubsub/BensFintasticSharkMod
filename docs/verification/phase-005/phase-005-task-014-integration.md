@@ -39,14 +39,24 @@ temporary process and directory cleanup passed. The inherited protected
 `build.gradle` line ending change remains unstaged. The existing tags
 `bfs-0.24` and `bfs-0.24-final` were read without mutation.
 
-## Integration gate
+## Phase merge and tag
 
-The pull request must be merged with a GitHub merge commit. After merge,
-fetch the remote, verify the merge commit on `envy/0.24`, create and verify
-the signed annotated tag `bfs-0.24-phase-005`, and then open the release work
-branch pull request into the canonical `1.20.1` branch. The final packet must
-also verify that `bfs-0.24-final` still resolves to
-`25e824c1f3c264346afc393031047b47d2ad1cfa` and that `bfs-0.24` is unchanged.
+Pull request `23` merged through GitHub into `envy/0.24` with merge commit
+`1510169ba888155a43c224f54ded2be5a3f48536`. A fresh remote fetch confirmed
+that `envy/0.24` contains the complete phase head. Signed annotated tag
+`bfs-0.24-phase-005` was created on that merge commit and verified with the
+registered EnVy SSH signing key.
 
-Task 014 remains open until those sequential merge, tag, endpoint, and
-plan-wide audit gates pass.
+The immutable tags were read and verified without mutation. `bfs-0.24`
+resolves to `51154a4ec8dcebe62bd9c5aacd34ae5741652fca`, and
+`bfs-0.24-final` resolves to
+`25e824c1f3c264346afc393031047b47d2ad1cfa`. Both existing tags verify with
+the registered signing key.
+
+## Final integration gate
+
+The release work branch is now being integrated into the canonical `1.20.1`
+branch through a separate GitHub pull request. That pull request must use a
+merge commit, pass its required checks, and verify the resulting default
+branch, exact candidate hash, immutable tags, and plan wide endpoint before
+Task 014 can close.
