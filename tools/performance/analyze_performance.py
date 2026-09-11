@@ -62,6 +62,13 @@ def load_run(suite, name, expected_ticks=36000):
         raise ValueError(f"{name} contains an incomplete census")
     samples = all_samples[len(warmup_offsets):]
     count_samples = [java_map(row["species_counts"]) for row in samples]
+    expected_targets = {name: entry[1] * manifest["scale"] for name, entry in SPECIES.items()}
+    if manifest["species_targets"] != expected_targets:
+        raise ValueError(f"{name} has an unexpected population prescription")
+    class_targets = {entry[0]: entry[1] * manifest["scale"] for entry in SPECIES.values()}
+    if any(count < 0 or count > class_targets.get(species, -1)
+           for sample in count_samples for species, count in sample.items()):
+        raise ValueError(f"{name} exceeds its prescribed workload population")
     observed_species = sorted({key for sample in count_samples for key in sample})
     if set(observed_species) != {entry[0] for entry in SPECIES.values()}:
         raise ValueError(f"{name} did not observe all 22 species")
@@ -75,7 +82,8 @@ def load_run(suite, name, expected_ticks=36000):
     air = {species: min(java_map(row["minimum_air"])[species] for row in samples
                         if species in java_map(row["minimum_air"]))
            for species in observed_species}
-    windows = [min(heap[index:index + 30]) for index in range(0, len(heap), 30)]
+    measured_heap = heap[1:]
+    windows = [min(measured_heap[index:index + 30]) for index in range(0, len(measured_heap), 30)]
     return {"name": name, "ticks": expected_ticks, "warmup_ticks": manifest["warmup"],
             "scale": manifest["scale"], "seed": manifest["seed"], "jar_sha256": manifest["jar_sha256"],
             "warmup_census_rows": len(warmup_offsets), "measurement_census_rows": len(samples),

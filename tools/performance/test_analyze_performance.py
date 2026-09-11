@@ -121,6 +121,29 @@ class CaptureValidationTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             load_run(self.suite, self.name, expected_ticks=200)
 
+    def test_population_above_prescription_is_rejected(self):
+        path = self.path("probe-census.tsv")
+        path.write_text(path.read_text().replace("AtlanticCodEntityForge=8", "AtlanticCodEntityForge=9"))
+        with self.assertRaises(ValueError):
+            load_run(self.suite, self.name, expected_ticks=200)
+
+    def test_changed_population_prescription_is_rejected(self):
+        path = self.path("manifest.json")
+        manifest = json.loads(path.read_text())
+        manifest["species_targets"]["atlantic_cod"] = 7
+        path.write_text(json.dumps(manifest))
+        with self.assertRaises(ValueError):
+            load_run(self.suite, self.name, expected_ticks=200)
+
+    def test_heap_window_excludes_initial_boundary_sample(self):
+        path = self.path("probe-census.tsv")
+        rows = path.read_text().splitlines()
+        rows[2] = rows[2].replace("100000", "1", 1)
+        path.write_text("\n".join(rows) + "\n")
+        report = load_run(self.suite, self.name, expected_ticks=200)
+        self.assertEqual(report["heap_bytes"]["minimum"], 1)
+        self.assertEqual(report["heap_bytes"]["five_minute_window_minima"], [100000])
+
 
 if __name__ == "__main__":
     unittest.main()
