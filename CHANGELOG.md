@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0-rc.1, Release Candidate 1.0
+
+This prerelease candidate targets Minecraft 1.20.1 Forge and carries the
+verified 0.23 compatibility baseline plus the 0.24 content and behavior work.
+It is not a stable 1.0 publication. Final exact-candidate runtime, multiplayer,
+visual, artifact, and owner acceptance gates remain required before release.
+
 ## 0.24 (2026-09-02)
 
 ### Phase 001 verification correction

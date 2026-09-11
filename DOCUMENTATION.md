@@ -1,10 +1,10 @@
 # Ben's Fintastic Sharks
 
-A 1.20.1 Forge mod, currently at version `0.24`, that adds twenty two sea creatures, a buried treasure structure, a captain's hat, a shark codex book, and a system that makes sharks pay attention to what you're doing in the water.
+A 1.20.1 Forge mod, currently at prerelease version `1.0-rc.1`, displayed as Release Candidate 1.0, that adds twenty two sea creatures, a buried treasure structure, a captain's hat, a shark codex book, and a system that makes sharks pay attention to what you're doing in the water.
 
 This document is the reference for everything the mod ships with. If you just installed it and you're trying to figure out where to find an Orca, skip to section 3.
 
-The `envy/0.24` release branch is based on the stable `1.20.1` branch. It retains the 0.23 behavior while adding the supplied advancement artwork, repaired fish and Oceanic Whitetip animation resources, a single Sharks Galore discovery node, and permanent algae world generation.
+The `envy/0.24` release branch carries Release Candidate 1.0 and is based on the stable `1.20.1` branch. It retains the 0.23 behavior while adding the supplied advancement artwork, repaired fish and Oceanic Whitetip animation resources, a single Sharks Galore discovery node, and permanent algae world generation.
 
 ## 0.23 and emergency fix highlights
 
@@ -32,7 +32,7 @@ There is one readable item chain that ends in the Shark Codex. You assemble it f
 
 There is one structure, the Sunken Trove. It generates on the ocean floor in non frozen ocean biomes and contains a chest with our loot table.
 
-The 0.24 branch also adds three permanent aquatic plants. Algae Block is a single still texture. Large Green Algae and Large Red Algae use their supplied animated strips and can generate in ocean biomes from y 20 through y 62. They require source water and a valid underwater seagrass position, use cutout rendering, and do not generate in rivers or non ocean biomes. Their block and item forms are available through the generated `bensfintasticsharks:algae` tags.
+The release candidate also adds three permanent aquatic plants. Algae Block is a single still texture. Large Green Algae and Large Red Algae use their supplied animated strips and can generate in ocean biomes from y 20 through y 62. They require source water and a valid underwater seagrass position, use cutout rendering, and do not generate in rivers or non ocean biomes. Their block and item forms are available through the generated `bensfintasticsharks:algae` tags.
 
 ## 2. How spawning works
 
@@ -418,7 +418,7 @@ Encounter advancements exist for every species the mod ships. Shark Spotter requ
 
 The Atlantic fish add four advancements. `Gadus morhua` and `Salmo salar` trigger when the player encounters the matching living fish. `Oh My Cod` and `Why aren't you red?` trigger only when the matching raw fish is obtained from a fishing hook catch. Their icons use the supplied raw or cooked item sprites according to Ben's content notes.
 
-The 0.24 advancement presentation uses the seven supplied 16 by 16 remastered icons, including the flat generated Harbor Seal model. `Sharks Galore` is the single all shark discovery node, and `Marine Biologist` and `Apex of Apex` continue directly from it. The retired `shark_whisperer` progress entry is ignored when an existing world loads. It is not migrated or awarded again, and the copied profile remains unchanged.
+The Release Candidate 1.0 advancement presentation uses the seven supplied 16 by 16 remastered icons, including the flat generated Harbor Seal model. `Sharks Galore` is the single all shark discovery node, and `Marine Biologist` and `Apex of Apex` continue directly from it. The retired `shark_whisperer` progress entry is ignored when an existing world loads. It is not migrated or awarded again, and the copied profile remains unchanged.
 
 The generated fishing replacement modifier targets the vanilla `minecraft:gameplay/fishing` root table used by `FishingHook.retrieve`. Both supported delivery modes award the matching fishing criterion after insertion succeeds. Live delivery grants the catch before the fish is killed, so the two catch advancements remain tied to a real fishing result instead of inventory insertion. The [fishing transaction regressions](docs/test/phase-001-fishing-transactions.md) distinguish current server tests from the historical player and packaged-server evidence in [Phase 001 task 012](docs/verification/phase-001-task-012.md).
 

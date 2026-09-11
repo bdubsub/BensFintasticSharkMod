@@ -1,8 +1,8 @@
 # Ben's Fintastic Sharks
 
-Ben's Fintastic Sharks is a Minecraft 1.20.1 ocean wildlife mod for Forge 47.2.0. Version `0.24` adds twenty two marine species, shark hunting and disturbance behavior, natural variants, advancements, trades, equipment, the Shark Codex, and the Sunken Trove structure.
+Ben's Fintastic Sharks is a Minecraft 1.20.1 ocean wildlife mod for Forge 47.2.0. Release Candidate 1.0, version `1.0-rc.1`, includes twenty two marine species, shark hunting and disturbance behavior, natural variants, advancements, trades, equipment, the Shark Codex, and the Sunken Trove structure.
 
-The 0.24 release is maintained on `envy/0.24`, based directly on the stable `1.20.1` branch. It retains the 0.23 content while integrating the supplied advancement artwork, repaired fish animation resources, a single Sharks Galore discovery node, and permanent algae blocks with bounded ocean generation.
+The Release Candidate 1.0 is maintained on `envy/0.24`, based directly on the stable `1.20.1` branch. It retains the 0.23 content while integrating the supplied advancement artwork, repaired fish animation resources, a single Sharks Galore discovery node, and permanent algae blocks with bounded ocean generation. This is a prerelease candidate, not a stable 1.0 publication.
 
 This is a Forge only project. The `fabric` subproject is an unused template stub and does not produce a playable Fabric build.
 
@@ -32,7 +32,7 @@ Install Forge, place the mod and its required dependencies in the `mods` directo
 * The Shark Codex and the Sunken Trove ocean structure.
 * Three permanent algae blocks with animated large green and red variants and ocean biome generation.
 
-The documentation index is in [docs/README.md](docs/README.md). The 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md). Diagnostic command and parser instructions are in [docs/test/debug-diagnostics.md](docs/test/debug-diagnostics.md).
+The documentation index is in [docs/README.md](docs/README.md). The retained 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md). Diagnostic command and parser instructions are in [docs/test/debug-diagnostics.md](docs/test/debug-diagnostics.md).
 
 The retained Phase 001 verification records document the current 0.23 compatibility baseline, including the real fishing advancement path and the packaged Forge server checks. The interactive advancement and rendering review remains a laptop-only acceptance step.
 

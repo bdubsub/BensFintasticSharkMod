@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Deterministic checks for the supplied 0.24 release contract. */
+/** Deterministic checks for the Release Candidate 1.0 asset contract. */
 class ReleaseContractAuditTest {
 
     private static final double TRANSFORM_TOLERANCE = 0.0001D;
