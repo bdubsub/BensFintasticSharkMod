@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Deterministic checks for the supplied 0.24 release contract. */
@@ -49,6 +50,107 @@ class ReleaseContractAuditTest {
             Map.entry("specimen_8.png", "88f6dc345a7c399034142cf2bebc54fdd488e41b9f36f19d470806d393c1fc65"),
             Map.entry("zippy_pixel_art.png", "4f54793625dc71ab456ca58de55b6bfe015f586c81930d11b72d5a3d6942595d")
     ));
+
+    private static final Map<String, String> EXPECTED_ADVANCEMENT_COPY = Map.ofEntries(
+            Map.entry("advancements.bensfintasticsharks.albino_encounter.title", "It's a shiny!"),
+            Map.entry("advancements.bensfintasticsharks.albino_encounter.description", "Encounter an albino variant."),
+            Map.entry("advancements.bensfintasticsharks.american_lobster_encounter.title", "Pincers Out"),
+            Map.entry("advancements.bensfintasticsharks.american_lobster_encounter.description", "Encounter an American Lobster."),
+            Map.entry("advancements.bensfintasticsharks.apex_awareness.title", "Apex Awareness"),
+            Map.entry("advancements.bensfintasticsharks.apex_awareness.description", "Survive a shark attack without killing the shark."),
+            Map.entry("advancements.bensfintasticsharks.apex_of_apex.title", "Ocean Sovereign"),
+            Map.entry("advancements.bensfintasticsharks.apex_of_apex.description", "Encounter an Orca in the wild."),
+            Map.entry("advancements.bensfintasticsharks.black_sea_nettle_encounter.title", "Drift Sting"),
+            Map.entry("advancements.bensfintasticsharks.black_sea_nettle_encounter.description", "Encounter a Black Sea Nettle Jellyfish."),
+            Map.entry("advancements.bensfintasticsharks.blacktip_reef_encounter.title", "Reef Predator"),
+            Map.entry("advancements.bensfintasticsharks.blacktip_reef_encounter.description", "Encounter a Blacktip Reef Shark."),
+            Map.entry("advancements.bensfintasticsharks.cannonball_jellyfish_encounter.title", "Round Drifter"),
+            Map.entry("advancements.bensfintasticsharks.cannonball_jellyfish_encounter.description", "Encounter a Cannonball Jellyfish."),
+            Map.entry("advancements.bensfintasticsharks.captains_heir.title", "El Capitán's Legacy"),
+            Map.entry("advancements.bensfintasticsharks.captains_heir.description", "Obtain Capitán Ben's Hat."),
+            Map.entry("advancements.bensfintasticsharks.caribbean_reef_octopus_encounter.title", "Coral Camouflaged"),
+            Map.entry("advancements.bensfintasticsharks.caribbean_reef_octopus_encounter.description", "Encounter a Caribbean Reef Octopus."),
+            Map.entry("advancements.bensfintasticsharks.common_octopus_encounter.title", "Octopus vulgaris"),
+            Map.entry("advancements.bensfintasticsharks.common_octopus_encounter.description", "Encounter a Common Octopus."),
+            Map.entry("advancements.bensfintasticsharks.common_thresher_encounter.title", "Whiplash!"),
+            Map.entry("advancements.bensfintasticsharks.common_thresher_encounter.description", "Encounter a Common Thresher Shark."),
+            Map.entry("advancements.bensfintasticsharks.conservationist.title", "Conservationist"),
+            Map.entry("advancements.bensfintasticsharks.conservationist.description", "Earn the Respect the Ocean effect... actually wait, don't. Encounter sharks, let them live."),
+            Map.entry("advancements.bensfintasticsharks.deep_blue_encounter.title", "Mommy Shark."),
+            Map.entry("advancements.bensfintasticsharks.deep_blue_encounter.description", "Discover Deep Blue."),
+            Map.entry("advancements.bensfintasticsharks.dolphin_friend.title", "Dolphin Tale"),
+            Map.entry("advancements.bensfintasticsharks.dolphin_friend.description", "Encounter a Common Bottlenose Dolphin in the wild."),
+            Map.entry("advancements.bensfintasticsharks.fancy_fork.title", "Fancy Fork"),
+            Map.entry("advancements.bensfintasticsharks.fancy_fork.description", "Obtain a Shark Trident."),
+            Map.entry("advancements.bensfintasticsharks.fresh_catch.title", "Fresh Catch"),
+            Map.entry("advancements.bensfintasticsharks.fresh_catch.description", "Cook a lobster."),
+            Map.entry("advancements.bensfintasticsharks.gadus_morhua.title", "Gadus morhua"),
+            Map.entry("advancements.bensfintasticsharks.gadus_morhua.description", "Encounter an Atlantic Cod."),
+            Map.entry("advancements.bensfintasticsharks.giant_moray_eel_encounter.title", "Crevice Lurker"),
+            Map.entry("advancements.bensfintasticsharks.giant_moray_eel_encounter.description", "Encounter a Giant Moray Eel."),
+            Map.entry("advancements.bensfintasticsharks.great_hammerhead_encounter.title", "Stop! Hammer Time!"),
+            Map.entry("advancements.bensfintasticsharks.great_hammerhead_encounter.description", "Encounter a Great Hammerhead Shark."),
+            Map.entry("advancements.bensfintasticsharks.great_white_encounter.title", "King of the Seas"),
+            Map.entry("advancements.bensfintasticsharks.great_white_encounter.description", "Encounter a Great White Shark."),
+            Map.entry("advancements.bensfintasticsharks.green_sea_turtle_encounter.title", "Duuuude."),
+            Map.entry("advancements.bensfintasticsharks.green_sea_turtle_encounter.description", "Encounter a Green Sea Turtle."),
+            Map.entry("advancements.bensfintasticsharks.harbor_seal_encounter.title", "Awkward..."),
+            Map.entry("advancements.bensfintasticsharks.harbor_seal_encounter.description", "Encounter a Harbor Seal."),
+            Map.entry("advancements.bensfintasticsharks.hidden_trove.title", "Hidden Trove"),
+            Map.entry("advancements.bensfintasticsharks.hidden_trove.description", "Find a Sunken Trove."),
+            Map.entry("advancements.bensfintasticsharks.illegal_poaching.title", "Conservation Violation"),
+            Map.entry("advancements.bensfintasticsharks.illegal_poaching.description", "Kill a shark."),
+            Map.entry("advancements.bensfintasticsharks.inked.title", "Aw, you made me ink! >:("),
+            Map.entry("advancements.bensfintasticsharks.inked.description", "Anger an octopus."),
+            Map.entry("advancements.bensfintasticsharks.justice_for_steve.title", "Crikey! Respect the wildlife!"),
+            Map.entry("advancements.bensfintasticsharks.justice_for_steve.description", "Encounter and get stung by a Common Stingray."),
+            Map.entry("advancements.bensfintasticsharks.level_shark_codex.title", "Level Up!"),
+            Map.entry("advancements.bensfintasticsharks.level_shark_codex.description", "Combine 9 Codex Pages with Capitán Ben's Codex."),
+            Map.entry("advancements.bensfintasticsharks.lost_manuscript.title", "Lost beneath the waves"),
+            Map.entry("advancements.bensfintasticsharks.lost_manuscript.description", "Find a lost manuscript."),
+            Map.entry("advancements.bensfintasticsharks.marine_biologist.title", "Marine Biologist"),
+            Map.entry("advancements.bensfintasticsharks.marine_biologist.description", "Encounter every BFS species."),
+            Map.entry("advancements.bensfintasticsharks.marine_curious.title", "Marine Curious"),
+            Map.entry("advancements.bensfintasticsharks.marine_curious.description", "Encounter your first BFS creature."),
+            Map.entry("advancements.bensfintasticsharks.nautilus_encounter.title", "Living Fossil"),
+            Map.entry("advancements.bensfintasticsharks.nautilus_encounter.description", "Encounter a Nautilus."),
+            Map.entry("advancements.bensfintasticsharks.oceanic_whitetip_encounter.title", "Pelagic Nightmare"),
+            Map.entry("advancements.bensfintasticsharks.oceanic_whitetip_encounter.description", "Encounter an Oceanic Whitetip Shark."),
+            Map.entry("advancements.bensfintasticsharks.oh_my_cod.title", "Oh My Cod"),
+            Map.entry("advancements.bensfintasticsharks.oh_my_cod.description", "Catch an Atlantic Cod."),
+            Map.entry("advancements.bensfintasticsharks.prismarine_armor.title", "The Sea Dwelling Knight"),
+            Map.entry("advancements.bensfintasticsharks.prismarine_armor.description", "Obtain a full set of Prismarine Armor."),
+            Map.entry("advancements.bensfintasticsharks.root.title", "Ben’s Fintastic Sharks!"),
+            Map.entry("advancements.bensfintasticsharks.root.description", "Achievement granted when logging in with the mod."),
+            Map.entry("advancements.bensfintasticsharks.salmo_salar.title", "Salmo salar"),
+            Map.entry("advancements.bensfintasticsharks.salmo_salar.description", "Encounter an Atlantic Salmon."),
+            Map.entry("advancements.bensfintasticsharks.sandtiger_encounter.title", "OOOOH HOOHOHOHOO!"),
+            Map.entry("advancements.bensfintasticsharks.sandtiger_encounter.description", "Encounter a Sandtiger Shark."),
+            Map.entry("advancements.bensfintasticsharks.shark_codex.title", "Knowledge is power…"),
+            Map.entry("advancements.bensfintasticsharks.shark_codex.description", "Craft Capitán Ben's Codex."),
+            Map.entry("advancements.bensfintasticsharks.shark_spotter.title", "Shark Spotter"),
+            Map.entry("advancements.bensfintasticsharks.shark_spotter.description", "Spot a shark using a Spyglass."),
+            Map.entry("advancements.bensfintasticsharks.sharks_galore.title", "Sharks Galore!"),
+            Map.entry("advancements.bensfintasticsharks.sharks_galore.description", "Discover every species of sharks."),
+            Map.entry("advancements.bensfintasticsharks.shortfin_mako_encounter.title", "Fast as hell, twice as mean."),
+            Map.entry("advancements.bensfintasticsharks.shortfin_mako_encounter.description", "Encounter a Shortfin Mako Shark."),
+            Map.entry("advancements.bensfintasticsharks.sleeping_with_the_fishes.title", "Sleeping with the fishes."),
+            Map.entry("advancements.bensfintasticsharks.sleeping_with_the_fishes.description", "Killed by a shark."),
+            Map.entry("advancements.bensfintasticsharks.source_trust_me_bro.title", "Source: trust me bro"),
+            Map.entry("advancements.bensfintasticsharks.source_trust_me_bro.description", "Obtain a Megalodon Tooth."),
+            Map.entry("advancements.bensfintasticsharks.specimen_8_encounter.title", "I'll be back"),
+            Map.entry("advancements.bensfintasticsharks.specimen_8_encounter.description", "Discover Specimen-8."),
+            Map.entry("advancements.bensfintasticsharks.stung.title", "Stung!"),
+            Map.entry("advancements.bensfintasticsharks.stung.description", "Take damage from a jellyfish."),
+            Map.entry("advancements.bensfintasticsharks.tiger_shark_encounter.title", "Striped Garbage Can!"),
+            Map.entry("advancements.bensfintasticsharks.tiger_shark_encounter.description", "Encounter a Tiger Shark."),
+            Map.entry("advancements.bensfintasticsharks.why_arent_you_red.title", "Why aren't you red?"),
+            Map.entry("advancements.bensfintasticsharks.why_arent_you_red.description", "Catch an Atlantic Salmon."),
+            Map.entry("advancements.bensfintasticsharks.wrong_place_wrong_time.title", "Wrong Place, Wrong Time"),
+            Map.entry("advancements.bensfintasticsharks.wrong_place_wrong_time.description", "Be attacked by a shark shortly after entering the water."),
+            Map.entry("advancements.bensfintasticsharks.zippy_encounter.title", "THUNDER BRINGER!"),
+            Map.entry("advancements.bensfintasticsharks.zippy_encounter.description", "Discover Zippy.")
+    );
 
     private static final List<SpeciesPresentation> LIVING_SPECIES = List.of(
             new SpeciesPresentation("great_white_shark", "GREAT_WHITE_SHARK"),
@@ -75,36 +177,52 @@ class ReleaseContractAuditTest {
             new SpeciesPresentation("atlantic_salmon", "ATLANTIC_SALMON")
     );
 
+    private static final Map<String, String> SUPPLIED_ICON_MODELS = Map.ofEntries(
+            Map.entry("albino", "albino"),
+            Map.entry("harbor_seal_block", "harbor_seal_block"),
+            Map.entry("sharks_galore", "sharks_galore"),
+            Map.entry("sleeping_with_the_fishes", "sleeping_with_the_fishes"),
+            Map.entry("specimen_8", "specimen_8"),
+            Map.entry("mommy_shark", "mommy_shark"),
+            Map.entry("zippy_pixel_art", "zippy_pixel_art")
+    );
+
+    private static final Map<String, String> CHILD_SEMANTIC_HASHES = Map.of(
+            "marine_biologist", "50948053b89d56628b1fc3ed9fa4727daf4a2b7b415e1c601664fd74aaad2807",
+            "apex_of_apex", "6c52dc0444a1038a51fd24b609795647108a85753caeb9b5f106e1454a04a443"
+    );
+
     @Test
     void suppliedAdvancementCopyAndPunctuationAreStable() throws IOException {
         JsonObject language = readJson(GENERATED.resolve("assets/bensfintasticsharks/lang/en_us.json"));
-        assertEquals("Obtain Capitán Ben's Hat.", language.get("advancements.bensfintasticsharks.captains_heir.description").getAsString());
-
-        Map<String, String> titles = Map.of(
-                "harbor_seal_encounter", "Awkward...",
-                "albino_encounter", "It's a shiny!",
-                "sharks_galore", "Sharks Galore!",
-                "sleeping_with_the_fishes", "Sleeping with the fishes.",
-                "specimen_8_encounter", "I'll be back",
-                "deep_blue_encounter", "Mommy Shark.",
-                "zippy_encounter", "THUNDER BRINGER!"
-        );
-        for (Map.Entry<String, String> entry : titles.entrySet()) {
-            String key = "advancements.bensfintasticsharks." + entry.getKey() + ".title";
-            assertEquals(entry.getValue(), language.get(key).getAsString(), entry.getKey());
-        }
-        assertFalse(language.has("advancements.bensfintasticsharks.shark_whisperer.title"));
-        assertFalse(language.has("advancements.bensfintasticsharks.shark_whisperer.description"));
-
         Path advancementDir = GENERATED.resolve("data/bensfintasticsharks/advancements");
+        Map<String, String> referencedCopy = new LinkedHashMap<>();
         try (var paths = Files.list(advancementDir)) {
             for (Path path : paths.filter(p -> p.getFileName().toString().endsWith(".json")).toList()) {
                 JsonObject advancement = readJson(path);
-                JsonObject description = advancement.getAsJsonObject("display").getAsJsonObject("description");
-                String text = language.get(description.get("translate").getAsString()).getAsString();
-                assertEquals(text.trim(), text, path.getFileName().toString());
-                assertTrue(text.matches(".*[.!?]$"), path.getFileName().toString());
-                assertFalse(text.matches(".*[.!?]{2,}$"), path.getFileName().toString());
+                JsonObject display = advancement.getAsJsonObject("display");
+                String titleKey = display.getAsJsonObject("title").get("translate").getAsString();
+                String descriptionKey = display.getAsJsonObject("description").get("translate").getAsString();
+                assertTrue(language.has(titleKey), path.getFileName().toString());
+                assertTrue(language.has(descriptionKey), path.getFileName().toString());
+                assertTrue(referencedCopy.put(titleKey, language.get(titleKey).getAsString()) == null, titleKey);
+                assertTrue(referencedCopy.put(descriptionKey, language.get(descriptionKey).getAsString()) == null, descriptionKey);
+            }
+        }
+
+        assertEquals(EXPECTED_ADVANCEMENT_COPY, referencedCopy);
+        assertEquals(EXPECTED_ADVANCEMENT_COPY.keySet(), referencedCopy.keySet());
+        assertEquals("Obtain Capitán Ben's Hat.", language.get("advancements.bensfintasticsharks.captains_heir.description").getAsString());
+        assertFalse(language.has("advancements.bensfintasticsharks.shark_whisperer.title"));
+        assertFalse(language.has("advancements.bensfintasticsharks.shark_whisperer.description"));
+
+        for (Map.Entry<String, String> entry : EXPECTED_ADVANCEMENT_COPY.entrySet()) {
+            String text = entry.getValue();
+            assertEquals(text.trim(), text, entry.getKey());
+            assertFalse(text.contains("'") && text.contains("’"), entry.getKey());
+            if (entry.getKey().endsWith(".description")) {
+                assertTrue(text.matches(".*[.!?]$"), entry.getKey());
+                assertFalse(text.matches(".*[.!?]{2,}$"), entry.getKey());
             }
         }
     }
@@ -136,6 +254,71 @@ class ReleaseContractAuditTest {
         for (String id : advancements.keySet()) {
             assertFalse(hasCycle(id, advancements, visiting, visited), id);
         }
+
+        Set<String> roots = advancements.entrySet().stream()
+                .filter(entry -> !entry.getValue().has("parent"))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("root"), roots);
+        for (String id : advancements.keySet()) {
+            assertTrue(reachesRoot(id, advancements, new HashSet<>()), id + " is not rooted");
+        }
+
+        String provider = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/BensFintasticSharksAdvancements.java"));
+        String languageProvider = Files.readString(ROOT.resolve(
+                "forge/src/main/java/tfar/bensfintasticsharks/datagen/ModLangProvider.java"));
+        assertFalse(provider.contains("shark_whisperer"));
+        assertFalse(languageProvider.contains("shark_whisperer"));
+        assertFalse(Files.readString(GENERATED.resolve("assets/bensfintasticsharks/lang/en_us.json"))
+                .contains("shark_whisperer"));
+    }
+
+    @Test
+    void advancementChildSemanticsAndIconModelsAreDeterministic() throws IOException {
+        Path advancementDir = GENERATED.resolve("data/bensfintasticsharks/advancements");
+        for (Map.Entry<String, String> entry : CHILD_SEMANTIC_HASHES.entrySet()) {
+            JsonObject child = readJson(advancementDir.resolve(entry.getKey() + ".json"));
+            assertEquals("bensfintasticsharks:sharks_galore", child.get("parent").getAsString(), entry.getKey());
+            assertEquals(entry.getValue(), semanticDigest(child), entry.getKey());
+        }
+
+        Path modelDir = GENERATED.resolve("assets/bensfintasticsharks/models/item");
+        Path sourceModelDir = SOURCE_ASSETS.resolve("models/item");
+        Set<String> modelPaths = new HashSet<>();
+        for (Map.Entry<String, String> entry : SUPPLIED_ICON_MODELS.entrySet()) {
+            Path modelPath = modelDir.resolve(entry.getKey() + ".json");
+            assertTrue(modelPaths.add(modelPath.toString()), modelPath.toString());
+            assertTrue(Files.exists(modelPath), entry.getKey());
+            JsonObject model = readJson(modelPath);
+            assertEquals("minecraft:item/generated", model.get("parent").getAsString(), entry.getKey());
+            assertEquals("bensfintasticsharks:item/" + entry.getValue(),
+                    model.getAsJsonObject("textures").get("layer0").getAsString(), entry.getKey());
+            assertFalse(Files.exists(sourceModelDir.resolve(entry.getKey() + ".json")), entry.getKey());
+        }
+    }
+
+    @Test
+    void advancementMutationFixturesAreRejected() throws IOException {
+        JsonObject child = readJson(GENERATED.resolve("data/bensfintasticsharks/advancements/marine_biologist.json"));
+        JsonObject changedCriteria = JsonParser.parseString(child.toString()).getAsJsonObject();
+        changedCriteria.getAsJsonObject("criteria").remove("atlantic_cod");
+        assertNotEquals(CHILD_SEMANTIC_HASHES.get("marine_biologist"), semanticDigest(changedCriteria));
+
+        JsonObject wrongParent = JsonParser.parseString(child.toString()).getAsJsonObject();
+        wrongParent.addProperty("parent", "bensfintasticsharks:root");
+        assertEquals("bensfintasticsharks:root", wrongParent.get("parent").getAsString());
+        assertNotEquals("bensfintasticsharks:sharks_galore", wrongParent.get("parent").getAsString());
+
+        Map<String, String> missingCopy = new LinkedHashMap<>(EXPECTED_ADVANCEMENT_COPY);
+        missingCopy.remove("advancements.bensfintasticsharks.captains_heir.description");
+        assertNotEquals(EXPECTED_ADVANCEMENT_COPY, missingCopy);
+
+        JsonObject swappedModel = readJson(GENERATED.resolve(
+                "assets/bensfintasticsharks/models/item/albino.json"));
+        swappedModel.getAsJsonObject("textures").addProperty("layer0", "bensfintasticsharks:item/zippy_pixel_art");
+        assertNotEquals("bensfintasticsharks:item/albino",
+                swappedModel.getAsJsonObject("textures").get("layer0").getAsString());
     }
 
     @Test
@@ -644,6 +827,40 @@ class ReleaseContractAuditTest {
         return array.asList().stream().map(JsonElement::getAsString).collect(Collectors.toList());
     }
 
+    private static boolean reachesRoot(String id, Map<String, JsonObject> advancements, Set<String> visited) {
+        if (!visited.add(id)) return false;
+        JsonElement parent = advancements.get(id).get("parent");
+        if (parent == null) return "root".equals(id);
+        if (!parent.isJsonPrimitive() || !parent.getAsString().startsWith("bensfintasticsharks:")) return false;
+        String parentId = parent.getAsString().substring("bensfintasticsharks:".length());
+        return advancements.containsKey(parentId) && reachesRoot(parentId, advancements, visited);
+    }
+
+    private static String semanticDigest(JsonObject advancement) {
+        JsonObject semantic = JsonParser.parseString(advancement.toString()).getAsJsonObject();
+        semantic.remove("parent");
+        return sha256Bytes(canonicalJson(semantic).getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static String canonicalJson(JsonElement element) {
+        if (element.isJsonObject()) {
+            return element.getAsJsonObject().entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .map(entry -> quote(entry.getKey()) + ":" + canonicalJson(entry.getValue()))
+                    .collect(Collectors.joining(",", "{", "}"));
+        }
+        if (element.isJsonArray()) {
+            return element.getAsJsonArray().asList().stream()
+                    .map(ReleaseContractAuditTest::canonicalJson)
+                    .collect(Collectors.joining(",", "[", "]"));
+        }
+        return element.toString();
+    }
+
+    private static String quote(String value) {
+        return new com.google.gson.JsonPrimitive(value).toString();
+    }
+
     private static boolean hasCycle(String id, Map<String, JsonObject> advancements, Set<String> visiting, Set<String> visited) {
         if (visited.contains(id)) return false;
         if (!visiting.add(id)) return true;
@@ -665,10 +882,21 @@ class ReleaseContractAuditTest {
 
     private static String sha256(Path path) throws IOException {
         try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path));
-            StringBuilder result = new StringBuilder(digest.length * 2);
-            for (byte value : digest) result.append(String.format("%02x", value));
-            return result.toString();
+            return digestHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new AssertionError(exception);
+        }
+    }
+
+    private static String digestHex(byte[] digest) {
+        StringBuilder result = new StringBuilder(digest.length * 2);
+        for (byte value : digest) result.append(String.format("%02x", value));
+        return result.toString();
+    }
+
+    private static String sha256Bytes(byte[] bytes) {
+        try {
+            return digestHex(MessageDigest.getInstance("SHA-256").digest(bytes));
         } catch (NoSuchAlgorithmException exception) {
             throw new AssertionError(exception);
         }

@@ -49,7 +49,7 @@ public final class BfsFishingModeGameTests {
     private BfsFishingModeGameTests() {
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_modes", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_selection", timeoutTicks = 20)
     public static void fishingSelectionPreservesUnmappedSpecies(GameTestHelper helper) {
         for (boolean replacement : new boolean[]{false, true}) {
             for (Item item : List.of(Items.TROPICAL_FISH, Items.PUFFERFISH,
@@ -80,7 +80,7 @@ public final class BfsFishingModeGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_modes", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_loaded_table", timeoutTicks = 20)
     public static void loadedFishingTablePreservesCategoriesAndSpecies(GameTestHelper helper) {
         boolean originalReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
         ServerPlayer player = newPlayer(helper);
@@ -152,22 +152,22 @@ public final class BfsFishingModeGameTests {
         }
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_modes", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_replacement_live", timeoutTicks = 20)
     public static void replacementLiveCatchesMatchRealRodResults(GameTestHelper helper) {
         verifyRealRodMode(helper, true, true);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_modes", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_replacement_item", timeoutTicks = 20)
     public static void replacementItemCatchesMatchRealRodResults(GameTestHelper helper) {
         verifyRealRodMode(helper, true, false);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_modes", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_mixed_live", timeoutTicks = 20)
     public static void mixedLiveCatchesMatchRealRodResults(GameTestHelper helper) {
         verifyRealRodMode(helper, false, true);
     }
 
-    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_modes", timeoutTicks = 20)
+    @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_mixed_item", timeoutTicks = 20)
     public static void mixedItemCatchesMatchRealRodResults(GameTestHelper helper) {
         verifyRealRodMode(helper, false, false);
     }
@@ -214,7 +214,10 @@ public final class BfsFishingModeGameTests {
                         .map(ItemEntity.class::cast).toList();
                 if (live && fish) {
                     helper.assertTrue(mobs.size() == 1 && mobs.get(0).getType() == fishType && items.isEmpty(),
-                            "Live mode must deliver one matching fish and no immediate item.");
+                            "Live mode must deliver one matching fish and no immediate item, selected="
+                                    + selected + ", expected=" + fishType + ", accepted="
+                                    + accepted.stream().map(entity -> entity.getType().toString()
+                                    + ":removed=" + entity.isRemoved()).toList());
                     Entity caught = mobs.get(0);
                     helper.assertTrue(caught.isAlive() && caught.position().distanceToSqr(catchPosition) < 0.000001D,
                             "The fish must be alive at the actual hook location.");
