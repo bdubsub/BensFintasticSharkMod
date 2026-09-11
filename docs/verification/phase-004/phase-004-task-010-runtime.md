@@ -68,3 +68,27 @@ is recorded.
 The dedicated packaged runtime and the owner-approved laptop exhibit pass.
 The compatibility, data-pack, navigation, complete-loop, and rollback rows
 remain pending. No source or plan change was made by this runtime probe.
+
+## Data pack controls
+
+On September 11, 2026, the same candidate was exercised on node 1 with Java
+17.0.19 and the production Forge 47.2.0 server runtime. The original region
+of `phase004-seed-g`, chunks `0,0` through `15,15`, retained 35
+`algae_block`, 28 `large_green_algae`, and 48 `large_red_algae` placements.
+
+A disabled pack replaced all three BFS Forge biome modifiers with
+`forge:none`. Fresh chunks `32,32` through `35,35` generated 16 of 16
+requested chunks with zero BFS algae, while the original region remained
+unchanged. The server log reached the Forge `Done` marker and reported no
+data pack load failure. A bounded override pack replaced the algae block
+placed feature with the same finite search and a rarity chance of 10. Fresh
+chunks `48,48` through `51,51` generated 16 of 16 requested chunks and
+contained two algae blocks, two large green algae, and two large red algae.
+This proves disable, preservation of existing blocks, and a valid bounded
+override without command placement.
+
+The bounded run log SHA 256 is
+`8b898e80eaed2d780f72ff3a7210573ae370a43bf2d16df0e007cb2c05b5f3cc`.
+The disabled and bounded test packs were disposable inputs and were removed
+with their runtime after the comparison. The full 0.23 save forward-load,
+navigation soak, complete client loops, and rollback rehearsal remain open.

@@ -50,3 +50,15 @@ Natural generation, all-form presence, bounded density, exact repeated BFS
 coordinates, and zero reported invalid placements pass on the final candidate.
 The full seagrass-inclusive repeat equality wording remains the only open row
 for P004-TASK-009. No source change was made in response to the variance.
+
+## Controlled repeat follow-up
+
+On September 11, 2026, four additional disposable production-server repeats
+were run with the same candidate, seed, 256 chunk window, Java 17, and
+`randomTickSpeed=0` set before the window was force loaded. The BFS counts
+remained `35`, `28`, and `48` in every run and the BFS coordinate multiset
+remained identical. The vanilla control still varied, including after the
+world was initialized with the zero random-tick gamerule before decoration.
+This confirms that the remaining mismatch is in the vanilla seagrass control,
+not in BFS algae placement. The strict full-manifest row remains open and is
+not waived.
