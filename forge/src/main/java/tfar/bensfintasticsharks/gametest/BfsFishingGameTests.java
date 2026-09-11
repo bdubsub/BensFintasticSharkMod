@@ -96,7 +96,7 @@ public final class BfsFishingGameTests {
                 new GameProfile(UUID.randomUUID(), "fish-transaction"));
         player.connection = new ServerGamePacketListenerImpl(helper.getLevel().getServer(),
                 new Connection(PacketFlow.SERVERBOUND), player);
-        player.setPos(helper.absolutePos(new BlockPos(4, 3, 4)).getCenter());
+        player.setPos(helper.absolutePos(playerPosition(mode, live)).getCenter());
         ItemStack rod = new ItemStack(Items.FISHING_ROD);
         player.setItemInHand(InteractionHand.MAIN_HAND, rod);
         FishingEvents events = new FishingEvents(player, mode);
@@ -160,6 +160,16 @@ public final class BfsFishingGameTests {
         }
     }
 
+    private static BlockPos playerPosition(FailureMode mode, boolean live) {
+        return switch (mode) {
+            case NONE -> new BlockPos(20, 3, 20);
+            case REENTER -> live ? new BlockPos(4, 3, 4) : new BlockPos(4, 3, 8);
+            case REJECT -> live ? new BlockPos(4, 3, 35) : new BlockPos(8, 3, 35);
+            case CANCEL -> live ? new BlockPos(35, 3, 4) : new BlockPos(35, 3, 8);
+            case REMOVE_HOOK -> live ? new BlockPos(35, 3, 35) : new BlockPos(31, 3, 35);
+        };
+    }
+
     private enum FailureMode {
         NONE, REENTER, REJECT, CANCEL, REMOVE_HOOK
     }
@@ -198,12 +208,15 @@ public final class BfsFishingGameTests {
         @SubscribeEvent
         public void interceptInsertion(EntityJoinLevelEvent event) {
             Entity entity = event.getEntity();
-            if (hook == null || entity.level() != player.level()
-                    || entity.position().distanceToSqr(hook.position()) > 256.0D
-                    || entity == hook || entity == player) {
+            if (hook == null || entity.level() != player.level() || entity == hook || entity == player) {
                 return;
             }
+            boolean nearHook = entity.position().distanceToSqr(hook.position()) <= 1.0D;
+            boolean experience = entity instanceof ExperienceOrb
+                    && entity.position().distanceToSqr(player.position()) <= 4.0D;
+            if (!nearHook && !experience) return;
             spawned.add(entity);
+            if (!nearHook) return;
             boolean matchingItem = entity instanceof ItemEntity item && item.getItem().is(ModItems.RAW_ATLANTIC_COD);
             if (entity.getType() != ModEntityTypes.ATLANTIC_COD && !matchingItem) {
                 return;

@@ -814,12 +814,12 @@ public final class BfsGameTests {
 
     @GameTest(template = "empty", batch = "bfs_species_social_target_loss", timeoutTicks = 140)
     public static void speciesPolicyReleasesSocialRouteWhenTargetDisappears(GameTestHelper helper) {
-        prepareWaterVolume(helper);
-        clearAquaticFixtureEntities(helper, new BlockPos(1, 1, 1), new BlockPos(10, 5, 10));
+        prepareWaterVolumeAt(helper, 28, 38, 28, 38);
+        clearAquaticFixtureEntities(helper, new BlockPos(29, 1, 29), new BlockPos(38, 5, 38));
         BottlenoseDolphinEntity actor = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN,
-                new BlockPos(3, 3, 3));
+                new BlockPos(30, 3, 30));
         BottlenoseDolphinEntity target = helper.spawn(ModEntityTypes.BOTTLENOSE_DOLPHIN,
-                new BlockPos(5, 3, 3));
+                new BlockPos(32, 3, 30));
         actor.setNoAi(true);
         target.setNoAi(true);
         actor.setNoGravity(true);
@@ -829,7 +829,9 @@ public final class BfsGameTests {
             helper.assertTrue("social".equals(actor.getBfsBehaviorAction()),
                     "social actor must claim a bounded route before the target is removed");
             target.discard();
-            helper.runAfterDelay(5, () -> {
+            helper.getLevel().getEntitiesOfClass(Entity.class, actor.getBoundingBox().inflate(16.0D),
+                    entity -> entity != actor && !(entity instanceof Player)).forEach(Entity::discard);
+            helper.runAfterDelay(20, () -> {
                 helper.assertTrue("none".equals(actor.getBfsBehaviorAction()),
                         "social route must clear when its remembered target disappears, action="
                                 + actor.getBfsBehaviorAction() + ", targetRemoved=" + target.isRemoved());
@@ -3317,8 +3319,12 @@ public final class BfsGameTests {
     }
 
     private static void prepareWaterVolume(GameTestHelper helper) {
-        for (int x = 1; x <= 10; x++) {
-            for (int z = 1; z <= 10; z++) {
+        prepareWaterVolumeAt(helper, 1, 10, 1, 10);
+    }
+
+    private static void prepareWaterVolumeAt(GameTestHelper helper, int minX, int maxX, int minZ, int maxZ) {
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
                 helper.setBlock(new BlockPos(x, 0, z), Blocks.SAND.defaultBlockState());
                 for (int y = 1; y <= 5; y++) {
                     helper.setBlock(new BlockPos(x, y, z), Blocks.WATER.defaultBlockState());

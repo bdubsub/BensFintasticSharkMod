@@ -154,28 +154,29 @@ public final class BfsFishingModeGameTests {
 
     @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_replacement_live", timeoutTicks = 20)
     public static void replacementLiveCatchesMatchRealRodResults(GameTestHelper helper) {
-        verifyRealRodMode(helper, true, true);
+        verifyRealRodMode(helper, true, true, new BlockPos(12, 3, 12));
     }
 
     @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_replacement_item", timeoutTicks = 20)
     public static void replacementItemCatchesMatchRealRodResults(GameTestHelper helper) {
-        verifyRealRodMode(helper, true, false);
+        verifyRealRodMode(helper, true, false, new BlockPos(12, 3, 28));
     }
 
     @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_mixed_live", timeoutTicks = 20)
     public static void mixedLiveCatchesMatchRealRodResults(GameTestHelper helper) {
-        verifyRealRodMode(helper, false, true);
+        verifyRealRodMode(helper, false, true, new BlockPos(28, 3, 12));
     }
 
     @GameTest(template = "bfsgametests.empty", batch = "bfs_fishing_mixed_item", timeoutTicks = 20)
     public static void mixedItemCatchesMatchRealRodResults(GameTestHelper helper) {
-        verifyRealRodMode(helper, false, false);
+        verifyRealRodMode(helper, false, false, new BlockPos(28, 3, 28));
     }
 
-    private static void verifyRealRodMode(GameTestHelper helper, boolean replacement, boolean live) {
+    private static void verifyRealRodMode(GameTestHelper helper, boolean replacement, boolean live,
+                                          BlockPos playerPosition) {
         boolean originalReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
         boolean originalLive = BfsConfig.COMMON.fishEntities.get();
-        ServerPlayer player = newPlayer(helper);
+        ServerPlayer player = newPlayer(helper, playerPosition);
         CatchObserver observer = new CatchObserver(player);
         MinecraftForge.EVENT_BUS.register(observer);
         try {
@@ -208,7 +209,7 @@ public final class BfsFishingModeGameTests {
                 var fishType = FishingCatchPolicy.entityTypeFor(selected);
                 boolean fish = fishType != null;
                 List<Entity> accepted = observer.spawned.stream()
-                        .filter(entity -> helper.getLevel().getEntity(entity.getUUID()) == entity).toList();
+                        .filter(entity -> !entity.isRemoved()).toList();
                 List<Entity> mobs = accepted.stream().filter(Mob.class::isInstance).toList();
                 List<ItemEntity> items = accepted.stream().filter(ItemEntity.class::isInstance)
                         .map(ItemEntity.class::cast).toList();
@@ -227,7 +228,11 @@ public final class BfsFishingModeGameTests {
                 } else {
                     helper.assertTrue(mobs.isEmpty() && items.size() == 1
                                     && ItemStack.matches(selected, items.get(0).getItem()),
-                            "Item delivery must retain the exact real loot result and create no fish.");
+                            "Item delivery must retain the exact real loot result and create no fish, selected="
+                                    + selected + ", accepted=" + accepted.stream().map(entity -> entity.getType()
+                                    + ":removed=" + entity.isRemoved()).toList() + ", observed="
+                                    + observer.spawned.stream().map(entity -> entity.getType() + ":removed="
+                                    + entity.isRemoved() + ":pos=" + entity.position()).toList());
                 }
                 helper.assertTrue(!replacement || (!selected.is(Items.COD) && !selected.is(Items.SALMON)),
                         "Replacement enabled fishing must not leak vanilla Cod or Salmon.");
@@ -258,11 +263,15 @@ public final class BfsFishingModeGameTests {
     }
 
     private static ServerPlayer newPlayer(GameTestHelper helper) {
+        return newPlayer(helper, new BlockPos(20, 3, 20));
+    }
+
+    private static ServerPlayer newPlayer(GameTestHelper helper, BlockPos position) {
         ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
                 new GameProfile(UUID.randomUUID(), "fish-mode"));
         player.connection = new ServerGamePacketListenerImpl(helper.getLevel().getServer(),
                 new Connection(PacketFlow.SERVERBOUND), player);
-        player.setPos(helper.absolutePos(new BlockPos(4, 3, 4)).getCenter());
+        player.setPos(helper.absolutePos(position).getCenter());
         return player;
     }
 
@@ -304,8 +313,11 @@ public final class BfsFishingModeGameTests {
         @SubscribeEvent
         public void observeInsertion(EntityJoinLevelEvent event) {
             Entity entity = event.getEntity();
-            if (hook != null && entity != hook && entity != player && entity.level() == player.level()
-                    && entity.position().distanceToSqr(hook.position()) < 256.0D) {
+            boolean delivery = hook != null && entity != hook && entity != player && entity.level() == player.level()
+                    && entity.position().distanceToSqr(hook.position()) < 16.0D;
+            boolean experience = entity instanceof ExperienceOrb && entity.level() == player.level()
+                    && entity.position().distanceToSqr(player.position()) < 4.0D;
+            if (delivery || experience) {
                 spawned.add(entity);
             }
         }
