@@ -42,6 +42,20 @@ It shows the three natural algae forms in the glass exhibit without the
 launcher overlay. EnVy approved continuation after reviewing the exhibit.
 The client process and its audio stream were stopped after capture.
 
+The exact-candidate reconnect capture used the same packaged JAR hash. Its
+window capture SHA 256 is
+`afe0cc4470cb6b83c4d3d24719ceaa7774506e6cf5abf2c5163529b9f2e74e15`, and the
+matching client log SHA 256 is
+`8543ef40ace17f42bad05ec829dedcc76d28c878d50f3844cb6001aa7e312508`.
+The owned playback stream was verified as `Volume: 1.00 [MUTED]` and mapped to
+the Minecraft process before the capture.
+
+The final packaged runtime log is
+`/tmp/bfsm-p004-prod-server-20260910-095H8c/logs/latest.log` with SHA 256
+`826b1e0245053e8e1b8e7b875c67b30d65925dfdbb0bc82dc03aa0e25dbc9a9d`. It
+contains the Forge `Done (13.472s)!` marker, two successful laptop joins, and
+clean saving of all three dimensions on shutdown.
+
 This proves packaged server loading, laptop transport, GPU rendering, clean
 resource loading, and the owner visual exhibit approval. It does not by itself
 prove a complete 40 tick green or 36 tick red animation loop, 0.23 save
