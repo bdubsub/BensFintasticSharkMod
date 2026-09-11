@@ -21,7 +21,8 @@ natural seed probe in `phase-004-task-009-fixed-seed.md` confirms all three
 forms are reachable in ordinary fresh chunk decoration and that the finite
 per-chunk cap is respected.
 
-Data-pack disable, bounded replacement, malformed-reference failure, and
-existing-world preservation are not yet recorded as dedicated runtime
-evidence. This task therefore has a passing holder and feature graph audit but
-remains open at the full data-pack behavior gate.
+The exact current candidate passed data-pack disable, bounded replacement, and
+existing-world preservation in the packaged runtime controls recorded in task
+010. The holder and feature graph audit therefore passes. A malformed-reference
+failure control is still not recorded separately, and the fixed-seed task 009
+retains the strict full-manifest equality row as open.

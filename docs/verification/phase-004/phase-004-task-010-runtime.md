@@ -74,15 +74,15 @@ clean saving of all three dimensions on shutdown.
 This proves packaged server loading, laptop transport, GPU rendering, clean
 resource loading, and the owner visual exhibit approval for the superseded
 runtime. The current candidate rebinding and the exact loop evidence are
-recorded below. The current data-pack controls and owner approval still remain
-open.
+recorded below. The current candidate data-pack controls and owner approval
+are recorded later in this document.
 
 ## Disposition
 
 The dedicated packaged runtime and the superseded owner-approved exhibit pass.
-The current candidate forward-load and backup restore pass. The current
-data-pack controls and owner visual approval remain pending. No source or plan
-change was made by this runtime probe.
+The current candidate forward-load, backup restore, data-pack controls, and
+owner visual approval pass in the current-candidate sections below. No source
+or plan change was made by this runtime probe.
 
 ## Data pack controls
 

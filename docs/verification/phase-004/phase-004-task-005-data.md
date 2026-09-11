@@ -12,5 +12,6 @@ rewritten files.
 
 The provider-to-output tree is clean and the final candidate contains the
 expected generated paths. No public misspelled `algea` path is present. The
-data-generation gate is complete; data-pack reload and override behavior are
-owned by the open runtime rows in tasks 006 and 010.
+data-generation gate is complete. The exact current candidate also passed
+the disabled-generation and bounded-override data-pack controls recorded in
+task 010.
