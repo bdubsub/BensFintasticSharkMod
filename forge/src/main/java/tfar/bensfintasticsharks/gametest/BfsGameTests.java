@@ -247,6 +247,7 @@ public final class BfsGameTests {
     @GameTest(template = "empty", batch = "bfs_algae_navigation", timeoutTicks = 900)
     public static void atlanticCodNavigatesThroughAllAlgaeForms(GameTestHelper helper) {
         prepareAlgaeNavigationCorridor(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(1, 1, 1), new BlockPos(24, 5, 8));
         AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 2, 4));
         cod.getBrain().removeAllBehaviors();
         cod.goalSelector.removeAllGoals(goal -> true);
@@ -257,9 +258,10 @@ public final class BfsGameTests {
         sampleAlgaeNavigation(helper, cod, target, startX, 800);
     }
 
-    @GameTest(template = "empty", batch = "bfs_algae_navigation", timeoutTicks = 900)
+    @GameTest(template = "empty", batch = "bfs_algae_navigation_tiger", timeoutTicks = 900)
     public static void tigerSharkNavigatesThroughAllAlgaeForms(GameTestHelper helper) {
         prepareAlgaeNavigationCorridor(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(1, 1, 1), new BlockPos(24, 5, 8));
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 2, 4));
         shark.getBrain().removeAllBehaviors();
         shark.goalSelector.removeAllGoals(goal -> true);
@@ -1869,6 +1871,7 @@ public final class BfsGameTests {
     @GameTest(template = "empty", batch = "bfs_curiosity_timeout", timeoutTicks = 400)
     public static void tigerCuriosityTimeoutRemembersItemWithoutReacquiring(GameTestHelper helper) {
         prepareWaterVolume(helper);
+        clearAquaticFixtureEntities(helper, new BlockPos(3, 3, 3), new BlockPos(8, 3, 3));
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         ItemEntity item = helper.spawnItem(Items.COD, new BlockPos(8, 3, 3));
         freezeCuriosityItem(item);
