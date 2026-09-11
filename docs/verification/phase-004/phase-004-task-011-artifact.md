@@ -42,9 +42,11 @@ rehearsal, data-pack disable and bounded override controls pass, and the
 required algae navigation GameTests pass in the three clean 84-test runs
 above.
 
-The current fixed-seed manifests are `phase-004-seed-run10.json` with SHA 256
-`80879885ec4efbc353bd6c893e3f778ad5d89cea891bd3ed6b536600bc21f4d8` and
-`phase-004-seed-run11.json` with SHA 256
-`a382c3a3ec37714ce58d28b667c3a81606a2b401192393e2ca8c4cb35482ff25`.
-Their BFS coordinate and form hash is identical, while the vanilla seagrass
-control differs and remains explicitly open rather than waived.
+The complete current fixed-seed manifests are `phase-004-seed-run14.json`
+with SHA 256
+`adf112087d5da4f65ff03b38e08196523603bb3823fb61be8127e26ce3a45301` and
+`phase-004-seed-run15.json` with SHA 256
+`500819a463a005967565101a5d5c36b62700f47947b15cd430c6a304d80ede09`.
+Their custom algae coordinate and state hashes are identical. Their complete
+vanilla seagrass state hashes differ and remain explicitly open rather than
+waived.

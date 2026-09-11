@@ -80,8 +80,10 @@ seed `240024`, Overworld chunks `0,0` through `15,15`, for all 256 chunks.
 
 The current artifact is SHA 256
 `525b4b75cc139758a3721e859588940528cf00076a9132d1738b3bd85b9f3ce4`.
-The complete coordinate manifests are retained as
-`phase-004-seed-run10.json` and `phase-004-seed-run11.json`.
+The earlier BFS-only manifests are retained as
+`phase-004-seed-run10.json` and `phase-004-seed-run11.json`. Complete
+algae-and-seagrass coordinate and state manifests were generated afterward as
+`phase-004-seed-run14.json` and `phase-004-seed-run15.json`.
 
 | World | Manifest SHA 256 | Algae block | Large green | Large red | Combined | Algae chunks | Max per chunk | Seagrass | Tall seagrass |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -97,3 +99,16 @@ vanilla seagrass controls in both worlds. The vanilla control differs by 13
 short seagrass blocks and 7 tall seagrass blocks, so the strict
 seagrass-inclusive full-manifest equality row remains open. This is recorded
 as a control variance and is not represented as a BFS placement mismatch.
+
+The complete manifests contain 8,578 and 8,580 counted algae and vanilla
+seagrass block states respectively. Their full placement state hashes differ
+because the vanilla seagrass positions vary, while the custom algae state hash
+is identical in both at
+`187fdad7cd02253e98918dd7437bb15622c3757f23bfb2446989bf65facc600c`.
+This records every counted coordinate and block state without hiding the
+vanilla variance.
+
+| World | Manifest SHA 256 | Full state hash | Counted placements | Common seagrass blocks |
+| --- | --- | --- | ---: | ---: |
+| `phase004-fixed-current-g` | `adf112087d5da4f65ff03b38e08196523603bb3823fb61be8127e26ce3a45301` | `667836536597a014459022fe8bcfc15712e7e3a41ff786831e45d198c961b13a` | 8578 | 8467 |
+| `phase004-fixed-current-h` | `500819a463a005967565101a5d5c36b62700f47947b15cd430c6a304d80ede09` | `3afc272c070ab66215bb5ae812964bf6462c903e8cf4290955f02cac92fb564a` | 8580 | 8469 |

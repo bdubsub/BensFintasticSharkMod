@@ -200,6 +200,8 @@ The current candidate produced identical BFS coordinate and form manifests in
 both worlds, with 35 `algae_block`, 28 `large_green_algae`, and 48
 `large_red_algae` placements across 92 chunks. The shared coordinate hash is
 `6df2cdcb1e3fbff5d92ee1b56408a774e403cd8011541b521f72877e4e80289b`.
-The complete manifests and their file hashes are recorded in the task 009
-fixed-seed evidence. The vanilla seagrass control differed between the two
-fresh worlds, so the strict seagrass-inclusive equality row remains open.
+The complete algae-and-seagrass manifests are `phase-004-seed-run14.json` and
+`phase-004-seed-run15.json`, with file hashes and full state hashes recorded in
+the task 009 fixed-seed evidence. The custom algae state hash is identical in
+both manifests. The vanilla seagrass control differs between the two fresh
+worlds, so the strict seagrass-inclusive equality row remains open.
