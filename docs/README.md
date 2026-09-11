@@ -3,6 +3,7 @@
 * [Project overview and setup](../README.md)
 * [Gameplay and technical reference](../DOCUMENTATION.md)
 * [Release changelog](../CHANGELOG.md)
+* [Release Candidate 1.0 Windows startup correction](verification/rc1-windows-startup.md)
 * [Active development plan](general/plan.md)
 * [0.24 asset ledger](verification/asset-ledger.md)
 * [Phase 000 evidence](verification/phase-000-evidence.md)

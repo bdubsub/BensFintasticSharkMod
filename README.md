@@ -18,6 +18,8 @@ Players and servers need:
 
 Install Forge, place the mod and its required dependencies in the `mods` directory, then start the game. Client and server installations must use matching mod versions.
 
+The corrected `1.0-rc.1` build removes a Windows startup crash in diagnostic initialization. If a launch report mentions `InvalidPathException` and `unavailable:no_completed_capture`, replace the older candidate JAR with the corrected build. No configuration or world reset is needed.
+
 ## Features
 
 * Eight shark species with distinct prey lists, variants, hunting traits, hunger cooldowns, and water disturbance reactions.

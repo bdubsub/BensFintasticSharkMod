@@ -2,6 +2,8 @@
 
 The debug capture system produces bounded structured evidence before an interactive client session is requested. It is intended for server side movement, brain, combat, population, advancement, and algae investigations. It does not change entity movement, AI, spawning, or combat behavior.
 
+Before the first capture, server and client status report inactive without an output path. No placeholder is converted to a filesystem path during startup. A completed capture retains its actual output path. This avoids the Windows `InvalidPathException` caused by the former `unavailable:no_completed_capture` placeholder, even when debugging was disabled.
+
 ## Server capture
 
 The server command requires permission level 2. It also works from the dedicated server console.
