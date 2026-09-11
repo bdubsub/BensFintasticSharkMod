@@ -52,9 +52,15 @@ def load_run(suite, name, expected_ticks=36000):
     if any(not math.isfinite(value) or value <= 0 for value in durations):
         raise ValueError(f"{name} contains invalid tick durations")
     with census_path.open() as stream:
-        samples = [row for row in csv.DictReader(stream, delimiter="\t") if int(row["tick"]) >= 0]
-    if [int(row["tick"]) for row in samples] != [0, *range(200, expected_ticks + 1, 200)]:
+        all_samples = list(csv.DictReader(stream, delimiter="\t"))
+    warmup = manifest["warmup"]
+    warmup_offsets = [-warmup, *(elapsed - warmup for elapsed in range(200, warmup + 1, 200))]
+    measurement_offsets = [0, *range(200, expected_ticks + 1, 200)]
+    if expected_ticks % 200:
+        measurement_offsets.append(expected_ticks)
+    if [int(row["tick"]) for row in all_samples] != warmup_offsets + measurement_offsets:
         raise ValueError(f"{name} contains an incomplete census")
+    samples = all_samples[len(warmup_offsets):]
     count_samples = [java_map(row["species_counts"]) for row in samples]
     observed_species = sorted({key for sample in count_samples for key in sample})
     if set(observed_species) != {entry[0] for entry in SPECIES.values()}:
@@ -64,6 +70,7 @@ def load_run(suite, name, expected_ticks=36000):
     counters = java_map(last["counters"])
     counts = {species: {"minimum": min(row.get(species, 0) for row in count_samples),
                         "maximum": max(row.get(species, 0) for row in count_samples),
+                        "mean": statistics.mean(row.get(species, 0) for row in count_samples),
                         "final": count_samples[-1].get(species, 0)} for species in observed_species}
     air = {species: min(java_map(row["minimum_air"])[species] for row in samples
                         if species in java_map(row["minimum_air"]))
@@ -71,6 +78,7 @@ def load_run(suite, name, expected_ticks=36000):
     windows = [min(heap[index:index + 30]) for index in range(0, len(heap), 30)]
     return {"name": name, "ticks": expected_ticks, "warmup_ticks": manifest["warmup"],
             "scale": manifest["scale"], "seed": manifest["seed"], "jar_sha256": manifest["jar_sha256"],
+            "warmup_census_rows": len(warmup_offsets), "measurement_census_rows": len(samples),
             "geckolib_sha256": manifest["geckolib_sha256"],
             "smartbrainlib_sha256": manifest["smartbrainlib_sha256"],
             "probe_agent_sha256": manifest["probe_agent_sha256"],
@@ -80,6 +88,10 @@ def load_run(suite, name, expected_ticks=36000):
             "heap_bytes": {"minimum": min(heap), "maximum": max(heap), "final": heap[-1],
                            "five_minute_window_minima": windows},
             "per_species_counts": counts, "minimum_air": air, "counters": counters,
+            "population": {"target": sum(manifest["species_targets"].values()),
+                           "minimum": min(sum(row.values()) for row in count_samples),
+                           "maximum": max(sum(row.values()) for row in count_samples),
+                           "mean": statistics.mean(sum(row.values()) for row in count_samples)},
             "maximum_brain_memories": max(int(row["maximum_brain_memories"]) for row in samples),
             "moving_entity_samples": sum(int(row["moving_entities"]) for row in samples),
             "maximum_observer_position_entries": max(int(row["position_samples"]) for row in samples),
