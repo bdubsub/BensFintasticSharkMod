@@ -1,6 +1,8 @@
 {
   "schema": "bfs.phase-004.client-loop.v1",
   "candidateSha256": "a8744ae7c816371374f083f6237673fe77c22766e56665d1dfb89f6f82d8db56",
+  "status": "superseded by source repairs before current artifact-bound acceptance",
+  "supersededByCandidateSha256": "227c037b14decfe7e4b44bbdfd5ef777e695ba0ceaef9fb8c2581d68dc159309",
   "host": "envision",
   "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
   "server": "100.76.164.109:25860",

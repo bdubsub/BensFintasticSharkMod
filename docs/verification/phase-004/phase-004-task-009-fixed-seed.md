@@ -1,6 +1,12 @@
 # Phase 004 task 009 fixed seed evidence
 
-Date: September 10, 2026
+Date: September 11, 2026
+
+Evidence binding note: the original world manifests below were produced before
+the Phase 004 source and test repairs. Their recorded candidate hash is kept
+for provenance, but those runtime artifacts are superseded and cannot close a
+current artifact-bound gate. The current candidate hash is
+`227c037b14decfe7e4b44bbdfd5ef777e695ba0ceaef9fb8c2581d68dc159309`.
 
 This record binds the repeated natural generation probe to the packaged Forge
 candidate with SHA 256 `a8744ae7c816371374f083f6237673fe77c22766e56665d1dfb89f6f82d8db56`.

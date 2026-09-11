@@ -112,15 +112,18 @@ public final class BfsFishingGameTests {
 
             int fishCount = (int) events.spawned.stream()
                     .filter(entity -> entity.getType() == ModEntityTypes.ATLANTIC_COD)
-                    .filter(entity -> helper.getLevel().getEntity(entity.getUUID()) == entity).count();
+                    .filter(entity -> entity.isAlive() && !entity.isRemoved()).count();
             int orbCount = (int) events.spawned.stream().filter(ExperienceOrb.class::isInstance).count();
             helper.assertTrue(events.fishingEvents == 1, "The rod must resolve one real fishing event.");
             helper.assertTrue(fishCount == (succeeds && live ? 1 : 0),
-                    "One attempt must deliver exactly its accepted live fish count.");
+                    "One attempt must deliver exactly its accepted live fish count. expected="
+                            + (succeeds && live ? 1 : 0) + ", actual=" + fishCount + ", spawned="
+                            + events.spawned.stream().map(entity -> entity.getType() + "@" + entity.position()
+                            + "/removed=" + entity.isRemoved()).toList());
             helper.assertTrue(events.fishInsertions == (mode == FailureMode.CANCEL ? 0 : 1),
                     "Nested or rejected insertion must not start another fish insertion.");
             long itemCount = events.spawned.stream().filter(ItemEntity.class::isInstance)
-                    .filter(entity -> helper.getLevel().getEntity(entity.getUUID()) == entity).count();
+                    .filter(entity -> entity.isAlive() && !entity.isRemoved()).count();
             helper.assertTrue(itemCount == (succeeds && !live ? 1 : 0),
                     "Only successful item delivery may create one item reward.");
             helper.assertTrue(orbCount == (succeeds ? 1 : 0), "Fishing XP must follow one committed delivery only.");
@@ -154,6 +157,7 @@ public final class BfsFishingGameTests {
                 events.hook.discard();
             }
             events.spawned.forEach(Entity::discard);
+            events.observed.forEach(Entity::discard);
             player.getAdvancements().stopListening();
             player.discard();
             BfsConfig.COMMON.fishEntities.set(originalLive);
@@ -178,6 +182,7 @@ public final class BfsFishingGameTests {
         private final ServerPlayer player;
         private final FailureMode mode;
         private final List<Entity> spawned = new ArrayList<>();
+        private final List<Entity> observed = new ArrayList<>();
         private FishingHook hook;
         private int fishInsertions;
         private int fishingEvents;
@@ -215,7 +220,10 @@ public final class BfsFishingGameTests {
             boolean experience = entity instanceof ExperienceOrb
                     && entity.position().distanceToSqr(player.position()) <= 4.0D;
             if (!nearHook && !experience) return;
-            spawned.add(entity);
+            observed.add(entity);
+            if (experience) {
+                spawned.add(entity);
+            }
             if (!nearHook) return;
             boolean matchingItem = entity instanceof ItemEntity item && item.getItem().is(ModItems.RAW_ATLANTIC_COD);
             if (entity.getType() != ModEntityTypes.ATLANTIC_COD && !matchingItem) {
@@ -224,7 +232,9 @@ public final class BfsFishingGameTests {
             fishInsertions++;
             if (mode == FailureMode.REJECT) {
                 event.setCanceled(true);
+                return;
             }
+            spawned.add(entity);
             if (mode == FailureMode.REMOVE_HOOK) {
                 hook.discard();
             }

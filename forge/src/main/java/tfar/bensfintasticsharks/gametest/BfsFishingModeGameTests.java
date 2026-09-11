@@ -182,6 +182,9 @@ public final class BfsFishingModeGameTests {
         try {
             BfsConfig.COMMON.replaceVanillaMobs.set(replacement);
             BfsConfig.COMMON.fishEntities.set(live);
+            helper.assertTrue(BfsConfig.COMMON.fishEntities.get() == live,
+                    "The fishing entity delivery toggle must apply before the real rod cast. expected=" + live
+                            + ", actual=" + BfsConfig.COMMON.fishEntities.get());
             var nibble = FishingHook.class.getDeclaredField("nibble");
             nibble.setAccessible(true);
             int fishCatches = 0;
@@ -226,13 +229,15 @@ public final class BfsFishingModeGameTests {
                                     && caught.getDeltaMovement().dot(player.position().subtract(catchPosition)) > 0.0D,
                             "The live reel impulse must be finite and point toward the angler.");
                 } else {
-                    helper.assertTrue(mobs.isEmpty() && items.size() == 1
+                            helper.assertTrue(mobs.isEmpty() && items.size() == 1
                                     && ItemStack.matches(selected, items.get(0).getItem()),
                             "Item delivery must retain the exact real loot result and create no fish, selected="
                                     + selected + ", accepted=" + accepted.stream().map(entity -> entity.getType()
                                     + ":removed=" + entity.isRemoved()).toList() + ", observed="
                                     + observer.spawned.stream().map(entity -> entity.getType() + ":removed="
-                                    + entity.isRemoved() + ":pos=" + entity.position()).toList());
+                                    + entity.isRemoved() + ":pos=" + entity.position()).toList()
+                                    + ", configuredLive=" + BfsConfig.COMMON.fishEntities.get()
+                                    + ", requestedLive=" + live);
                 }
                 helper.assertTrue(!replacement || (!selected.is(Items.COD) && !selected.is(Items.SALMON)),
                         "Replacement enabled fishing must not leak vanilla Cod or Salmon.");

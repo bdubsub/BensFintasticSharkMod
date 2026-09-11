@@ -1,6 +1,6 @@
 # Phase 004 task 011 artifact evidence
 
-Date: September 10, 2026
+Date: September 11, 2026
 
 The final Phase 004 candidate was built with Java 17 from the phase worktree
 on branch `envy/0.24-phase-004`.
@@ -9,17 +9,17 @@ on branch `envy/0.24-phase-004`.
 
 | Check | Result | Log SHA 256 |
 | --- | --- | --- |
-| `:forge:test` | passed | `9471287040a53d62ef8fe70d1cf2bc95e353e195e73056b7c44e47cfa1aeb3c2` |
+| `:forge:test` | passed | `602ff3c3a9cd30897318000f8626d0fc6a7fcf421083b37a6c22f8e2c6f19d3d` |
 | `:forge:Data` first run | passed, 302 generated files | `ffa5dff47f3ab875514b65277990553e9deadc281558fa15cec93a8fd2f83f24` |
 | `:forge:Data` unchanged second run | passed, zero rewritten files | `6cf309691ff7f20d8ee404685737328f70b739bae9d7ee72b8498004abc846b5` |
-| `:forge:GameTestServer` final rerun | passed, 82 required tests | `d29e76a8f217569debaa324fd360615e20726547cdb47df4c4fe4bf7b6601b63` |
-| `:forge:build` | passed | `e929ccb9b89d48bee68e712c5ccbb3b356dffa71dff6b1a723189315e0effbde` |
+| `:forge:GameTestServer` three clean reruns | passed, 84 required tests each | `84b2180e704285dae806f4ee7e35c42bae59e27f5764c2e70644239b64e27f43`, `79fccff26c833dc184bdf9d654458d9102434304ad83926bb08c9b921f253cbe`, `8dae8d14220220bbd1b56ec87c4f3a514d19ff14edd0e09bb28099e9f33e0ca7` |
+| `:forge:build` | passed | `757bfffe8f687a103cd44f214169b393a6a0f73e17f05d865d07fb53963e91f2` |
 
 The final Forge JAR is
 `forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar`.
 
-* SHA 256: `a8744ae7c816371374f083f6237673fe77c22766e56665d1dfb89f6f82d8db56`
-* SHA 512: `20291fc7f3cfa84f3db8e0f333fab2ea18b15aa15a6388b633cc47ca23e0c24da818f5c8616d650780daf15a1caf01b19ebcb9b54a8b09391e145f8517297f34`
+* SHA 256: `227c037b14decfe7e4b44bbdfd5ef777e695ba0ceaef9fb8c2581d68dc159309`
+* SHA 512: `c899d36ab31f3904fffff24f7cb28eead30af221dc430ceebeba200975366586e6b81b548f8ae82174616e24a08f10d943d5b5c28a7b5c7536ae0fdae3f2909f`
 * `unzip -tqq` passed.
 * The archive contains Forge metadata, all three algae block and item pairs,
   cutout models, exact block and strip textures, both animation metadata files,

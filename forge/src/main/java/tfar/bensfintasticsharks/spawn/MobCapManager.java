@@ -227,9 +227,11 @@ public class MobCapManager {
         ServerLevel finalizedSpawnLevel = PENDING_FINALIZED_FISH_REPLACEMENTS.remove(original.getUUID());
         boolean finalizedFishSpawn = finalizedSpawnLevel == event.getLevel();
         boolean commandSpawn = reason == null && isSummonCommandSpawn();
+        boolean structureSpawn = reason == null && isStructurePlacement();
         if (!VanillaFishReplacementPolicy.replacesEntityJoinSource(reason)
                 && !finalizedFishSpawn
-                && !commandSpawn) {
+                && !commandSpawn
+                && !structureSpawn) {
             return;
         }
         if (!usesSameMobCategory(original.getType(), replacementType)) {
@@ -303,6 +305,14 @@ public class MobCapManager {
     private static boolean isSummonCommandSpawn() {
         return StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).walk(frames ->
                 frames.anyMatch(frame -> frame.getDeclaringClass() == SummonCommand.class));
+    }
+
+    private static boolean isStructurePlacement() {
+        return StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).walk(frames ->
+                frames.anyMatch(frame -> frame.getDeclaringClass().getName().equals(
+                        "net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate")
+                        && (frame.getMethodName().equals("placeInWorld")
+                        || frame.getMethodName().equals("addEntitiesToWorld"))));
     }
 
     private static void copySafeSpawnState(Mob original, Mob replacement, CompoundTag spawnTag) {

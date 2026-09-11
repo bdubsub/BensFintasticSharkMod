@@ -10,6 +10,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
@@ -231,6 +232,70 @@ public final class BfsGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_algae_navigation", timeoutTicks = 900)
+    public static void atlanticCodNavigatesThroughAllAlgaeForms(GameTestHelper helper) {
+        prepareAlgaeNavigationCorridor(helper);
+        AtlanticCodEntity cod = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 2, 4));
+        cod.getBrain().removeAllBehaviors();
+        cod.goalSelector.removeAllGoals(goal -> true);
+        cod.targetSelector.removeAllGoals(goal -> true);
+        Vec3 target = helper.absolutePos(new BlockPos(21, 2, 4)).getCenter();
+        double startX = cod.getX();
+        cod.getMoveControl().setWantedPosition(target.x, target.y, target.z, 1.0D);
+        sampleAlgaeNavigation(helper, cod, target, startX, 800);
+    }
+
+    @GameTest(template = "empty", batch = "bfs_algae_navigation", timeoutTicks = 900)
+    public static void tigerSharkNavigatesThroughAllAlgaeForms(GameTestHelper helper) {
+        prepareAlgaeNavigationCorridor(helper);
+        TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 2, 4));
+        shark.getBrain().removeAllBehaviors();
+        shark.goalSelector.removeAllGoals(goal -> true);
+        shark.targetSelector.removeAllGoals(goal -> true);
+        Vec3 target = helper.absolutePos(new BlockPos(21, 2, 4)).getCenter();
+        double startX = shark.getX();
+        shark.getMoveControl().setWantedPosition(target.x, target.y, target.z, 1.0D);
+        sampleAlgaeNavigation(helper, shark, target, startX, 800);
+    }
+
+    private static void prepareAlgaeNavigationCorridor(GameTestHelper helper) {
+        prepareWaterVolumeAt(helper, 1, 24, 1, 8);
+        Block[] forms = {ModBlocks.ALGAE_BLOCK, ModBlocks.LARGE_GREEN_ALGAE, ModBlocks.LARGE_RED_ALGAE};
+        int[][] patch = {{7, 1}, {10, 8}, {13, 1}, {16, 8}};
+        for (int i = 0; i < patch.length; i++) {
+            int x = patch[i][0];
+            int z = patch[i][1];
+            BlockPos support = new BlockPos(x, 1, z);
+            BlockPos algae = support.above();
+            helper.setBlock(support, Blocks.SAND.defaultBlockState());
+            helper.setBlock(algae, forms[i % forms.length].defaultBlockState());
+        }
+    }
+
+    private static void sampleAlgaeNavigation(GameTestHelper helper, Mob mob, Vec3 target,
+                                               double startX, int remainingTicks) {
+        helper.runAfterDelay(1, () -> {
+            if (remainingTicks > 0 && mob.distanceToSqr(target) > 0.75D * 0.75D) {
+                // Keep the destination stable while the finite pitch route traverses the
+                // patch. Replacing the wanted position every tick prevents the swimmer
+                // controller from accumulating forward progress around a patch.
+                if (remainingTicks % 20 == 0) {
+                    mob.getMoveControl().setWantedPosition(target.x, target.y, target.z, 1.0D);
+                }
+                sampleAlgaeNavigation(helper, mob, target, startX, remainingTicks - 1);
+                return;
+            }
+            helper.assertTrue(mob.distanceToSqr(target) <= 0.75D * 0.75D,
+                    "aquatic navigation must cross the algae corridor, entity=" + mob.getType()
+                            + ", position=" + mob.position() + ", target=" + target
+                            + ", navDone=" + mob.getNavigation().isDone());
+            helper.assertTrue(mob.getX() > startX + 8.0D,
+                    "aquatic navigation must make forward progress through the algae corridor, entity="
+                            + mob.getType() + ", startX=" + startX + ", x=" + mob.getX());
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", batch = "bfs_debug_lifecycle", timeoutTicks = 20)
     public static void geckoLibNetworkChannelIsRegistered(GameTestHelper helper) {
         try {
@@ -414,7 +479,7 @@ public final class BfsGameTests {
                 Files.deleteIfExists(output);
                 clearPopulationSoakFish(helper);
                 if (replacementEnabled) {
-                    helper.runAfterDelay(2, () -> runPopulationSoak(helper, false, previousReplacement));
+                    helper.runAfterDelay(20, () -> runPopulationSoak(helper, false, previousReplacement));
                 } else {
                     BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
                     helper.succeed();
@@ -2269,6 +2334,20 @@ public final class BfsGameTests {
                 if (reason == MobSpawnType.BUCKET) {
                     continue;
                 }
+                if (reason == MobSpawnType.STRUCTURE) {
+                    helper.runAfterDelay(1, () -> {
+                        List<Mob> joinedStructureFish = helper.getLevel().getEntitiesOfClass(Mob.class,
+                                new AABB(sourcePosition).inflate(0.25D));
+                        helper.assertTrue(joinedStructureFish.size() == 1
+                                        && joinedStructureFish.get(0).getType() == replacementType,
+                                "new vanilla fish from STRUCTURE must become exactly one matching Atlantic fish, actual="
+                                        + joinedStructureFish.stream().map(mob -> String.valueOf(mob.getType())).toList());
+                        helper.assertTrue(joinedStructureFish.get(0).hasCustomName()
+                                        && sourceName.equals(joinedStructureFish.get(0).getCustomName().getString()),
+                                "new vanilla fish from STRUCTURE must preserve its safe custom name");
+                    });
+                    continue;
+                }
                 List<Mob> joinedFish = helper.getLevel().getEntitiesOfClass(Mob.class,
                         new AABB(sourcePosition).inflate(0.25D));
                 helper.assertTrue(joinedFish.size() == 1 && joinedFish.get(0).getType() == replacementType,
@@ -2417,6 +2496,8 @@ public final class BfsGameTests {
         clearReplacementFixtureFish(helper);
         boolean previousReplacement = BfsConfig.COMMON.replaceVanillaMobs.get();
         boolean previousSuppression = BfsConfig.COMMON.disableVanillaAquaticSpawns.get();
+        MobCapManager.setRuntimeCap(ModEntityTypes.ATLANTIC_COD, -1);
+        MobCapManager.setRuntimeCap(ModEntityTypes.ATLANTIC_SALMON, -1);
         BfsConfig.COMMON.replaceVanillaMobs.set(true);
         BfsConfig.COMMON.disableVanillaAquaticSpawns.set(false);
         ServerPlayer spawnerPlayer = makeSpawnerTestPlayer(helper);
@@ -2499,6 +2580,8 @@ public final class BfsGameTests {
                     }
                 } finally {
                     try {
+                        MobCapManager.resetRuntimeCap(ModEntityTypes.ATLANTIC_COD);
+                        MobCapManager.resetRuntimeCap(ModEntityTypes.ATLANTIC_SALMON);
                         BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
                         BfsConfig.COMMON.disableVanillaAquaticSpawns.set(previousSuppression);
                     } finally {
@@ -2509,6 +2592,8 @@ public final class BfsGameTests {
             });
         } catch (RuntimeException exception) {
             try {
+                MobCapManager.resetRuntimeCap(ModEntityTypes.ATLANTIC_COD);
+                MobCapManager.resetRuntimeCap(ModEntityTypes.ATLANTIC_SALMON);
                 BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
                 BfsConfig.COMMON.disableVanillaAquaticSpawns.set(previousSuppression);
             } finally {
