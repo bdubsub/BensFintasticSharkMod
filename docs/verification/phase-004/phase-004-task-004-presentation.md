@@ -1,6 +1,6 @@
 # Phase 004 task 004 presentation evidence
 
-Date: September 10, 2026
+Date: September 11, 2026
 
 The supplied presentation inputs remain byte-identical on the Phase 004
 candidate. The green strip is ten authored frames at four ticks each and the
@@ -24,7 +24,16 @@ also contains the authored repeated hold frames. This proves the patch and
 both animated forms change through the client boundary without an atlas or
 render warning.
 
-The loop control is command placed. A cadence capture at naturally generated
-green and red coordinates is still required by the plan, so the natural-loop
-acceptance row remains open even though the owner-approved exhibit and
-deterministic source and metadata checks pass.
+The current rebuilt candidate is `525b4b75cc139758a3721e859588940528cf00076a9132d1738b3bd85b9f3ce4`.
+It was captured at naturally generated coordinates `(104, 47, 187)` for green
+and `(106, 18, 104)` for red through the exact packaged server at
+`100.76.164.109:25870`. The client window stable id was `18000d91`; the
+Hyprland workspace was 2 before and after every capture. The full frame and
+cropped frame hashes are recorded in the current candidate section of
+`phase-004-task-004-loop-manifest.json`. The current captures show both forms
+changing through their authored frame sequences, including the red repeated
+holds, without an atlas or render warning.
+
+The current laptop visual gate is awaiting EnVy approval for this exact
+rebuilt candidate. The earlier approval remains valid only for the superseded
+exhibit hash and is retained as provenance.

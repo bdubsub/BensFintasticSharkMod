@@ -2,7 +2,7 @@
   "schema": "bfs.phase-004.client-loop.v1",
   "candidateSha256": "a8744ae7c816371374f083f6237673fe77c22766e56665d1dfb89f6f82d8db56",
   "status": "superseded by source repairs before current artifact-bound acceptance",
-  "supersededByCandidateSha256": "227c037b14decfe7e4b44bbdfd5ef777e695ba0ceaef9fb8c2581d68dc159309",
+  "supersededByCandidateSha256": "525b4b75cc139758a3721e859588940528cf00076a9132d1738b3bd85b9f3ce4",
   "host": "envision",
   "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
   "server": "100.76.164.109:25860",
@@ -39,6 +39,76 @@
     ],
     "animatedCropChanged": true,
     "repeatedHoldFramesObserved": true
+  },
+  "currentCandidate": {
+    "sha256": "525b4b75cc139758a3721e859588940528cf00076a9132d1738b3bd85b9f3ce4",
+    "server": "100.76.164.109:25870",
+    "windowStableId": "18000d91",
+    "workspaceBefore": 2,
+    "workspaceAfter": 2,
+    "cadence": "four game ticks per capture",
+    "naturalCaptures": {
+      "green": {
+        "coordinate": [104, 47, 187],
+        "screenshotSha256": "55c5ecbdfd9db9b4aa88563e038e8436f578a5f0eaa5bcce98ad17e2f4a8ad16",
+        "frames": [
+          "e75322e8ba2d6d333169332c439ea3c022deac95c9c12775c28218edc30e4f73",
+          "28a310c065ae1522ecad5e22e51dedeb4ba18f38f902502d8b5043bba43f146c",
+          "d8af92597d7f2b6fdadb62613e287e7a72a6f095c76f8b6e7c1dcc94f8d2460d",
+          "f495f0afb864ef2240179b3256daea4640266901075e422d027bba05038e979f",
+          "d52f5fce0138dce10e029b8f4ed5e8795db1b84ae5422f37f07457a5148b5203",
+          "af6f6b3b56656c5de4b76904fbf2080102c2d1c86c740dfdda222bd1a94a055c",
+          "474050317a813649308483ffe434f4e3a21685498a314a059db631b0090986b8",
+          "8c4d85bebc638489015843278a336177cdc8d01c07490d567d00359cc6507522",
+          "698e0d7437b7fbc38dd7e6e26b221799dd7dbda5059748c9dd484acfd35a2a60",
+          "afb4d7d615e8cd479a6078808db1e175e4dbcbb5a69e6390d77f2091e7a10d6f"
+        ],
+        "crop": {
+          "geometry": "900x1100+0+700",
+          "hashes": [
+            "cb414b92331e74d75fb0ce7beef255c809fe20e46f930a66ba933cef4a449be5",
+            "a0296b7a042df3e095eef019103764fa4e7a7671dbb050e6fae745ac9cffdc99",
+            "72dc0434cd7116bbd58f25901104a5a329a49d59338ae9a2e8cafa80e1d3c2e7",
+            "b63f2340b368f2d40a528e99d53eefb91c3f60f5e97e08d2a17ea6f0afb22bb2",
+            "a125981b0660282cc6dc65adea4d72424fb234ec239eecb4defcb1e882a45a3e",
+            "e506baa3bb7ba28b52aaffec2d0c23585ea0693ef8918ea922c191256f7ea3db",
+            "ff547cf92650acc2bd5e9a3a79222d212c3dc2470804dd39a03f134871102f60",
+            "7dd7136deba789dfeb39dec7b625c0887e7071e3ca46dbbe08797a7c5301d47f",
+            "a19e86c6f1e682ddabebb5617c2eb2c3c9fee4e931b7768bb8b6d96c590bde65",
+            "e4d88244fb5e337c74663ea0150a2c143d699d0f5ac1ec2e93727d59c7674453"
+          ]
+        }
+      },
+      "red": {
+        "coordinate": [106, 18, 104],
+        "screenshotSha256": "54225d2e0f8641dd3a60abc3bf29e6bad959e4babede615da308310cbf6a7383",
+        "frames": [
+          "b982e146f6ac1998a19e98c7dac80a7457f4902e1d5a285aecb2f91dc6308155",
+          "dbf65fb3b72dc5e87cf1acc642863c7ef65067316f9ec269b552e6d4a208725e",
+          "060b3569dad885fc8038635db4dc7ba592913c3d744d8ff3334a3f52cf4d5d27",
+          "b1c63f862ee03c3508b1e3e1710d4495d5b235af8ba38404906df5a99f5db0de9",
+          "ce3c704b60555c9388fb15019429ad06e16a1d6aee0fc1fe301e7d3dc4d88de9",
+          "a3b962c5617fe763a91932b4a1e52c5fa56395ae158afdb5c474dcd5d6e31673",
+          "c83f828652e95c5c38cd48a19bd20331dbf7fc96d2b06c94ff1acb9e8beb427f",
+          "15da03f781aba17bf65a095b52e0de376afb880e9e6e6a2ac2da34530f575035",
+          "30a10375bd6bd9c98eb4742061668463d109e88d70a6360842818cf64486aad5"
+        ],
+        "crop": {
+          "geometry": "900x1100+300+1000",
+          "hashes": [
+            "5792194d47fc5ec89fdfbc77065fe8d1f4ff88c3758c6e50306e84505beaf280",
+            "586de2e816842e8f571cafdd7c301a6250c50bd3d6f126dea8d82e7abb546432",
+            "e5b5b51c00aa1dbdcebd14f982b6e22a92ecbf4369259aa90a42494f28ed7ead",
+            "d60aad09ba4fc3d8c40766eee16e57b62687016c60bc394275ab58dcaa3ee07c",
+            "b513842049426be3f5259131ec0e1b9613b975270a6f470e16cbb1b74a13f92f",
+            "ecfae64313c505fa3eb00fb336daa8bd604e7b5eb1f1546c6168440ccbb3a8cc",
+            "16acf7e8f311182e51b929839c8b6a10491406efa76e4381b03084b4e5ff0b17",
+            "abb655bb335076091aee13b44309f6447bf27ae1c6f04b8713656de43325eee3",
+            "599d2881b7bbb0bff5fb57cf3b0723848647f4b6d9f0b1a4188e8e7b69cdfac4"
+          ]
+        }
+      }
+    }
   },
   "ownerApproval": "EnVy approved the clean exhibit and continuation.",
   "limitations": "The captures are command placed exhibit controls, not natural generation coordinates. Natural green and red loop capture remains a separate runtime row."

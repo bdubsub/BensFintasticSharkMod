@@ -6,7 +6,7 @@ Evidence binding note: the original world manifests below were produced before
 the Phase 004 source and test repairs. Their recorded candidate hash is kept
 for provenance, but those runtime artifacts are superseded and cannot close a
 current artifact-bound gate. The current candidate hash is
-`227c037b14decfe7e4b44bbdfd5ef777e695ba0ceaef9fb8c2581d68dc159309`.
+`525b4b75cc139758a3721e859588940528cf00076a9132d1738b3bd85b9f3ce4`.
 
 This record binds the repeated natural generation probe to the packaged Forge
 candidate with SHA 256 `a8744ae7c816371374f083f6237673fe77c22766e56665d1dfb89f6f82d8db56`.
@@ -68,3 +68,32 @@ world was initialized with the zero random-tick gamerule before decoration.
 This confirms that the remaining mismatch is in the vanilla seagrass control,
 not in BFS algae placement. The strict full-manifest row remains open and is
 not waived.
+
+## Current candidate repeat
+
+On September 11, 2026, the exact current candidate was tested again in two
+fresh disposable Forge 1.20.1 dedicated-server worlds with Java 17.0.19. Both
+runtimes set `eula=true`, set `randomTickSpeed` to zero before the sample
+window was force loaded, and generated only through ordinary chunk generation.
+No direct block-placement fixture commands were used. The target window was
+seed `240024`, Overworld chunks `0,0` through `15,15`, for all 256 chunks.
+
+The current artifact is SHA 256
+`525b4b75cc139758a3721e859588940528cf00076a9132d1738b3bd85b9f3ce4`.
+The complete coordinate manifests are retained as
+`phase-004-seed-run10.json` and `phase-004-seed-run11.json`.
+
+| World | Manifest SHA 256 | Algae block | Large green | Large red | Combined | Algae chunks | Max per chunk | Seagrass | Tall seagrass |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `phase004-fixed-current-c` | `80879885ec4efbc353bd6c893e3f778ad5d89cea891bd3ed6b536600bc21f4d8` | 35 | 28 | 48 | 111 | 92 | 3 | 3114 | 5377 |
+| `phase004-fixed-current-d` | `a382c3a3ec37714ce58d28b667c3a81606a2b401192393e2ca8c4cb35482ff25` | 35 | 28 | 48 | 111 | 92 | 3 | 3127 | 5384 |
+
+The BFS coordinate and form multiset is identical in both manifests. Its
+coordinate hash is
+`6df2cdcb1e3fbff5d92ee1b56408a774e403cd8011541b521f72877e4e80289b`.
+Every form is present, the configured per-chunk cap of three is respected,
+and the invalid placement count is zero. Combined algae remains below the
+vanilla seagrass controls in both worlds. The vanilla control differs by 13
+short seagrass blocks and 7 tall seagrass blocks, so the strict
+seagrass-inclusive full-manifest equality row remains open. This is recorded
+as a control variance and is not represented as a BFS placement mismatch.
