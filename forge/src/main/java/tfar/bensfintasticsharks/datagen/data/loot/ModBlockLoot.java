@@ -9,9 +9,9 @@ public class ModBlockLoot extends VanillaBlockLoot {
 
     @Override
     protected void generate() {
-        dropSelf(ModBlocks.ALGAE_BLOCK);
-        dropSelf(ModBlocks.LARGE_GREEN_ALGAE);
-        dropSelf(ModBlocks.LARGE_RED_ALGAE);
+        add(ModBlocks.ALGAE_BLOCK, createShearsOnlyDrop(ModBlocks.ALGAE_BLOCK));
+        add(ModBlocks.LARGE_GREEN_ALGAE, createShearsOnlyDrop(ModBlocks.LARGE_GREEN_ALGAE));
+        add(ModBlocks.LARGE_RED_ALGAE, createShearsOnlyDrop(ModBlocks.LARGE_RED_ALGAE));
     }
 
     @Override

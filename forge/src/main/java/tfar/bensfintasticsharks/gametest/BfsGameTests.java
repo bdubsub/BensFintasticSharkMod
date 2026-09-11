@@ -24,6 +24,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Salmon;
 import net.minecraft.world.entity.animal.TropicalFish;
@@ -131,10 +132,18 @@ public final class BfsGameTests {
     public static void algaeBreakDropsTheBrokenForm(GameTestHelper helper) {
         prepareWaterColumn(helper);
         helper.setBlock(ALGAE_POS, ModBlocks.ALGAE_BLOCK.defaultBlockState());
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+                new GameProfile(java.util.UUID.randomUUID(), "algae-shears-player"));
+        player.setPos(helper.absolutePos(new BlockPos(1, 1, 2)).getCenter());
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SHEARS));
+        player.connection = new ServerGamePacketListenerImpl(helper.getLevel().getServer(),
+                new Connection(PacketFlow.SERVERBOUND), player);
+        helper.getLevel().addNewPlayer(player);
         helper.runAfterDelay(1, () -> {
-            helper.getLevel().destroyBlock(helper.absolutePos(ALGAE_POS), true, null);
+            helper.assertTrue(player.gameMode.destroyBlock(helper.absolutePos(ALGAE_POS)),
+                    "survival shears must break algae through vanilla player interaction");
             helper.assertItemEntityPresent(ModBlocks.ALGAE_BLOCK.asItem(), ALGAE_POS, 2.0);
-            helper.succeed();
+            finishAfterRemovingTestPlayer(helper, player);
         });
     }
 
@@ -785,10 +794,11 @@ public final class BfsGameTests {
         target.setNoAi(true);
         actor.setNoGravity(true);
         target.setNoGravity(true);
+        net.tslat.smartbrainlib.util.BrainUtils.clearMemory(actor.getBrain(), MemoryModuleType.WALK_TARGET);
         helper.runAfterDelay(60, () -> {
-            helper.assertTrue(!"none".equals(actor.getBfsBehaviorAction()),
+            helper.assertTrue("social".equals(actor.getBfsBehaviorAction()),
                     "social actor must claim a bounded route before the target is removed");
-            target.kill();
+            target.discard();
             helper.runAfterDelay(5, () -> {
                 helper.assertTrue("none".equals(actor.getBfsBehaviorAction()),
                         "social route must clear when its remembered target disappears, action="
