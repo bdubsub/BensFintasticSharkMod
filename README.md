@@ -20,6 +20,8 @@ Install Forge, place the mod and its required dependencies in the `mods` directo
 
 The corrected `1.0-rc.1` build removes a Windows startup crash in diagnostic initialization. If a launch report mentions `InvalidPathException` and `unavailable:no_completed_capture`, replace the older candidate JAR with the corrected build. No configuration or world reset is needed.
 
+Use the [current artifact checksums and source manifest](docs/verification/artifacts/README.md) to distinguish the corrected JAR from the original candidate, which used the same version number.
+
 ## Features
 
 * Eight shark species with distinct prey lists, variants, hunting traits, hunger cooldowns, and water disturbance reactions.
