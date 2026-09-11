@@ -47,6 +47,7 @@
 * [Phase 004 task 011 artifact evidence](verification/phase-004/phase-004-task-011-artifact.md)
 * [Phase 005 task 001 entry evidence](verification/phase-005/phase-005-task-001-entry.md)
 * [Phase 005 task 002 traceability evidence](verification/phase-005/phase-005-task-002-traceability.md)
+* [Phase 005 task 003 release blocking audit](verification/phase-005/phase-005-task-003-audit.md)
 * [Phase 004 task 012 closure evidence](verification/phase-004/phase-004-task-012-closure.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
