@@ -32,7 +32,7 @@ Install Forge, place the mod and its required dependencies in the `mods` directo
 * The Shark Codex and the Sunken Trove ocean structure.
 * Three permanent algae blocks with animated large green and red variants and ocean biome generation.
 
-The documentation index is in [docs/README.md](docs/README.md). The retained 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md). Diagnostic command and parser instructions are in [docs/test/debug-diagnostics.md](docs/test/debug-diagnostics.md).
+The documentation index is in [docs/README.md](docs/README.md). The retained 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md). Diagnostic command and parser instructions are in [docs/test/debug-diagnostics.md](docs/test/debug-diagnostics.md). Candidate installation and rollback guidance is in [docs/test/release-rollback.md](docs/test/release-rollback.md).
 
 The retained Phase 001 verification records document the current 0.23 compatibility baseline, including the real fishing advancement path and the packaged Forge server checks. The interactive advancement and rendering review remains a laptop-only acceptance step.
 
