@@ -1,7 +1,7 @@
-// 1.20.1	2026-09-10T18:27:39.173402387	Loot Tables
-df7d02d9a4c3e6fc6dd0f76b221a6f878f3bd7f5 data/bensfintasticsharks/loot_tables/blocks/algae_block.json
-99e1feb758664de5fa4982da5e4d83dd381120fe data/bensfintasticsharks/loot_tables/blocks/large_green_algae.json
-7f5e466fa20aa31950cfe42caeca35db9944f05e data/bensfintasticsharks/loot_tables/blocks/large_red_algae.json
+// 1.20.1	2026-09-10T19:15:26.78795231	Loot Tables
+a73325343672bee1b4bb5f93eb71342ec9ebd4f9 data/bensfintasticsharks/loot_tables/blocks/algae_block.json
+d9fef3b030fe25fba79d68117499b4f5611f796f data/bensfintasticsharks/loot_tables/blocks/large_green_algae.json
+c893156ea04dd258b28ff62974cf218d0b36b0cd data/bensfintasticsharks/loot_tables/blocks/large_red_algae.json
 340eefe2f8c90bb923ad8862bb36b8598edf6504 data/bensfintasticsharks/loot_tables/entities/american_lobster.json
 70e5231c48903ee697ffe0ceb030cd4943dc9407 data/bensfintasticsharks/loot_tables/entities/atlantic_cod.json
 1ce38050a21afb9657d973a08242a28bb27ab6e8 data/bensfintasticsharks/loot_tables/entities/atlantic_salmon.json
