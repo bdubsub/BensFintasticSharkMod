@@ -37,6 +37,7 @@
 * [Phase 004 task 002 provenance evidence](verification/phase-004/phase-004-task-002-provenance.md)
 * [Phase 004 task 003 survival and loot evidence](verification/phase-004/phase-004-task-003-survival-loot.md)
 * [Phase 004 task 004 presentation evidence](verification/phase-004/phase-004-task-004-presentation.md)
+* [Phase 004 task 004 loop manifest](verification/phase-004/phase-004-task-004-loop-manifest.json)
 * [Phase 004 task 005 data evidence](verification/phase-004/phase-004-task-005-data.md)
 * [Phase 004 task 006 world generation evidence](verification/phase-004/phase-004-task-006-worldgen.md)
 * [Phase 004 task 007 deterministic audit evidence](verification/phase-004/phase-004-task-007-audit.md)

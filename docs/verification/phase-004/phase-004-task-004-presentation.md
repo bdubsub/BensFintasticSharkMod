@@ -17,8 +17,14 @@ NVIDIA GeForce RTX 5090 Laptop GPU, Java 17, and an audio-muted disposable
 Prism profile. The client log showed no algae model, blockstate, atlas, texture,
 or render-layer warning. EnVy approved the exhibit and continuation.
 
-This capture proves the patch and both animated forms are visually distinct and
-load through the client boundary. A cadence capture of every four-tick frame in
-the complete 40 tick green and 36 tick red loops has not been retained in this
-phase record. The full-loop acceptance row therefore remains open even though
-the owner-approved exhibit and deterministic source and metadata checks pass.
+The matching command placed exhibit control captured ten green and nine red
+frames at approximately four game tick cadence. The frame hashes and crop
+change checks are in `phase-004-task-004-loop-manifest.json`. The red capture
+also contains the authored repeated hold frames. This proves the patch and
+both animated forms change through the client boundary without an atlas or
+render warning.
+
+The loop control is command placed. A cadence capture at naturally generated
+green and red coordinates is still required by the plan, so the natural-loop
+acceptance row remains open even though the owner-approved exhibit and
+deterministic source and metadata checks pass.

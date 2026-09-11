@@ -1,0 +1,43 @@
+{
+  "schema": "bfs.phase-004.client-loop.v1",
+  "candidateSha256": "a8744ae7c816371374f083f6237673fe77c22766e56665d1dfb89f6f82d8db56",
+  "host": "envision",
+  "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+  "server": "100.76.164.109:25860",
+  "windowGeometry": "965,45 945x1145",
+  "cadence": "approximately four game ticks per capture",
+  "green": {
+    "expectedFrames": 10,
+    "hashes": [
+      "af090cf98422d1e57dcc28fad4c231be6e4731aec21732ef6b4e8534bf4220c8",
+      "0ddb506a7816179ef433c7424fa285129584ce88efeeb670bc4958d0be41a71d",
+      "653af95afebd5c3ccfffd12f8403517741bcc7fcdc57159b3f32c20234e94ba7",
+      "d8a04ce5e6f7b8eac266dd7dd02e15e1109b6fe8481165d0d45408d662d04025",
+      "e8cc4b3023ce343d12697b615b7f5ebc6e12ef849c3d7edf9864cead6ca276ec",
+      "c35ba4beec1e38e8b4e75f1f7f8641ead2ce57c7ce109a9404d0d2c9a7927c7c",
+      "5b454b9b73e956fd83f307f3bba09a339a0baf5d43caa596c27270dfa00c0b24",
+      "4fefd602ab70cc04d6dd0631bd077143fd10af5e739d5e1847dda676a283e191",
+      "47c1f47679094f0570aba32c93610e2ceab862b5b9be753ca10073fe3402a2bb",
+      "a7d0070ce5e3317e42914bb700b5805f7640eec83b3ad95ccb6bf8cd51669f47"
+    ],
+    "animatedCropChanged": true
+  },
+  "red": {
+    "expectedFrames": 9,
+    "hashes": [
+      "e417940f0d3d0c3e9f8d25e544fd0f99338183c449fe91c7f236100aed824758",
+      "4273e7d97ffc0f73db0e0e2190538812cdf548be8e7c99e82ea0e1627873a052",
+      "1e38c4e07d7d93eadefed69db9ffa7d75c4fd900d2bbbd2aec8f28a450fcbb3a",
+      "3b17f94260ca8cc8597c542d7429fa87245f6a577c02f747df9fc64bde98b1d6",
+      "debb12d7f62fdffa0cbb8b89701e41adc5793f72bc0deb096a8702c7488a5a8b",
+      "ec17856e5a3dea3471f4bb0d5dc35016b3137ed527398844ecbd72f8ff93d81d",
+      "e3b7282be0dbb0e67f8d647462af3d539ce8a213ec349ef24d94c157f34b530c",
+      "b3731c98ecf0226dc54407ca23f45827fbd63c4a76bab9baac463aad6aca4c3b",
+      "4eb6932aa447c237c599a38dc3f07f4d56619c523dca0346b5fadc5c5e3c0acd"
+    ],
+    "animatedCropChanged": true,
+    "repeatedHoldFramesObserved": true
+  },
+  "ownerApproval": "EnVy approved the clean exhibit and continuation.",
+  "limitations": "The captures are command placed exhibit controls, not natural generation coordinates. Natural green and red loop capture remains a separate runtime row."
+}
