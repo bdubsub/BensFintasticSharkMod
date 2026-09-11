@@ -55,8 +55,21 @@ the registered signing key.
 
 ## Final integration gate
 
-The release work branch is now being integrated into the canonical `1.20.1`
-branch through a separate GitHub pull request. That pull request must use a
-merge commit, pass its required checks, and verify the resulting default
-branch, exact candidate hash, immutable tags, and plan wide endpoint before
-Task 014 can close.
+Pull request `24` merged through GitHub into canonical `1.20.1` with merge
+commit `ac34d716bb5cb86ab55b731eeb34391e10c4e7a6`. Its `ci` run
+`34610165206` and `codeql` run `34610165161` passed, including the final
+CodeQL result `103299657311`.
+
+A fresh fetch confirmed that `origin/1.20.1` is `ac34d716bb5cb86ab55b731eeb34391e10c4e7a6` and contains `origin/envy/0.24`,
+`bfs-0.24-phase-005`, `bfs-0.24-final`, and `bfs-0.24`. The exact candidate
+JAR remains `BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar` with SHA 256
+`94bfe2c8b45fc54505d42b63d026e203086959c34bb28325da3cf762c46578bd` and
+SHA 512
+`8d9edc14bf81e11fd8dc5e905b9aa1201e84c7d7bf303c53cee2f9a57fee516cd99076066b6df92d14d116f6199ddacf7deb03ee4237b1f37ccd369ae8bb5675`.
+
+The plan-wide endpoint audit found no unknown mandatory requirement or open
+mandatory defect in the recorded evidence. The six registered phase files,
+goal, active cursor, immutable tags, artifact hashes, security packet,
+multiplayer packet, visual approval, rollback guide, and cleanup records are
+present and consistent. The final documentation update is being integrated
+through the current release pull request before Task 014 is closed.
