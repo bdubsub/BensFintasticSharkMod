@@ -3,7 +3,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from analyze_performance import SPECIES, compare, java_map, load_run, percentile
+from analyze_performance import SPECIES, compare, irreversible_p95_failure, java_map, load_run, percentile
 
 
 class PerformanceEvidenceTest(unittest.TestCase):
@@ -21,6 +21,16 @@ class PerformanceEvidenceTest(unittest.TestCase):
 
     def test_empty_counter_map_is_supported(self):
         self.assertEqual(java_map("{}"), {})
+
+    def test_early_rejection_requires_more_than_full_window_allowance(self):
+        self.assertFalse(irreversible_p95_failure([111] * 1800, 100)["irreversible_failure"])
+        self.assertTrue(irreversible_p95_failure([111] * 1801, 100)["irreversible_failure"])
+        self.assertFalse(irreversible_p95_failure([110] * 1801, 100)["irreversible_failure"])
+
+    def test_early_rejection_rejects_invalid_duration(self):
+        for sample in ([], [0], [-1], [1] * 36001):
+            with self.assertRaises(ValueError):
+                irreversible_p95_failure(sample, 100)
 
     def test_unmatched_artifact_environment_is_rejected(self):
         with self.assertRaises(ValueError):

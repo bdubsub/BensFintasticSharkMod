@@ -18,6 +18,20 @@ def percentile(values, quantile):
     return sorted(values)[max(0, math.ceil(len(values) * quantile) - 1)]
 
 
+def irreversible_p95_failure(durations_ns, baseline_p95_ns, planned_ticks=36000):
+    if not durations_ns or len(durations_ns) > planned_ticks or planned_ticks <= 0:
+        raise ValueError("The partial capture must fit the declared full window")
+    if baseline_p95_ns <= 0 or any(value <= 0 for value in durations_ns):
+        raise ValueError("Tick durations must be positive")
+    allowance = planned_ticks - math.ceil(planned_ticks * 0.95)
+    slow = sum(value * 10 > baseline_p95_ns * 11 for value in durations_ns)
+    return {"planned_ticks": planned_ticks, "observed_ticks": len(durations_ns),
+            "baseline_p95_ns": baseline_p95_ns, "budget_multiplier": "11/10",
+            "slow_ticks": slow, "allowed_slow_ticks": allowance,
+            "irreversible_failure": slow > allowance,
+            "scope": "Early rejection only. This is not a completed capture or a passing comparison."}
+
+
 def java_map(text):
     if not text.startswith("{") or not text.endswith("}"):
         raise ValueError("Invalid census map")
