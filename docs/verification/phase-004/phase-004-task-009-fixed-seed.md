@@ -112,3 +112,29 @@ vanilla variance.
 | --- | --- | --- | ---: | ---: |
 | `phase004-fixed-current-g` | `adf112087d5da4f65ff03b38e08196523603bb3823fb61be8127e26ce3a45301` | `667836536597a014459022fe8bcfc15712e7e3a41ff786831e45d198c961b13a` | 8578 | 8467 |
 | `phase004-fixed-current-h` | `500819a463a005967565101a5d5c36b62700f47947b15cd430c6a304d80ede09` | `3afc272c070ab66215bb5ae812964bf6462c903e8cf4290955f02cac92fb564a` | 8580 | 8469 |
+
+## Longer wait source equivalent repeat
+
+On September 11, 2026, two additional disposable production Forge servers were
+run with Java 17.0.19, seed `240024`, `randomTickSpeed` set to zero before the
+sample window was force loaded, and all 256 chunks in the inclusive `0,0`
+through `15,15` window kept force loaded for an additional wait before clean
+shutdown. The source equivalent current jar SHA 256 was
+`ad2338017b3c06f7b45edc2c9474fbdab09954c0a4a921c98ae7399a6ef38381`.
+
+The custom algae coordinate and form multiset was identical in both worlds,
+with counts of `35` `algae_block`, `28` `large_green_algae`, and `48`
+`large_red_algae`. The complete counted totals were `8604` in runtime A and
+`8588` in runtime B. Runtime A counted `3125` short and `5368` tall vanilla
+seagrass blocks. Runtime B counted `3111` short and `5366` tall blocks. The
+full state hashes were
+`34583de1b852de83233c49af18058f2575f795e7dcbea0b8659884122a03f0c4` and
+`5a341ac549e6ccf8a46d75a50de603c14c7f14bd4e9d0f0bbbbc3ddbd9bd1f3d`.
+The server log hashes were
+`84e517ec16c43b45be28e9afb819f73000e1105768ef6b6a7ced6169ae9cb74b` and
+`c0322703414dc296f11eab50f4e77a22a0092771cbc835d830ea2ef210d6356e`.
+
+The longer wait did not remove the vanilla seagrass variance. The custom
+algae multiset remained stable, while the strict full manifest equality gate
+remains open as required by the plan. These source equivalent diagnostic
+manifests do not replace the exact candidate manifests above.
