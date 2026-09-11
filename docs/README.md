@@ -52,6 +52,7 @@
 * [Phase 005 task 006 Release Candidate metadata](verification/phase-005/phase-005-task-006-version.md)
 * [Phase 005 task 007 deterministic and static verification](verification/phase-005/phase-005-task-007-deterministic.md)
 * [Phase 005 task 008 data and GameTest gate](verification/phase-005/phase-005-task-008-data-gametest.md)
+* [Phase 005 task 009 Forge build and packaged server readiness](verification/phase-005/phase-005-task-009-build-server.md)
 * [Phase 004 task 012 closure evidence](verification/phase-004/phase-004-task-012-closure.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
