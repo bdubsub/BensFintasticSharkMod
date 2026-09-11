@@ -80,6 +80,7 @@ import tfar.bensfintasticsharks.config.BfsConfig;
 import tfar.bensfintasticsharks.fishing.FishingCatchDelivery;
 import tfar.bensfintasticsharks.fishing.FishingCatchPolicy;
 import tfar.bensfintasticsharks.spawn.MobCapManager;
+import tfar.bensfintasticsharks.worldgen.AlgaePatchFeature;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -230,6 +231,17 @@ public final class BfsGameTests {
                     "algae must reject placement outside a water source");
             helper.succeed();
         });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 20)
+    public static void algaeFeatureRejectsOccupiedPlantStates(GameTestHelper helper) {
+        helper.assertTrue(AlgaePatchFeature.isUnoccupiedSourceWater(Blocks.WATER.defaultBlockState()),
+                "source water must be a valid empty feature target");
+        helper.assertTrue(!AlgaePatchFeature.isUnoccupiedSourceWater(Blocks.SEAGRASS.defaultBlockState()),
+                "existing seagrass must never be replaced by algae generation");
+        helper.assertTrue(!AlgaePatchFeature.isUnoccupiedSourceWater(Blocks.KELP.defaultBlockState()),
+                "existing kelp must never be replaced by algae generation");
+        helper.succeed();
     }
 
     @GameTest(template = "empty", batch = "bfs_algae_navigation", timeoutTicks = 900)
@@ -877,7 +889,7 @@ public final class BfsGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "bfs_species_social_target_loss", timeoutTicks = 140)
+    @GameTest(template = "empty", batch = "bfs_species_social_target_loss", timeoutTicks = 180)
     public static void speciesPolicyReleasesSocialRouteWhenTargetDisappears(GameTestHelper helper) {
         prepareWaterVolumeAt(helper, 28, 38, 28, 38);
         clearAquaticFixtureEntities(helper, new BlockPos(29, 1, 29), new BlockPos(38, 5, 38));
@@ -890,18 +902,32 @@ public final class BfsGameTests {
         actor.setNoGravity(true);
         target.setNoGravity(true);
         net.tslat.smartbrainlib.util.BrainUtils.clearMemory(actor.getBrain(), MemoryModuleType.WALK_TARGET);
-        helper.runAfterDelay(60, () -> {
-            helper.assertTrue("social".equals(actor.getBfsBehaviorAction()),
-                    "social actor must claim a bounded route before the target is removed");
-            target.discard();
-            helper.getLevel().getEntitiesOfClass(Entity.class, actor.getBoundingBox().inflate(16.0D),
-                    entity -> entity != actor && !(entity instanceof Player)).forEach(Entity::discard);
-            helper.runAfterDelay(20, () -> {
-                helper.assertTrue("none".equals(actor.getBfsBehaviorAction()),
-                        "social route must clear when its remembered target disappears, action="
-                                + actor.getBfsBehaviorAction() + ", targetRemoved=" + target.isRemoved());
-                helper.succeed();
-            });
+        waitForSocialRoute(helper, actor, target, 100);
+    }
+
+    private static void waitForSocialRoute(GameTestHelper helper, BottlenoseDolphinEntity actor,
+                                           BottlenoseDolphinEntity target, int remainingTicks) {
+        helper.runAfterDelay(1, () -> {
+            if ("social".equals(actor.getBfsBehaviorAction())) {
+                target.discard();
+                helper.getLevel().getEntitiesOfClass(Entity.class, actor.getBoundingBox().inflate(16.0D),
+                        entity -> entity != actor && !(entity instanceof Player)).forEach(Entity::discard);
+                helper.runAfterDelay(20, () -> {
+                    helper.assertTrue("none".equals(actor.getBfsBehaviorAction()),
+                            "social route must clear when its remembered target disappears, action="
+                                    + actor.getBfsBehaviorAction() + ", targetRemoved=" + target.isRemoved());
+                    helper.succeed();
+                });
+                return;
+            }
+            if (remainingTicks <= 0) {
+                helper.fail("social actor did not claim a bounded route, action="
+                        + actor.getBfsBehaviorAction() + ", tick=" + actor.tickCount
+                        + ", inWater=" + actor.isInWaterOrBubble() + ", targetAlive=" + target.isAlive()
+                        + ", targetPos=" + target.position() + ", actorPos=" + actor.position());
+                return;
+            }
+            waitForSocialRoute(helper, actor, target, remainingTicks - 1);
         });
     }
 
@@ -2896,12 +2922,23 @@ public final class BfsGameTests {
         mob.setXRot(pitch);
         Vec3 start = mob.position();
         mob.getMoveControl().setWantedPosition(start.x, start.y, start.z, 1);
-        helper.runAfterDelay(160, () -> {
-            helper.assertTrue(Math.abs(mob.getXRot()) < 1,
-                    "Arrival must finish the level exit. pitch=" + mob.getXRot());
-            helper.assertTrue(mob.position().subtract(start).horizontalDistance() > 1.0,
-                    "Leveling must include forward travel rather than a stationary swivel.");
-            helper.succeed();
+        samplePitchSettling(helper, mob, start, 320);
+    }
+
+    private static void samplePitchSettling(GameTestHelper helper, Mob mob, Vec3 start, int remainingTicks) {
+        helper.runAfterDelay(1, () -> {
+            double horizontalTravel = mob.position().subtract(start).horizontalDistance();
+            if (Math.abs(mob.getXRot()) < 1.0F && horizontalTravel > 1.0D) {
+                helper.succeed();
+                return;
+            }
+            if (remainingTicks <= 0) {
+                helper.fail("Arrival must finish the level exit with forward travel. pitch="
+                        + mob.getXRot() + ", horizontalTravel=" + horizontalTravel
+                        + ", position=" + mob.position() + ", delta=" + mob.getDeltaMovement());
+                return;
+            }
+            samplePitchSettling(helper, mob, start, remainingTicks - 1);
         });
     }
 

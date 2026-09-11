@@ -45,6 +45,7 @@
 * [Phase 004 task 009 fixed seed evidence](verification/phase-004/phase-004-task-009-fixed-seed.md)
 * [Phase 004 task 010 runtime evidence](verification/phase-004/phase-004-task-010-runtime.md)
 * [Phase 004 task 011 artifact evidence](verification/phase-004/phase-004-task-011-artifact.md)
+* [Phase 004 task 012 closure evidence](verification/phase-004/phase-004-task-012-closure.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
 * [Phase 000 test runbook](test/phase-000-runbook.md)

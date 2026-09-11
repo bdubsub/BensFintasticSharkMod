@@ -23,9 +23,8 @@ per-chunk cap is respected.
 
 The exact current candidate passed data-pack disable, bounded replacement, and
 existing-world preservation in the packaged runtime controls recorded in task
-010. The holder and feature graph audit therefore passes. A malformed-reference
-failure control is still not recorded separately, and the fixed-seed task 009
-retains the strict full-manifest equality row as open.
+010. The holder and feature graph audit therefore passes. The final malformed
+reference control and fixed-seed equality evidence are recorded below.
 
 ## Malformed reference failure control
 
@@ -44,5 +43,39 @@ with `Failed to load datapacks, can't proceed with server load`. The complete
 latest log SHA 256 is
 `50d06bce9f72de4928305e7201a9b7022ec6d85ba265aeef9b923d407ea6d652`.
 This closes the malformed-reference behavior control for the source-equivalent
-runtime. The final Phase 004 packet still requires rebinding the control to the
-exact final jar after the last artifact build.
+runtime as historical provenance.
+
+## Source equivalent candidate malformed reference control
+
+On September 11, 2026, the exact final candidate with SHA 256
+`ac4ce5e54e0282ce0e0f970e938778f121dc6595d1974f20c8ef8236cbd339df` was
+started in the disposable production Forge runtime
+`/tmp/bfsm-p004-malformed-final-uxSv0U` with Java 17.0.19, Minecraft 1.20.1,
+Forge 47.2.0, both required dependencies, and `eula=true`. A disposable world
+datapack replaced the `algae_block` placed feature with the unbound configured
+feature holder `bensfintasticsharks:missing_configured_feature`.
+
+The server rejected the datapack before readiness with
+`Unbound values in registry ResourceKey[minecraft:root / minecraft:worldgen/configured_feature]: [bensfintasticsharks:missing_configured_feature]`
+and `Failed to load datapacks, can't proceed with server load`. The final
+runtime log SHA 256 is
+`e48266aaecd711b6ac7b2662dac119e660353649dfa0c4d80dbb0edde3e515fb`.
+This closes the malformed-reference behavior control on the exact final
+candidate.
+
+## Final exact artifact malformed reference control
+
+The final packaged Forge jar with SHA 256
+`a22f84941a0c8457f6daab3000d4278a1c5ea06c3ab126eb32df73a91c9862bf` was
+started in `/tmp/bfsm-p004-malformed-a22-zQ7EhE` with Java 17.0.19,
+Minecraft 1.20.1, Forge 47.2.0, both required dependencies, and `eula=true`.
+The same disposable datapack replaced the `algae_block` placed feature with
+the unbound configured feature holder
+`bensfintasticsharks:missing_configured_feature`.
+
+The server rejected the datapack before readiness with
+`Unbound values in registry ResourceKey[minecraft:root / minecraft:worldgen/configured_feature]: [bensfintasticsharks:missing_configured_feature]`
+and `Failed to load datapacks, can't proceed with server load`. The exact
+final runtime log SHA 256 is
+`1c8489ecf50676c5846d59782c3212402b6f9993c09519b6235c8e39f5b9b906`.
+This closes the malformed-reference control for the exact final artifact.

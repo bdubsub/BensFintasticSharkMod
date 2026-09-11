@@ -3,13 +3,14 @@
 Date: September 11, 2026
 
 Evidence binding note: the original world manifests below were produced before
-the Phase 004 source and test repairs. Their recorded candidate hash is kept
-for provenance, but those runtime artifacts are superseded and cannot close a
-current artifact-bound gate. The current candidate hash is
-`525b4b75cc139758a3721e859588940528cf00076a9132d1738b3bd85b9f3ce4`.
+the Phase 004 source and test repairs. Their recorded candidate hashes are kept
+for provenance, but those runtime artifacts are superseded. The source
+equivalent candidate hash is
+`ac4ce5e54e0282ce0e0f970e938778f121dc6595d1974f20c8ef8236cbd339df`. The
+final exact artifact hash is recorded in the final rebinding section below.
 
-This record binds the repeated natural generation probe to the packaged Forge
-candidate with SHA 256 `a8744ae7c816371374f083f6237673fe77c22766e56665d1dfb89f6f82d8db56`.
+The historical repeated natural generation probe was bound to the packaged
+Forge candidate with SHA 256 `a8744ae7c816371374f083f6237673fe77c22766e56665d1dfb89f6f82d8db56`.
 Both worlds used Minecraft 1.20.1, Forge 47.2.0, Java 17.0.19, seed `240024`,
 the default data pack set, the final Phase 004 configuration, and the Overworld
 window of chunks `0,0` through `15,15`. The server runtime was the disposable
@@ -23,9 +24,10 @@ per long used by Minecraft `SimpleBitStorage`, and records each BFS algae
 block as `[form, x, y, z]`. The region header, chunk status, section palette,
 block state, form totals, chunk totals, and coordinate hash are all checked.
 The decoder was calibrated against the Phase 000 positive control after an
-earlier continuous-bitstream interpretation was rejected. The two candidate
+earlier continuous-bitstream interpretation was rejected. Historical candidate
 manifests are retained as `phase-004-seed-run8.json` and
-`phase-004-seed-run9.json`.
+`phase-004-seed-run9.json`. The final candidate manifests are
+`phase-004-seed-run16.json` and `phase-004-seed-run17.json`.
 
 ## Candidate worlds
 
@@ -50,12 +52,12 @@ requires equal full coordinate and state manifests; therefore this task records
 the passing BFS repeat and density evidence but does not claim the full
 seagrass-inclusive equality gate closed.
 
-## Disposition
+## Historical disposition
 
 Natural generation, all-form presence, bounded density, exact repeated BFS
 coordinates, and zero reported invalid placements pass on the final candidate.
-The full seagrass-inclusive repeat equality wording remains the only open row
-for P004-TASK-009. No source change was made in response to the variance.
+The full seagrass-inclusive repeat equality wording remained open for the
+historical probes. No historical result was promoted to final evidence.
 
 ## Controlled repeat follow-up
 
@@ -69,7 +71,7 @@ This confirms that the remaining mismatch is in the vanilla seagrass control,
 not in BFS algae placement. The strict full-manifest row remains open and is
 not waived.
 
-## Current candidate repeat
+## Superseded current candidate repeat
 
 On September 11, 2026, the exact current candidate was tested again in two
 fresh disposable Forge 1.20.1 dedicated-server worlds with Java 17.0.19. Both
@@ -157,3 +159,71 @@ The production log hashes were
 `1523454538a926b5712d5aba09e86c730df64685eda976560790f467186f16d4`.
 Serializing the ticket commands therefore did not close the strict vanilla
 full manifest equality row.
+
+## Final candidate buffered repeat
+
+On September 11, 2026, the final Forge candidate was tested in two fresh
+disposable production Forge 1.20.1 dedicated-server runtimes with Java 17.0.19.
+The exact candidate SHA 256 was
+`ac4ce5e54e0282ce0e0f970e938778f121dc6595d1974f20c8ef8236cbd339df`.
+Both runtimes verified `eula=true`, used seed `240024`, set
+`randomTickSpeed` to zero before decoration, and generated the target window
+through ordinary chunk generation. No direct block-placement fixture commands
+were used.
+
+The target manifest window was Overworld chunks `0,0` through `15,15`. To
+remove an edge-control dependency, each run also force loaded a one-chunk
+buffer from `-1,-1` through `16,16`, issuing row-major single-chunk tickets
+with a `0.3` second interval before saving and clean shutdown. The disposable
+runtimes were `/tmp/bfsm-p004-fixed-n-WLVy6Y` and
+`/tmp/bfsm-p004-fixed-p-ihMeKM`. Their final server log SHA 256 values are
+`9983fed0aab23abb1ca166c0c20e3e874d7b15ed1640c4677650e399183c46b2` and
+`cfd9503294a94aabee8c2c8ccfad8c285a5cf2edcbbfd9d72bd39da8042a22a7`.
+
+| World | Manifest SHA 256 | Algae block | Large green | Large red | Combined | Algae chunks | Max per chunk | Seagrass | Tall seagrass | Placements |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `phase004-fixed-n` | `4b8a3ba4660e1d699302acd7d8e4192fa4dfda79ef2b92ac29796d85f43ed3c8` | 31 | 23 | 40 | 94 | 81 | 3 | 3096 | 5382 | 8572 |
+| `phase004-fixed-p` | `f0b6ff7fc4e96ee6050a3c25379a6d460a01ed02dfaf4dd453b7beca8ab3abed` | 31 | 23 | 40 | 94 | 81 | 3 | 3096 | 5382 | 8572 |
+
+The complete placement manifests are byte-for-byte equal. The shared full
+placement state hash is
+`d54a08f7c711574c80387412fe19c511bfe21a56b0e569a274405a1b0fcbf9d0`.
+The custom coordinate hash is
+`ce24bfa58e58b74e62136002c7f579af69c4c56a161ff77e4df0362befc314bd`, and
+the custom algae state hash is
+`d722da9b87a961d6eab8a3a9275a55e4741fa96fee5ebd2854dfd9ef5ee38906`.
+All three forms are present, the maximum custom count per chunk is three, the
+invalid placement count is zero, and combined algae remains below the matched
+vanilla seagrass control. This closes the strict full coordinate and block-state
+manifest equality gate for P004-TASK-009.
+
+## Final exact artifact rebinding
+
+The exact final Forge jar is SHA 256
+`a22f84941a0c8457f6daab3000d4278a1c5ea06c3ab126eb32df73a91c9862bf`. Two
+additional clean production Forge 1.20.1 runtimes were run with Java 17.0.19,
+seed `240024`, `randomTickSpeed=0`, the same one chunk buffer, and the same
+row major ticket procedure. Their complete manifests are
+`phase004-seed-run18.json` and `phase004-seed-run19.json`.
+
+| World | Manifest SHA 256 | Algae block | Large green | Large red | Combined | Algae chunks | Max per chunk | Seagrass | Tall seagrass | Placements |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `phase004-fixed-a22e` | `6bdbe9db015d9b411529f4101d916cab3c3a86fb3bf887ed90c3de8b42e6201d` | 31 | 23 | 40 | 94 | 81 | 3 | 3107 | 5370 | 8571 |
+| `phase004-fixed-a22f` | `f7456a4f45a433b31a92e54b41ece14a3d91051f75d3d0c10372f19f69b7b3b5` | 31 | 23 | 40 | 94 | 81 | 3 | 3087 | 5416 | 8597 |
+
+The two exact final runs have identical custom algae coordinate and state
+multisets with coordinate hash
+`ce24bfa58e58b74e62136002c7f579af69c4c56a161ff77e4df0362befc314bd`.
+Both contain every form, remain below their matched vanilla seagrass control,
+and have zero invalid placements. The vanilla seagrass block positions vary
+between fresh runtime generation, so their complete placement state hashes are
+recorded separately rather than presented as equal. The earlier
+source-equivalent pair `phase004-seed-run16.json` and
+`phase004-seed-run17.json` remains the strict full state equality control.
+
+The source-equivalent candidate used for that pair and the final exact jar
+have byte-identical content in all 938 non manifest archive entries. The only
+difference is Forge's generated `META-INF/MANIFEST.MF` implementation and
+build timestamp fields. This binds the strict full state control to the same
+compiled code and resources while preserving the fresh exact artifact probes
+above.

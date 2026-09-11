@@ -110,6 +110,59 @@
       }
     }
   },
+  "finalCandidate": {
+    "sha256": "a22f84941a0c8457f6daab3000d4278a1c5ea06c3ab126eb32df73a91c9862bf",
+    "sha512": "5e24f7ebf66035aa924e89b97c55304e41c1590646b264cdf5be45fbbf92ddc7785be4e02956b0989fea83d3efabdaff0c74301ff2ab2adf62d256f7d94e105b",
+    "server": "100.76.164.109:25870",
+    "windowStableId": "18000d98",
+    "windowGeometry": "965,45 945x1145",
+    "workspaceBefore": 2,
+    "workspaceAfter": 2,
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "java": "17.0.19",
+    "audio": {
+      "processId": 3229749,
+      "streamId": 158,
+      "volume": "1.00",
+      "muted": true
+    },
+    "exhibitCaptureSha256": "89f6e643d62c11ecfbb3f9858959c7ce0034920ee7511725ff5e130b4287a7e4",
+    "cleanCaptureSha256": "566d95c3583626ba6d15e149e02c12683b0c64e3df687252a29206e4666fd8b",
+    "loopCadence": "approximately four game ticks per capture",
+    "green": {
+      "expectedFrames": 10,
+      "hashes": [
+        "6f5a561a3c3c363c753b3a265e91da8b8c7bf2a429d189d9dfff6c3ff68229b6",
+        "2041bb70049bbaeca606af20b5dcb8491e21e4e05bddae4848dae43e9f8f71cd",
+        "88ffa7c52e3e9b8d72d3640e91a636c54df7587b1000fbf4c55d2ed3cfbf8016",
+        "9368f558af111f8e3e1291c6d00ce637b06ce62fd2ac7f9f3729e2ed94654094",
+        "181fa2bfe5845ad88692ee2e8899c62bca0d5489e7661b4f9e1c85264b5d25a0",
+        "ad161965083d3529c5fc938af26ffbe9f5137646063b237074ec338a32fb8965",
+        "1dc2ec1dee8d83ac829cfe4faa09eca30bf2cd225a902b211ccdc66a360e22bf",
+        "f005a0795f3e165bd6b9c9d7c3d2e5a8024086d20c54e693c4bbc3fca044ce59",
+        "d86fbeee16a4052e91a3e42df6f12eadf7487b34b44ca5c308bd0b20dcc09632",
+        "60415597e8bae8fd19c3bdbf152bab7451bda111c53147a9f567bf5b0355e5fc"
+      ],
+      "animatedFrameHashesDiffer": true
+    },
+    "red": {
+      "expectedFrames": 9,
+      "hashes": [
+        "6f5a561a3c3c363c753b3a265e91da8b8c7bf2a429d189d9dfff6c3ff68229b6",
+        "2041bb70049bbaeca606af20b5dcb8491e21e4e05bddae4848dae43e9f8f71cd",
+        "88ffa7c52e3e9b8d72d3640e91a636c54df7587b1000fbf4c55d2ed3cfbf8016",
+        "9368f558af111f8e3e1291c6d00ce637b06ce62fd2ac7f9f3729e2ed94654094",
+        "181fa2bfe5845ad88692ee2e8899c62bca0d5489e7661b4f9e1c85264b5d25a0",
+        "ad161965083d3529c5fc938af26ffbe9f5137646063b237074ec338a32fb8965",
+        "1dc2ec1dee8d83ac829cfe4faa09eca30bf2cd225a902b211ccdc66a360e22bf",
+        "f005a0795f3e165bd6b9c9d7c3d2e5a8024086d20c54e693c4bbc3fca044ce59",
+        "d86fbeee16a4052e91a3e42df6f12eadf7487b34b44ca5c308bd0b20dcc09632"
+      ],
+      "animatedFrameHashesDiffer": true,
+      "repeatedHoldFramesObserved": true,
+      "note": "The same window captures contain both algae forms. The frame sequence is bound to the exact final candidate and visual scene."
+    }
+  },
   "ownerApproval": "EnVy approved the clean exhibit and the exact current candidate visual scene and continuation.",
   "currentApprovalCaptureSha256": "7b79398ee6001c5d257f7d3f0787f0d747bed727bc4cdee1fb08348facd259b1",
   "limitations": "The captures are command placed exhibit controls, not natural generation coordinates. Natural green and red loop capture remains a separate runtime row."

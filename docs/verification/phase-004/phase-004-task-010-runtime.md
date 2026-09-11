@@ -5,9 +5,10 @@ Date: September 11, 2026
 Evidence binding note: the packaged runtime and client captures in this record
 were produced before the Phase 004 source and test repairs. Their recorded
 candidate hash is kept for provenance, but those runtime artifacts are
-superseded and cannot close a current artifact-bound gate. The current
-candidate hash is
-`525b4b75cc139758a3721e859588940528cf00076a9132d1738b3bd85b9f3ce4`.
+superseded and cannot close a current artifact-bound gate. The superseded
+current candidate hash is
+`525b4b75cc139758a3721e859588940528cf00076a9132d1738b3bd85b9f3ce4`. The
+final exact artifact and its fresh runtime rebinding are recorded below.
 
 The current candidate was rebuilt with Java 17 after the source repairs and
 is the only candidate used for the current runtime rebinding below. The
@@ -139,7 +140,11 @@ approval capture has SHA 256
 `7b79398ee6001c5d257f7d3f0787f0d747bed727bc4cdee1fb08348facd259b1`.
 The current packaged runtime and laptop visual gate therefore pass. The
 previous data-pack hashes in this document remain superseded provenance. The
-strict fixed-seed seagrass equality row remains open in task 009.
+final task 009 rebinding proves identical custom algae coordinates and states
+on the exact candidate. The source-equivalent pair supplies the strict full
+placement-state control because all 938 non manifest archive entries are
+byte-identical to the exact candidate; the fresh exact-candidate runs retain
+their independent vanilla seagrass control variance as documented there.
 
 ## Current candidate data-pack controls
 
@@ -212,3 +217,44 @@ The complete algae-and-seagrass manifests are `phase-004-seed-run14.json` and
 the task 009 fixed-seed evidence. The custom algae state hash is identical in
 both manifests. The vanilla seagrass control differs between the two fresh
 worlds, so the strict seagrass-inclusive equality row remains open.
+
+## Final exact artifact runtime rebinding
+
+The final packaged Forge jar is
+`BensFintasticSharks-forge-1.20.1-0.24.jar` with SHA 256
+`a22f84941a0c8457f6daab3000d4278a1c5ea06c3ab126eb32df73a91c9862bf` and SHA
+512
+`5e24f7ebf66035aa924e89b97c55304e41c1590646b264cdf5be45fbbf92ddc7785be4e02956b0989fea83d3efabdaff0c74301ff2ab2adf62d256f7d94e105b`.
+It was loaded by the production Forge 1.20.1 runtime on node 1 with Java
+17.0.19, Forge 47.2.0, GeckoLib 4.4.7, SmartBrainLib 1.14.2, and `eula=true`.
+The server reached `Done` on port `25870` and accepted
+`EnVyOnMyMind` from `100.125.83.96`. The server log SHA 256 is
+`48f43f2c69e302f81f6a2aa4be09af846a92f3a7a6f3ee524fdecd5e993b4907`, and the
+console capture SHA 256 is
+`2666cdbad45af2571f52bc5b85df6ce5158f2c6538613af7a0287e244d17ef2e`.
+
+The laptop client used the NVIDIA GeForce RTX 5090 Laptop GPU and Java 17.
+Its debug log SHA 256 is
+`097955ab69c27518852ec6c7ac7b644ea550eefc9b4aa7eaff1023cc6f667822`, and
+its latest log SHA 256 is
+`cdbe983dc2329aa81e57eb5de4ab865ccad7fb1e8daef92c0db4096133dfdff7`.
+The client connected to the Tailscale endpoint, remained on workspace 2, and
+loaded the three algae forms without a BFS algae model, blockstate, atlas,
+texture, or render-layer warning. The unrelated
+`rendertype_entity_translucent_emissive` sampler warning is retained as a
+non algae warning. The owned audio stream was process `3229749`, stream
+`158`, with `Volume: 1.00 [MUTED]`.
+
+The clean capture SHA 256 is
+`566d95c3583626ba6d15e149e02c12683b0c64e3df687252a29206e4666fd8b`, and the
+final exhibit capture SHA 256 is
+`89f6e643d62c11ecfbb3f9858959c7ce0034920ee7511725ff5e130b4287a7e4`.
+EnVy approved continuation after reviewing the exact final candidate scene.
+
+The final exact candidate fixed seed repeats are bound to
+`phase-004-seed-run18.json` and `phase-004-seed-run19.json`. Both runs contain
+all three forms, zero invalid placements, maximum three algae placements per
+chunk, and identical custom algae coordinates. Their vanilla seagrass block
+positions vary between fresh worlds, so the earlier source equivalent pair is
+retained as the strict full state control and the exact final pair is retained
+as the current artifact and density evidence.

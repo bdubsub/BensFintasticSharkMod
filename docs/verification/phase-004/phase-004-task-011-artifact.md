@@ -36,11 +36,13 @@ the entry audit.
 The deterministic and archive gates pass on the exact candidate. Final release
 metadata, checksums, SBOM, attestations, and publication remain Phase 005 work.
 The current-candidate owner visual approval and packaged runtime gate now pass.
-The Phase 004 completion packet remains open for the strict fixed-seed equality
-row listed in task 009 and the malformed-reference data-pack control listed in
-task 006. The current-candidate 0.23 forward-load, backup restore rehearsal,
-data-pack disable and bounded override controls pass, and the required algae
-navigation GameTests pass in the three clean 84-test runs above.
+The Phase 004 completion packet now has exact malformed-reference evidence and
+final fixed-seed evidence. The strict full state equality control is bound to
+the same compiled code and resources through the source-equivalent pair in
+task 009, whose only artifact difference from the final jar is the generated
+Forge manifest timestamp. The current-candidate 0.23 forward-load, backup
+restore rehearsal, data-pack disable and bounded override controls pass, and
+the required algae navigation GameTests pass in the clean runs above.
 
 The complete current fixed-seed manifests are `phase-004-seed-run14.json`
 with SHA 256
@@ -50,3 +52,40 @@ with SHA 256
 Their custom algae coordinate and state hashes are identical. Their complete
 vanilla seagrass state hashes differ and remain explicitly open rather than
 waived.
+
+## Final exact artifact record
+
+The final Forge jar is
+`forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar`.
+
+* SHA 256: `a22f84941a0c8457f6daab3000d4278a1c5ea06c3ab126eb32df73a91c9862bf`
+* SHA 512: `5e24f7ebf66035aa924e89b97c55304e41c1590646b264cdf5be45fbbf92ddc7785be4e02956b0989fea83d3efabdaff0c74301ff2ab2adf62d256f7d94e105b`
+* `unzip -tqq` passed.
+* The archive contains 939 files and 5,798,993 bytes. Its manifest, registries,
+  generated resources, client assets, configured and placed features, and
+  Forge biome modifiers are present at the required paths.
+
+The final exact candidate passed compile, test, both byte stable Data runs,
+the 85 required dedicated GameTests, and the Forge build. The final log
+hashes are `9471287040a53d62ef8fe70d1cf2bc95e353e195e73056b7c44e47cfa1aeb3c2`
+for `:forge:test`,
+`dfda177461812e0c93711493f15310a59a71fa801ae4de94a52e7e2fdec25c8a` and
+`aa1577ac11470d2dabbc57e7165df863b674889b875e009994e4db15abbc6ac1` for the
+two Data runs,
+`73d121e7388b0992a70536fc0299004c65744a23b51e41808e680c93addc625f` for the
+85 test GameTests, and
+`757bfffe8f687a103cd44f214169b393a6a0f73e17f05d865d07fb53963e91f2` for the
+Forge build. The packaged
+runtime reached `Done` with the pinned Java 17 and dependency set. The exact
+malformed reference control rejected the unbound holder before readiness, and
+the exact fixed seed repeats recorded all three forms, zero invalid
+placements, finite per chunk bounds, and identical custom algae coordinates.
+The final exact candidate runtime, client, fixed seed, malformed control, and
+visual evidence are recorded in tasks 004, 006, 009, and 010.
+
+The strict full state control remains the source equivalent pair in
+`phase-004-seed-run16.json` and `phase-004-seed-run17.json`. A byte comparison
+found the final exact jar and that source equivalent jar identical in all 938
+non manifest entries. Only Forge generated manifest timestamp fields differ.
+Final release metadata, checksums, SBOM, attestations, and publication remain
+Phase 005 work.

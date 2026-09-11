@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
@@ -41,11 +42,18 @@ public final class AlgaePatchFeature extends Feature<NoneFeatureConfiguration> {
                 || level.getFluidState(pos).getAmount() != 8) {
             return false;
         }
+        if (!isUnoccupiedSourceWater(level.getBlockState(pos))) {
+            return false;
+        }
 
         BlockState state = algae.defaultBlockState();
         if (!state.canSurvive(level, pos) || !state.getCollisionShape(level, pos).isEmpty()) {
             return false;
         }
         return level.setBlock(pos, state, 2);
+    }
+
+    public static boolean isUnoccupiedSourceWater(BlockState state) {
+        return state.is(Blocks.WATER);
     }
 }
