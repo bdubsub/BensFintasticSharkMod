@@ -138,3 +138,22 @@ The longer wait did not remove the vanilla seagrass variance. The custom
 algae multiset remained stable, while the strict full manifest equality gate
 remains open as required by the plan. These source equivalent diagnostic
 manifests do not replace the exact candidate manifests above.
+
+## Serialized command order repeat
+
+The same source-equivalent jar was also tested with the 256 chunk tickets
+issued in fixed row-major order, with `0.4` seconds between commands and a
+clean save after the complete window. Runtime A counted `3104` short and
+`5364` tall vanilla seagrass blocks, for `8579` counted placements. Runtime B
+counted `3098` short and `5374` tall blocks, for `8583` placements. Both
+runtimes kept the custom algae counts at `35`, `28`, and `48`, and both custom
+coordinate hashes were
+`273b7beea4ae788442bab09429dd26a43c6f1fde269bce81a2d649380b00e1c4`.
+The full state hashes were
+`f45f8c08406ea098a26bb605e85ecd98ba26fedf355de6de3757bfdceaec8712` and
+`f167ab8898d6080c8524e86065dde1ff70dd311cbec7983457838c4daf12b082`.
+The production log hashes were
+`a84987b52ce32ba43a35ebfc5521d6c2c811d00728306ee925dae3f144e48066` and
+`1523454538a926b5712d5aba09e86c730df64685eda976560790f467186f16d4`.
+Serializing the ticket commands therefore did not close the strict vanilla
+full manifest equality row.
