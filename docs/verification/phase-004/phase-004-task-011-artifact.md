@@ -35,12 +35,12 @@ the entry audit.
 
 The deterministic and archive gates pass on the exact candidate. Final release
 metadata, checksums, SBOM, attestations, and publication remain Phase 005 work.
-The Phase 004 completion packet is still open for the current-candidate owner
-visual approval and strict fixed-seed equality row listed in the task 009 and
-task 010 records. The current-candidate 0.23 forward-load, backup restore
-rehearsal, data-pack disable and bounded override controls pass, and the
-required algae navigation GameTests pass in the three clean 84-test runs
-above.
+The current-candidate owner visual approval and packaged runtime gate now pass.
+The Phase 004 completion packet remains open only for the strict fixed-seed
+equality row listed in task 009. The current-candidate 0.23 forward-load,
+backup restore rehearsal, data-pack disable and bounded override controls pass,
+and the required algae navigation GameTests pass in the three clean 84-test
+runs above.
 
 The complete current fixed-seed manifests are `phase-004-seed-run14.json`
 with SHA 256

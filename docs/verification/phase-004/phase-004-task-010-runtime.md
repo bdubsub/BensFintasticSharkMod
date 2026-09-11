@@ -129,10 +129,17 @@ server log includes the Forge `Done (13.341s)!` marker and the successful
 `EnVyOnMyMind` join. The client log includes the modded server connection
 marker.
 
-The current server and client logs remain disposable runtime evidence until
-the exact current server shutdown hash is recorded. The current visual gate is
-awaiting EnVy approval. The previous data-pack hashes in this document remain
-superseded provenance and do not close the current candidate gate.
+The final current-candidate server shutdown log was recorded after the visual
+approval and clean stop. Its SHA 256 is
+`8f992aa05fa230d12da7b6162ab1430cc30715ef7a87af284afa1c0f99aa1361`.
+The log contains the Forge `Stopping server` marker and clean saves for all
+three dimensions. The client process, Prism launcher process, and owned muted
+playback stream were also stopped and verified absent. The current visual
+approval capture has SHA 256
+`7b79398ee6001c5d257f7d3f0787f0d747bed727bc4cdee1fb08348facd259b1`.
+The current packaged runtime and laptop visual gate therefore pass. The
+previous data-pack hashes in this document remain superseded provenance. The
+strict fixed-seed seagrass equality row remains open in task 009.
 
 ## Current candidate data-pack controls
 

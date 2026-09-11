@@ -34,6 +34,12 @@ cropped frame hashes are recorded in the current candidate section of
 changing through their authored frame sequences, including the red repeated
 holds, without an atlas or render warning.
 
-The current laptop visual gate is awaiting EnVy approval for this exact
-rebuilt candidate. The earlier approval remains valid only for the superseded
+The exact rebuilt candidate was reopened on the laptop for final visual
+approval. The approved capture has SHA 256
+`7b79398ee6001c5d257f7d3f0787f0d747bed727bc4cdee1fb08348facd259b1`.
+It shows the naturally generated underwater scene, custom algae, seagrass,
+and stable rendering with no chat overlay. The client remained on workspace 2,
+used the NVIDIA GeForce RTX 5090 Laptop GPU, and its playback stream was
+verified muted. EnVy approved this exact current candidate visual scene and
+continuation. The earlier approval remains valid only for the superseded
 exhibit hash and is retained as provenance.

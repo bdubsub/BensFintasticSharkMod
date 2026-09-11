@@ -110,6 +110,7 @@
       }
     }
   },
-  "ownerApproval": "EnVy approved the clean exhibit and continuation.",
+  "ownerApproval": "EnVy approved the clean exhibit and the exact current candidate visual scene and continuation.",
+  "currentApprovalCaptureSha256": "7b79398ee6001c5d257f7d3f0787f0d747bed727bc4cdee1fb08348facd259b1",
   "limitations": "The captures are command placed exhibit controls, not natural generation coordinates. Natural green and red loop capture remains a separate runtime row."
 }
