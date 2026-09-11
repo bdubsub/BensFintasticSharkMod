@@ -7,6 +7,10 @@ verified 0.23 compatibility baseline plus the 0.24 content and behavior work.
 It is not a stable 1.0 publication. Final exact-candidate runtime, multiplayer,
 visual, artifact, and owner acceptance gates remain required before release.
 
+### Windows startup correction
+
+Fixed a Windows startup crash caused by the server and client diagnostic managers treating an unavailable capture marker as a filesystem path. Diagnostics now keep the output path absent until a capture exists. Completed captures retain their real filenames. This correction does not change wildlife behavior, assets, configuration, or dependency versions.
+
 ## 0.24 (2026-09-02)
 
 ### Phase 001 verification correction

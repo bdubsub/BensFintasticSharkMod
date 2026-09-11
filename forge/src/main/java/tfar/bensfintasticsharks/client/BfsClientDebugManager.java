@@ -30,6 +30,7 @@ import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationProcessor;
 import tfar.bensfintasticsharks.BensFintasticSharks;
 
+import javax.annotation.Nullable;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -590,10 +591,11 @@ public final class BfsClientDebugManager {
         private final long dropped;
         private final boolean incomplete;
         private final String incompleteReason;
+        @Nullable
         private final Path outputPath;
 
         private StopSummary(String reason, long accepted, long dropped, boolean incomplete, String incompleteReason,
-                            Path outputPath) {
+                            @Nullable Path outputPath) {
             this.reason = reason;
             this.accepted = accepted;
             this.dropped = dropped;
@@ -603,7 +605,7 @@ public final class BfsClientDebugManager {
         }
 
         private static StopSummary none() {
-            return new StopSummary("none", 0L, 0L, false, "none", Path.of("unavailable:no_completed_capture"));
+            return new StopSummary("none", 0L, 0L, false, "none", null);
         }
 
         private static StopSummary from(Session session) {

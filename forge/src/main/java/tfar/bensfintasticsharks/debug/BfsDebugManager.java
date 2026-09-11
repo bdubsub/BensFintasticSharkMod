@@ -1035,9 +1035,9 @@ public final class BfsDebugManager {
     }
 
     public record StopSummary(String reason, long accepted, long dropped, boolean incomplete,
-                              String incompleteReason, Path outputPath) {
+                              String incompleteReason, @Nullable Path outputPath) {
         private static StopSummary none() {
-            return new StopSummary("none", 0L, 0L, false, "none", Path.of("unavailable:no_completed_capture"));
+            return new StopSummary("none", 0L, 0L, false, "none", null);
         }
 
         private static StopSummary from(Session session) {
