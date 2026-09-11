@@ -55,6 +55,7 @@
 * [Phase 005 task 009 Forge build and packaged server readiness](verification/phase-005/phase-005-task-009-build-server.md)
 * [Phase 005 task 010 client visual and interaction evidence](verification/phase-005/phase-005-task-010-client-visual.md)
 * [Phase 005 task 011 multiplayer, population, advancement, and fixed seed evidence](verification/phase-005/phase-005-task-011-multiplayer-population.md)
+* [Phase 005 task 012 artifact and security evidence](verification/phase-005/phase-005-task-012-artifact-security.md)
 * [Phase 004 task 012 closure evidence](verification/phase-004/phase-004-task-012-closure.md)
 * [Phase 000 machine readable manifest](verification/phase-000-manifest.json)
 * [Living species action and presentation inventory](verification/living-species-inventory.md)

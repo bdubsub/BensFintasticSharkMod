@@ -1,0 +1,93 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "BensFintasticSharks Forge 1.20.1 1.0-rc.1",
+  "documentNamespace": "https://github.com/bdubsub/BensFintasticSharkMod/spdx/bfs-1.0-rc.1-b29c6ef",
+  "creationInfo": {
+    "created": "2026-09-11T13:57:53Z",
+    "creators": ["Person: EnVy"]
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-BFS",
+      "name": "BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
+      "versionInfo": "1.0-rc.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "APPLICATION",
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "94bfe2c8b45fc54505d42b63d026e203086959c34bb28325da3cf762c46578bd"},
+        {"algorithm": "SHA512", "checksumValue": "8d9edc14bf81e11fd8dc5e905b9aa1201e84c7d7bf303c53cee2f9a57fee516cd99076066b6df92d14d116f6199ddacf7deb03ee4237b1f37ccd369ae8bb5675"}
+      ],
+      "comment": "Reobfuscated Forge candidate built from source commit a939aa255c10dd280dbd992d8fd7b0ac4b67dc34. The source manifest records the complete inventory and release exclusions."
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Minecraft",
+      "name": "net.minecraft:client",
+      "versionInfo": "1.20.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [{"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:maven/net.minecraft/client@1.20.1"}]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Forge",
+      "name": "net.minecraftforge:forge",
+      "versionInfo": "1.20.1-47.2.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [{"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:maven/net.minecraftforge/forge@1.20.1-47.2.0"}]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-GeckoLib",
+      "name": "software.bernie.geckolib:geckolib-forge-1.20.1",
+      "versionInfo": "4.4.7",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [{"algorithm": "SHA256", "checksumValue": "6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0"}],
+      "externalRefs": [{"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:maven/software.bernie.geckolib/geckolib-forge-1.20.1@4.4.7"}]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-SmartBrainLib",
+      "name": "net.tslat.smartbrainlib:SmartBrainLib-forge-1.20.1",
+      "versionInfo": "1.14.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [{"algorithm": "SHA256", "checksumValue": "3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b"}],
+      "externalRefs": [{"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:maven/net.tslat.smartbrainlib/SmartBrainLib-forge-1.20.1@1.14.2"}]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Parchment",
+      "name": "net.minecraft:mappings_parchment",
+      "versionInfo": "2023.09.03-1.20.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [{"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:maven/net.minecraft/mappings_parchment@2023.09.03-1.20.1"}]
+    }
+  ],
+  "relationships": [
+    {"spdxElementId": "SPDXRef-Package-BFS", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-Minecraft"},
+    {"spdxElementId": "SPDXRef-Package-BFS", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-Forge"},
+    {"spdxElementId": "SPDXRef-Package-BFS", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-GeckoLib"},
+    {"spdxElementId": "SPDXRef-Package-BFS", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-SmartBrainLib"},
+    {"spdxElementId": "SPDXRef-Package-BFS", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-Parchment"}
+  ]
+}
