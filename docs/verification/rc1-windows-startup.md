@@ -26,6 +26,8 @@ The following checks ran on headless Linux with Temurin Java `17.0.19+10`.
 
 No native Windows client or graphical acceptance was run. The focused regression proves the failing path construction is removed on both sides. A native Windows launch remains the platform confirmation step. Earlier gameplay approvals are not represented as a fresh visual test of this artifact.
 
+The owner subsequently confirmed the delivered fix and explicitly approved its merge and completed plan cleanup on September 11, 2026. This supplies owner confirmation of the reported startup correction. It does not claim an additional maintainer controlled client run.
+
 ## Corrected artifact
 
 The delivered filename remains `bfs-1.0-rc.1.jar`, with embedded version `1.0-rc.1` and Minecraft `1.20.1`. Size: 2,013,918 bytes.
