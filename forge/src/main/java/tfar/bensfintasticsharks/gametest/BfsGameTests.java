@@ -130,21 +130,51 @@ public final class BfsGameTests {
 
     @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 40)
     public static void algaeBreakDropsTheBrokenForm(GameTestHelper helper) {
-        prepareWaterColumn(helper);
-        helper.setBlock(ALGAE_POS, ModBlocks.ALGAE_BLOCK.defaultBlockState());
+        BlockPos[] positions = {new BlockPos(1, 1, 1), new BlockPos(3, 1, 1), new BlockPos(5, 1, 1)};
+        net.minecraft.world.level.block.Block[] forms = {
+                ModBlocks.ALGAE_BLOCK, ModBlocks.LARGE_GREEN_ALGAE, ModBlocks.LARGE_RED_ALGAE
+        };
+        helper.runAfterDelay(1, () -> {
+            for (int i = 0; i < positions.length; i++) {
+                BlockPos position = positions[i];
+                net.minecraft.world.level.block.Block form = forms[i];
+                helper.setBlock(position.below(), Blocks.SAND.defaultBlockState());
+                helper.setBlock(position, Blocks.WATER.defaultBlockState());
+                helper.setBlock(position, form.defaultBlockState());
+                ServerPlayer player = makeAlgaeTestPlayer(helper, position, Items.SHEARS);
+                helper.assertTrue(player.gameMode.destroyBlock(helper.absolutePos(position)),
+                        "survival shears must break " + form + " through vanilla player interaction");
+                helper.assertItemEntityPresent(form.asItem(), position, 2.0);
+                player.remove(Entity.RemovalReason.DISCARDED);
+            }
+
+            BlockPos wrongToolPosition = new BlockPos(9, 1, 1);
+            helper.setBlock(wrongToolPosition.below(), Blocks.SAND.defaultBlockState());
+            helper.setBlock(wrongToolPosition, Blocks.WATER.defaultBlockState());
+            helper.setBlock(wrongToolPosition, ModBlocks.LARGE_RED_ALGAE.defaultBlockState());
+            ServerPlayer wrongToolPlayer = makeAlgaeTestPlayer(helper, wrongToolPosition, Items.STICK);
+            helper.assertTrue(wrongToolPlayer.gameMode.destroyBlock(helper.absolutePos(wrongToolPosition)),
+                    "a wrong tool must still break algae without granting its collection drop");
+            helper.assertTrue(helper.getLevel().getEntitiesOfClass(ItemEntity.class,
+                            new AABB(helper.absolutePos(wrongToolPosition).getCenter(),
+                                    helper.absolutePos(wrongToolPosition).getCenter()).inflate(1.0D),
+                            item -> item.getItem().is(ModBlocks.LARGE_RED_ALGAE.asItem())).isEmpty(),
+                    "a wrong tool must not drop large red algae");
+            wrongToolPlayer.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    private static ServerPlayer makeAlgaeTestPlayer(GameTestHelper helper, BlockPos localPosition,
+                                                    net.minecraft.world.item.Item tool) {
         ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
-                new GameProfile(java.util.UUID.randomUUID(), "algae-shears-player"));
-        player.setPos(helper.absolutePos(new BlockPos(1, 1, 2)).getCenter());
-        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SHEARS));
+                new GameProfile(java.util.UUID.randomUUID(), "algae-collection-player"));
+        player.setPos(helper.absolutePos(localPosition.above(0).south()).getCenter());
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(tool));
         player.connection = new ServerGamePacketListenerImpl(helper.getLevel().getServer(),
                 new Connection(PacketFlow.SERVERBOUND), player);
         helper.getLevel().addNewPlayer(player);
-        helper.runAfterDelay(1, () -> {
-            helper.assertTrue(player.gameMode.destroyBlock(helper.absolutePos(ALGAE_POS)),
-                    "survival shears must break algae through vanilla player interaction");
-            helper.assertItemEntityPresent(ModBlocks.ALGAE_BLOCK.asItem(), ALGAE_POS, 2.0);
-            finishAfterRemovingTestPlayer(helper, player);
-        });
+        return player;
     }
 
     @GameTest(template = "empty", batch = "bfs_armor", timeoutTicks = 40)
