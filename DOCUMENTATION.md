@@ -1,20 +1,20 @@
 # Ben's Fintastic Sharks
 
-A 1.20.1 Forge mod, currently at version `0.24`, that adds twenty two sea creatures, a buried treasure structure, a captain's hat, a shark codex book, and a system that makes sharks pay attention to what you're doing in the water.
+A 1.20.1 Forge mod, currently at prerelease version `1.0-rc.1`, displayed as Release Candidate 1.0, that adds twenty two sea creatures, a buried treasure structure, a captain's hat, a shark codex book, and a system that makes sharks pay attention to what you're doing in the water.
 
 This document is the reference for everything the mod ships with. If you just installed it and you're trying to figure out where to find an Orca, skip to section 3.
 
-The `envy/0.24` release branch is based on the stable `1.20.1` branch. It retains the 0.23 behavior while adding the supplied advancement artwork, repaired fish and Oceanic Whitetip animation resources, a single Sharks Galore discovery node, and permanent algae world generation.
+The `envy/0.24` release branch carries Release Candidate 1.0 and is based on the stable `1.20.1` branch. It retains the 0.23 behavior while adding the supplied advancement artwork, repaired fish and Oceanic Whitetip animation resources, a single Sharks Galore discovery node, and permanent algae world generation.
 
 ## 0.23 and emergency fix highlights
 
 Version 0.23 repairs the shark steering regression introduced by the 0.22 level cruising branch. Navigation can apply continuous vertical input again instead of alternating between a requested depth change and forced level travel. Turn aware horizontal braking remains in place to control overshoot. Tiger Sharks now use one stable underwater item intercept with timeout and retry memory, which prevents a floating item from pulling them into a permanent orbit.
 
-Version `0.23-emergency-fix` corrects a population category mismatch in the default vanilla fish replacement. Atlantic Cod and Atlantic Salmon now occupy the same vanilla water ambient population slots as the Cod and Salmon they replace. The replacement allowlist remains limited to those two exact vanilla entity IDs. Tropical Fish, Pufferfish, other vanilla aquatic mobs, BFS mobs, and modded fish are never converted by this feature.
+Version `0.23-emergency-fix` corrects a population category mismatch in the default vanilla fish replacement. Atlantic Cod and Atlantic Salmon now occupy the same vanilla water ambient population slots as the Cod and Salmon they replace. The replacement allowlist remains limited to those two exact vanilla entity IDs. Newly created Cod and Salmon can be replaced from natural and chunk spawning, spawn eggs, commands, bucket release, dispensers, spawners, and structures. Tropical Fish, Pufferfish, other vanilla aquatic mobs, BFS mobs, modded fish, and existing saved fish are never converted by this feature.
 
-Atlantic Cod and Atlantic Salmon join the roster as passive BFS prey. Both have spawn eggs, raw and cooked food items, fishing and entity loot, cooking recipes, information cards, and encounter and fishing advancements. They use the matching vanilla fish movement, schooling, panic, player avoidance, water navigation, and beached flop behavior. Atlantic Salmon named exactly `Spin` uses its supplied spin loop.
+Atlantic Cod and Atlantic Salmon join the roster as passive BFS prey. Both have spawn eggs, raw and cooked food items, fishing and entity loot, cooking recipes, information cards, and encounter and fishing advancements. They retain vanilla fish goals and beached flop behavior, with custom water steering and propulsion. Atlantic Salmon named exactly `Spin` uses its supplied spin loop.
 
-`[spawning] replace_vanilla_mobs` defaults to `true`. Natural vanilla Cod and Salmon become the matching Atlantic fish, and the vanilla Cod and Salmon spawn eggs create the Atlantic versions. Setting it to `false` restores ordinary vanilla Cod and Salmon and enables the separate BFS Atlantic fish biome spawns. Servers can independently disable other new natural vanilla aquatic spawns with `[spawning] disable_vanilla_aquatic_spawns = true`.
+`[spawning] replace_vanilla_mobs` defaults to `true`. New vanilla Cod and Salmon from each supported source become the matching Atlantic fish. Setting it to `false` restores ordinary vanilla Cod and Salmon and enables the separate BFS Atlantic fish biome spawns. `[spawning] fish_entities` defaults to `true`, so a supported fishing catch becomes one live fish at the hook instead of an immediate item. Servers can independently disable other new natural vanilla aquatic spawns with `[spawning] disable_vanilla_aquatic_spawns = true`.
 
 Oceanic Whitetips now use the supplied replacement animation set and can thrash a player after a successful bite. Blacktip Reef Sharks use a shorter latch instead of a large shark thrash. Prismarine armor uses standard player arm pivots, full sleeves, and the uncontracted torso so the full swimming stroke remains covered. Shark Spotter now requires viewing a BFS shark through a Spyglass. `/bfs info` reports `TBD` for species without an implemented diet, and Oceanic Whitetip habitat and spawning are limited to Deep Ocean and Deep Lukewarm Ocean.
 
@@ -32,7 +32,7 @@ There is one readable item chain that ends in the Shark Codex. You assemble it f
 
 There is one structure, the Sunken Trove. It generates on the ocean floor in non frozen ocean biomes and contains a chest with our loot table.
 
-The 0.24 branch also adds three permanent aquatic plants. Algae Block is a single still texture. Large Green Algae and Large Red Algae use their supplied animated strips and can generate in ocean biomes from y 20 through y 62. They require source water and a valid underwater seagrass position, use cutout rendering, and do not generate in rivers or non ocean biomes. Their block and item forms are available through the generated `bensfintasticsharks:algae` tags.
+The release candidate also adds three permanent aquatic plants. Algae Block is a single still texture. Large Green Algae and Large Red Algae use their supplied animated strips and can generate in ocean biomes from y 20 through y 62. They require source water and a valid underwater seagrass position, use cutout rendering, and do not generate in rivers or non ocean biomes. Their block and item forms are available through the generated `bensfintasticsharks:algae` tags.
 
 ## 2. How spawning works
 
@@ -44,7 +44,7 @@ With `replace_vanilla_mobs = true`, a natural vanilla Cod or Salmon attempt is c
 
 On top of the category caps, every individual species has its own cap. When a natural spawn fires, we count how many of that species already exist inside a 64 block radius of the spawn position, which is about four chunks. If the count is at or above the species cap, the spawn is cancelled. Setting a species cap to zero disables natural spawning entirely.
 
-Caps only gate natural and chunk generation spawns. Spawn eggs work normally, except the vanilla Cod and Salmon eggs intentionally create the matching Atlantic fish while replacement is enabled. Both BFS Atlantic spawn eggs always create their own fish. `/summon`, buckets, spawners, and structure placements remain unchanged.
+Caps only gate natural and chunk generation spawns. When replacement is enabled, newly created vanilla Cod and Salmon from spawn eggs, `/summon`, bucket release, dispensers, spawners, and structures intentionally create the matching Atlantic fish. Both BFS Atlantic spawn eggs always create their own fish. Existing saved fish remain unchanged.
 
 There is also a second knob called spawn chance which is a probability multiplier on each natural spawn attempt. A value of 1.0 leaves the biome modifier weight untouched. A value of 0.5 makes them spawn half as often. A value of 2.0 makes them spawn roughly twice as often, still bounded by the category cap. A value of 0.0 disables natural spawning the same as setting cap to zero. Use this when you want a species to be rarer without removing it entirely.
 
@@ -132,9 +132,13 @@ The config lives at `config/bensfintasticsharks-common.toml`. Most edits take ef
 
 The sections are organized roughly by what they affect.
 
-`[spawning]` holds the three category caps, shark spacing controls, vanilla fish replacement, and the broader vanilla aquatic spawn switch. `apex_predator_cap` defaults to `1`, `bfs_water_creature_cap` to `10`, and `bfs_water_ambient_cap` to `15`. `shark_spacing_radius` defaults to `96`, `nearby_non_blacktip_shark_cap` to `1`, and `nearby_blacktip_shark_cap` to `3`. The spacing radius accepts 16 to 256 blocks; both nearby shark ceilings accept 1 to 16.
+`[spawning]` holds the three category caps, shark spacing controls, vanilla fish replacement, fishing delivery, and the broader vanilla aquatic spawn switch. `apex_predator_cap` defaults to `1`, `bfs_water_creature_cap` to `10`, and `bfs_water_ambient_cap` to `15`. `shark_spacing_radius` defaults to `96`, `nearby_non_blacktip_shark_cap` to `1`, and `nearby_blacktip_shark_cap` to `3`. The spacing radius accepts 16 to 256 blocks; both nearby shark ceilings accept 1 to 16.
 
-`replace_vanilla_mobs` defaults to `true`. It converts only natural and chunk generation `minecraft:cod` and `minecraft:salmon` and entities placed from the matching vanilla spawn eggs or their dispenser behavior. Position, rotation, custom egg name, and safe entity data are copied to the Atlantic replacement. The BFS Atlantic spawn eggs remain unchanged. Setting this option to `false` leaves vanilla Cod and Salmon alone and allows the Atlantic fish biome modifiers to spawn their separate populations. Atlantic fish always use the vanilla water ambient category, so either mode remains bounded by its ordinary population ceiling. Commands, buckets, spawners, structures, existing entities, Tropical Fish, Pufferfish, and every other unrelated species are never converted. This value is read for each new spawn attempt.
+`replace_vanilla_mobs` defaults to `true`. It converts only newly created `minecraft:cod` and `minecraft:salmon` from natural and chunk generation spawning, spawn eggs, commands, bucket release, dispensers, spawners, and structures. Position, rotation, custom egg name, and safe entity data are copied to the Atlantic replacement where that source provides them. The BFS Atlantic spawn eggs remain unchanged. Setting this option to `false` leaves vanilla Cod and Salmon alone and allows the Atlantic fish biome modifiers to spawn their separate populations. Atlantic fish always use the vanilla water ambient category, so either mode remains bounded by its ordinary population ceiling. Existing entities, Tropical Fish, Pufferfish, and every other unrelated species are never converted. Restart the game or dedicated server after changing this setting.
+
+`fish_entities` defaults to `true`. A supported one fish fishing catch suppresses the normal item insertion and creates one corresponding live fish at the hook position with the normal reel impulse. The player receives the normal fishing experience and statistic once, and must kill the fish for its ordinary drops. Set the option to `false` to receive the selected catch as an item. Both delivery modes reserve the hook attempt before insertion, issue success rewards only after accepted delivery, and reject cancellation, nested delivery and replay without a fallback reward. The real loot context supplies the rod used, including an offhand rod, and snapshots the delivery mode for that attempt. Restart the game or dedicated server after changing this setting.
+
+Fishing uses one selection, never an additive Cod and Salmon pair. With replacement enabled, vanilla Cod and Salmon select their matching Atlantic fish. With replacement disabled, a Cod or Salmon outcome has a 25 percent combined chance to select one Atlantic fish, split equally between the two Atlantic species. Tropical Fish, Pufferfish, already selected Atlantic fish, junk and treasure retain their species or item. The 25 percent share is conditional on a Cod or Salmon result, not on every cast or every fish. Under vanilla fish subtable weights of 60 Cod, 25 Salmon, 13 Pufferfish and 2 Tropical Fish, the replacement-disabled fish-category percentages are 45 Cod, 18.75 Salmon, 10.625 Atlantic Cod, 10.625 Atlantic Salmon, 13 Pufferfish and 2 Tropical Fish. Datapacks can change those underlying weights; fish, junk and treasure category probabilities are not increased by an extra roll.
 
 `disable_vanilla_aquatic_spawns` defaults to `false`. When enabled, it blocks only natural and chunk generation spawns for vanilla water creature, water ambient, underground water creature, axolotl, and turtle entities. Existing entities, commands, spawn eggs, and nonnatural creation paths remain unchanged. Replacement runs first, so enabling both settings still converts Cod and Salmon while blocking the other covered vanilla aquatic natural spawns. Restart the game or dedicated server after changing this suppression option.
 
@@ -175,6 +179,9 @@ Every `/bfs` command needs op permission (level 2). Species names and disturbanc
 | `/bfs cap reset <species>` | Clears that species runtime override |
 | `/bfs cap reset` | Clears every runtime override |
 | `/bfs disturbance <type>` | Fires a test light, heavy, or blood disturbance at your position. Reports how many sharks are in range to react |
+| `/bfs debug on [category] [ticks] [targets]` | Starts one bounded server diagnostic capture. Categories are all, movement, brain, combat, population, advancement, and algae. Bare `on` uses all for 1,200 ticks |
+| `/bfs debug status` | Reports the active or last server capture, including limits, output path, and any incomplete reason |
+| `/bfs debug off` | Stops the active server diagnostic capture. It is safe to repeat after the capture is already inactive. |
 | `/bfs reload` | Re reads config values without restart |
 
 `/bfs cap set` is runtime only. Restart the server and your edits are gone. To make changes permanent, edit the config file.
@@ -204,6 +211,14 @@ When a runtime override is active, `/bfs cap list` shows it in gold and tells yo
 
 `/bfs disturbance` will also tell you, after firing, how many sharks were inside its diagnostic radius. If it reports zero, the system is fine; you just don't have any sharks nearby to respond. Spawn or find some first.
 
+### Diagnostic support captures
+
+Use diagnostics for server-observable movement, behavior, combat, population, advancement, and algae failures before requesting a client session. The command requires level 2 permission and is available from the trusted dedicated-server console without a connected player. It records one bounded JSONL capture under the exact runtime's `logs/bfs-debug/` directory and does not alter gameplay.
+
+Fishing uses the existing `all` or `advancement` capture category. Delivery records identify the hook attempt, effective settings, selection, insertion, rewards and matching advancement progress. A second observation at tick end records actual rod damage and hook removal. Player identifiers are pseudonymous and arbitrary item NBT is omitted. Pending settlements are capped at 32, and ambiguous or unfinished settlement cannot pass the strict fishing analyzer. See the [fishing capture procedure](docs/test/debug-diagnostics.md#fishing-capture) for enable/reproduce/stop commands, the manifest contract, passthrough limitations and cleanup.
+
+For client-only rendering, interpolation, controller, or resource questions, use the separate local command `/bfs debug client on`, `/bfs debug client status`, and `/bfs debug client off` on the affected laptop. It is local only. The server cannot start it or inspect its files. Full command syntax, limits, artifact binding, parser invocation, privacy rules, and recovery for incomplete captures are in [BFS debug diagnostics](docs/test/debug-diagnostics.md).
+
 ## 6. Water disturbance system
 
 The mod's main mechanic. Sharks notice what you're doing in the water and react.
@@ -228,7 +243,7 @@ Each species now reads its own datapack tag at `bensfintasticsharks:prey/<specie
 
 Players are deliberately not in the prey tags. Sharks can target a player through the disturbance system or retaliation; Blacktip Reef Sharks can also join an existing attack on a badly wounded swimmer. Creative and spectator players remain excluded.
 
-Sharks do not orbit or circle their target. They lock on, swim straight at the prey at aggro speed, and bite when they're in melee range. There used to be a circle attack behavior in earlier builds. It was removed because it looked artificial. The current chase is a direct approach.
+Sharks pursue prey and bite within their physical attack range. Circle attacks are not an intended behavior. The active Phase 002 candidate replaces height based stopping with complete destination approaches and bounded blocked route recovery. Terrain handling, pursuit and visual acceptance remain under verification in [the swimming regression](https://github.com/bdubsub/BensFintasticSharkMod/issues/17). A headless route test is not visual approval.
 
 The bite is two phase. When the shark enters bite range, it swings its body and plays the bite animation. Damage lands five ticks later, on the visual impact frame of the animation. This way the hit syncs with the snap of the model instead of feeling like the damage came out of nowhere.
 
@@ -274,7 +289,7 @@ The Giant Moray Eel is anchored in place 70% of the time, motionless for 20 to 4
 
 The Green Sea Turtle is a wild encounter species only. It swims slowly and rests occasionally. It does not lay eggs in this build. Use vanilla turtles for breeding.
 
-Atlantic Cod directly extends vanilla Cod, and Atlantic Salmon directly extends vanilla Salmon. Both have 3 health and inherit vanilla fish swimming, water navigation, panic, player avoidance, schooling, persistence, bucket interaction, and beached flop behavior. Cod uses the vanilla maximum school size of eight. Salmon uses the vanilla maximum school size of five. Neither fish has custom combat or hunting logic, while shark prey tags still let sharks hunt them. A salmon named exactly `Spin` stays in its supplied looping spin animation. Changing or removing that exact custom name returns the renderer to its ordinary idle, swim, fast swim, or flop state.
+Atlantic Cod directly extends vanilla Cod, and Atlantic Salmon directly extends vanilla Salmon. Both have 3 health and retain vanilla panic, player avoidance, schooling, persistence, bucket interaction, and beached flop behavior. Their water movement uses `PitchSwimmingNavigation` and `BfsFishMoveControl`. The shared controller tracks the complete destination, selects a finite clearance leg where a steep approach needs space, and separates its retained propulsion from subsequent velocity changes. Slow depth approaches use controller progress detection instead of the vanilla waypoint timeout. Schooling and threat policy request navigation routes rather than competing directly with navigation for the movement target. Cod uses the vanilla maximum school size of eight. Salmon uses the vanilla maximum school size of five. Neither fish has custom combat or hunting logic, while shark prey tags still let sharks hunt them. A salmon named exactly `Spin` stays in its supplied looping spin animation. Changing or removing that exact custom name returns the renderer to its ordinary idle, swim, fast swim, or flop state. See the [depth route regression procedure](docs/test/depth-route-regressions.md) for the current verification boundaries.
 
 ### Jellyfish
 
@@ -379,7 +394,7 @@ Sharks can't actually leave water. The pathfinding uses the water bound path nav
 
 Stingrays apply persistent downward gravity (0.04 blocks per tick). They essentially rest on the seafloor unless their AI walks them somewhere specifically.
 
-Sharks use continuous vertical steering and visibly lean into meaningful ascent or descent. The turn aware control reduces horizontal thrust during a hard turn without suppressing the depth input requested by navigation. Sharks coast when they need to reorient, brake as they arrive, and remain level when their current route does not require a depth change. Octopuses also visibly lean into vertical travel. Lobsters remain level as seafloor crawlers. The Nautilus may pitch toward a vertical destination and now has enough controlled acceleration to reach it.
+Sharks use continuous vertical steering and visibly lean into meaningful ascent or descent. Their powered vertical travel is capped at 25% of the accepted same species, same state propulsion speed. Atlantic Cod and Atlantic Salmon use a 20% cap. Each cap applies once to the whole powered movement vector rather than being compounded across controller updates. Fish and sharks use a curved depth approach with a level endpoint. Pitch changes during travel, and the curve's turning demand bounds speed without a separate pitch error brake. A stopped route can finish a water clear, translating level exit while retaining its original arrival, cancellation or blocked reason. It must hold its safe pose when that exit is obstructed. The movement controller retains heading ownership during the exit. Level travel keeps its existing speed and turning behavior. Octopuses also visibly lean into vertical travel. Lobsters remain level as seafloor crawlers. The Nautilus may pitch toward a vertical destination and now has enough controlled acceleration to reach it.
 
 All BFS aquatic mobs now drown when beached. They follow the vanilla water animal pattern: when out of water their air supply ticks down by one per tick, and when it hits negative twenty they take two drown damage and reset the counter. This means a beached shark or stingray won't just live forever on the sand. Mammals with their own air systems (the dolphin) override this so they can still surface to breathe.
 
@@ -389,7 +404,7 @@ Killing an American Lobster drops 1 or 2 raw lobster claws plus 1 raw lobster ta
 
 You can cook either one in a furnace (200 ticks) or on a campfire (600 ticks) to get the cooked variants. Raw lobster gives you 2 nutrition and 0.2 saturation. Cooked gives you 6 nutrition and 0.8 saturation and counts as meat for vanilla effects.
 
-Atlantic Cod and Atlantic Salmon each drop one matching raw fish. If the fish dies while on fire, the entity loot table smelts the drop into its cooked form. Both raw fish also appear in vanilla fishing gameplay through Forge global loot modifiers at an independent 12.5% chance per completed catch. Furnace, smoker, and campfire recipes cook each raw item. Raw Atlantic Cod and Raw Atlantic Salmon provide 2 nutrition and 0.1 saturation. Cooked Atlantic Cod provides 5 nutrition and 0.6 saturation. Cooked Atlantic Salmon provides 6 nutrition and 0.8 saturation.
+Atlantic Cod and Atlantic Salmon each drop one matching raw fish. If the fish dies while on fire, the entity loot table smelts the drop into its cooked form. Fishing performs one selected fish transaction, rather than adding Cod and Salmon independently. The configuration section documents the conditional Atlantic share and preserved fish species. With `fish_entities = true`, the selected catch arrives as a live fish at the hook and must be killed for these drops. With it disabled, the selected catch is delivered as an item. Furnace, smoker, and campfire recipes cook each raw item. Raw Atlantic Cod and Raw Atlantic Salmon provide 2 nutrition and 0.1 saturation. Cooked Atlantic Cod provides 5 nutrition and 0.6 saturation. Cooked Atlantic Salmon provides 6 nutrition and 0.8 saturation.
 
 The Codex chain takes Lost Manuscripts and refines them into a Shark Codex. See section 11.
 
@@ -402,6 +417,10 @@ The advancement tree starts at `Marine Curious`, which fires when you encounter 
 Encounter advancements exist for every species the mod ships. Shark Spotter requires actively using a Spyglass while the view ray reaches a BFS shark before any solid block. It uses one custom criterion and a vanilla Spyglass icon, so it no longer shows the old `0/28` species counter. Sharks Galore is the single all eight shark discovery node. Marine Biologist and Apex of Apex now continue directly from Sharks Galore. Every individual shark encounter uses its matching supplied 16×16 sprite: Great White, Great Hammerhead, Common Thresher, Shortfin Mako, Tiger, Oceanic Whitetip, Sandtiger, and Blacktip Reef. Marine Biologist covers all twenty two species; other milestones include Apex of Apex (Orca), Dolphin Friend (Common Bottlenose Dolphin), Inked (either octopus), and Stung (either jellyfish).
 
 The Atlantic fish add four advancements. `Gadus morhua` and `Salmo salar` trigger when the player encounters the matching living fish. `Oh My Cod` and `Why aren't you red?` trigger only when the matching raw fish is obtained from a fishing hook catch. Their icons use the supplied raw or cooked item sprites according to Ben's content notes.
+
+The Release Candidate 1.0 advancement presentation uses the seven supplied 16 by 16 remastered icons, including the flat generated Harbor Seal model. `Sharks Galore` is the single all shark discovery node, and `Marine Biologist` and `Apex of Apex` continue directly from it. The retired `shark_whisperer` progress entry is ignored when an existing world loads. It is not migrated or awarded again, and the copied profile remains unchanged.
+
+The generated fishing replacement modifier targets the vanilla `minecraft:gameplay/fishing` root table used by `FishingHook.retrieve`. Both supported delivery modes award the matching fishing criterion after insertion succeeds. Live delivery grants the catch before the fish is killed, so the two catch advancements remain tied to a real fishing result instead of inventory insertion. The [fishing transaction regressions](docs/test/phase-001-fishing-transactions.md) distinguish current server tests from the historical player and packaged-server evidence in [Phase 001 task 012](docs/verification/phase-001-task-012.md).
 
 The themed ones cover progression. Apex Awareness fires when any shark damages you. Wrong Place, Wrong Time is the survivor variant. Sleeping with the Fishes fires when a shark kills you. Fresh Catch fires when you have any cooked lobster meat in your inventory. Hidden Trove fires when you pick up a Lost Manuscript. Captain's Heir fires when you obtain Captain Ben's Hat. Conservationist is the gentle path: encounter the first three sharks without violence required.
 
@@ -435,6 +454,12 @@ To keep the default Cod and Salmon replacement:
 ```toml
 [spawning]
   replace_vanilla_mobs = true
+```
+
+To reel in live fish that must be killed for their drops:
+```toml
+[spawning]
+  fish_entities = true
 ```
 
 To keep vanilla Cod and Salmon while spawning separate Atlantic fish from BFS biome modifiers:
@@ -526,7 +551,7 @@ Make sure `[spawn_chance].<species>` isn't 0.
 
 If vanilla aquatic mobs still spawn after enabling their suppression switch, restart the game or dedicated server. The setting intentionally does not remove mobs that already exist and does not block commands or spawn eggs.
 
-If vanilla Cod or Salmon still appears naturally or from its spawn egg, confirm `[spawning] replace_vanilla_mobs = true`. Existing fish, commands, buckets, and spawner output are intentionally not converted. If separate Atlantic biome spawns are wanted alongside vanilla fish, set the option to `false`.
+If a newly created vanilla Cod or Salmon still appears from any covered source, confirm `[spawning] replace_vanilla_mobs = true` and restart the game or dedicated server. Existing saved fish are intentionally not converted. If separate Atlantic biome spawns are wanted alongside vanilla fish, set the option to `false`.
 
 If a world was opened with the original 0.23 build and already contains an excessive Atlantic fish population, install `0.23-emergency-fix` first. The fixed build prevents new replacements from escaping the water ambient population ceiling but does not delete existing entities. Excess fish can leave or despawn through inherited vanilla fish behavior. An operator who wants immediate cleanup can run the following commands in each affected dimension. They remove all loaded matching Atlantic fish in that dimension, including named or intentionally placed fish.
 
@@ -590,6 +615,8 @@ gradlew.bat :forge:build
 gradlew.bat :forge:Client
 gradlew.bat :forge:Server
 ```
+
+Server backed interactive verification uses a dedicated Forge server on `node-1` and a matching windowed client on the Linux laptop. Start the server with `./gradlew :forge:Server --no-daemon --args='--port <port> --nogui'` on `node-1`, then connect the laptop client with `./gradlew :forge:Client --no-daemon --args='--username Dev7 --quickPlayMultiplayer <tailscale-server-ip>:<port>'`. Use the server console or authenticated RCON for fixture setup and cleanup. Bind every disposable RCON listener to the private test address, never a public interface. Never run a windowed client, Xvfb, or rendering workload on `node-1`. For a hidden laptop capture, keep the Minecraft window on a nonactive Hyprland workspace and set `pauseOnLostFocus:false`. Resolve the exact owned Minecraft window through `hyprctl clients -j`, recording its PID, `stableId`, workspace, class, and title. On the current Hyprland session, `grim -T <stableId> <capture.png>` captures that foreign toplevel directly without switching workspaces. Accept it only when the target window row and active workspace match before and after capture, and retain the capture hash with those checks. `DISPLAY=:1 import -window <minecraft-window-id>` captures the active desktop instead of an inactive Xwayland workspace, so it is not admissible evidence. A portal capture requires explicit human selection; do not automate that selection.
 
 The `Data` task writes to `common/src/generated/resources`. Run it after changing any provider, then inspect the generated diff. The distributable artifact is written to `forge/build/libs`. Inspect the JAR for `META-INF/mods.toml`, the `bensfintasticsharks` assets and data namespaces, mixin configuration, and required embedded metadata before release.
 

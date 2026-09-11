@@ -35,6 +35,7 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
             SynchedEntityData.defineId(OceanicWhitetipSharkEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_GRAB_TIMER =
             SynchedEntityData.defineId(OceanicWhitetipSharkEntity.class, EntityDataSerializers.INT);
+    private int postGrabCooldown;
 
     private static final SharkParams PARAMS = new SharkParams(
             /* detectionRadius      */ 26.0f,
@@ -129,10 +130,23 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
     public void grabMob(LivingEntity target) {
         if (target != this.getTarget() || target.isPassenger() || !this.isInWaterOrBubble()) return;
         if (!target.startRiding(this, true)) return;
+        this.setTarget(null);
+        setSharkState(SharkState.IDLE);
+        postGrabCooldown = BensFintasticSharks.GRAB_TIMER + 20;
         if (target instanceof ServerPlayer serverPlayer) {
             serverPlayer.connection.send(new ClientboundSetPassengersPacket(this));
         }
         setGrabTimer(BensFintasticSharks.GRAB_TIMER);
+    }
+
+    @Override
+    protected void onSharkTick() {
+        if (postGrabCooldown > 0) {
+            postGrabCooldown--;
+            setTarget(null);
+            return;
+        }
+        super.onSharkTick();
     }
 
     @Override
@@ -166,7 +180,7 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
             }
         }
         setGrabTimer(release ? 0 : next);
-        if (release) ejectPassengers();
+        if (release) releaseGrab();
     }
 
     private void setGrabTimer(int timer) {
@@ -174,9 +188,19 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
     }
 
     @Override
-    public void remove(RemovalReason reason) {
+    public void releaseGrabPassengers() {
         setGrabTimer(0);
-        ejectPassengers();
+        // SharkGrabber.releaseGrabPassengers performs ejectPassengers() and passenger packet sync.
+        SharkGrabber.super.releaseGrabPassengers();
+    }
+
+    private void releaseGrab() {
+        releaseGrabPassengers();
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        releaseGrab();
         super.remove(reason);
     }
 
@@ -185,7 +209,9 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
         return entityData.get(DATA_GRAB_TIMER);
     }
 
-    @Override protected int biteImpactDelayTicks() { return 6; }
+    @Override protected int biteImpactDelayTicks() {
+        return OceanicBiteTiming.impactDelayTicks();
+    }
 
     @Override
     protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {

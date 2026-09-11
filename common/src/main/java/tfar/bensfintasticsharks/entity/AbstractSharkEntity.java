@@ -72,6 +72,30 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         super(type, level);
         this.params = params;
         this.moveControl = new SharkSwimmingMoveControl(this, 1f / 8f);
+        this.lookControl = new BfsSharkLookControl(this);
+    }
+
+    @Override
+    protected float verticalSwimSpeedMultiplier() {
+        return (float) AquaticMovement.SHARK_VERTICAL_SPEED_RATIO;
+    }
+
+    /** Maximum nose pitch while powered swimming upward or downward. */
+    protected float upwardPitchLimitDegrees() { return AquaticMovement.DEFAULT_UPWARD_PITCH_LIMIT; }
+    protected float downwardPitchLimitDegrees() { return AquaticMovement.DEFAULT_DOWNWARD_PITCH_LIMIT; }
+
+    /** Profile-permitted steep-route endpoints, distinct from routine cruise pitch. */
+    protected float hardUpwardPitchLimitDegrees() { return AquaticMovement.SHARK_HARD_UPWARD_PITCH_LIMIT; }
+    protected float hardDownwardPitchLimitDegrees() { return AquaticMovement.SHARK_HARD_DOWNWARD_PITCH_LIMIT; }
+
+    @Override
+    protected net.minecraft.world.entity.ai.navigation.PathNavigation createNavigation(Level level) {
+        return new PitchSwimmingNavigation(this, level);
+    }
+
+    @Override
+    protected boolean usesPitchDrivenVerticalMovement() {
+        return true;
     }
 
     /**
@@ -233,7 +257,9 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                 // pendingBiteTarget forever and the shark could never bite again.
                 LivingEntity victim = pendingBiteTarget;
                 pendingBiteTarget = null;
-                if (victim != null && victim.isAlive()) {
+                if (victim != null && victim.isAlive() && !victim.isRemoved()
+                        && victim.level() == level() && !victim.isPassenger()
+                        && getPassengers().isEmpty()) {
                     double reach = biteRangeAgainst(victim);
                     if (this.distanceToSqr(victim) <= reach * reach) {
                         this.doHurtTarget(victim);
@@ -296,7 +322,8 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         // to getLastHurtByMob(), which is the last MOB to hit it (= us, when we land the kill).
         // A schooling packmate that merely targeted but never bit the prey is still not the last
         // mob hitter, so this does not reopen the whole-school satiation bug.
-        if (lastHuntTarget != null && !lastHuntTarget.isAlive()) {
+        if (lastHuntTarget != null && (!lastHuntTarget.isAlive() || lastHuntTarget.isRemoved()
+                || lastHuntTarget.level() != level())) {
             boolean ourKill = lastHuntTarget.getKillCredit() == this
                     || lastHuntTarget.getLastHurtByMob() == this;
             lastHuntTarget = null;
@@ -304,13 +331,15 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                 huntCooldown = HUNT_COOLDOWN_TICKS;
             }
             this.setTarget(null);
+            BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
             setSharkState(SharkState.IDLE);
             ticksTargetOutOfWater = 0;
             tgt = null;
         }
         if (tgt != null) {
-            if (!tgt.isAlive() || tgt.isDeadOrDying()) {
+            if (!tgt.isAlive() || tgt.isRemoved() || tgt.level() != level() || tgt.isDeadOrDying()) {
                 this.setTarget(null);
+                BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
                 setSharkState(SharkState.IDLE);
                 ticksTargetOutOfWater = 0;
                 tgt = null;
@@ -321,6 +350,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                 ticksTargetOutOfWater++;
                 if (ticksTargetOutOfWater >= 60) {
                     this.setTarget(null);
+                    BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
                     setSharkState(SharkState.IDLE);
                     ticksTargetOutOfWater = 0;
                 }
@@ -330,6 +360,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             // Also disengage if target is creative/spectator now.
             if (tgt instanceof Player p && (p.isCreative() || p.isSpectator())) {
                 this.setTarget(null);
+                BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
                 setSharkState(SharkState.IDLE);
             }
         } else {
@@ -413,7 +444,10 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             // overshoot-orbit loop.
             if (inBiteRange
                     && biteCooldown <= 0
-                    && pendingBiteTarget == null) {
+                    && pendingBiteTarget == null
+                    // A latched passenger is already inside the active attack. Do not
+                    // schedule another bite while the grab or latch timer is running.
+                    && getPassengers().isEmpty()) {
                 this.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
                 onBiteAttack(tgt);
                 pendingBiteTarget = tgt;
@@ -828,10 +862,30 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         boolean fleeing = !hasPassenger && isFleeing();
         float scale = shallowWaterSpeedScale();
         if (chasing || fleeing) scale *= chaseAccelBoost();
-        Vec3 effectiveInput = braking ? Vec3.ZERO : movementInput;
+        Vec3 effectiveInput = braking ? Vec3.ZERO : scaleVerticalSwimInput(movementInput);
+        if (!braking && usesPitchDrivenVerticalMovement()) {
+            effectiveInput = AquaticMovement.bodyAlignedInput(effectiveInput, this.getXRot());
+        }
         float accel = useSwimMultiplier
                 ? this.getSpeed() * swimSpeedMultiplier() * scale
                 : this.getSpeed() * scale;
+        if (usesPitchDrivenVerticalMovement() && moveControl instanceof SharkSwimmingMoveControl control) {
+            double floor = 0;
+            if (chasing && movementInput.z > 0 && tgt != null) {
+                Vec3 targetOffset = tgt.position().subtract(position());
+                double horizontal = targetOffset.horizontalDistance();
+                double facing = horizontal > 1.0e-4
+                        ? AquaticMovement.forwardVector(getYRot(), 0).dot(targetOffset) / horizontal : 0;
+                if (facing > 0.5 && Math.abs(targetOffset.y) <= horizontal * 1.5) {
+                    double band = brakeRange + 2.0;
+                    floor = (distanceToSqr(tgt) <= band * band
+                            ? Math.min(chaseSpeedFloor(), 0.30F) : chaseSpeedFloor()) * shallowWaterSpeedScale();
+                }
+            }
+            control.travel(accel, braking ? 0.30 : (wasTouchingWater ? waterFriction : 0.25),
+                    maxHorizontalSpeed(), floor, braking ? Vec3.ZERO : movementInput);
+            return;
+        }
         this.moveRelative(accel, effectiveInput);
         this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
         double friction = braking ? 0.30 : (this.wasTouchingWater ? waterFriction : 0.25);
@@ -839,13 +893,27 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         Vec3 dm = this.getDeltaMovement();
         double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
         float cap = maxHorizontalSpeed();
-        if (horiz > cap) {
+        if (usesPitchDrivenVerticalMovement() && !braking) {
+            Vec3 forward = AquaticMovement.forwardVector(this.getYRot(), this.getXRot());
+            dm = AquaticMovement.limitPoweredVelocity(dm, forward, cap,
+                    this.getSpeed() * AquaticMovement.SHARK_VERTICAL_SPEED_RATIO);
+            double verticalCap = Math.abs(this.getSpeed()) * AquaticMovement.SHARK_VERTICAL_SPEED_RATIO;
+            if (Math.abs(dm.y) > verticalCap) {
+                dm = new Vec3(dm.x, Math.copySign(verticalCap, dm.y), dm.z);
+            }
+            if (movementInput.z > 0.0F) {
+                dm = AquaticMovement.removeUnalignedVerticalSlip(dm, forward);
+            }
+            this.setDeltaMovement(dm);
+            horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
+        }
+        if (!usesPitchDrivenVerticalMovement() && horiz > cap) {
             double s = cap / horiz;
             this.setDeltaMovement(dm.x * s, dm.y, dm.z * s);
         } else {
             applyChaseFloor(movementInput);
         }
-        if (this.getTarget() == null) {
+        if (this.getTarget() == null && !usesPitchDrivenVerticalMovement()) {
             this.setDeltaMovement(this.getDeltaMovement().add(0.0, -idleSink, 0.0));
         }
         dampBackslide();

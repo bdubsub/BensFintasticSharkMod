@@ -25,6 +25,7 @@ public class ModClientForge {
         // 0.18 — grab/thrash screen effects (camera lock + red tint) live on the
         // runtime Forge bus; init() is only reached on the client dist.
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new GrabClientHandler());
+        BfsClientDebugManager.register(net.minecraftforge.common.MinecraftForge.EVENT_BUS);
     }
 
     static void registerAdditionalModels(final ModelEvent.RegisterAdditional event) {

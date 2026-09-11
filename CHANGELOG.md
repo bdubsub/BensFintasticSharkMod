@@ -1,6 +1,21 @@
 # Changelog
 
+## 1.0-rc.1, Release Candidate 1.0
+
+This prerelease candidate targets Minecraft 1.20.1 Forge and carries the
+verified 0.23 compatibility baseline plus the 0.24 content and behavior work.
+It is not a stable 1.0 publication. Final exact-candidate runtime, multiplayer,
+visual, artifact, and owner acceptance gates remain required before release.
+
 ## 0.24 (2026-09-02)
+
+### Phase 001 verification correction
+
+Atlantic Cod and Atlantic Salmon fishing modifiers now attach to the vanilla fishing root table used by real rod retrieval. The retained advancement and packaged server verification records are linked from the documentation index.
+
+### Phase 003 verification
+
+The advancement graph, supplied icon presentation, copy audit, generated resources, dedicated server load, fresh progression path, and existing profile compatibility path were verified on the exact Forge candidate. Existing `shark_whisperer` progress is ignored without migration, and the surviving advancement progress file remains unchanged.
 
 ### Added
 

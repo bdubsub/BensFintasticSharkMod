@@ -21,6 +21,9 @@ import tfar.bensfintasticsharks.disturbance.SharkAlertHandler;
 
 public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity implements GeoEntity {
 
+    private static final double SWIM_MOVEMENT_EPSILON = 1.0e-4;
+    private static final double VISUAL_MOVEMENT_EPSILON = 4.0e-4;
+
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.idle");
     private static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.swim_new");
     private static final RawAnimation FAST_SWIM = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.swim_fast_new");
@@ -30,9 +33,33 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     private static final RawAnimation THRASH = RawAnimation.begin().thenLoop("animation.oceanicwhitetipshark.thrash");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private int visuallyStillTicks;
 
     public OceanicWhitetipSharkEntityForge(EntityType<OceanicWhitetipSharkEntity> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (level().isClientSide) {
+            double dx = getX() - xo;
+            double dy = getY() - yo;
+            double dz = getZ() - zo;
+            visuallyStillTicks = dx * dx + dy * dy + dz * dz < VISUAL_MOVEMENT_EPSILON
+                    ? Math.min(visuallyStillTicks + 1, 40)
+                    : 0;
+        }
+    }
+
+    private boolean isVisuallyMoving() {
+        return getDeltaMovement().lengthSqr() > SWIM_MOVEMENT_EPSILON
+                || level().isClientSide && visuallyStillTicks == 0;
+    }
+
+    private boolean hasLivingGrabPassenger() {
+        return getPassengers().stream()
+                .anyMatch(passenger -> passenger instanceof LivingEntity living && living.isAlive());
     }
 
     @Override
@@ -53,19 +80,33 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 5, event -> {
+            if (this.isDeadOrDying()) {
+                return event.setAndContinue(DEATH);
+            }
+            // Thrash owns the overlapping bones during an authoritative passenger grab.
+            // The locomotion controller must stop rather than blend its transforms.
+            if (OceanicPresentationState.hasActiveGrab(this.getGrabTimer(), hasLivingGrabPassenger())) {
+                return PlayState.STOP;
+            }
             if (this.onGround() && !this.isInWaterOrBubble()) {
                 return event.setAndContinue(BEACHED);
             }
             if (this.getSharkState() == SharkState.HOSTILE) {
                 return event.setAndContinue(FAST_SWIM);
             }
-            return event.setAndContinue(event.isMoving() ? SWIM : IDLE);
+            // GeckoLib's generic isMoving flag is based on client limb movement and can remain
+            // false for an aquatic entity whose server-authoritative velocity is changing. Use
+            // the synchronized movement vector so the authored swim clip follows actual travel
+            // instead of falling back to idle or no-current-animation during a valid route.
+            return event.setAndContinue(isVisuallyMoving() ? SWIM : IDLE);
         })
                 .triggerableAnim("bite", BITE)
                 .triggerableAnim("death", DEATH));
 
         controllers.add(new AnimationController<>(this, "thrash_controller", 5, event -> {
-            if (!this.getPassengers().isEmpty()) {
+            if (!this.isDeadOrDying() && this.isInWaterOrBubble()
+                    && this.getGrabTimer() > 0 && !this.getPassengers().isEmpty()
+                    && hasLivingGrabPassenger()) {
                 return event.setAndContinue(THRASH);
             }
             return PlayState.STOP;
@@ -85,15 +126,15 @@ public class OceanicWhitetipSharkEntityForge extends OceanicWhitetipSharkEntity 
     @Override
     protected void onBiteLanded(LivingEntity target) {
         if (level().isClientSide || target.isDeadOrDying()) return;
-        if (getRandom().nextFloat() < 0.10f) {
-            grabMob(target);
-        }
+        grabMob(target);
     }
 
     @Override
     protected void tickDeath() {
         ++this.deathTime;
-        this.triggerAnim("controller", "death");
+        if (this.deathTime == 1) {
+            this.triggerAnim("controller", "death");
+        }
         if (this.deathTime == 30) {
             this.remove(Entity.RemovalReason.KILLED);
             this.dropExperience();

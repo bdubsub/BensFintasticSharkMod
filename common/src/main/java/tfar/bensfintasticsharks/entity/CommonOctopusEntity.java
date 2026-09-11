@@ -1,6 +1,7 @@
 package tfar.bensfintasticsharks.entity;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -18,6 +19,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -32,13 +34,29 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.IntFunction;
 
-public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity> implements BfsVariantHolder {
+public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity>
+        implements BfsVariantHolder, OctopusCamouflageHost {
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT =
             SynchedEntityData.defineId(CommonOctopusEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_CAMO_TARGET =
+            SynchedEntityData.defineId(CommonOctopusEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> DATA_CAMO_WEIGHT =
+            SynchedEntityData.defineId(CommonOctopusEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> DATA_INK_TICKS =
+            SynchedEntityData.defineId(CommonOctopusEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_INK_EVENT =
+            SynchedEntityData.defineId(CommonOctopusEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_JET_TICKS =
+            SynchedEntityData.defineId(CommonOctopusEntity.class, EntityDataSerializers.INT);
+
+    private int camouflageColor = 0x6b5c4e;
+    private float camouflageWeight;
 
     private int playerProxCooldown;
     private int inkCooldown;
+    private int jetTicks;
+    private Vec3 jetDirection = Vec3.ZERO;
     private int hideTicks;
     private int hideCheckTimer;
 
@@ -59,6 +77,11 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity> i
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_VARIANT, 0);
+        this.entityData.define(DATA_CAMO_TARGET, 0x6b5c4e);
+        this.entityData.define(DATA_CAMO_WEIGHT, 0.0f);
+        this.entityData.define(DATA_INK_TICKS, 0);
+        this.entityData.define(DATA_INK_EVENT, 0);
+        this.entityData.define(DATA_JET_TICKS, 0);
     }
 
     public Variant getVariant() { return Variant.byId(this.entityData.get(DATA_VARIANT)); }
@@ -133,7 +156,14 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity> i
     public void tick() {
         super.tick();
         updateBodyPitch();
+        OctopusCamouflage.tick(this);
         if (level().isClientSide) return;
+        if (level() instanceof ServerLevel sl) {
+            OctopusInkCloudRegistry.tick(sl, getUUID());
+            entityData.set(DATA_INK_TICKS, OctopusInkCloudRegistry.active(sl, getUUID())
+                    ? Math.max(0, entityData.get(DATA_INK_TICKS) - 1) : 0);
+        }
+        tickJet();
         if (inkCooldown > 0) inkCooldown--;
         // Cosmetic hide state — slows movement and switches anim. Cancels on threat.
         if (hideTicks > 0) {
@@ -145,14 +175,15 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity> i
         AABB area = getBoundingBox().inflate(5.0);
         List<Player> nearby = level().getEntitiesOfClass(Player.class, area,
                 p -> !p.isCreative() && !p.isSpectator() && p.isInWater());
-        if (!nearby.isEmpty() && inkCooldown == 0 && level() instanceof ServerLevel sl) {
-            emitInk(sl);
-            // Push away from the nearest player.
+        if (!nearby.isEmpty() && inkCooldown == 0 && jetTicks == 0 && level() instanceof ServerLevel sl) {
             Player p = nearby.get(0);
-            Vec3 away = position().subtract(p.position()).normalize().scale(0.4);
-            setDeltaMovement(getDeltaMovement().add(away));
-            inkCooldown = 120;
-            hideTicks = 0;
+            OctopusEscapePolicy.findRoute(this, p).ifPresent(route -> {
+                if (emitInk(sl)) {
+                    startJetAway(route);
+                    inkCooldown = OctopusEscapePolicy.EMISSION_COOLDOWN_TICKS;
+                    hideTicks = 0;
+                }
+            });
         }
         playerProxCooldown = 20;
         // 35% chance every 600t to "hide" (rest in place) for 200-500t.
@@ -179,14 +210,73 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity> i
         this.xBodyRot += (target - this.xBodyRot) * 0.1f;
     }
 
-    protected void emitInk(ServerLevel level) {
-        for (int i = 0; i < 30; i++) {
+    protected boolean emitInk(ServerLevel level) {
+        if (!isSubmerged() || !OctopusInkCloudRegistry.tryCreate(level, this)) return false;
+        for (int i = 0; i < OctopusInkCloudRegistry.MAX_PARTICLE_BIRTHS; i++) {
             double dx = (random.nextDouble() - 0.5) * 0.4;
             double dy = (random.nextDouble() - 0.5) * 0.4;
             double dz = (random.nextDouble() - 0.5) * 0.4;
             level.sendParticles(ParticleTypes.SQUID_INK, getX(), getY(), getZ(), 1, dx, dy, dz, 0.1);
         }
         level.playSound(null, blockPosition(), SoundEvents.SQUID_SQUIRT, SoundSource.NEUTRAL, 1.0F, 1.0F);
+        entityData.set(DATA_INK_TICKS, OctopusInkCloudRegistry.LIFETIME_TICKS);
+        entityData.set(DATA_INK_EVENT, OctopusInkCloudRegistry.snapshot(level, getUUID())
+                .map(OctopusInkCloudRegistry.Snapshot::event).orElse(0));
+        return true;
+    }
+
+    private void startJetAway(OctopusEscapePolicy.Route route) {
+        jetDirection = route.direction();
+        jetTicks = OctopusEscapePolicy.JET_DURATION_TICKS;
+        entityData.set(DATA_JET_TICKS, jetTicks);
+    }
+
+    private void tickJet() {
+        if (jetTicks <= 0) return;
+        Vec3 velocity = OctopusEscapePolicy.applyJet(getDeltaMovement(), jetDirection);
+        setDeltaMovement(velocity);
+        // No-AI fixtures and externally suppressed brains do not enter Mob.travel. Move the
+        // bounded retreat directly in that case so the server-authoritative escape still occurs.
+        if (!isEffectiveAi()) move(MoverType.SELF, velocity);
+        jetTicks--;
+        entityData.set(DATA_JET_TICKS, jetTicks);
+        if (jetTicks == 0) jetDirection = Vec3.ZERO;
+    }
+
+    private boolean isSubmerged() {
+        return isInWaterOrBubble()
+                || level().getFluidState(blockPosition()).is(net.minecraft.tags.FluidTags.WATER)
+                || level().getFluidState(blockPosition().below()).is(net.minecraft.tags.FluidTags.WATER);
+    }
+
+    public boolean isInkCloudActive() {
+        return entityData.get(DATA_INK_TICKS) > 0;
+    }
+
+    public boolean isJetting() {
+        return entityData.get(DATA_JET_TICKS) > 0;
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if (level() instanceof ServerLevel sl) OctopusInkCloudRegistry.remove(sl, getUUID());
+        jetTicks = 0;
+        jetDirection = Vec3.ZERO;
+        super.remove(reason);
+    }
+
+    @Override public net.minecraft.world.entity.Entity camouflageEntity() { return this; }
+    @Override public int camouflageTargetColor() { return entityData.get(DATA_CAMO_TARGET); }
+    @Override public float camouflageTargetWeight() { return entityData.get(DATA_CAMO_WEIGHT); }
+    @Override public void setCamouflageTarget(int color, float weight) {
+        entityData.set(DATA_CAMO_TARGET, color & 0xffffff);
+        entityData.set(DATA_CAMO_WEIGHT, net.minecraft.util.Mth.clamp(weight, 0.0f, 1.0f));
+    }
+    @Override public int camouflageColor() { return camouflageColor; }
+    @Override public float camouflageWeight() { return camouflageWeight; }
+    @Override public void setCamouflageCurrent(int color, float weight) {
+        camouflageColor = color & 0xffffff;
+        camouflageWeight = net.minecraft.util.Mth.clamp(weight, 0.0f, 1.0f);
     }
 
     public enum Variant implements StringRepresentable {

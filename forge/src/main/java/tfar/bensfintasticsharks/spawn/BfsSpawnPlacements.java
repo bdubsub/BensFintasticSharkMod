@@ -45,8 +45,8 @@ public class BfsSpawnPlacements {
         registerWater(event, ModEntityTypes.COMMON_STINGRAY);
         registerWater(event, ModEntityTypes.BOTTLENOSE_DOLPHIN);
         registerWater(event, ModEntityTypes.GREEN_SEA_TURTLE);
-        registerWater(event, ModEntityTypes.ATLANTIC_COD);
-        registerWater(event, ModEntityTypes.ATLANTIC_SALMON);
+        registerFish(event, ModEntityTypes.ATLANTIC_COD);
+        registerFish(event, ModEntityTypes.ATLANTIC_SALMON);
 
         // Giant Moray: soft bias toward shipwrecks — always allowed on/at a wreck, rarer in
         // open water, so morays cluster around shipwrecks without vanishing elsewhere.
@@ -102,6 +102,19 @@ public class BfsSpawnPlacements {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static void registerWater(SpawnPlacementRegisterEvent event, EntityType<?> type) {
         event.register((EntityType) type, SpawnPlacements.Type.IN_WATER, Heightmap.Types.OCEAN_FLOOR,
+                BfsSpawnPlacements::checkSimpleWaterSpawn,
+                SpawnPlacementRegisterEvent.Operation.OR);
+    }
+
+    /**
+     * Atlantic Cod and Salmon retain vanilla fish placement semantics. Their separate
+     * biome modifiers decide where they are eligible, while this placement keeps the
+     * vanilla motion-blocking heightmap and water predicate for each accepted attempt.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void registerFish(SpawnPlacementRegisterEvent event, EntityType<?> type) {
+        event.register((EntityType) type, SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 BfsSpawnPlacements::checkSimpleWaterSpawn,
                 SpawnPlacementRegisterEvent.Operation.OR);
     }

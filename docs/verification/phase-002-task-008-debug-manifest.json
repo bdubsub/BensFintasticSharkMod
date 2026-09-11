@@ -1,0 +1,32 @@
+{
+  "schema": "bfs.debug-candidate-manifest.v1",
+  "scenarioId": "p002-task008-packaged-tiger-movement-diagnostic-20260909",
+  "requirementId": "BFS-REQ-027",
+  "artifactSha256": "66ac5b99de5359ca90b28e2b5aa59df066e83b0f9d7e40f42c184c23a835a37b",
+  "requiredMovementFields": [
+    "x",
+    "y",
+    "z",
+    "velocityX",
+    "velocityY",
+    "velocityZ",
+    "yaw",
+    "pitch",
+    "inWater",
+    "alive",
+    "speciesProfile",
+    "locomotionMode",
+    "behaviorAction",
+    "motionWriter",
+    "trajectoryPitch",
+    "moveControl",
+    "navigationDone"
+  ],
+  "entities": {
+    "7dcb7726-ba15-4cca-b8a5-64ca85edc507": {
+      "minimumSamples": 120,
+      "maximumPitchStepDegrees": 0.300001,
+      "maximumCoordinateStep": 0.001
+    }
+  }
+}

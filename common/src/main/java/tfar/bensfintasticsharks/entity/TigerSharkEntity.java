@@ -67,6 +67,12 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
     }
 
     @Override
+    protected float upwardPitchLimitDegrees() { return AquaticMovement.TIGER_UPWARD_PITCH_LIMIT; }
+
+    @Override
+    protected float downwardPitchLimitDegrees() { return AquaticMovement.TIGER_DOWNWARD_PITCH_LIMIT; }
+
+    @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_VARIANT, 0);
@@ -274,9 +280,9 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
     @Override public float bfsScaleMin() { return 0.85f; }
     @Override public float bfsScaleMax() { return 1.0f; }
 
-    // Bite-sync (same recipe as Blacktip's 0.18 fix): animation.tigershark.bite opens the
-    // jaw at 0.125s, peaks at 0.25s and snaps shut at 0.375s (7.5t). Default 5t hit early.
-    @Override protected int biteImpactDelayTicks() { return 8; }
+    @Override protected int biteImpactDelayTicks() {
+        return TigerBiteTiming.impactDelayTicks();
+    }
 
     @Override
     protected net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> preyTag() {

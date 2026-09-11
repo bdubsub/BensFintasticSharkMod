@@ -20,4 +20,11 @@ public class AtlanticSalmonRenderer extends GeoEntityRenderer<AtlanticSalmonEnti
     public @NotNull ResourceLocation getTextureLocation(AtlanticSalmonEntityForge entity) {
         return TEXTURE;
     }
+
+    @Override
+    protected void applyRotations(AtlanticSalmonEntityForge entity, com.mojang.blaze3d.vertex.PoseStack poseStack,
+                                  float ageInTicks, float rotationYaw, float partialTick) {
+        super.applyRotations(entity, poseStack, ageInTicks, rotationYaw, partialTick);
+        AquaticRenderTransforms.applySwimPitch(poseStack, entity, partialTick);
+    }
 }

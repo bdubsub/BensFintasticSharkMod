@@ -1,5 +1,5 @@
 {
-    size: [3, 3, 3],
+    size: [40, 24, 40],
     palette: [
         {Name: "minecraft:air"}
     ],

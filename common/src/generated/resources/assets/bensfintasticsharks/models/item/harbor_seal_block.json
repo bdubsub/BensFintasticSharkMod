@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "bensfintasticsharks:item/harbor_seal_block"
+  }
+}

@@ -16,11 +16,6 @@ import java.util.stream.Collectors;
 
 final class BfsSpeciesInfo {
 
-    private static final Map<String, String> VANILLA_REPLACEMENT_HABITATS = Map.of(
-            "atlantic_cod", "Cold Ocean, Deep Cold Ocean, Deep Lukewarm Ocean, Deep Ocean, Lukewarm Ocean, Ocean",
-            "atlantic_salmon", "Cold Ocean, Deep Cold Ocean, Deep Frozen Ocean, Frozen Ocean, Frozen River, River"
-    );
-
     private static final Map<String, Entry> ENTRIES = Map.ofEntries(
             Map.entry("great_white_shark", shark("Carcharodon carcharias", "Neutral apex predator",
                     ModTags.Biomes.GREAT_WHITE_SHARK_SPAWNS, ModTags.EntityTypes.GREAT_WHITE_SHARK_PREY)),
@@ -77,7 +72,7 @@ final class BfsSpeciesInfo {
 
     static String habitats(CommandSourceStack source, String species, Entry entry) {
         if (BfsConfig.COMMON.replaceVanillaMobs.get()) {
-            String replacementHabitats = VANILLA_REPLACEMENT_HABITATS.get(species);
+            String replacementHabitats = vanillaReplacementHabitats(source, species);
             if (replacementHabitats != null) {
                 return replacementHabitats;
             }
@@ -92,6 +87,32 @@ final class BfsSpeciesInfo {
                 .sorted()
                 .toList();
         return names.isEmpty() ? "No natural habitat" : String.join(", ", names);
+    }
+
+    /**
+     * Replacement mode uses the vanilla entity's real biome spawn registrations. This keeps
+     * the information card aligned with the runtime that is being replaced instead of copying
+     * a hand-maintained list that can drift from Minecraft's biome data.
+     */
+    private static String vanillaReplacementHabitats(CommandSourceStack source, String species) {
+        EntityType<?> vanillaType = switch (species) {
+            case "atlantic_cod" -> EntityType.COD;
+            case "atlantic_salmon" -> EntityType.SALMON;
+            default -> null;
+        };
+        if (vanillaType == null) {
+            return null;
+        }
+
+        var registry = source.getLevel().registryAccess().registryOrThrow(Registries.BIOME);
+        List<String> names = registry.entrySet().stream()
+                .filter(entry -> entry.getValue().getMobSettings().getSpawnerTypes().stream()
+                        .anyMatch(category -> entry.getValue().getMobSettings().getMobs(category).unwrap().stream()
+                                .anyMatch(spawner -> spawner.type == vanillaType)))
+                .map(entry -> prettyName(entry.getKey().location()))
+                .sorted()
+                .toList();
+        return names.isEmpty() ? null : String.join(", ", names);
     }
 
     static String diet(Entry entry) {

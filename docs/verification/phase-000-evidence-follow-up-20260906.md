@@ -1,0 +1,596 @@
+# Phase 000 Evidence Follow Up
+
+## 2026-09-07 natural salmon movement and packaged client capture
+
+The exact rebuilt Forge artifact `BensFintasticSharks-forge-1.20.1-0.24.jar` was bound to source revision `1c0516293602e0673ea322bbbfd188b0779da612-dirty-client-movement-fallback` and SHA 256 `975660f11d322bb2644a16591c0f95dca6aea960875cddb3aba6d270ccef1e4f`. Node 1 ran the packaged Forge 1.20.1 dedicated server with Java 17.0.19 at private endpoint `100.76.164.109:25732`. The laptop Prism client ran Java 17.0.15 through the NVIDIA GeForce RTX 5090 Laptop GPU on Hyprland workspace `3`; its exact Java playback stream for client PID `2421710` was muted and verified. The server runtime read back `eula=true` before launch.
+
+The fixture disabled natural replacement, spawned one tagged Atlantic Salmon and one tagged Oceanic Whitetip, and enabled their existing AI. No teleport commands were used during the capture window. The server movement capture `bfs-debug-20260907-082855-00272124-a377-4443-9647-5fccd93c41bb.jsonl` has SHA 256 `cce2b9e011a14a7d0259a3a62eae8cadc721aa2f8c9cdbe2fd7106f82e732787`. It contains 601 records, 599 Salmon movement records, zero dropped records, and a clean duration terminal record. The Salmon moved through 493 nonzero position transitions, with a maximum observed coordinate step of `0.093536` blocks and maximum vertical velocity of `0.037018` blocks per tick. The strict analyzer returned `complete`; its verdict SHA 256 is `694dbedff2c9bf8dee8de45a6e4f482c2b6cb029d58fd9aa5365852dc9637d21` and its summary SHA 256 is `6851c4a4cb93f511b47971af0aae755651a43740b26a2bf9d22ad1b7590d490c`.
+
+The matching laptop capture `client-bfs-debug-20260907-082856-f4aac6f5-593b-4300-ba1d-ec0c6bd5f58a.jsonl` has SHA 256 `c435abc05b6990439341f057d0c3c0d1f1f9012ba81cf3870837b3ddabd2d29e`. It contains 2,558 records, 2,043 movement records, 512 presentation records, zero dropped records, and a clean duration terminal record. The strict analyzer returned `complete`; its verdict SHA 256 is `47f277e60b0ec2f9deb165562f4cbd675b1adf3429b7bf8f26598e501e84423d` and its summary SHA 256 is `1cae3a4f6e862ed334c24587f43c5b38d144833783f9024c81809f082a2d3683`. The Atlantic Salmon presentation supplied 300 samples, all `RUNNING` with `animation.atlantic_salmon.swim`, while the Oceanic Whitetip supplied 204 `swim_fast_new` samples and six death samples before leaving the loaded fixture. This closes the natural Salmon movement and packaged client swim-controller reproduction for this candidate.
+
+This capture does not close the complete fish and Oceanic matrix. Cod, Salmon fast, flop, spin, death, Oceanic idle, swim, fast swim, bite timing, death cleanup, the five point authored transform table, and the remaining movement and combat criteria still require their own bound fixtures and acceptance evidence. The disposable server, client, captures, screenshots, and analyzer scratch output were stopped, hashed, and removed after this record was written. Phase 000 remains open.
+
+## Current source bound fish and Oceanic state captures
+
+On 2026-09-06, the dedicated server was restarted on node 1 at port `25586` with RCON on `25587`. The laptop Prism client used the exact Forge artifact from source revision `c3536e0`, SHA 256 `982dbc152c675bb87daf052596c1bf0c38542b9f3b9d7b2e516fa2d5ddd8c5d1`, and SHA 512 `a87715962438e78ae6c3c6170efa689b4ea7b86a3c4532d9da8961162befb61d93fad98cabaa4da61d624d0c027246331d8d737b379bc40354d1bafaf7dbf26e`. The server remained headless on node 1. The client rendered on the Linux laptop through the NVIDIA GeForce RTX 5090 Laptop GPU on Hyprland workspace `3`. No workspace switch was issued. The exact client stream was checked and no Minecraft playback stream was present.
+
+The first fresh client capture, `client-bfs-debug-20260906-065048-1978deaa-e513-4026-b1ff-a92564ca6f82.jsonl`, has SHA 256 `85344feb80939103e7e5d81385729f62c02384c69f33a27c7b079b0edb75572a`. It contains 26,282 records, 21,019 movement samples, 5,260 presentation samples, zero dropped records, and a clean duration terminal record. The strict analyzer returned `complete` with no errors or warnings. The controlled presentation records showed Cod idle, the exact-name Salmon `Spin` clip, Bottlenose Dolphin idle, and Oceanic Whitetip idle. Its analyzer verdict SHA 256 is `fc533dea0c7e896952a7631f421e83a2a0f8a55baf478a957b3b2dd78a983368`, and its summary SHA 256 is `906844f112cf038b5a2927a55654c6a919205ecf10134c7f69c19313495626dd`.
+
+The second fresh client capture, `client-bfs-debug-20260906-065739-f9a7c101-3a1a-4410-954b-6c1fce46d695.jsonl`, has SHA 256 `b2fd8896f6004397248f897d65f852968ce37a21b237e883c8e80027ae525765`. It contains 26,984 records, 21,582 movement samples, 5,400 presentation samples, zero dropped records, and a clean duration terminal record. The strict analyzer returned `complete` with no errors or warnings. Cod entered `animation.atlantic_cod.flop`, Salmon remained on the exact `animation.atlantic_salmon.spin` clip, and Oceanic Whitetip entered `animation.oceanicwhitetipshark.thrash`. The analyzer verdict SHA 256 is `43a0a0eebc62a9d8374d9f6e5c841a6f3424afb7194fd20851b465bd140a12d2`, and its summary SHA 256 is `794b0366afa6c810e3701d516333c509573d50f85095e6807b83be3494762621`. The matching server capture `bfs-debug-20260906-065807-7c23bbd1-3fac-4f74-bd5b-1d975d05f717.jsonl` has SHA 256 `43c832a0f7422fff597605ca85ac3f2c86d366e792c9c75516cd0b497b79f0bc`, completed with zero dropped records and one terminal record, and records movement telemetry only. It is not treated as a combat or bite oracle.
+
+The third fresh client capture, `client-bfs-debug-20260906-070121-00bb7271-ace2-4521-ae1a-69e05d327c61.jsonl`, has SHA 256 `ef746c46784ccc502197c7a1d8d3ccf6ae3b0687b8daa628e60c7320bcd429b7`. It contains 23,369 records, 18,688 movement samples, 4,677 presentation samples, zero dropped records, and a clean duration terminal record. The strict analyzer returned `complete` with no errors or warnings. The Oceanic Whitetip presentation controller entered `swim_new`, `swim_fast_new`, `bite_new`, `beached`, and idle states while the server controlled prey scanning and a dry grounded fixture. No death controller state was observed, so death animation remains unverified. Its analyzer verdict SHA 256 is `fbb9dbc99c71584d63bda590b70368b54728e054ed4d644bff906f3097668`, and its summary SHA 256 is `0571a67a083a7084c0f58370c4159add52de9e9f500c558aff04b6dbafe7889c`. The matching server capture `bfs-debug-20260906-070140-8e7f8f72-aed7-438a-aaf2-24daef12493e.jsonl` has SHA 256 `d0f2aa98f503f00f87089d946652541995e077585dab753fa82d9c5ef66fee35` and completed with zero dropped records and one terminal record.
+
+The retained screenshot hashes for this bounded run are `352277abb041686b9d2711d2c282b4b85567b79886376d27066553056b9990d1` for the Oceanic thrash frame, `d659f5f7e2ff413314106233dda31e347a50f63996d1e6ee1509604fb823b894` for the fish flop fixture, `86efcf41bf53b87f96f6fad93254f68bf5974efdc9bf5b4e9d9060f810837a99` for the Oceanic pursuit frame, `1c0ded1f7326e18899499da22702227a28e0899ff5081414d96b7d9e8dd9e144` for the beached fixture, and `b8e67dbad4ba90cfce4499da69622cc665d3c046f3227a4d55c6b66d3300e026` for the damage fixture. These screenshots support controlled client rendering only. They do not replace the required five point bone transform table or prove timing, death, natural combat, or cleanup.
+
+These captures materially advance `P000-TASK-005` and prove that the corrected client cadence analyzer accepts the exact current artifact. They do not close the authored five point bone transform table, all Cod and Salmon states, Oceanic death and complete bite timing, Tiger pursuit and combat, fresh advancement completion, natural algae collection and population, final artifact inspection, review, merge, ancestry, or the signed Phase 000 tag. Phase 000 remains open.
+
+## Bound packaged server and diagnostic facility evidence
+
+On 2026-09-06, the current phase revision was `b780a7c5202f391cf9ff895db946e63300fbad81`. The Forge build completed successfully with Java 17.0.19. The exact artifact was `BensFintasticSharks-forge-1.20.1-0.24.jar`, SHA 256 `3984700226aa70e352edd63ff5b580d298b0b598955adf2a63d0382600667754`, and SHA 512 `8843bc83dae2f3219376b2dac8ad760201dbc478d22a8d0913ba0a161d5011a696df3aecc107b0316bab7752d1e5d0cf84ae8dc84f2ad52c9237dd8086af0412`. `unzip -tqq` passed. The artifact remains the 0.24 phase artifact. Release candidate metadata is a later release gate.
+
+The dedicated Forge server GameTest task passed all 19 of 19 tests. The Python tool tests passed all 17 tests. The server was then run from a clean packaged Forge 1.20.1 distribution on node 1 with the exact artifact and release dependency jars. The server reached `Done` and accepted the exact laptop client without the registry mapping failure seen in the earlier mapped userdev attempt. The earlier failure is retained as a diagnostic finding, not as a client acceptance result.
+
+The bound server diagnostic capture was written to the disposable runtime before cleanup. It has SHA 256 `5427916070a91a6acee49a7ec2bda29cfff86ef34d3d8b6607449977ebfd4b68`, 41 records, 39 movement records, zero dropped records, and a terminal record. The strict analyzer returned `complete` against the current source and artifact bindings. Its controlled movement used a server teleport fixture, so it proves transport, schema, binding, and analyzer behavior but is not natural locomotion evidence. The static negative control has SHA 256 `95406c6c6406233e01707e1391ec790760fcfd6c2fbb7349bf92f5a3d364d631`, 61 records, and zero dropped records. It is complete only when no movement threshold is required and is intentionally invalid when natural movement is required.
+
+The packaged server and laptop client then ran the client diagnostic command with the binding properties enabled. The laptop rendered on `envision` with the NVIDIA GeForce RTX 5090 Laptop GPU, without a workspace switch, and the exact Minecraft playback stream was verified muted before capture. The bound client capture has SHA 256 `6586436257b9166713bf57ca95d4b05cf63b13cece9c1a8321df3da93f595244`, 19,980 records, 15,961 movement records, 4,002 presentation records, 15 target lifecycle records, zero dropped records, and a terminal record. The strict analyzer returned `complete` with no errors or warnings. The header binds source revision `b780a7c5202f391cf9ff895db946e63300fbad81`, artifact SHA 256 `3984700226aa70e352edd63ff5b580d298b0b598955adf2a63d0382600667754`, motion profile `phase-000-baseline`, configuration `phase-000-default`, and datapack `phase-000-generated`. A selected tracked entity supplied 1,199 samples, 137 moving transitions, a pitch range of 11.25 degrees, maximum total speed `0.088567`, maximum horizontal speed `0.086733`, maximum vertical speed `0.034750`, maximum pitch step `0.46875`, and maximum coordinate step `0.097896`. This is bound diagnostic evidence, not a substitute for the authored interactive visual matrix or natural combat acceptance.
+
+The diagnostic command and log schema are therefore usable remotely on a dedicated server and on the laptop client, with explicit unavailable values, source and artifact binding, drop counts, terminal status, movement, orientation, presentation, and target lifecycle records. Temporary server runtimes, client captures, analyzer scratch directories, and test-only generated logs were stopped or removed after hashing the evidence. The Prism test instance was restored to its original configuration and its previous jar filename was restored.
+
+These results close the diagnostic facility and packaged handshake portion of `P000-TASK-013`. Phase 000 remains open for the authored interactive animation and movement matrices, fresh advancement completion and icon review, natural algae collection and population evidence, sustained population and cleanup checks, final artifact binding, independent review, merge into `1.20.1`, ancestry verification, and the signed Phase 000 tag.
+
+## Additional bounded fish controller captures
+
+On 2026-09-06, a second disposable dedicated server run used phase revision `4e952f3fe3308124868a21733237b628010cd546` and the packaged artifact SHA 256 `3984700226aa70e352edd63ff5b580d298b0b598955adf2a63d0382600667754`. The server ran headless on node 1 at the private test endpoint and the matching Prism client rendered on the laptop. The client master volume remained zero and the laptop workspace was restored to workspace `2` after each focused command. The server was stopped, the client was stopped, the prior Prism configuration and jar filename were restored, and no test listener remained.
+
+The paired fish capture has SHA 256 `b88176778e09617c2f84bc00720f19a50406791f488c86b33878a8388d697d99` and contains 3,000 records with 2,398 movement records, 600 presentation records, zero dropped records, and a clean duration terminal record. It includes ordinary Cod and Salmon presentation states and server side damage events. The paired server capture has SHA 256 `1df2f309c7e66595f54d5b718cf4d974895549b16300fc6956405396672d04da` and contains 2,402 records with zero dropped records. The isolated exact-name Salmon `Spin` capture has SHA 256 `94c5ea877f8fe78d392de98159356aaac5b1a666ec57c20f10952fda5f230db5` and records 300 `animation.atlantic_salmon.spin` presentation samples with no other Salmon animation.
+
+The controlled Cod land fixture has SHA 256 `deed4f8df5c85bce363099e20193ae92fa0f56f7b3fd3e88cfa6c88ba5b7c6c5` and records 161 `animation.atlantic_cod.flop` presentation samples, 643 movement samples, and one client target lifecycle record after removal. A separate lethal damage fixture has SHA 256 `474bb6d743622152258796ba048da5dd2b69470eddac331c471fed67e198ec8c`; it records the target lifecycle but no death presentation state. This does not close the death gate.
+
+The fast swim attempt is not accepted. Its client movement records reached a squared velocity of `0.038416`, above the controller threshold, but the presentation samples remained idle or ordinary swim. This requires a fresh natural fast swim reproduction or an implementation fix before `P000-TASK-005` can close. The authored five point bone transform table, natural combat timing, and all remaining species and release gates remain open.
+
+## Synchronized fish fast swim repair and packaged client recheck
+
+The fast swim mismatch was repaired on phase revision `54c895cd967dcf86a56dd6e9e0bdd9fb6b5f30fa`. Cod and Salmon now publish a server authoritative `DATA_FAST_SWIM` flag from their water movement threshold, and their Forge controllers consume that synchronized flag instead of reading a client side velocity that can be stale during interpolation. The Forge GameTest `fishFastSwimStateSynchronizesFromServerMotion` passed for both species, proving the flag sets and clears around the threshold. The full dedicated GameTest run passed all 20 tests, the Forge tests passed, and the Forge build passed.
+
+The exact rebuilt artifact was `BensFintasticSharks-forge-1.20.1-0.24.jar`, SHA 256 `c0a88cb19cbd7c38fdef6711eff3709d9da17d959bd8996fac1604ea50570ec5`, and SHA 512 `07129b4fdbf879bad19121853bdb646674b24f165c1bcdb9418d0fcc3c809767e60c5d493c276b6979e196095938c79d84dc5d0567f88a40957de51440fdb1fc`. The JAR passed `unzip -tqq`. A clean packaged Forge 1.20.1 server ran headless on node 1 at the private endpoint `100.76.164.109:25590` with RCON on `25591`, and the matching Prism client rendered on the Linux laptop with the RTX 5090. The client log records a successful modded-server handshake and two selected BFS fish targets. No client audio playback stream was present during the capture, and the test instance master volume remained zero.
+
+The server movement capture `bfs-debug-20260906-094127-e391c6d4-dc54-4308-a961-3cdc40606c14.jsonl` has SHA 256 `5cafe0d5f3ee46468481c6c425b37bfa225bef9264779162bee8dba11a19ebc2`, 60 requested movement records, zero dropped records, and a clean duration terminal record. Its first samples show Cod velocity `0.2657527142592` and `0.26043765997401597`, above the squared threshold, while the fish remained in water. The server capture is a synchronization fixture, not natural locomotion evidence.
+
+The paired laptop client capture `client-bfs-debug-20260906-094128-c3a6f1b6-6b62-42f4-9b5b-8f8fe85eb471.jsonl` has SHA 256 `2cc0542b5510d419ad65ba8296fa69f16c825c6c174078b6ee430782155a8450`. It contains 1,245 accepted presentation and movement records, zero dropped records, a clean operator requested terminal record, two selected targets, and the same source revision and artifact hash in its header. Cod entered `animation.atlantic_cod.swim_fast` four times and Salmon entered `animation.atlantic_salmon.swim_fast` five times. The same capture also records ordinary swim and idle states for both fish, proving the controller transitions in the packaged multiplayer client. This closes the previously invalid fast swim synchronization reproduction, but it does not close the five point bone transform table, every required fish and Oceanic state, death timing, natural combat, or the remaining Phase 000 exit gates.
+
+## Fresh packaged state matrix baseline and remaining presentation gap
+
+On 2026-09-06, a fresh disposable dedicated server ran on node 1 at `100.76.164.109:25590` with RCON on `25591`, using source revision `4de2f2f2b6c773ba0d1b0069f79813679f5daf47` and Forge artifact SHA 256 `c0a88cb19cbd7c38fdef6711eff3709d9da17d959bd8996fac1604ea50570ec5`. The matching Prism client rendered on the Linux laptop with the NVIDIA GeForce RTX 5090 Laptop GPU. Its window remained on Hyprland workspace `3` while workspace `2` stayed active, and the exact Java playback stream for PID `3700223` was muted. The server and client used the same artifact and binding properties.
+
+The fresh client capture `client-bfs-debug-fish-matrix.jsonl` has SHA 256 `e3b816aade2b74978b8f040c42c2cee025592762455c2484f755fa5fec0a6e1d`. It contains 7,497 records, 5,995 movement records, 1,500 presentation records, zero dropped records, and one clean duration terminal record. The analyzer returned `complete` with no errors or warnings when bound to scenario `fish_state_matrix_baseline_20260906`, requirement `BFS-REQ-007`, and the exact artifact hash. Five living targets were selected: Atlantic Cod, two Atlantic Salmon, Oceanic Whitetip Shark, and Bottlenose Dolphin.
+
+This run is diagnostic evidence, not a passing animation matrix. The Cod controller remained on `animation.atlantic_cod.idle` while held still. The ordinary Salmon controller remained on `animation.atlantic_salmon.idle`, and the exact-name Spin fixture did not activate the Spin controller in the packaged client. Bottlenose Dolphin exposed running idle and swim controller states. Oceanic Whitetip exposed `controller` and `thrash_controller`, but both remained stopped with `unavailable:no_current_animation` for all 300 presentation samples. All five fixtures remained at zero pitch and zero displacement because this bounded baseline intentionally held them stationary. The capture therefore reproduces the missing Oceanic presentation and incomplete fish state transitions that keep `P000-TASK-005` open. The hidden-window tank screenshot has SHA 256 `13c3f027dfe0d00788459a737e964efa95acd55fe02bd82a5a8a6930f1b53edc` and proves only that the packaged controlled tank rendered on the laptop without changing the active workspace.
+
+The run also confirms why Phase 000 cannot advance solely from the fast swim repair. The five point authored bone transform table, ordinary and fast movement routes, Salmon Spin activation, Cod and Salmon flop and death, Oceanic swim, fast swim, bite timing, death, beached and thrash cleanup, Tiger pursuit and combat, fresh advancement completion, natural algae, sustained population, final artifact binding, review, merge, ancestry, and signed phase tag remain required gates. Phase 001 is sequentially blocked until Phase 000 closes these criteria and integrates into `envy/0.24`.
+
+## Salmon Spin join timing isolation
+
+On 2026-09-06, a disposable dedicated server and laptop client run isolated the earlier exact-name Salmon `Spin` result. The server spawned the named Salmon before the client joined, and the client used the same source revision `4de2f2f2b6c773ba0d1b0069f79813679f5daf47` and Forge artifact SHA 256 `c0a88cb19cbd7c38fdef6711eff3709d9da17d959bd8996fac1604ea50570ec5`. The client capture `spinjoin.jsonl` has SHA 256 `09ca906b8d73f553818ee0bbd8c745d5acb2d667576b2623dad37fa0beba0f8b` and contains 502 records, zero dropped records, and a clean duration terminal record. The Salmon controller was `RUNNING` with `animation.atlantic_salmon.spin` for all 50 presentation samples. This positively controls the exact-name Spin route when the entity is present before client join, so the earlier missing Spin sample was a fixture timing failure rather than proof of a production controller defect. The same controlled run left the stationary Oceanic Whitetip `controller` and `thrash_controller` stopped with `unavailable:no_current_animation`, so Oceanic presentation remains open for a valid moving and state-transition capture.
+
+This isolation narrows but does not close `P000-TASK-005`. The authored five point transform table is now recorded below and its deterministic audit passes, but every required fish and Oceanic presentation state, Oceanic death and complete bite timing, natural combat, advancement completion, algae population, final artifact binding, review, merge, ancestry, and signed Phase 000 tag remain outstanding.
+
+## Authored five point clip samples
+
+The current source resources were sampled at normalized clip times `0`, `0.25`,
+`0.5`, `0.75`, and `1.0`. Values are the authored x, y, and z transform vector
+for the first complete moving channel that differs by more than `0.0001` from
+the first sample. This table is a structural authored-asset record and does not
+replace the required interactive controller and presentation evidence.
+
+| Clip | Sampled moving channel | Length | 0.00 | 0.25 | 0.50 | 0.75 | 1.00 |
+| --- | --- | ---: | --- | --- | --- | --- | --- |
+| `animation.atlantic_cod.idle` | `body.rotation` | 4 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 5.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -5.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_cod.swim` | `body.rotation` | 2 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_cod.swim_fast` | `body.rotation` | 1 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 12.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -12.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_cod.flop` | `body.rotation` | 0.5 | `(0.00000, -10.00000, -90.00000)` | `(0.00000, 5.62438, -90.00000)` | `(0.00000, 2.50000, -90.00000)` | `(0.00000, -3.75000, -90.00000)` | `(0.00000, -10.00000, -90.00000)` |
+| `animation.atlantic_salmon.idle` | `body.rotation` | 4 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 5.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -5.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_salmon.swim` | `body.rotation` | 2 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_salmon.swim_fast` | `body.rotation` | 1 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -8.00000, 0.00000)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.atlantic_salmon.flop` | `body.rotation` | 0.5 | `(0.00000, -5.00000, -90.00000)` | `(0.00000, 16.25275, -90.00000)` | `(0.00000, 30.00000, -90.00000)` | `(0.00000, 2.50000, -90.00000)` | `(0.00000, -5.00000, -90.00000)` |
+| `animation.atlantic_salmon.spin` | `root.rotation` | 0.5 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, -90.00000, 0.00000)` | `(0.00000, -180.00000, 0.00000)` | `(0.00000, -270.00000, 0.00000)` | `(0.00000, -360.00000, 0.00000)` |
+| `animation.oceanicwhitetipshark.idle` | `Body.rotation` | 4 | `(0.00000, 0.00000, -2.00000)` | `(0.00000, 8.00000, 0.00000)` | `(0.00000, 0.00000, 2.00000)` | `(0.00000, -8.00000, 0.00000)` | `(0.00000, 0.00000, -2.00000)` |
+| `animation.oceanicwhitetipshark.swim_new` | `Body.rotation` | 1.7083 | `(0.00000, 0.00000, -1.00000)` | `(0.00000, 9.99985, -0.00548)` | `(0.00000, 0.10969, 0.99994)` | `(0.00000, -9.99865, 0.01645)` | `(0.00000, -0.21937, -0.99976)` |
+| `animation.oceanicwhitetipshark.swim_fast_new` | `Body.rotation` | 0.75 | `(0.00000, 0.00000, -2.00000)` | `(0.00000, 12.00000, 0.00000)` | `(0.00000, 0.00000, 2.00000)` | `(0.00000, -12.00000, 0.00000)` | `(0.00000, 0.00000, -2.00000)` |
+| `animation.oceanicwhitetipshark.bite_new` | `Head.rotation` | 0.75 | `(0.00000, 0.00000, 0.00000)` | `(-1.02075, 5.48185, -1.26450)` | `(4.59812, 4.98332, 0.39937)` | `(4.60134, 4.98024, 0.39517)` | `(0.00000, 0.00000, 0.00000)` |
+| `animation.oceanicwhitetipshark.death` | `Body.rotation` | 3 | `(0.00000, 0.00000, -2.00000)` | `(-6.08967, -9.56933, -11.45029)` | `(-31.83399, -4.64387, -26.32261)` | `(-27.08570, -11.92563, -29.08006)` | `(-22.33740, -19.20740, -31.83750)` |
+| `animation.oceanicwhitetipshark.beached` | `Body.rotation` | 4 | `(2.50000, 0.43301, -27.00000)` | `(2.50000, -0.25000, -27.00000)` | `(2.50000, -0.43301, -27.00000)` | `(2.50000, 0.25000, -27.00000)` | `(2.50000, 0.43301, -27.00000)` |
+| `animation.oceanicwhitetipshark.thrash` | `Fin2.rotation` | 3.25 | `(0.00000, 0.00000, 0.00000)` | `(0.00000, 0.00000, -0.45949)` | `(14.21891, 0.00000, 10.85995)` | `(3.06192, 0.00000, 13.70045)` | `(0.00000, 0.00000, 0.00000)` |
+
+The deterministic audit `fishAndWhitetipClipsHaveDistinctFivePointTransformSamples`
+remains the executable source of this table. The table was generated from the
+same resource tree at phase revision `e6d795179079dfb40295ccb5c3db879c91047b41`
+and has SHA 256
+`708d88e3b7cbae411088ea154e110f62f549a7bd55e0fe2c72378d152883c249` before
+insertion into this evidence record.
+
+## Current phase tip deterministic verification
+
+On 2026-09-06, the exact phase tip `005a1f103079e4bb706a6b8fdc154326f9e0a0e1` was verified in a detached disposable worktree on node 1. Java 17.0.19 and the checked-in Gradle wrapper were used. `./gradlew :forge:test --no-daemon` passed. `./gradlew :forge:Data --no-daemon` passed twice; the second run wrote zero generated files. `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks` passed all 20 required tests, including diagnostic parity, lifecycle, permissions, fish and shark movement, combat, algae controls, and strict vertical movement. `./gradlew :forge:build --no-daemon` passed.
+
+The packaged phase artifact was `BensFintasticSharks-forge-1.20.1-0.24.jar`. `unzip -tqq` passed. Its SHA 256 is `7b6de2a97dd11a9b7e2bc3faf32dff3b673693faa4550636c1bd504c485f8467`, and its SHA 512 is `19e8dbff4fec455e822466655c7739b726c253398cd8adcf50fb82b4464ed3ec149c60ee98f67dfc6d9d2d071a002d4b644ec51018b73a370a314686aa8f9c9e`.
+
+The disposable worktree and its server world, generated output, logs, configs, and build artifacts were removed after verification. The phase worktree's pre-existing protected generated-cache, build-script, launcher, log, and pid changes were not altered. These results close the current deterministic baseline only. They do not close the laptop movement and presentation matrix, authored transform samples, natural combat and cleanup, fresh advancement and algae evidence, final `1.0-rc.1` artifact binding, review, merge into `1.20.1`, ancestry proof, or the signed Phase 000 tag.
+
+## Fresh packaged server movement diagnostic run
+
+On 2026-09-06, a fresh disposable packaged Forge server ran headless on node 1 at the private endpoint `100.76.164.109:25592` with Java 17.0.19. The runtime used phase revision `fcd010a0286105a58258119871428c9d3a771273`, Forge artifact SHA 256 `039ec4598363faf4c6b6503190cf8f17740b607f27df986e1ee092d34f24fe90`, GeckoLib 4.4.7, SmartBrainLib 1.14.2, configuration fingerprint `phase-000-animation-matrix-e6f2`, motion profile `phase-000-baseline`, and generated data fingerprint `phase-000-generated`. The matching Prism client connected successfully from the laptop. Its client process was PID `357394`, window stable ID `18000677`, Hyprland workspace `3`, while workspace `2` remained active. The client log records the RTX 5090 renderer and a successful modded server handshake. The exact client PipeWire stream was identified by process ID and reported `Mute: yes`; no default sink or unrelated stream was muted.
+
+The bounded server command `/bfs debug on movement 100` captured session `029d2b7e-e825-4f77-97af-aa8437320952` at `/tmp/bfsm-p000-anim-e6f2/logs/bfs-debug/bfs-debug-20260906-123300-029d2b7e-e825-4f77-97af-aa8437320952.jsonl`. The capture SHA 256 is `8cff7692cfb1c49416b9e932109696aa3186fcdc5625c645119e414dec83fd19`. It contains 1,568 movement records and one terminal record, with zero dropped records and `incomplete=false`; the terminal reason is `duration_elapsed`, with four targets unavailable after natural movement left the bounded fixture. The selected sample included Atlantic Cod, Atlantic Salmon, Oceanic Whitetip Shark, Tiger Shark, Bottlenose Dolphin, and other loaded BFS entities. The records include position, velocity, displacement, blocks per second, yaw, pitch, pitch delta, look vector, water and gravity flags, trajectory pitch, movement controller, and navigation status.
+
+The captured extrema were: Atlantic Cod vertical velocity `0.0` to `0.025187`, vertical displacement `0.0` to `0.027986` blocks per tick, horizontal displacement up to `0.097545`, pitch delta `-0.300` to `0.300` degrees; Atlantic Salmon vertical velocity `-0.037016` to `0.050000`, vertical displacement `-0.041124` to `0.050000`, horizontal displacement up to `0.625000`, pitch delta `-0.300` to `0.300` degrees; Oceanic Whitetip vertical velocity `-0.003274` to `0.0`, vertical displacement `-0.004205` to `0.0`, horizontal displacement up to `0.385713`, pitch range `0.0` to `2.1`; Tiger Shark vertical velocity `-0.007923` to `0.000393`, vertical displacement `-0.010158` to `0.000504`, horizontal displacement up to `0.396230`, and pitch range `0.0` to `4.526`; Bottlenose Dolphin vertical velocity `-0.017638` to `0.0`, vertical displacement `-0.019071` to `0.0`, horizontal displacement up to `0.178825`, and pitch range `0.0` to `10.0`. Every affected entity used a registered movement controller. The server trace is valid diagnostic evidence and confirms bounded logging, but it is not a visual acceptance result and does not close `P000-TASK-005` or `P000-TASK-006`.
+
+The hidden-window tank frame was captured without changing the active workspace. Its SHA 256 is `5a66466c3d623efe8d640c76a0ff949b60aad98752bb82db695a2c10f570adbf`. It proves the packaged client rendered the private fixture on the laptop only. The frame contains no labeled state transition and therefore does not substitute for the required state-by-state animation, pitch, death, combat, and cleanup evidence. The disposable server, client, test runtime, backups, and temporary captures were stopped or removed after hashing the evidence, and port `25592` is closed on both hosts.
+
+## Fresh deterministic phase gate rerun
+
+On 2026-09-06, the current phase tip `646cbe4032419a1d6aeca0ff998ef1289757a897` was rerun with Java 17.0.19 in the disposable GameTest runtime `/tmp/bfsm-p000-gt-current-20260906`. `./gradlew :forge:test --no-daemon` passed. `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks -PbfsGameTestRunDir=/tmp/bfsm-p000-gt-current-20260906` completed with all 20 required GameTests passed, including diagnostic parity, lifecycle, permissions, fish and shark movement, combat, algae controls, and strict vertical movement. The runtime log SHA 256 is `c6731ac913177a89c23699fa3cdbd870ad9acc8eaecd039982e8b3701392a512`.
+
+The packaged Forge artifact used by the current worktree is `BensFintasticSharks-forge-1.20.1-0.24.jar`, SHA 256 `039ec4598363faf4c6b6503190cf8f17740b607f27df986e1ee092d34f24fe90`, and SHA 512 `1d30f94b1b5647742c132bbd97f19cd92f74c0d3992c17f4a892b8a3214b97a2ebfb83c1771991252dea5b6e36670aa6fb21fd841123257897b4c2ad157671d4`. This rerun confirms the deterministic phase layer remains green; it does not close the required laptop state matrix, natural combat and cleanup, final release binding, review, merge, ancestry, or signed Phase 000 tag.
+
+## Current exact artifact animation evidence
+
+On 2026-09-06, the current phase tip `09ddff2e4c46b8f1c3741cc95aa584fc8cf14b60` was rebuilt as `BensFintasticSharks-forge-1.20.1-0.24.jar`. The exact artifact SHA 256 is `9a7d5249da7ebddf3369e9a78489cd095b592baeaa935969074f37f4e50245d7`, and the SHA 512 is `ebc155c23429af8d155982c77451b1326b4a918c8b317e0f3a18df2fa5ab1612882eaa47151e5e23f74f1bdbf7b9d5491d5b8291447a63554af1be2820d0421e`. The server was the disposable headless Forge runtime on node 1. The client used the same artifact on the Linux laptop with the RTX 5090 renderer, remained on its existing Hyprland workspace, and kept the test instance master volume at zero.
+
+The following fresh client JSONL captures are bound to that exact source revision, artifact hash, Forge `47.2.0`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration `phase-000-animation-matrix-e7`, and data pack `phase-000-generated`. Each completed with zero dropped records and a clean terminal record.
+
+| State or matrix | Capture | SHA 256 | Result |
+| --- | --- | --- | --- |
+| Cod and Salmon ordinary, fast, flop, and exact-name Spin routes | `/tmp/bfsm-p000-e7-fish.jsonl` | `9654faa5eed7b836ed93cdf8f7d672bf15377ca24a870f22153030dcd42e46ab` | Cod and ordinary Salmon reached idle, swim, swim_fast, and flop. The named Salmon reached `animation.atlantic_salmon.spin`. |
+| Oceanic bite and prey damage window | `/tmp/bfsm-p000-e7-oceanic.jsonl` | `07de66433605fba83da0cc6356a90ec2c6913880d38488ecc3a84874db1147d` | `animation.oceanicwhitetipshark.bite_new` transitioned through `TRANSITIONING` and `RUNNING` before the target lifecycle ended. |
+| Oceanic passenger thrash | `/tmp/bfsm-p000-e7-thrash.jsonl` | `f38abab23923d844aa16c936de5c043d2c54ab275f46a0f77dc9c44aac9f9d5f` | `thrash_controller` transitioned from stopped to `animation.oceanicwhitetipshark.thrash` and back after dismount. |
+| Oceanic beached | `/tmp/bfsm-p000-e7-beached3.jsonl` | `8c7a3a35759100ecd50db5c6ace03ff30e0d73fe1fda00a38b3b1d00117e714e` | Movement record reports `inWater=false`, `onGround=true`; the controller ran `animation.oceanicwhitetipshark.beached`. |
+| Oceanic hostile fast swim | `/tmp/bfsm-p000-e7-fast4.jsonl` | `fa988c63db74b554177529d90f6b7de4ba31873cd29816a1515c56e346fd4d78` | The controller ran `animation.oceanicwhitetipshark.swim_fast_new` while two bound targets were selected. |
+| Oceanic death | `/tmp/bfsm-p000-e7-death3.jsonl` | `453e11b07030833a239a09c3d4a7f0bc7e6e81525c95cc7aa4c2c6cad2243dca` | After damage while capture was active, the controller transitioned to and ran `animation.oceanicwhitetipshark.death`; the target lifecycle then recorded removal. |
+
+These captures close the previously missing Oceanic beached, hostile fast swim, and death presentation reproductions and materially advance `P000-TASK-005`. They do not close the authored bone transform table, Tiger pursuit and combat baseline, fresh advancement completion and icon review, natural algae survival and loot, sustained population, final merged artifact audit, review, integration into canonical `1.20.1`, ancestry verification, or the signed Phase 000 tag. Phase 000 remains open.
+
+## Fresh Tiger pursuit and combat baseline
+
+On 2026-09-06, a fresh disposable packaged Forge server ran headless on node 1 at the private endpoint `100.76.164.109:25598`. It used the exact phase source revision `1b0f1ea` and Forge artifact SHA 256 `9a7d5249da7ebddf3369e9a78489cd095b592baeaa935969074f37f4e50245d7`, with GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration fingerprints `334a43116169b675363a62248bb128b0d60f751b4b40a2ed1560960da6a419d` and `3f078c04568092279832ded54e83fb4c9135deba6237ad777c215baf57656c19`, and generated data fingerprint `phase-000-generated`.
+
+The server debug capture was session `5f2d31ed-498f-4414-bbb3-7384fb4d6167`, with local copy `/tmp/bfsm-p000-tiger-server.jsonl`, SHA 256 `86d62046f8b9fa586ab11aaf406f892d2de874cd5690f9e51124a18170561fef`, and SHA 512 `fffa04ede7af77536fb0ea7d8a86544772708c46d5539b20d3ad62c3a4843b3164ee42a68d4fade5845131f24d109a989b3715ed0beba2bf18a916caed175dda`. It contains 602 accepted records, zero dropped records, and `incomplete=false`. The Tiger selected an Atlantic Cod target for 20 movement samples, then produced a combat record at tick `29215` with victim `bensfintasticsharks:atlantic_cod`, attacker `bensfintasticsharks:tiger_shark`, damage type `mob`, and amount `4.0`. The target became unavailable after the cod was removed. This closes the exact server-side target acquisition and one damage-window baseline portion of `P000-TASK-006`, but not target-loss recovery or the full natural combat matrix.
+
+The paired laptop capture was `/tmp/bfsm-tiger-client4.jsonl`, session `e0fe890a-9d10-4fa7-bbcb-7be0b5504ff0`, SHA 256 `d16115bd5da4302b9abfc9cc27213caa730ceb07175079c9b88625b1ae904f41`, and SHA 512 `48ca90750f5454e32cd5e544113f2db2f86292e2923349fb388b793c7597ad06f8793528511a15aa66f8422aba3a600af98afa8221648785256bb8d7f3e959`. The exact artifact, private server, Forge `47.2.0`, and data fingerprint matched the server. The RTX 5090 renderer was recorded and the test instance master volume was zero; no unrelated audio stream was touched. The capture completed at its duration boundary with 2 selected targets, zero dropped records, 65 Cod idle samples, 91 Cod swim samples, 78 Tiger bite samples, and 37 Tiger fast swim samples. It proves that the packaged multiplayer client reaches the Tiger bite and fast swim controllers, but it also contains 329 `unavailable:no_current_animation` presentation samples during controller transition or recovery. A complete target-loss and recovery presentation therefore remains open.
+
+These records explain why Phase 000 is still active. The phase is sequential and its deterministic tests are green, but the phase exit gates still require the complete laptop movement and animation matrix, authored transform samples, fresh advancement and icon review, natural algae survival and loot, sustained population and cleanup, final `1.0-rc.1` artifact binding, independent review, merge into canonical `1.20.1`, ancestry proof, and the signed Phase 000 tag. The Tiger records advance the phase and narrow the remaining work; they do not satisfy those remaining gates by themselves.
+
+## Current artifact paired tiger diagnostic rerun
+
+On 2026-09-06, the previous Tiger diagnostic was rerun after the server metadata was corrected to bind the exact phase artifact. The disposable Forge server ran headless on node 1 at `100.76.164.109:25611` with RCON on `25612`, Java `17.0.19`, source revision `98f3c1637df06d71c0b32adbffef0b0c1c52ea30`, and Forge artifact SHA 256 `9a7d5249da7ebddf3369e9a78489cd095b592baeaa935969074f37f4e50245d7`. The server header binds Forge `47.2.0`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration `tiger-recovery-current`, and data pack `phase-000-generated`.
+
+The exact server capture `bfs-debug-20260906-152229-ba2599e8-a60f-4bdc-a3af-756762eeac50.jsonl` has SHA 256 `241495e9269229d2e0d408f3ced6dc054bf2322834bac22e2d19655db903e198`. It contains one selected Tiger, 1,199 movement records, zero dropped records, and a complete duration terminal record. The analyzer returned `complete` with no errors or warnings under `p000-tiger-server-current-20260906`, `BFS-REQ-019`; its verdict SHA 256 is `21bb39fcba91f8647781b0b1d60d884178688fd9ea0dda877dd3a5ecb24a1a7c`. The measured trace used `SharkSwimmingMoveControl`, reached 61 moving sample transitions, and observed a maximum pitch step of `0.30000003` degrees. This is current artifact server telemetry, not the full Tiger pursuit, bite, and target-loss acceptance matrix.
+
+The matching laptop client used the same artifact and source binding on the NVIDIA laptop. Its exact window was PID `1411078`, stable ID `180006cb`, class `Minecraft* 1.20.1`, on Hyprland workspace `3`; the active workspace remained `3`, and only its Java PipeWire stream node `147` was muted and verified as `[MUTED]`. The client connected to the modded server and selected the same Tiger UUID. The client capture `client-bfs-debug-20260906-152915-9e098ee0-e736-4c26-bb36-df79d59f3730.jsonl` has SHA 256 `15f75f10e5c0b4c730f286010bc70fe8df62789c1f6532ecbcb98a175cff89b6`. It contains 1,199 movement records, 300 presentation records, zero dropped records, and a complete duration terminal record. The analyzer returned `complete` with no errors or warnings under `p000-tiger-client-current-20260906`, `BFS-REQ-022`; its verdict SHA 256 is `afd4220df3ce3f78b23f66ecf8cf9dbb3f04be9d4c3d1e9482e05c4f9787a631`. All 300 presentation samples reported the running Tiger swim animation, with no missing target or unavailable controller state.
+
+This paired rerun removes the prior server artifact mismatch and closes the current diagnostic binding for a stable Tiger swim presentation. It does not close target-loss recovery, bite timing, the complete authored fish and Oceanic state matrix, fresh advancement and icon review, natural algae and population evidence, final `1.0-rc.1` artifact inspection, review, merge, ancestry, or the signed Phase 000 tag.
+
+## Packaged BFS-REQ-027 server captures
+
+On 2026-09-06, the exact packaged Forge artifact was exercised in a disposable dedicated server runtime on node 1 at `100.76.164.109:25621`, with RCON on `25622`. The runtime used source revision `98f3c1637df06d71c0b32adbffef0b0c1c52ea30`, Forge artifact SHA 256 `9a7d5249da7ebddf3369e9a78489cd095b592baeaa935969074f37f4e50245d7`, Forge `47.2.0`, Minecraft `1.20.1`, Java `17.0.19`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, motion profile `phase-000-baseline`, configuration fingerprint `p000-013-packaged-current`, and data pack fingerprint `phase-000-generated`. The server reached its ready marker and accepted the authenticated laptop test connection. The test client was kept muted and was used only to keep the disposable fixture active while the server diagnostics ran.
+
+The five isolated captures below each selected one living entity, requested 1,200 ticks, wrote 1,199 movement samples and one terminal record, dropped zero records, and returned `incomplete=false`. Each raw JSONL capture was analyzed with the strict `tools/bfs_debug_analyze.py` parser against a candidate manifest bound to the exact artifact. Every verdict was `complete` with no errors or warnings.
+
+| Species | Session | Raw capture SHA 256 | Analyzer verdict SHA 256 | Observed extrema |
+| --- | --- | --- | --- | --- |
+| Atlantic Cod | `b387e68b-4aaa-4005-b0be-84f86ce9e95d` | `0bb7a54f9f7d2ad9110d23f254b3d81a9db2b8518b45a13e196ca55c4ad2d463` | `90eee80dba67f73b38891391da463b2bbbd2528b22eb748837377cb218c7bff9` | max total speed `0.095003`, horizontal `0.087981`, vertical `0.037043`, pitch step `0.300000`, coordinate step `0.105559` |
+| Atlantic Salmon | `41ae4657-6ff3-47a0-b832-4f97424c5128` | `508e7b31f0a508d55e1ea7608f5344257e526776bcefb9621c669de87488a562` | `d8d3e1c4e85968ba3a4979b797f06baee54e7350ce4f7789627d5d79c78c7d9d` | max total speed `0.094967`, horizontal `0.088199`, vertical `0.037024`, pitch step `0.300001`, coordinate step `0.105519` |
+| Oceanic Whitetip Shark | `ed23ecc9-dba5-4478-8c77-18ffb4f5bda8` | `a9692b165878fa28e39504753fb7fa09d8537045573f31b40fc3e1f2c67a11ca` | `90bc6a38f2557284ed18dd7fcd810bc6e3f0137c3bb1d823ddab39c6f89d074d` | max total and horizontal speed `0.095550`, vertical `0.009687`, pitch step `0.300001`, coordinate step `0.122500` |
+| Bottlenose Dolphin | `3a612a12-1d1a-4f5b-8abd-fbfdbc0ba4c6` | `14bb07a9d454e33d2ef881c33bc2cb00b0798cd2383a97c5091cf2a4cbf03caa` | `0876c94da5e8806d3f572fed6ef5de22452fac327eb9debedaf893b0d53d9a25` | max total speed `0.222808`, horizontal `0.131315`, vertical `0.180000`, pitch step `0.300000`, coordinate step `0.160829` |
+| Tiger Shark | `0ac8ce18-496b-4b30-b2c1-93c73e3e35f5` | `f7d0c9c572439f231f9ff352b2f8e534357609512ac43335d9b6b0bc3f3855b1` | `757aada03158ea8bfd9b2c30ddc3c7cbd9d85d89b27fae68c71f5c1eb68fd1fd` | max total and horizontal speed `0.117000`, vertical `0.011313`, pitch step `0.300000`, coordinate step `0.150000` |
+
+The server headers bind every session to the same source, artifact, runtime versions, configuration and data pack. The affected Cod, Salmon and shark captures show the expected reduced vertical component and eased pitch transition; the Dolphin capture remains the qualitative vertical-motion reference. The diagnostic GameTest rerun used a separate disposable headless runtime and passed all 20 required tests, including command permissions, lifecycle cleanup, parity, fish and shark movement, combat, algae controls and strict vertical movement. Its `latest.log` SHA 256 is `0e02c2bbcae49a79903b9e37df3aa167f4427f4e9071755ff664422ce1a91bbd`.
+
+This closes the packaged server capture and strict analyzer portion of `P000-TASK-013`. It does not close the remaining client-only authored state matrix, fresh advancement and icon review, natural algae and population evidence, full combat and cleanup matrix, final candidate version metadata, independent review, merge into `1.20.1`, ancestry proof, or the signed Phase 000 tag.
+
+The disposable GameTest runtime, packaged server runtime, analyzer output, and candidate manifests were removed after their final evidence consumers completed. The owned laptop client was stopped with no remaining owned Minecraft process or test port. Its pre-existing Prism instance was restored and verified with instance configuration SHA 256 `6035c4d2a43077c2383b5402d47ce10ddfd55155423ec71e21afcadb1ece84d2` and mod jar SHA 256 `9bd02e0957ba284f0c07dbbb51b6b951ba547d0aaf79f80f6a2dddcf18fa5d5e`.
+
+## Current paired fish and dolphin movement capture
+
+On 2026-09-06, the exact packaged `0.24` artifact was restarted with the correct binding properties in a disposable dedicated Forge server on `node-1` at `100.76.164.109:25631`, with RCON on `25632`. The runtime used Java `17.0.19`, source revision `98f3c1637df06d71c0b32adbffef0b0c1c52ea30`, artifact SHA 256 `9a7d5249da7ebddf3369e9a78489cd095b592baeaa935969074f37f4e50245d7`, Forge `47.2.0`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration fingerprint `p000-005-server-matrix-current`, and data pack fingerprint `phase-000-generated`. A glass and water tank held tagged Atlantic Cod, Atlantic Salmon, and Bottlenose Dolphin fixtures. The explicit selector `@e[tag=matrix_fish]` selected all three entities.
+
+The server capture session `e6c01d75-5a6e-43ae-8ee6-84338d29f366` is `/tmp/bfsm-p000-005-matrix-20260906/logs/bfs-debug/bfs-debug-20260906-163030-e6c01d75-5a6e-43ae-8ee6-84338d29f366.jsonl`, SHA 256 `4fbcf5c37538ee74cd550dca45571a3bdef2eb77f04c8aae2f2f990f7f4a9c98`, and contains 3,597 movement records, one terminal record, zero dropped records, and `incomplete=false`. The strict analyzer returned `complete` under `p000-005-fish-dolphin-server-current-20260906` and `P000-TASK-005`; its verdict SHA 256 is `6ae7889a68b348859c83ad223cbf7894bfe9f8cb27a79a9f1babea80a669c7cc`. Cod reached 1,199 samples, 261 moving transitions, maximum vertical speed `0.036894`, maximum pitch step `0.300000`, and maximum coordinate step `0.105448`. Salmon reached 1,199 samples, 833 moving transitions, maximum vertical speed `0.037007`, maximum pitch step `0.300012`, and maximum coordinate step `0.105069`. Bottlenose Dolphin reached 1,199 samples, 1,097 moving transitions, maximum vertical speed `0.180000`, maximum pitch step `0.300001`, and maximum coordinate step `0.150178`.
+
+The paired laptop Prism client used the same artifact and source binding on `envision`, PID `1758605`, Hyprland workspace `3`, with the active workspace remaining `3`; only its Java PipeWire stream node `144` was muted and verified as `[MUTED]`. The client capture `/tmp/bfsm-p000-005-client-20260906.jsonl` has SHA 256 `a14b9481ed4f25a2cf93383e7109fcb7947962c416ae0c4f0cf1bd089c982f6b`, 28,724 records, zero dropped records, and a clean duration terminal record. The selected fixtures each supplied 1,199 movement and 300 presentation records. Cod reported `RUNNING` with `animation.atlantic_cod.swim` for all 300 presentation samples. Salmon reported `STOPPED` with `unavailable:no_current_animation` for all 300 samples. Bottlenose Dolphin reported `STOPPED` with `unavailable:no_current_animation` for all 300 samples. The capture therefore proves the current paired movement and client presentation path, while reproducing the Salmon and Dolphin animation activation gap for `P000-TASK-005` and `DEF-024-002`; it is not a passing authored animation matrix.
+
+The disposable server was stopped cleanly after capture and the client remained muted during the run. This evidence does not close the required authored bone transform table, state activation and special-state matrix, Tiger target-loss recovery, fresh advancement and icon review, natural algae survival and population evidence, final `1.0-rc.1` metadata and artifact audit, review, merge into canonical `1.20.1`, ancestry proof, or the signed Phase 000 tag.
+
+## Tiger item pursuit fixture isolation rerun
+
+On 2026-09-06, the first fresh rerun of the Phase 000 GameTest batch exposed a fixture interference failure in `bfsgametests.tigersharkpursuesreachableedibleitem`. The test started a Tiger Shark and a reachable edible item, but an unrelated aquatic entity spawned inside the fixture during the 40-tick observation window. The shark correctly gave priority to that live target, entered `HOSTILE`, and moved away from the item. The decisive failure recorded `startDistance=20.5`, `finalDistance=29.683798335810295`, and `navDone=false`. This was a test isolation defect, not evidence that live-prey priority should be removed from production behavior.
+
+The fixture now discards only unexpected non-player aquatic living entities inside the bounded shark-to-item fixture before each sample. It does not alter the Tiger Shark target policy, navigation, curiosity state, or live-prey priority. The rerun used the isolated runtime `/tmp/bfsm-p000-task005-gametest-tjRWFV` with Java 17.0.19 and the checked-in Gradle wrapper:
+
+```text
+JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64 ./gradlew :forge:GameTestServer --no-daemon --rerun-tasks -PbfsGameTestRunDir=/tmp/bfsm-p000-task005-gametest-tjRWFV
+```
+
+The server reported `All 20 required tests passed`, with zero failed tests. The eight diagnostic captures each ended with `incomplete=false` and zero dropped records. The five relevant movement captures recorded maximum absolute vertical speeds of `0.000000` for the stationary Cod control, `0.041137` for Salmon, `0.014994` for Tiger Shark, `0.012495` for Oceanic Whitetip Shark, and `0.014412` for Bottlenose Dolphin. These are headless server regression and fixture-isolation results only. The runtime, worlds, logs, configurations, and captures were retained until this evidence update and must be removed after the commit is verified. This rerun does not close the client animation matrix, natural Tiger combat and recovery, fresh advancement review, algae acceptance, final artifact binding, or Phase 000 integration gates.
+
+## Current paired client presentation matrix follow up
+
+On 2026-09-06, the exact packaged artifact from phase tip `de0e2dbfbd7e8c207ca9761c9256eb3055c69ca7` was captured again on the Linux laptop against the disposable dedicated server. The Forge artifact was `BensFintasticSharks-forge-1.20.1-0.24.jar` with SHA 256 `182ef55edad165e9c3f53b0bc6322b197b61d94f20154dfbcca1546d2ba1f4c6`. The client header bound Forge `47.2.0`, Minecraft `1.20.1`, Java `17.0.15`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, motion profile `phase-000-baseline`, configuration `phase-000-task005-client-matrix-e8`, and data pack `phase-000-generated`.
+
+The local client session was `f60ea7fd-ad0a-4593-89b6-5e284b757928`. Its JSONL capture was copied to `/tmp/bfsm-p000-task005-client-matrix-e8.jsonl` for analysis and has SHA 256 `18a5eca2c1d9bdafd009b687bdcaa1928f5b5d2a399d2ced1e0dd732f6a02a96`. It contains 5,995 movement records, 1,500 presentation records, one header, one terminal record, zero dropped records, and `incomplete=false`. The capture ran for the requested 1,200 client ticks and selected five targets without exclusions. The owned Prism client remained on Hyprland workspace `3`; its exact Java stream was muted and verified before capture.
+
+Presentation state coverage in this run was:
+
+| Entity | Fresh controller states observed |
+| --- | --- |
+| Atlantic Cod fixture one | `animation.atlantic_cod.idle`, `animation.atlantic_cod.swim` |
+| Atlantic Cod fixture two | `animation.atlantic_cod.idle`, `animation.atlantic_cod.swim`, `animation.atlantic_cod.swim_fast` |
+| Atlantic Salmon named Spin fixture | `animation.atlantic_salmon.spin` |
+| Bottlenose Dolphin | `animation.bottlenose_dolphin.idle`, `animation.bottlenose_dolphin.swim` |
+| Oceanic Whitetip Shark | `animation.oceanicwhitetipshark.idle` |
+
+The capture confirms the earlier salmon and dolphin `no_current_animation` result is not universal for this exact artifact and fixture setup. It does not close the full authored matrix. Salmon ordinary swim, fast swim, and flop, Oceanic swim, fast swim, bite, thrash, beached, damage, and death, and movement driven pitch and vertical transition samples still require dedicated state captures. Because these fixtures used bounded diagnostic movement and client state sampling, this record is presentation evidence only and does not replace the required natural movement and action acceptance gates.
+
+## Current packaged captain advancement trigger
+
+On 2026-09-06, the same disposable dedicated server and exact artifact were used for a fresh player advancement trigger. The server first revoked all advancements from `EnVyOnMyMind` and confirmed the player inventory was empty. It then granted one `bensfintasticsharks:captain_ben_hat` item through the server command path. The server diagnostic capture was category `advancement`, session `b42e919a-d7cf-4f44-87bf-7c5076a35a3a`, and SHA 256 `5e1057270fa3650d5e055f194606215736a2254fc14b9078360e36318d2cf569`.
+
+The capture is bound to source `de0e2dbfbd7e8c207ca9761c9256eb3055c69ca7`, artifact SHA 256 `182ef55edad165e9c3f53b0bc6322b197b61d94f20154dfbcca1546d2ba1f4c6`, Forge `47.2.0`, Minecraft `1.20.1`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration `phase-000-task005-client-matrix-e8`, and data pack `phase-000-generated`. It contains eight accepted advancement events, zero dropped records, and a complete terminal record. The final custom event is `bensfintasticsharks:captains_heir` at tick `20401`, after the hat was inserted, proving the current generated criterion completes on the exact item trigger.
+
+This is fresh server-side trigger evidence only. It does not replace the required laptop advancement screen capture, seven icon byte and presentation review, or a natural loot acquisition path.
+
+## Current oceanic controller and paired fixture follow up
+
+On 2026-09-06, the exact signed phase revision `8401c9c206d7a71daba6f07a158aca0cdf0ece8e` was packaged as `BensFintasticSharks-forge-1.20.1-0.24.jar` with SHA 256 `b469495028d0bf916ea3f1d4d645c22dadf975d93769f241fa8f9922cbeafd61` and SHA 512 `4e63535a98a77a5a5ffbcf5ea469fd5ef35ea19f723fa974aa990af9a60948246b4959ac124f83b4c4dec63382f000d5abc1b3d1b30e7784e20f9304fbb5a2a2`. Compile Java, compile test Java, the Forge build, archive integrity, and all 20 required dedicated server GameTests passed for this revision.
+
+A disposable Forge server ran headless on node 1 at port `25660` with RCON on `25661`, Java `17.0.19`, Minecraft `1.20.1`, Forge `47.2.0`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, and `eula=true`. The private laptop Prism client connected with the same artifact and source binding. Its client process was PID `2320477`, window class `Minecraft* 1.20.1`, Hyprland workspace `3`, and the renderer reported the NVIDIA GeForce RTX 5090 Laptop GPU. The exact client PipeWire stream was node `143`, matched by process ID, and verified `[MUTED]` before capture.
+
+The server movement capture session `5629484d-9061-43c9-909b-b9f8e9a407a9` selected six tagged fixture entities for 400 ticks. Its JSONL SHA 256 is `68da696dec8d57c3adaa2b747a2e622b729e129582b5b08c96a855c20d5c1fb8`. It produced 1,823 movement records, zero dropped records, and `incomplete=false`. The capture used `BfsFishMoveControl` for Atlantic Cod and Salmon and `SharkSwimmingMoveControl` for Oceanic Whitetip, Tiger Shark, and Bottlenose Dolphin. It is diagnostic telemetry, not a natural movement acceptance result.
+
+The client fixture presentation capture `4edd5ecf-82dd-43aa-aafd-57519e872d1d` has JSONL SHA 256 `fcc2a2f5ed447b34a11fb6cd16b543dbc1b65685346ae1602807ad0ab974faed`, with 4,141 records, zero dropped records, and an operator-stop terminal record. In a bounded static fixture, it observed Tiger `animation.tigershark.swim`, Bottlenose Dolphin `animation.bottlenose_dolphin.idle` and `swim`, Atlantic Cod `idle`, Oceanic `idle`, and Atlantic Salmon `idle` plus exact-name `Spin`. A second five-second motion probe `a85a6a73-596a-4bac-861f-a805dfc2c4d8` has JSONL SHA 256 `6fe852f0189f5d5654ed15a02bb3297509d43615eae092c9cd5ac1d2a3c33215`; it observed Cod `swim`, ordinary Salmon `swim`, exact-name Salmon `spin`, Oceanic `swim_new`, Tiger `swim`, and Bottlenose Dolphin `swim`. The level-motion probe reported interpolated pitch `0.0` for every selected entity, so it does not close the required vertical reorientation or pitch transition rows.
+
+The laptop screenshot `2026-09-06_13.24.39.png` shows the complete six-entity glass-and-water fixture and has SHA 256 `50a605b899728e4373b21f21ef201c9205f8a1310291e0dc948a31604b7f3706`. It was requested from the existing workspace without switching Hyprland workspaces. The screenshot is presentation evidence only and does not close the full authored-state matrix, natural combat and recovery, fresh advancement and icon review, algae survival and loot, population, multiplayer cleanup, final artifact metadata, review, merge, ancestry, or the signed Phase 000 tag.
+
+## Current algae support regression
+
+On 2026-09-06, commit `49172f34cbdc0c22a00b2c727364171b3808ecc2` added a dedicated `bfs_baseline` GameTest for invalid algae support. The test places the large red form in a water column, removes its submerged support, and asserts that the block state no longer satisfies `canSurvive`; it also asserts that the base algae form rejects a dry position. This extends the existing placement, water restoration, and broken-form loot tests without changing production behavior.
+
+The affected checks ran with Java `17.0.19` and the checked-in Gradle wrapper. `./gradlew :forge:compileJava :forge:compileTestJava --no-daemon` passed. `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks -PbfsGameTestRunDir=/tmp/bfsm-p000-algae-regression-bkLUEB` passed all `21` required tests, including the new support regression. The disposable GameTest runtime log SHA 256 is `7768bb47cf93b888bdc3d15e0692c3e23e0d60ba007be6e7efeec0f30eb92653`; SHA 512 is `8088f85d8149fcd0427be2095e7e08d3e91fa1f65fce8d654069f314598b6e163e60ec70fa0e35dae2577ba263de6276969f2a1368830ef1469a5750435d99e8`. The runtime, world, generated structures, configuration, logs, and debug captures were removed after the final evidence consumer completed.
+
+This closes the server-side invalid-support regression layer for `P000-TASK-007`. It does not close natural survival collection, exact loot interaction, complete client rendering and frame cadence, final artifact packaging, population, multiplayer cleanup, or the Phase 000 integration gates.
+
+## Current packaged algae generation and client fixture evidence
+
+On 2026-09-06, the exact packaged Forge artifact from source revision `7f5c0df53ba3d6694472004891d31172707ce7fa` was run in the disposable dedicated server runtime on `node-1`. The artifact `BensFintasticSharks-forge-1.20.1-0.24.jar` has SHA 256 `e3ede96a40cd2dfbf2b7373ae01e5a153b35536efc83627beeae4d4e69b7d96e` and SHA 512 `67232d8e9c6f9a2cde5c44c204b38e32263d59ee93d62bd437bc3bc9adeed1f903762c94e0ca417317f220094b7e27d6522d73f76cc47e597f6d5055cd441578`. The server used Minecraft `1.20.1`, Forge `47.2.0`, Java `17.0.19`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, seed `240024`, world `bfs_p000_algae_client`, and `eula=true`. The packaged server latest log SHA 256 is `013c8ace8a0d70ec63785c88ab7e0754a0eeeb455a8aa6fdf7a1f7016b97818e`; SHA 512 is `3331d45f5bd2b990f2b0c199d79e5381c454df148420d3d985e67e1b50e6d4891c052c6b6f1e3c2a12df91c5ab4f8e6cb781e71d5d8742ba8d69f3d55745f677`.
+
+The natural-generation sample covered Overworld coordinates `x=16..143`, `y=20..62`, `z=-112..15` in the fixed seed. Non-destructive filtered clone scans found `7` `bensfintasticsharks:algae_block`, `2` `bensfintasticsharks:large_green_algae`, and `3` `bensfintasticsharks:large_red_algae` blocks. Source examples were `(111,35,-66)`, `(79,53,-6)`, and `(103,55,-8)` respectively. The first destructive scan was discarded and the world was restarted before these counts were recorded.
+
+The controlled client fixture contained a sand floor, water, glass enclosure, all three algae forms, and vanilla seagrass. The laptop client connected to the exact server endpoint at `100.76.164.109:25670` on Hyprland workspace `3` without changing workspaces. The owned Java process was PID `2615444`, window stable ID `18000767`, and its PipeWire node `159` matched that PID and reported `[MUTED]`. The controlled fixture screenshot is `/tmp/bfsm-p000-algae-controlled-20260906.png` with SHA 256 `a908c1cbecbc45d8227134f5f443145876097678a7b01ed87fd20acc1bc3079b`. The client latest log SHA 256 is `09d0837747b552548132d703324a06ec8046cc9466f701e94b043133d4a263b8`.
+
+The packaged server debug command `execute as EnVyOnMyMind at @s run bfs debug on algae 200` produced session `027d7a81-58f4-4f51-99cb-c46b35c0db34`, with JSONL SHA 256 `0d03e27243fe235bd5d14d054b55fcb21a1294acaba6ed7acd03364ad49ad4cf` and SHA 512 `fe2544cf357f379b1f30f40b003bbb5e5bff2c277d0502c1c3a32e49853cf6c7432e2d5b47a6187ce1666678baea42b30096b83b2ad2235333e831c53d5ee003`. The capture used `schema=bfs-debug-v2`, `side=server`, `hostRole=dedicated_server`, `category=algae`, `requestedTicks=200`, `eligibleTargets=22`, `selectedTargets=22`, `excludedTargets=0`, `recordsAccepted=1`, `recordsDropped=0`, and `incomplete=false`, with the source, artifact, runtime, configuration, and data-pack bindings above.
+
+This closes the packaged natural-generation and debug evidence layer for `P000-TASK-007`. It does not close the full survival collection and loot interaction matrix, authored client animation and pitch matrix, fresh advancement and icon review, sustained population, multiplayer reconnect cleanup, final `1.0-rc.1` metadata audit, independent review, pull request merge into canonical `1.20.1`, ancestry proof, or the signed Phase 000 tag.
+
+## Current exact artifact fish controller probes
+
+On 2026-09-06, the exact packaged artifact from source revision `7dc52f762ddf1454d2ef456d1686a692e32f15da` was connected to the disposable dedicated server on `node-1` and the muted Prism client on the NVIDIA laptop. The artifact SHA 256 was `d542ee74733f2e209572f9e86a39db8cd6f9a342f8365daf8fa46e9aa1704a1e`. The client header matched Minecraft `1.20.1`, Forge `47.2.0`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, motion profile `phase-000-baseline`, configuration `p000-task005-state-matrix-7dc52f7`, and data pack `phase-000-generated`. The exact client stream was matched to the owned test PID and remained muted.
+
+The single Cod capture `7a745392-6e71-43d2-8700-feaa4e5627e0` has SHA 256 `bc84e967bc92d49e424fc9da62e5e7d37f0a9ea25e130581ddae89ed51f29700`. It contains 1,501 records, 300 presentation samples, zero dropped records, and `incomplete=false`. The controller reported `animation.atlantic_cod.idle` for 14 samples, then a transition into `animation.atlantic_cod.swim`, followed by 285 running swim samples. This is a valid current idle to swim activation result.
+
+The ordinary Salmon capture `f48666a7-3744-4dc0-ad6a-3e5526cfb812` has SHA 256 `6606a393a50c91d1428851f7cc7fd34318de87c36ca9ef81a720cf36053d4354`. It contains 1,502 records, 300 presentation samples, zero dropped records, and `incomplete=false`; all 300 samples reported running `animation.atlantic_salmon.swim`.
+
+The bounded fast Salmon capture `53cd5d52-a988-4bc8-8468-eb7843092259` has SHA 256 `c416428b87a9a9345ee9b51fe858da7138098c04ae82c2080c918719a527b73e`. A no AI diagnostic fixture refreshed the documented horizontal movement predicate during capture. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`; all 300 samples selected `animation.atlantic_salmon.swim_fast`.
+
+The fresh pre-join exact-name Salmon control `777b9f4d-980b-4947-860a-a356895f2de7` has SHA 256 `598430b9c3277a3963a93430b99fb6b40b84a63077116207fb43481a047602e7`. The named `Spin` entity was present before the client joined. The capture contains 1,501 records, 300 presentation samples, zero dropped records, and `incomplete=false`; all 300 controller samples report `animation.atlantic_salmon.spin`. This positively controls the Spin route and reclassifies the earlier post-join miss as a fixture timing failure.
+
+The exact-name Salmon probe `1418ec86-ce6a-420f-96bb-993a4a6d13d0` has SHA 256 `8adcb884f79b6de9c3a3837f55dd9dffa1ecc35e968fa8dc2f35d6835c6f013e`. The server confirmed the entity custom name was `Spin`, but the client controller reported `unavailable:no_current_animation` for all 300 samples in this fixture. This is a reproducible fixture or runtime activation gap for the Spin row, not a passing result, and it remains open for a fresh visible capture before P000-TASK-005 can close.
+
+These probes advance the current artifact state matrix and confirm the debug capture path is useful for remote verification. They do not close Cod and Salmon flop, the complete exact-name Spin activation, Oceanic swim, fast swim, bite timing, death, beached, and thrash coverage, authored transform samples, or the remaining Phase 000 exit gates.
+
+## Current exact artifact special-state follow-up
+
+On 2026-09-06, the same source-bound artifact `d542ee74733f2e209572f9e86a39db8cd6f9a342f8365daf8fa46e9aa1704a1e` was used for additional bounded laptop captures. The dedicated server remained headless on `node-1`, the client remained on the NVIDIA laptop without a workspace switch, and the owned Java playback stream stayed muted and process matched.
+
+The Cod air-chamber capture `3682a888-f867-415f-a56a-68391b92ca31` has SHA 256 `0cdcb15ea890429e4e2856c89f6186442d569a6e06d7c6062f5886b7c3d9b43f`. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`. The movement records report `inWater=false` and the controller reports `animation.atlantic_cod.flop` for all 300 presentation samples.
+
+The Salmon air-chamber capture `dd8e565e-3931-4c93-a419-2ca399fd8b77` has SHA 256 `885e2a375f2ff9edefc4156afd60e382c87c18db2c95aba279a142339a791aee`. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`. The movement records report `inWater=false` and the controller reports `animation.atlantic_salmon.flop` for all 300 presentation samples.
+
+The Oceanic long-range prey capture `4739af67-f79d-4cc9-8a44-9957aac4ca1b` has SHA 256 `a926609045095f06ba216e75260b7b55985c1dcb1ed887e6148738f9839f4876`. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`; all 300 samples report `animation.oceanicwhitetipshark.swim_fast_new` while the shark pursues an invulnerable prey target.
+
+The Oceanic invulnerable-prey bite capture `072f9ef8-880f-46ef-8e93-bb1290bc85e4` has SHA 256 `4250f973fcce487e48392efeba260b06b238246aec50b939669c0b13030fcaed`. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`; all 300 controller samples report `animation.oceanicwhitetipshark.bite_new` with the trigger active.
+
+The passenger capture `922bef5c-c1b2-443f-8635-92269f866833` has SHA 256 `1f5dc6051cfdf070dfd9600c14226c3f772445585dd257c95f98a44beab886cc`. It contains 1,500 records, 300 presentation samples, zero dropped records, and `incomplete=false`; the Oceanic `thrash_controller` reports `animation.oceanicwhitetipshark.thrash` for all 300 samples while a Cod passenger is mounted.
+
+The fresh death probe `b5ed39ff-8781-4126-8294-cac952158d67` has SHA 256 `7f66c518b35b7010bace24e69727eedf495dc3b97da332ac80fe4f628c0c7df3`. A one-health Oceanic fixture received lethal damage and was removed during the capture. The client produced 279 records before target removal, but no `animation.oceanicwhitetipshark.death` presentation sample; the controller remained on idle before the entity disappeared. This reproduces the missing client death presentation and keeps that row open.
+
+The grounded probe `4b4e93f4-5f2c-42eb-8f9a-ca1e9c922802` has SHA 256 `a6b4154ea45ac7ba33c2dcd443a50ecfb12bf365fc51a4595cb3e8a1ad2d4f33`. Its movement records report `inWater=false` but also `onGround=false`, so the `beached` predicate was not validly exercised; the controller reported `swim_new`. This is rejected as a beached result and leaves the beached fixture open rather than misclassifying it.
+
+These captures close the current packaged fish flop rows and fresh Oceanic fast, bite, and thrash rows for the diagnostic baseline. Oceanic death and beached activation, authored transform review, complete natural combat and recovery, and the remaining Phase 000 exit and integration gates remain open.
+
+## Current valid Oceanic beached paired capture
+
+On 2026-09-06, the exact packaged Forge artifact `BensFintasticSharks-forge-1.20.1-0.24.jar` was exercised in a fresh disposable dedicated server runtime on `node-1` at the private endpoint `100.76.164.109:25680`, with RCON on `25681`. The runtime used source revision `7f628446c8df9d3c05b20ab024c137a6523f968d`, artifact SHA 256 `d542ee74733f2e209572f9e86a39db8cd6f9a342f8365daf8fa46e9aa1704a1e`, Minecraft `1.20.1`, Forge `47.2.0`, Java `17.0.19`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, motion profile `phase-000-baseline`, configuration `p000-task005-beached-packaged-20260906`, and data pack `phase-000-generated`. The packaged server loaded the same Forge, GeckoLib, SmartBrainLib, and mod jars as the laptop client and completed its ready marker.
+
+The fixture used a sand floor at `y=30`, an air chamber above it, and one tagged Oceanic Whitetip Shark at `y=31`. The server assertion recorded `inWater=false`, `onGround=true`, `NoAI=true`, `Invulnerable=true`, zero motion, and a stable position at `[0.5, 31.0, 0.5]`. The earlier probe that reported `onGround=false` is therefore rejected as invalid fixture setup and is not used as acceptance evidence.
+
+The server capture session `ca27fc0d-4b58-4203-bdce-7cebfdb8f6f3` is `/tmp/bfsm-p000-task005-beached-packaged-20260906/logs/bfs-debug/bfs-debug-20260906-214024-ca27fc0d-4b58-4203-bdce-7cebfdb8f6f3.jsonl`, SHA 256 `fbbb420b5dab03d67fcfb05e6d6a7c4120e1865c1ca32bdb5fc9093478a13aee`. It contains 399 movement samples, one terminal record, zero dropped records, and `incomplete=false`. The strict analyzer returned `complete` with no errors or warnings under scenario `p000-task005-oceanic-beached-server-20260906` and requirement `BFS-REQ-019`; its verdict is retained in `/tmp/bfsm-p000-task005-beached-server-analysis-20260906-run1/verdict.json`.
+
+The paired laptop client used the same artifact and private server endpoint. The client ran on the NVIDIA RTX 5090 laptop under Prism Launcher, remained on the existing Hyprland workspace without a workspace switch, and its exact Java playback stream was matched to the owned test PID and verified `[MUTED]` before capture. The client capture session `3ad30b47-1c48-4c03-9125-9d89689055a6` is `/tmp/bfsm-p000-task005-beached-20260906-client.jsonl`, SHA 256 `15f7ab99514e1351c8da30a963a4082371f92f0f9398b4639c4f6317b04c866e`. It contains 1,199 movement samples, 300 presentation samples, one terminal record, zero dropped records, and `incomplete=false`. The strict analyzer returned `complete` with no errors or warnings under scenario `p000-task005-oceanic-beached-client-20260906` and requirement `BFS-REQ-022`; its verdict is retained in `/tmp/bfsm-p000-task005-beached-client-analysis-20260906-run1/verdict.json`.
+
+All server and client samples report the shark stationary at the valid beached position with `inWater=false`, `onGround=true`, zero velocity, zero coordinate step, and zero pitch step. This closes the valid Oceanic beached fixture and paired debug evidence row for the current baseline. It does not repair or waive the separate Oceanic death presentation gap, the authored transform table, the remaining natural combat and recovery matrix, fresh advancement and icon review, natural algae and population evidence, final `1.0-rc.1` artifact binding, independent review, merge into canonical `1.20.1`, ancestry proof, or the signed Phase 000 tag.
+
+## Current diagnostic and GameTest rerun
+
+On 2026-09-06, the current Phase 000 branch revision `ad7c4d7a5820359700524144d7a13bba3dc3fb86` was checked on node 1 with Java `17.0.19` for the required headless verification. `python3 tools/test_bfs_debug_analyze.py` passed all 17 parser and analyzer tests. `./gradlew :forge:compileJava :forge:compileTestJava :forge:test :forge:build --no-daemon --console=plain` completed successfully. The resulting Forge artifact `BensFintasticSharks-forge-1.20.1-0.24.jar` has SHA 256 `dc135600c005f0d5bba9a2957e145d51cdd245c8e79a48ea57f772b649ccaf96`.
+
+A fresh isolated Forge GameTest server used `-PbfsGameTestRunDir=/tmp/bfsm-p000-task013-gametest-IB32sl`, with no client or renderer. All `21` required tests passed, including the diagnostic parity, permission, lifecycle, fish, shark, combat, algae, and strict vertical movement batches. The run latest log has SHA 256 `011a58c960062fc2bb1e9ceb3400a54b61c9180f1d627f21cc2fd81798624327`; the debug log has SHA 256 `c80ee22d3d9bcdbf43e206bfc286b30ef94af7b881455198f5a41f58f3b5434f`. The run directory, world, generated configuration, logs, and captures were removed after the outcome was recorded and its absence was verified.
+
+This rerun strengthens the current `BFS-REQ-027` parser, build, and dedicated GameTest evidence. It does not close the remaining client-only authored animation and pitch matrix, natural combat and target-loss recovery, fresh advancement and icon review, full algae survival and loot interaction, sustained population, multiplayer reconnect cleanup, final `1.0-rc.1` artifact binding, independent review, pull request merge into canonical `1.20.1`, ancestry proof, or the signed Phase 000 tag. Phase 001 therefore remains blocked by the Phase 000 exit criteria.
+
+## Current packaged Oceanic death presentation rerun
+
+On 2026-09-06, the final Phase 000 rebuild at source revision `4f1aa8d997b19cd724d86ea8d0854397828eb494` was rerun in the packaged Forge dedicated server runtime after correcting the inherited JVM binding. The Forge artifact `BensFintasticSharks-forge-1.20.1-0.24.jar` has SHA 256 `a2fa69f3aad605e62f8a1affae2f43e68725e93574430b2069e5fcf6e271d75e`. The server loaded Minecraft `1.20.1`, Forge `47.2.0`, Java `17.0.19`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration `phase-000-task005-death-20260906`, and data pack `phase-000-generated`.
+
+The packaged server ran headless on `node-1` at the private endpoint `100.76.164.109:25690`. The matching Prism client ran on EnVy's laptop with the NVIDIA RTX 5090 on Hyprland workspace `3`; its owned Java process was PID `3659151`, window address `0x56485c997b10`, and PipeWire stream node `81`, which was matched to that PID and reported `[MUTED]`. The existing personal client PID `2263594` and stream node `160` were not changed. The test player was already an operator and was set to creative before fixture setup, so the test produced no player death or survival side effect.
+
+The fixture teleported the operator to `[0.5, 80.0, 0.5]`, placed the shark at `[0.5, 80.0, 8.5]` in water with `NoAI` and `NoGravity`, started `bfs debug on movement 80`, and applied lethal generic damage. The fresh server capture session `bb8df09e-5c18-40ef-81c4-8f490a727323` contains `43` records, including `40` movement records with `11` alive samples and `29` dead samples, one removal record with reason `killed`, one header, and one terminal record. It has SHA 256 `35cc2d50bb29d14b6228fc6369fe0105be841094fef3475d5f1e683a7281e7ae`, `recordsDropped=0`, and `incomplete=false`. Its header binds the source revision and artifact hash above.
+
+The client death presentation was captured without switching workspaces. Frame `00` has SHA 256 `96ea017c55a4d34a677e1b24420e37ebe7effb4ea173e9e681d2a5e8356ec9ea`; frame `01` has SHA 256 `960ee3999ade93bc971a8c0f3c58c74b107d7a36d9c31e957200f8f36c01a7d8`. The paired frames show the rendered Oceanic Whitetip Shark changing into the red death pose immediately after damage before removal. The source predicate now selects the GeckoLib `DEATH` clip whenever `isDeadOrDying()` is true, before the beached and swimming predicates.
+
+This closes the current packaged Oceanic death presentation gap for `P000-TASK-005` under the corrected artifact binding. It does not close the remaining authored transform and pitch matrix, exact-name Salmon Spin activation, natural combat and target-loss recovery, fresh advancement and icon review, natural algae survival and loot interaction, sustained population, multiplayer reconnect cleanup, final `1.0-rc.1` metadata binding, independent review, pull request merge into canonical `1.20.1`, ancestry proof, or the signed Phase 000 tag. Phase 001 remains blocked until those Phase 000 exit gates pass.
+
+## Final artifact Salmon Spin and recovery probe
+
+On 2026-09-06, the same final packaged artifact was exercised in a fresh disposable dedicated server and laptop client pair. The source revision was `4f1aa8d997b19cd724d86ea8d0854397828eb494` and the Forge jar SHA 256 was `a2fa69f3aad605e62f8a1affae2f43e68725e93574430b2069e5fcf6e271d75e`. The server used Minecraft `1.20.1`, Forge `47.2.0`, Java `17.0.19`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration `phase-000-task005-spin-20260906`, and data pack `phase-000-generated`. The paired client ran on EnVy's NVIDIA RTX 5090 laptop, with its owned playback stream matched to the test process and muted before capture.
+
+The pre-join fixture contained one Atlantic Salmon with the exact custom name `Spin`, UUID `e9a6078d-3e6b-43fe-83e7-ef4b40120e3c`, at `[0.5, 80.0, 8.5]` in a water volume. The client debug capture `5699a04d-7f0b-4323-aa93-34f11f8f6b46` contains `19,400` records, including `3,840` presentation records for the selected Salmon population, zero dropped records, and `incomplete=false`. The capture file SHA 256 was `28ffe3d706598ef9ec4e30acab0668df70bb992b5f1bc163824f8051a207caf8`. All `300` presentation samples for the exact named UUID reported `animation.atlantic_salmon.spin`, positively proving the Spin controller route on the final artifact.
+
+The paired recovery attempt used a server-side `data merge entity` rename to `Recovery`, followed by a second client capture `e84507ba-81df-454e-924e-d25b73ea35f0`. The exact Salmon UUID continued to report `animation.atlantic_salmon.spin` for `221` presentation samples after the raw NBT mutation. Because that command does not exercise the supported gameplay name-sync path, it is rejected as a recovery acceptance result rather than treated as a product regression or a pass. The exact-name Spin activation row is therefore closed for activation but remains open for the required ordinary-state recovery transition. The disposable runtime, client profile, debug logs, and screenshots were removed after the evidence consumer completed; the hashes above are retained for traceability.
+
+This closes the final-artifact Spin activation baseline for `P000-TASK-005`. It does not close the ordinary recovery transition, authored transform and pitch matrix, fresh advancement and icon review, natural algae survival and loot interaction, sustained population, multiplayer reconnect cleanup, final `1.0-rc.1` metadata audit, independent review, pull request merge into canonical `1.20.1`, ancestry proof, or the signed Phase 000 tag. Phase 001 remains blocked.
+
+## Final source regression after death fix
+
+After the final death-predicate change, `./gradlew :forge:compileJava :forge:compileTestJava :forge:test :forge:build --no-daemon --console=plain` passed on node 1 with Java `17.0.19`. The resulting Forge artifact was `BensFintasticSharks-forge-1.20.1-0.24.jar` with SHA 256 `a2fa69f3aad605e62f8a1affae2f43e68725e93574430b2069e5fcf6e271d75e`.
+
+The isolated `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-p000-final-gametest-vRMRB3` run used no client or renderer and passed all `21` required tests, including debug parity, fish, shark, combat, algae, permission, lifecycle, and strict movement batches. The latest log SHA 256 was `0719e0c9278b6777300ebe4235722675836db3f7f01b082f82a5b57c9d893234`. The disposable runtime and world were removed after verification and cleanup was confirmed.
+
+## Final artifact client state matrix continuation
+
+On 2026-09-06, the exact packaged Forge artifact from source revision `747ade6efff127e7533467598a05643b892c0ba6` was exercised again through the headless dedicated server on `node-1` and the muted Prism client on EnVy's NVIDIA RTX 5090 laptop. The artifact SHA 256 was `a2fa69f3aad605e62f8a1affae2f43e68725e93574430b2069e5fcf6e271d75e`, with Minecraft `1.20.1`, Forge `47.2.0`, Java `17`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration `p000-task005-matrix-20260906`, motion profile `phase-000-baseline`, and data pack `phase-000-generated`.
+
+The fresh client capture session `66a1d05a-f265-41b8-aa55-d7d22ca22402` has SHA 256 `c48086c9017137343903664f43a54c9bf9e9e34aee86e5310305d328126e00bb`. It contains `7,496` accepted records, including `5,995` movement records and `1,500` presentation records, with zero dropped records, zero missing targets, and a clean `duration_elapsed` terminal record. The five selected targets remained bounded for the full 60 second capture.
+
+The controlled presentation results were:
+
+| Fixture | UUID | Presentation result |
+| --- | --- | --- |
+| Cod dry control | `89987add-ed7c-4509-966e-b0f92d5b3128` | `300` samples of `animation.atlantic_cod.flop` |
+| Salmon dry control | `b4c0d20a-d588-4094-b8c5-501ff5961966` | `300` samples of `animation.atlantic_salmon.flop` |
+| Oceanic Whitetip hostile pursuit | `191960c0-a5a2-4c28-868b-d7835586032c` | `120` `swim_fast_new`, `30` transition, `120` `bite_new`, and `30` bite transition samples |
+| Cod prey control | `12ccf319-0341-4c00-b742-97b46b4f9422` | `300` samples of `animation.atlantic_cod.idle` |
+
+This is current final-artifact client evidence for both fish flop routes and the Oceanic hostile to bite presentation transition. It closes the previously missing dry-fixture rows and strengthens the bite timing baseline without using raw NBT name mutation or a client on `node-1`. The authored transform table, supported-name recovery transition, natural combat and target-loss recovery, fresh advancement and icon review, algae survival and loot interaction, sustained population, multiplayer reconnect cleanup, final `1.0-rc.1` metadata audit, independent review, pull request merge into canonical `1.20.1`, ancestry proof, and signed Phase 000 tag remain open. Phase 001 is still sequentially blocked.
+
+## Final Phase 000 artifact inventory recheck
+
+The exact Phase 000 Forge artifact `BensFintasticSharks-forge-1.20.1-0.24.jar` passed `unzip -tqq` and the required archive inspection on 2026-09-06. Its SHA 256 is `a2fa69f3aad605e62f8a1affae2f43e68725e93574430b2069e5fcf6e271d75e`, and its SHA 512 is `ad009e788e6cb649ceb8f89837c7a7d93bde105ab6f178477884e49abd7b183df5d6b204f516a21572a49446f8f6b6eb3c3d750659a4d995ba73df5a67d4971a`. The inventory contains the shipped BFS debug client classes, all three algae block states and models, green and red animation metadata, all three algae configured and placed features, the generated advancement graph, Atlantic fish and Oceanic animation and geometry resources, and the seven advancement icon destinations.
+
+The embedded Forge metadata correctly identifies the current evidence artifact as version `0.24`, Minecraft `1.20.1`, Forge `47.2.0`, GeckoLib `4.x`, and SmartBrainLib `1.14.x`. This is an evidence-artifact inventory only; the DEC-011 `1.0-rc.1` metadata change belongs to Phase 005 and is intentionally not applied here. The packaged inventory does not close the remaining natural gameplay, complete client presentation, fresh-profile, final release metadata, review, merge, ancestry, or signed-tag gates.
+
+## Fresh profile natural shark advancement probe
+
+On 2026-09-06, a new disposable world was created in the exact packaged Phase 000 runtime at `/tmp/bfsm-p000-adv-server`. The server used the Phase 000 Forge artifact with SHA 256 `a2fa69f3aad605e62f8a1affae2f43e68725e93574430b2069e5fcf6e271d75e`, Minecraft `1.20.1`, Forge `47.2.0`, Java `17.0.19`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, seed `240024`, and `eula=true`. The matching client ran on the NVIDIA RTX 5090 laptop with Prism Launcher and used the same artifact and dependency set. Its owned Java process was PID `3998643`, window `23068679`, and its PipeWire stream was matched to that PID and remained muted. The personal client PID `2263594` was not changed.
+
+The profile was reset by removing only the disposable runtime world before this final probe. No advancement grant command was used after the reset. The operator was kept in creative mode to avoid player death while the controlled encounter fixture was prepared. Eight shark entities were summoned within the normal 16 block server scan radius with `NoAI` and `NoGravity`, but without `Invulnerable`, because the invulnerable fixture is excluded by vanilla targeting conditions. The custom player found entity scan then completed the actual nearby-entity criteria. The server log records `Marine Curious`, `King of the Seas`, the individual shark encounter advancements, and completion of `Sharks Galore!` at 18:41:54. The final server log SHA 256 is `d11337e77d8c7e9f759511e6d8f9be196600c7efdb86179a6a149276691e64ee`. The matching client log SHA 256 is `5249a58df8a87306068a6efd2a771766253f6a58a3d328b37eb50f9fd58d8dd5`.
+
+The preceding negative fixture used `Invulnerable:1b` and did not complete nearby-entity criteria. That result is retained as a fixture diagnosis, not a product failure. The server diagnostic command `/bfs debug on advancement 100` created session `02260446-890e-43d0-8ac1-a806a17f489f`; its JSONL SHA 256 is `946026ee2af3ad0c2527ee0b64334461e6c91f5fa20e68d08e5aa47d80b5d3d8`, with zero dropped records and `incomplete=false`.
+
+This closes the fresh-profile natural shark encounter and `sharks_galore` completion subgate for `P000-TASK-004`. It does not close Captain Ben's natural chest or shipwreck loot path, the seven icon display review, relaunch persistence, the full graph and tooltip review, the remaining Phase 000 runtime matrices, or the Phase 000 integration gates. The current screenshot hashes `dbc29761b90c2297867cd5b6c9967cbd69db8dee0260f53e6074ced041a34e58` and `4e0feacd7fae31bfc23eb926a98712342e6438880d482ef5763212aa074649cb` are retained only as client UI captures; they do not claim the complete icon review.
+
+## Bound Salmon Spin recovery probe
+
+On 2026-09-06, a fresh disposable Forge server and matching Prism client exercised the exact Phase 000 artifact after correcting both JVM runtime bindings. The server ran headless on `node-1` at private endpoint `100.76.164.109:25710`; the client ran on EnVy's NVIDIA RTX 5090 laptop on Hyprland workspace `3`. Both sides loaded source revision `9ab74830c6c74328e21b3f515f057e08d8d13411`, artifact SHA 256 `a2fa69f3aad605e62f8a1affae2f43e68725e93574430b2069e5fcf6e271d75e`, Minecraft `1.20.1`, Forge `47.2.0`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, configuration `phase-000-recovery`, and data pack `phase-000-generated`. The owned client playback stream was matched to its test PID and verified muted before capture.
+
+The fixture used one Atlantic Salmon with UUID `9b14fafb-d23f-469d-ac8e-c4b7b3d8af15` at `[200.5, 76.0, 204.5]`. The server log records the exact `Spin` name before interaction and `Recovery` after the laptop client used the supported Name Tag gameplay path, with no server restart between the two states. The server-side query returned `Spin` at `19:38:42` and `Recovery` at `19:40:12`, so the raw NBT mutation previously rejected by this gate was not used.
+
+The bound pre-rename client capture session `a019d075-cb65-4211-b122-f4b6ea3cc4f8` is `/tmp/bfsm-spin-transition-client-bound.jsonl`, SHA 256 `abc197e1c0d308f6342c25b8b53d588ac55a97f75c259fdeffca67814f57c645`. It contains `1,501` records, `1,199` movement records, `300` presentation records for the selected UUID, one terminal record, zero dropped records, and `incomplete=false`; all `300` selected presentation samples report `animation.atlantic_salmon.spin`. The strict analyzer retained this file as a presentation observation only because one client tick was emitted out of order at record `501`; that analyzer error is not hidden or treated as a pass.
+
+The bound post-rename client capture session `6b66be29-3dfb-41f5-972a-2afa51b8c49c` is `/tmp/bfsm-spin-recovery-client-bound.jsonl`, SHA 256 `4053b59dba791348c95dc2dbbafc60d44fa989296671d19866b697a6b4249d48`. It contains `1,501` records, `1,199` movement records, `300` presentation records for the same UUID, one terminal record, zero dropped records, and `incomplete=false`; all `300` selected presentation samples report `animation.atlantic_salmon.idle`. The strict analyzer returned `complete` with no errors or warnings under scenario `p000-task005-spin-recovery-bound-20260906` and requirement `BFS-REQ-008`; its verdict SHA 256 is `41e7799d6d2ddf4332fb7c498a107f80ca206a59bfdf3aa13d084c1a4fc53798`.
+
+The paired server capture session `e8748365-06ed-4d13-a619-17de90e211f3` is `/tmp/bfsm-spin-transition-server-bound.jsonl`, SHA 256 `a258f3b61e52c69d99619e9bc8089c0e46c7c2a49a527f49b717234cc1c42d53`. It contains `200` movement records, one terminal record, zero dropped records, and `incomplete=false`, with the same entity UUID and exact artifact binding. The strict analyzer returned `complete` with no errors or warnings; its verdict SHA 256 is `630d5fc70be82f6be267f60aa37b187a735943604b6055a384c439984df3a36f`.
+
+This closes the supported Name Tag recovery observation for the exact final Phase 000 artifact and replaces the rejected raw-NBT recovery attempt. The same-session transition requirement remains open because the accepted post-rename trace starts after the gameplay rename and the pre-rename client trace has one ordering error. The authored transform and pitch matrix, natural combat and target-loss recovery, fresh advancement and icon review, algae survival and loot interaction, sustained population, multiplayer reconnect cleanup, final `1.0-rc.1` metadata audit, independent review, pull request merge into canonical `1.20.1`, ancestry proof, and signed Phase 000 tag remain open. Phase 001 remains sequentially blocked.
+
+## Fresh post checkpoint fish movement and client diagnostic matrix
+
+On 2026-09-06, the exact phase worktree tip `50705eda4306b381609d99e007f02eac5e3f814b` was packaged with Java `17.0.19`. The Forge artifact `BensFintasticSharks-forge-1.20.1-0.24.jar` has SHA 256 `546cec208f645e6daae409f2dd1583c78c5d607fc5b0248aaa2410a78589b81b` and SHA 512 `b1c7a30468b4dfa697ffdc2f04b80134b3a1077e91b3144a25b1fcbc6f06fb01e8af81bde93ff435a3d727ae114d9cb620ce25c`. The matching packaged dependencies were Forge `47.2.0`, GeckoLib `4.4.7`, and SmartBrainLib `1.14.2`. The disposable dedicated server ran headless on `node-1` at `100.76.164.109:25720` with `eula=true`; the matching Prism client ran on the NVIDIA laptop with the exact artifact and remained muted by process matched playback stream.
+
+The first combined fixture was rejected because the Oceanic Whitetip killed the Salmon before its capture window. Its raw server capture `d4342f82-c5b0-48fa-b5d8-397bf50e6a76` is retained only as a fixture diagnosis. The isolated reruns used a bounded water volume and one target per capture. Cod capture `6647ff02-7fc0-46fc-848e-48fb3cd117aa` has JSONL SHA 256 `d0133c736d280cefb1ee7dbecc787f85d38709a7000d38f67c39277b742c8684`, 1,200 movement samples, zero dropped records, `incomplete=false`, and strict analyzer verdict `complete` with verdict SHA 256 `9d9fda806ecbdb92ca9f3c691052d98f11976fdc21f0d5e00190602f1fb33337`. Salmon capture `1d863b1b-eba6-40e5-b36e-f6217f472b4c` has JSONL SHA 256 `72621819142deae44fdcc2503a6d77b78ca6272140fb61ea489223ec700f1693`, 1,200 movement samples, zero dropped records, `incomplete=false`, and analyzer verdict SHA 256 `1b1f2b82132fac5ade9a065f12e30d1150842463e4ef91b74e7e66763294efed`. Oceanic capture `4a577362-bf40-41e6-b4fa-8423cf0c66f8` has JSONL SHA 256 `dcd4127f5458c9bac24f8fe6fc72946df7e6395ff438e89ac8fceeb26020257b`, 1,200 movement samples, zero dropped records, `incomplete=false`, and analyzer verdict SHA 256 `638e06831e4116c26649ccb844ae49c85b929efa28bb72a37b255ad625a327d2`. Each header binds the same source revision, artifact, motion profile, configuration, and generated data pack.
+
+The paired laptop local capture `82d4714a-b7d0-4661-9d7d-21a0a35698f3` has JSONL SHA 256 `89aaf2baa50446390f3d90bd6ded47451a0d8fc0d5de2b4dc009ef8f4890021e`, 3,728 movement records, 934 presentation records, zero dropped records, and a clean `duration_elapsed` terminal record. Its strict analyzer verdict is `complete` with verdict SHA 256 `14cb2e5e10d4eb37943472c84fed701a2438713d0d7da301d4f9e557b6a615a9`. The selected Cod UUID `62dc8321-6af1-4675-b004-105546df4a1d` produced 1,199 client movement samples and 300 presentation samples of `animation.atlantic_cod.swim`, with interpolated pitch and motion telemetry present. The client also observed three pre-existing Nautilus fixtures from the disposable template; those unrelated rows are not used as BFS acceptance evidence.
+
+This fresh post checkpoint run proves the remote debug procedure on the exact current phase artifact and adds current Cod, Salmon, and Oceanic server movement records plus current Cod client presentation evidence. It does not close the authored five point transform tables, complete client state coverage for Salmon and Oceanic on this artifact, exact Name Tag Spin recovery in one session, natural combat and target loss, fresh advancement and icon review, algae interaction, population, multiplayer reconnect cleanup, final `1.0-rc.1` metadata, review, merge, ancestry, or the signed Phase 000 tag. Phase 001 remains sequentially blocked.
+
+## Fresh Salmon and Oceanic client presentation blocker
+
+The same exact artifact and source binding were used for a second laptop client run against a new disposable dedicated server on `100.76.164.109:25721`. The client was muted by its exact process matched playback stream before the capture. The local capture `7aca1493-1801-4b62-8d09-d0469fc56001` has JSONL SHA 256 `4c27282c273528ea09be94338c806dae6c38cf01ee6ed1d561b95f767daaa13e`, 7,638 movement records, 1,913 presentation records, zero dropped records, and `incomplete=false`. The strict analyzer returned `complete` with verdict SHA 256 `ef4cfa0b75f561c75e7f3ce30271d2ffb43fb1a7b9afb883b05e6af6a6b4c3cd` under scenario `p000-task005-fresh-salmon-oceanic-client` and requirement `BFS-REQ-018`.
+
+The controlled Atlantic Salmon UUID `071a8ed7-3daf-4e60-b05c-3ad1689f5160` remained in the water fixture and produced 1,199 client movement samples but all 300 presentation samples reported `unavailable:no_current_animation`. The controlled Oceanic Whitetip UUID `6bb1e08c-abab-47a2-8eae-cdb160810044` produced 1,199 stationary movement samples and all 300 presentation samples also reported `unavailable:no_current_animation`. The analyzer's structural `complete` verdict therefore does not count as visual state acceptance. This is a current, artifact-bound client presentation gap for the Salmon and Oceanic rows, not a passing state result. The exact capture, disposable server, Prism instance, and logs were removed after analysis and cleanup verification.
+
+This run narrows the remaining Phase 000 blocker: the remote client diagnostic path works, but Salmon and Oceanic controller presentation is not reaching a current animation in this controlled fixture. The authored transform table, complete reachable state matrix, exact-name Spin recovery, natural combat and target loss, advancement and icon review, algae interaction, population, multiplayer cleanup, final metadata, review, merge, ancestry, and signed Phase 000 tag remain open. Phase 001 remains sequentially blocked.
+
+## Current debug facility GameTest acceptance rerun
+
+On 2026-09-06, the Phase 000 tip `4403d980f5c315c6d9048e4ee71cbbd95fc6563c` was rebuilt with Java `17.0.19`. The strict debug analyzer unit suite passed all `17` tests. The combined Gradle compile, test, and build command also passed, producing the same Forge artifact `BensFintasticSharks-forge-1.20.1-0.24.jar` with SHA 256 `546cec208f645e6daae409f2dd1583c78c5d607fc5b0248aaa2410a78589b81b`.
+
+A fresh isolated dedicated GameTest server ran on `node-1` with `-PbfsGameTestRunDir=/tmp/bfsm-p000-task013-gametest-k65Z1z`. It started no client or renderer. All `21` required GameTests passed, including debug parity, permission enforcement, lifecycle start and stop behavior, and the Cod, Salmon, Oceanic Whitetip, Tiger Shark, movement, combat, algae, and strict vertical movement batches. The final server log `/tmp/bfsm-p000-task013-gametest-k65Z1z/logs/latest.log` has SHA 256 `d73b0be0bfd1d83c8685fda9fe229c31855b2148cd382779f6a2f6c3941da007`; the debug log has SHA 256 `2f465066202f921c28feb166c8b5f64c5dfdbfa7a61a87ca2c70b8ca5bb7fc31`. Eight finalized BFS debug capture files were emitted with zero dropped records and `incomplete=false`; the largest movement captures each contained 61 accepted records plus a terminal record. The wrapper output has SHA 256 `76a9fcc130e437fa9b743ae37a469eb0bc8b47220e77d090edb97b854eee0756`.
+
+This closes the current `BFS-REQ-027` implementation and dedicated verification rerun for `P000-TASK-013`. The run was headless and does not replace the required laptop client evidence. The remaining Phase 000 exit gates are still the authored client transform and pitch matrix, Salmon and Oceanic presentation repair, natural combat and target loss recovery, fresh advancement and icon review, full algae interaction, sustained population, multiplayer reconnect cleanup, final `1.0-rc.1` metadata binding, independent review, pull request merge into canonical `1.20.1`, ancestry proof, and the signed Phase 000 tag. Phase 001 remains sequentially blocked.
+
+## Packaged Forge handshake and diagnostic parity rerun
+
+On 2026-09-06, the previous client handshake mismatch was rerun with the installed packaged Forge server runtime instead of the Gradle development server classpath. The disposable server ran headless on `node-1` at `100.76.164.109:25724` with Forge `47.2.0`, Minecraft `1.20.1`, Java `17.0.19`, and `eula=true` read back from the exact runtime file. Its installed Forge server argument file SHA 256 was `40d86982e24aebab85aa2ed3553dd8d332a63efd4b75b13528f9c032bbb3f2e2`. The matching packaged dependencies were GeckoLib `4.4.7` SHA 256 `6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0`, SmartBrainLib `1.14.2` SHA 256 `3f0609e603181acf9006a5f7636dc2d75abb1b19f4a38ac6c6aa4ce548916146b`, and the current candidate Forge artifact SHA 256 `92d4dfa54d6d796cb1b2b471a8feb32d6a3040237111c32238e7d0e31046c4f8` from source revision `96a00f9adf0f609902842284c0b850e488e6083a`.
+
+The matching Prism client ran on EnVy's Linux laptop with the NVIDIA GeForce RTX 5090 renderer. Its current BFS jar and JVM binding matched the same artifact and source revision. The owned client window was `Minecraft Forge* 1.20.1`, PID `489309`, stable ID `18000831`, on Hyprland workspace `3`; its PipeWire stream was matched to that PID as node `134044` and verified muted. The client log SHA 256 is `b98405c56814fb21ea449fabf8e5ef086b65002267078f8fc5e657431cd2b0fc`. Forge reported `Connected to a modded server`, and the server recorded the same authenticated player joining without registry synchronization failure. This specifically closes the repeated environment mismatch diagnosis for the packaged dependency set. It does not close visual state acceptance.
+
+The packaged server then ran `/bfs debug on movement 120` after a bounded water fixture was prepared. Session `39a93bb3-4534-4b2f-99b4-5d16d932c3d0` produced `2,095` movement records plus one terminal record, selected `19` loaded BFS entities, dropped `0` records, and ended with `incomplete=false` at the requested duration. The raw capture SHA 256 is `8d9dc7a24b2f893fab711d7bc3a22152d41405fec28b33d6eeceee7a29b68296`. The strict analyzer returned `complete` under scenario `p000-task013-packaged-server-debug` and requirement `bfs-req-027`; its verdict SHA 256 is `8fcc88a5e0ec37ccece2465597b3468dd2e084e4ca482af7be23a0dd4da3fe2d`. The analyzer summary SHA 256 is `5f576ad07a1325e0c5510a89d10704c86c568058b754859a17b0ca008c9b0169`.
+
+This rerun proves that the exact packaged Forge server and matching laptop client can complete the modded handshake and that the diagnostic capture remains lossless on the packaged runtime. The server fixture included natural entities beyond the five named probes, so its aggregate movement extrema are diagnostic transport evidence and not the authored fish or shark locomotion matrix. The authored transform and pitch table, reachable Salmon and Oceanic presentation states, natural combat and recovery, advancement and icon review, algae gameplay and population, multiplayer cleanup, final metadata, review, merge, ancestry, and signed Phase 000 tag remain open. Phase 001 remains sequentially blocked.
+
+## Fresh four entity packaged client matrix
+
+On 2026-09-06, the exact packaged Forge artifact from source revision `96a00f9adf0f609902842284c0b850e488e6083a` was exercised again in the installed packaged Forge server runtime on node 1 at `100.76.164.109:25726`, with RCON on `25727`. The artifact `BensFintasticSharks-forge-1.20.1-0.24.jar` has SHA 256 `92d4dfa54d6d796cb1b2b471a8feb32d6a3040237111c32238e7d0e31046c4f8`. The runtime used `eula=true`, Minecraft `1.20.1`, Forge `47.2.0`, Java `17.0.15`, GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, motion profile `phase-000-baseline`, configuration `p000-task005-matrix-20260906d`, and data pack `phase-000-generated`.
+
+The matching Prism client ran on the NVIDIA RTX 5090 laptop in isolated instance `bfsm-p000-task005-matrix-20260906d`. Its owned Java process was PID `540114`, the `Minecraft Forge* 1.20.1` window was on Hyprland workspace `3`, and its exact PipeWire stream was node `134982`, matched by process ID and verified muted before and during capture. The client log SHA 256 is `068889b0479812760b6be654a266c9e33df9c4a3d984323af6fe16ee8dc140b5`.
+
+The client debug session `7eba12c6-9e96-44f1-8d06-206a9b421bc5` contains `2,090` records, `1,668` movement records, `420` presentation records, zero dropped records, and `incomplete=false`. The raw JSONL SHA 256 is `9c617acf4cb3ff698c5106d1be8893261fef71208b97e2b71f632ab30c3f695e`. The analyzer returned `complete` with no errors or warnings under `p000-task005-current-client-matrix-20260906d` and `BFS-REQ-018`; its verdict SHA 256 is `e470b209e6671bc8a1679b6da074a1cf45f8218b56190c8ca980e4d187584250`, and its summary SHA 256 is `08c2aff9b815eb0cfc74d2dc093f62d92431fd38b8eca6345cbb7d806dbef000`.
+
+The controlled fixtures selected four BFS entities with `105` presentation samples each. Atlantic Cod reported `animation.atlantic_cod.swim` for all samples, and Atlantic Salmon reported `animation.atlantic_salmon.swim` for all samples. Oceanic Whitetip reported `unavailable:no_current_animation` for all samples, and Bottlenose Dolphin reported `unavailable:no_current_animation` for all samples. The capture therefore proves the current packaged client matrix and reproduces the Oceanic and Bottlenose presentation activation gap. A structurally complete analyzer result is not visual state acceptance. The authored transform and pitch table, reachable Oceanic and Dolphin state coverage, natural combat and target loss, fresh advancement and icon review, algae interaction and population, multiplayer reconnect cleanup, final `1.0-rc.1` metadata, review, merge, ancestry, and signed Phase 000 tag remain open. Phase 001 remains sequentially blocked.
+
+## Current dirty-worktree GameTest rerun
+
+On 2026-09-07, the current Phase 000 working tree was verified headlessly on
+`node-1` after the compile and unit suite passed. The source was at `HEAD`
+`1c0516293602e0673ea322bbbfd188b0779da612` with the pre-existing phase-worktree
+changes still unstaged. The generated Forge artifact was
+`BensFintasticSharks-forge-1.20.1-0.24.jar`, SHA-256
+`975660f11d322bb2644a16591c0f95dca6aea960875cddb3aba6d270ccef1e4f`.
+
+An isolated runtime at `/tmp/bfsm-p000-gametest-vg4p1i` used `eula=true` and
+started no client or renderer. The Forge GameTest task discovered and passed all
+`22` required tests, including debug parity and permission controls, lifecycle
+cleanup, Cod, Salmon, Bottlenose Dolphin, Oceanic Whitetip and Tiger movement,
+combat, algae, and strict vertical movement batches. The run exited with code
+`0`. The latest log SHA-256 was
+`ddd05999a9daea42a24842d50606b451ad02cd0b92413481b00319beb433237e`; the debug
+log SHA-256 was
+`7190af9d6efb7c5fe97bf022113128639cdebf84a26d69293fa414c57ac6bf61`. Eight
+debug captures completed with zero dropped records and `incomplete=false`.
+
+The temporary runtime, world, EULA, configuration and logs were removed after
+hashing, and absence of the exact runtime path was verified. This rerun advances
+the current deterministic and GameTest gate. It does not close the client-only
+authored state matrix, the current packaged readiness binding, or the remaining
+Phase 000 artifact, review, merge, ancestry and signed-tag gates.
+
+## Current artifact and protected-diff audit
+
+The current Forge artifact from the same dirty phase working tree passed
+`unzip -tqq`. Its SHA-256 is
+`975660f11d322bb2644a16591c0f95dca6aea960875cddb3aba6d270ccef1e4f` and its
+SHA-512 is
+`4f6ce9a288734548a6675fda3404f0d3d60eeea909b6a8ccc61b6a149657dda6c847bd9333cd18ff29a24626705bdac8f8c901624aa7cb9b85d2a57fa819b89e`.
+The embedded Forge metadata reports mod version `0.24`, Minecraft `1.20.1`,
+Forge `47.2.0`, GeckoLib `4.x` and SmartBrainLib `1.14.x`. The 0.24 metadata is
+intentional for Phase 000; DEC-011 `1.0-rc.1` is owned by Phase 005.
+
+The archive contains no diagnostic JSONL, runtime logs, worlds, source archives,
+or captured `Content/` directory. `git diff --check` passed. No path is staged.
+The remaining dirty paths are the protected line-ending and generated-cache
+changes, the existing phase implementation changes, the evidence documentation,
+the new traceability record, and the pre-existing empty `forge/logs/` directory;
+none were normalized, staged or included in this artifact audit.
+
+This closes the current artifact integrity inspection for the tested working tree.
+It does not authorize commit or integration while the protected dirty-state review,
+remaining phase evidence, pull request, ancestry and signed-tag gates are open.
+
+## Protected dirty-state reconciliation
+
+The Phase 000 integration scope was reconciled against the complete working-tree
+diff. The following paths remain outside the phase commit and are not included in
+the Phase 000 candidate: the pre-existing line-ending-only `build.gradle` change,
+the nine generated cache changes, and the uncommitted client movement and
+animation fallback edits in `BensFintasticSharksForge.java`,
+`AtlanticCodEntityForge.java`, `AtlanticSalmonEntityForge.java`, and
+`OceanicWhitetipSharkEntityForge.java`. Those implementation edits are preserved
+for their owning downstream behavior work and are not silently reverted or staged.
+The pre-existing empty `forge/logs/` directory is likewise excluded.
+
+The Phase 000 owned scope is limited to the evidence follow-up, traceability
+matrix, documentation index link, committed diagnostic and verification records,
+and their required integration metadata. Only those owned paths may be staged for
+the phase commit. The protected paths remain visible in the worktree status so a
+later owner can bind or discard them deliberately; they do not enter the Phase
+000 artifact or pull request.
+
+## Clean committed Phase 000 verification
+
+The phase-owned evidence commit `9392a06` was verified from a clean `git archive`
+extraction on `node-1`; no protected dirty path was present in that verification
+tree. The ordered commands completed successfully: compileJava and
+compileTestJava, unit tests, data generation, the second unit-test pass,
+`GameTestServer --rerun-tasks`, and the full Forge build. The GameTest server was
+headless, used Java 17.0.19, and reported `22` required tests passed. Its isolated
+runtime was `/tmp/bfsm-p000-clean-gametest-LR6Z55`, with `eula=true` written and
+read for that disposable target. No client, renderer or laptop process was
+started.
+
+The packaged Forge artifact was
+`forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar`, size `1830502`
+bytes. `unzip -tqq` passed. SHA-256 is
+`ac566c2817d470ca5269d5c3d4906dd2be79d72e36cefbe2e4801550f58e80c9`; SHA-512
+is
+`324223131ba2c8315a3908a9d80b082e32ab0377cdad4f6ed5bb2eec8f786c3110504e14f2fa38b38f4d7e62841178f56855c902a4c5d996e83ad9072eae5afb`.
+The embedded metadata is Forge for Minecraft `1.20.1`, mod version `0.24`,
+GeckoLib `4.x` and SmartBrainLib `1.14.x`; final `1.0-rc.1` metadata remains a
+Phase 005 responsibility under `DEC-011`.
+
+The extracted source tree and disposable GameTest runtime were removed with
+exact-target cleanup, and both paths were checked absent. This run is the clean
+candidate artifact for the Phase 000 packet. Review, remote push, pull-request
+merge, ancestry verification and the signed `bfs-0.24-phase-000` tag remain
+open.
+
+## Current clean P000-TASK-011 candidate binding
+
+On 2026-09-07, the current Phase 000 head `aa7d8514469accff86cf2993663b5b8f8f5994e8`
+was extracted with `git archive` into a unique temporary directory. The clean
+archive used the explicit Java 17.0.19 executable
+`/usr/lib/jvm/temurin-17-jdk-amd64/bin/java`; no client, renderer or display was
+started. The ordered verification commands completed successfully:
+
+```text
+./gradlew :forge:compileJava :forge:compileTestJava --no-daemon
+./gradlew :forge:test --no-daemon
+./gradlew :forge:Data --no-daemon
+./gradlew :forge:test --no-daemon
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks -PbfsGameTestRunDir=/tmp/bfsm-p000-task011-gametest.K5Z0nI
+./gradlew :forge:build --no-daemon
+python3 tools/test_bfs_debug_analyze.py
+```
+
+The compile, test, data, GameTest, build and analyzer logs are retained only as
+sanitized evidence at `/tmp/bfsm-p000-task011-evidence-20260907/`. Their
+SHA-256 values are `c2389c26a77f3da6d9f13c206a35c00e6064eb38f74a1ecf24057d45a2570fbf`,
+`d564be722b0ce614599adbe7c728503c9bc5b055899dc8638ecd595b29b87844`,
+`a22dcfd613bb8707e962ddf54f4485bc02f013f562cf7fabc06a6fcd8a6f9f3b`,
+`dc9d211363d7520908334bad38d60c09d266b0fa4283af865abca6a3a189e840`,
+`b9e03118f026b90db13dbda1cad66b5f9827a68fc806c82707f3230c8f7228f`, and
+`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` in that
+order. The second unit-test log is
+`d564be722b0ce614599adbe7c728503c9bc5b055899dc8638ecd595b29b87844`.
+
+The clean Forge GameTest run reported all `22` required tests passed, and the
+strict debug analyzer reported `18` tests passed. Data generation produced no
+non-cache generated-resource drift. The Forge artifact
+`forge/build/libs/BensFintasticSharks-forge-1.20.1-0.24.jar` is `1831893`
+bytes with SHA-256
+`34fd935170cc8e1d67501163448fd7407da08f303234422bae5d627c85b82a68` and
+SHA-512
+`403cb206656434db4b793c3611ddf1266e248cb1f612b9a3a268d89d6ba557ce462d899669d2842bd2b06dc3e54bd15f45318f7f0260b0dec17973758ac84939`.
+`unzip -tqq` passed and the jar contains no diagnostic JSONL, runtime logs,
+worlds, source archives or `Content/` files.
+
+The exact packaged Forge server probe used this artifact with Forge `47.2.0`,
+GeckoLib `4.4.7`, SmartBrainLib `1.14.2`, Java `17.0.19`, `eula=true`, and a
+disposable runtime on node 1. It reached `Done (13.528s)`, loaded `7` recipes
+and `1343` advancements, and stopped cleanly. The packaged log SHA-256 is
+`e26ac349cb12a6e7eb8b9b1c9203f9ba1b86e084364a87253091ee3cd76deef0`.
+
+The extracted archive, GameTest runtime and packaged server runtime were
+removed after their final consumers completed, and each exact path was checked
+absent. The protected `build.gradle`, generated cache files, uncommitted Forge
+source edits and pre-existing `forge/logs/` directory were not staged or
+modified. This closes the current P000-TASK-011 deterministic artifact and
+readiness evidence. P000-TASK-012 review, pull-request merge, remote ancestry
+verification and the signed phase tag remain open.

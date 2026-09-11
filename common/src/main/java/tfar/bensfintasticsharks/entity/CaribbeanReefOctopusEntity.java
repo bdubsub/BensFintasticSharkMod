@@ -7,6 +7,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -16,10 +17,32 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOctopusEntity> {
+public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOctopusEntity>
+        implements OctopusCamouflageHost {
+
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Integer> DATA_CAMO_TARGET =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(CaribbeanReefOctopusEntity.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.INT);
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Float> DATA_CAMO_WEIGHT =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(CaribbeanReefOctopusEntity.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.FLOAT);
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Integer> DATA_INK_TICKS =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(CaribbeanReefOctopusEntity.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.INT);
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Integer> DATA_INK_EVENT =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(CaribbeanReefOctopusEntity.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.INT);
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Integer> DATA_JET_TICKS =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(CaribbeanReefOctopusEntity.class,
+                    net.minecraft.network.syncher.EntityDataSerializers.INT);
+
+    private int camouflageColor = 0x6b5c4e;
+    private float camouflageWeight;
 
     private int playerProxCooldown;
     private int inkCooldown;
+    private int jetTicks;
+    private Vec3 jetDirection = Vec3.ZERO;
     private int hideTicks;
     private int hideCheckTimer;
 
@@ -34,6 +57,16 @@ public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOc
 
     protected CaribbeanReefOctopusEntity(EntityType<CaribbeanReefOctopusEntity> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        entityData.define(DATA_CAMO_TARGET, 0x6b5c4e);
+        entityData.define(DATA_CAMO_WEIGHT, 0.0f);
+        entityData.define(DATA_INK_TICKS, 0);
+        entityData.define(DATA_INK_EVENT, 0);
+        entityData.define(DATA_JET_TICKS, 0);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -75,7 +108,14 @@ public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOc
     public void tick() {
         super.tick();
         updateBodyPitch();
+        OctopusCamouflage.tick(this);
         if (level().isClientSide) return;
+        if (level() instanceof ServerLevel sl) {
+            OctopusInkCloudRegistry.tick(sl, getUUID());
+            entityData.set(DATA_INK_TICKS, OctopusInkCloudRegistry.active(sl, getUUID())
+                    ? Math.max(0, entityData.get(DATA_INK_TICKS) - 1) : 0);
+        }
+        tickJet();
         if (inkCooldown > 0) inkCooldown--;
         if (hideTicks > 0) {
             hideTicks--;
@@ -85,13 +125,15 @@ public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOc
         AABB area = getBoundingBox().inflate(5.0);
         List<Player> nearby = level().getEntitiesOfClass(Player.class, area,
                 p -> !p.isCreative() && !p.isSpectator() && p.isInWater());
-        if (!nearby.isEmpty() && inkCooldown == 0 && level() instanceof ServerLevel sl) {
-            emitInk(sl);
+        if (!nearby.isEmpty() && inkCooldown == 0 && jetTicks == 0 && level() instanceof ServerLevel sl) {
             Player p = nearby.get(0);
-            Vec3 away = position().subtract(p.position()).normalize().scale(0.4);
-            setDeltaMovement(getDeltaMovement().add(away));
-            inkCooldown = 120;
-            hideTicks = 0;
+            OctopusEscapePolicy.findRoute(this, p).ifPresent(route -> {
+                if (emitInk(sl)) {
+                    startJetAway(route);
+                    inkCooldown = OctopusEscapePolicy.EMISSION_COOLDOWN_TICKS;
+                    hideTicks = 0;
+                }
+            });
         }
         playerProxCooldown = 20;
         if (hideTicks == 0 && hideCheckTimer-- <= 0) {
@@ -117,14 +159,71 @@ public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOc
         this.xBodyRot += (target - this.xBodyRot) * 0.1f;
     }
 
-    protected void emitInk(ServerLevel level) {
-        for (int i = 0; i < 20; i++) {
+    protected boolean emitInk(ServerLevel level) {
+        if (!isSubmerged() || !OctopusInkCloudRegistry.tryCreate(level, this)) return false;
+        for (int i = 0; i < OctopusInkCloudRegistry.MAX_PARTICLE_BIRTHS; i++) {
             double dx = (random.nextDouble() - 0.5) * 0.3;
             double dy = (random.nextDouble() - 0.5) * 0.3;
             double dz = (random.nextDouble() - 0.5) * 0.3;
             level.sendParticles(ParticleTypes.SQUID_INK, getX(), getY(), getZ(), 1, dx, dy, dz, 0.1);
         }
         level.playSound(null, blockPosition(), SoundEvents.SQUID_SQUIRT, SoundSource.NEUTRAL, 1.0F, 1.1F);
+        entityData.set(DATA_INK_TICKS, OctopusInkCloudRegistry.LIFETIME_TICKS);
+        entityData.set(DATA_INK_EVENT, OctopusInkCloudRegistry.snapshot(level, getUUID())
+                .map(OctopusInkCloudRegistry.Snapshot::event).orElse(0));
+        return true;
+    }
+
+    private void startJetAway(OctopusEscapePolicy.Route route) {
+        jetDirection = route.direction();
+        jetTicks = OctopusEscapePolicy.JET_DURATION_TICKS;
+        entityData.set(DATA_JET_TICKS, jetTicks);
+    }
+
+    private void tickJet() {
+        if (jetTicks <= 0) return;
+        Vec3 velocity = OctopusEscapePolicy.applyJet(getDeltaMovement(), jetDirection);
+        setDeltaMovement(velocity);
+        if (!isEffectiveAi()) move(MoverType.SELF, velocity);
+        jetTicks--;
+        entityData.set(DATA_JET_TICKS, jetTicks);
+        if (jetTicks == 0) jetDirection = Vec3.ZERO;
+    }
+
+    private boolean isSubmerged() {
+        return isInWaterOrBubble()
+                || level().getFluidState(blockPosition()).is(net.minecraft.tags.FluidTags.WATER)
+                || level().getFluidState(blockPosition().below()).is(net.minecraft.tags.FluidTags.WATER);
+    }
+
+    public boolean isInkCloudActive() {
+        return entityData.get(DATA_INK_TICKS) > 0;
+    }
+
+    public boolean isJetting() {
+        return entityData.get(DATA_JET_TICKS) > 0;
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if (level() instanceof ServerLevel sl) OctopusInkCloudRegistry.remove(sl, getUUID());
+        jetTicks = 0;
+        jetDirection = Vec3.ZERO;
+        super.remove(reason);
+    }
+
+    @Override public net.minecraft.world.entity.Entity camouflageEntity() { return this; }
+    @Override public int camouflageTargetColor() { return entityData.get(DATA_CAMO_TARGET); }
+    @Override public float camouflageTargetWeight() { return entityData.get(DATA_CAMO_WEIGHT); }
+    @Override public void setCamouflageTarget(int color, float weight) {
+        entityData.set(DATA_CAMO_TARGET, color & 0xffffff);
+        entityData.set(DATA_CAMO_WEIGHT, net.minecraft.util.Mth.clamp(weight, 0.0f, 1.0f));
+    }
+    @Override public int camouflageColor() { return camouflageColor; }
+    @Override public float camouflageWeight() { return camouflageWeight; }
+    @Override public void setCamouflageCurrent(int color, float weight) {
+        camouflageColor = color & 0xffffff;
+        camouflageWeight = net.minecraft.util.Mth.clamp(weight, 0.0f, 1.0f);
     }
 
     @Override public float bfsScaleMin() { return 0.4f; }

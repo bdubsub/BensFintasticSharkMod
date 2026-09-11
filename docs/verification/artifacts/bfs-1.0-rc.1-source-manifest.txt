@@ -1,0 +1,36 @@
+release: BensFintasticSharks Forge 1.20.1 1.0-rc.1
+display designation: Release Candidate 1.0
+branch: envy/0.24-phase-005
+release work branch: envy/0.24
+default branch: 1.20.1
+candidate source commit: a939aa255c10dd280dbd992d8fd7b0ac4b67dc34
+evidence commit: b29c6efa866fd8a97c05283988e776fd48ba0b4d
+artifact: BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar
+artifact size: 2013933 bytes
+artifact entries: 939
+artifact uncompressed size: 5799123 bytes
+artifact sha256: 94bfe2c8b45fc54505d42b63d026e203086959c34bb28325da3cf762c46578bd
+artifact sha512: 8d9edc14bf81e11fd8dc5e905b9aa1201e84c7d7bf303c53cee2f9a57fee516cd99076066b6df92d14d116f6199ddacf7deb03ee4237b1f37ccd369ae8bb5675
+archive test: unzip -tqq passed
+metadata: META-INF/MANIFEST.MF and META-INF/mods.toml report 1.0-rc.1
+minecraft: 1.20.1
+forge: 47.2.0
+java: 17.0.19+10
+parchment: 2023.09.03-1.20.1
+geckolib: 4.4.7, sha256 6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0
+smartbrainlib: 1.14.2, sha256 3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b
+sbom: docs/verification/artifacts/bfs-1.0-rc.1.spdx.json
+sbom format: SPDX-2.3
+source archive bfs 0.23 sha256: 1dcfd0db544184bffd467255ba294b57f0a1376b06023f10034f380b9e5d0eaa
+source archive bfs 0.24 sha256: 25290e8d019339aff68c8ba168bd750d5c445aa915720d249aeed5700c9f3274
+plan sha256: 857924e4841bc8b13d4fc4a7e9f815d84536ae163aad91ba06601e97dc91bf13
+plan index sha256: ef4a1f02770f3c9424dcb4c8c5352b5ee4932abd1a09e432309da86a72ab157e
+plan handoff sha256: 5c82c7b485d4da827080a4bac981f2e081b07566ae5914c42f3daf311254814e
+goal sha256: f48badcd994c8336aca4cb73b7a04efb72baf508f54343d191e1827cd729e25b
+active phase sha256: 5030d29747895d5d95cfe4d1485e790a1062f7d059bbc62ccd4ab167cf6b64dd
+release package disposition: reobfuscated Forge JAR only
+excluded from release package: sources jar, Fabric artifact, logs, disposable worlds, private configuration, crash reports, credentials, disposable test fixtures, and owner inputs
+bundled harness input: gameteststructures/bfsgametests.empty.snbt is a required packaged GameTest template, not a disposable world or private fixture
+generated resource metadata: tracked .cache manifests are source-side datagen bookkeeping and contain only resource hashes; no runtime logs, credentials, private configuration, or test worlds are present in the JAR
+attestations: no artifact signing, SLSA provenance, cosign, or SBOM attestation workflow is configured; GitHub CodeQL analysis workflow is declared separately and is not an artifact attestation
+secret scan: tracked text and candidate archive scanned for private-key and common token signatures, no match
