@@ -1,6 +1,7 @@
 # Documentation
 
 * [Project overview and setup](../README.md)
+* [Debug and content plan validation](verification/bfs2-plan-validation.md)
 * [Gameplay and technical reference](../DOCUMENTATION.md)
 * [Release changelog](../CHANGELOG.md)
 * [Release Candidate 1.0 Windows startup correction](verification/rc1-windows-startup.md)
@@ -70,4 +71,4 @@
 * [Depth route regressions and acceptance boundaries](test/depth-route-regressions.md)
 * [Phase 001 fishing transaction regressions](test/phase-001-fishing-transactions.md)
 
-Tracked documentation describes released or currently implemented behavior. The previous planning files were removed at the owner's request to start fresh. Historical evidence remains available, and unresolved performance work is recorded in [issue 28](https://github.com/bdubsub/BensFintasticSharkMod/issues/28) and [pull request 29](https://github.com/bdubsub/BensFintasticSharkMod/pull/29). Removing the plans does not mark that work complete.
+Gameplay and technical documentation describe released or currently implemented behavior. The [debug and content implementation plan](general/plan.md) defines the next pass across eight phases. Its [phase manifest](general/plan.index.json) registers the execution blueprints, and its [research package](general/research/brief.md) records the supporting evidence and resolved product decisions. Planned behavior is not yet implemented. Historical evidence remains available, and unresolved performance work is recorded in [issue 28](https://github.com/bdubsub/BensFintasticSharkMod/issues/28) and [pull request 29](https://github.com/bdubsub/BensFintasticSharkMod/pull/29). The previous planning reset did not mark that work complete.

@@ -14,3 +14,5 @@
 *.cfg text eol=lf
 *.jks binary
 docs/verification/artifacts/performance-rc1/*.gz binary
+
+docs/general/**/*.md whitespace=-blank-at-eol
