@@ -3,6 +3,7 @@
 * [Project overview and setup](../README.md)
 * [Debug and content plan validation](verification/bfs2-plan-validation.md)
 * [Phase 000 task 001 intake](verification/phase-000-task-001-intake-20260912.md)
+* [Phase 000 task 002 diagnostic verification](verification/phase-000-task-002-diagnostics-20260912.md)
 * [Execution goal](plan/goal.md)
 * [Active phase cursor](plan/active_phase.md)
 * [Execution goal validation](verification/bfs2-goal-validation.md)
