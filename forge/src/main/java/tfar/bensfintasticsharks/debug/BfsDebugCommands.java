@@ -112,6 +112,9 @@ public final class BfsDebugCommands {
         context.getSource().sendSuccess(() -> Component.literal("  Records: " + session.accepted() + " accepted, " + session.dropped()
                 + " dropped. Incomplete: " + session.incomplete() + ". Reason: " + session.incompleteReason() + ".")
                 .withStyle(session.incomplete() ? ChatFormatting.YELLOW : ChatFormatting.GREEN), false);
+        context.getSource().sendSuccess(() -> Component.literal("  Capture tick overhead p95: "
+                + (session.traceP95Nanos() / 1_000_000.0D) + " ms across " + session.traceSampleCount() + " ticks.")
+                .withStyle(ChatFormatting.GRAY), false);
         context.getSource().sendSuccess(() -> Component.literal("  Wall time remaining: "
                 + Math.max(0L, (session.wallDeadlineMillis() - now) / 1_000L) + " seconds. Output: " + session.outputPath())
                 .withStyle(ChatFormatting.GRAY), false);
