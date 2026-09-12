@@ -2,6 +2,9 @@
 
 * [Project overview and setup](../README.md)
 * [Debug and content plan validation](verification/bfs2-plan-validation.md)
+* [Execution goal](plan/goal.md)
+* [Active phase cursor](plan/active_phase.md)
+* [Execution goal validation](verification/bfs2-goal-validation.md)
 * [Gameplay and technical reference](../DOCUMENTATION.md)
 * [Release changelog](../CHANGELOG.md)
 * [Release Candidate 1.0 Windows startup correction](verification/rc1-windows-startup.md)
