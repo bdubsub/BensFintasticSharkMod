@@ -195,6 +195,9 @@ public final class SpeciesBehaviorEngine {
         if (candidate instanceof Player || candidate.getType().is(APEX_PREDATOR)) return false;
         if (candidate.getType() == hunter.getType()) return false;
         String id = candidate.getType().builtInRegistryHolder().key().location().getPath();
+        String hunterId = hunter.getType().builtInRegistryHolder().key().location().getPath();
+        if ((hunterId.equals("common_stingray") && id.equals("american_lobster"))
+                || (hunterId.equals("american_lobster") && id.equals("common_stingray"))) return false;
         return switch (profile.foodMode()) {
             case SMALL_FISH -> id.contains("cod") || id.contains("salmon") || id.contains("squid");
             case FISH_AND_INVERTEBRATE -> id.contains("cod") || id.contains("salmon") || id.contains("squid")

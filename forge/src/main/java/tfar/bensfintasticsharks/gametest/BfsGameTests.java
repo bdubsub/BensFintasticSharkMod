@@ -59,9 +59,11 @@ import com.mojang.authlib.GameProfile;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
+import tfar.bensfintasticsharks.entity.AmericanLobsterEntity;
 import tfar.bensfintasticsharks.entity.CannonballJellyfishEntity;
 import tfar.bensfintasticsharks.entity.CaribbeanReefOctopusEntity;
 import tfar.bensfintasticsharks.entity.CommonOctopusEntity;
+import tfar.bensfintasticsharks.entity.CommonStingrayEntity;
 import tfar.bensfintasticsharks.entity.OctopusEscapePolicy;
 import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
 import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
@@ -115,6 +117,34 @@ public final class BfsGameTests {
         helper.assertTrue(ModBlocks.ALGAE_BLOCK.defaultBlockState().canSurvive(helper.getLevel(), absoluteAlgaePos),
                 "algae must survive while its water support is present");
         helper.succeed();
+    }
+
+    @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 100)
+    public static void stingrayContactUsesBoundedCooldown(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        CommonStingrayEntity stingray = helper.spawn(ModEntityTypes.COMMON_STINGRAY, new BlockPos(3, 3, 3));
+        AmericanLobsterEntity lobster = helper.spawn(ModEntityTypes.AMERICAN_LOBSTER, new BlockPos(3, 3, 3));
+        stingray.setNoAi(true);
+        lobster.setNoAi(true);
+        stingray.setNoGravity(true);
+        lobster.setNoGravity(true);
+        stingray.setDeltaMovement(Vec3.ZERO);
+        lobster.setDeltaMovement(Vec3.ZERO);
+
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(lobster.getHealth() < lobster.getMaxHealth(),
+                    "overlapping stingray must sting a living mob");
+            int firstHurtTick = lobster.getLastHurtByMobTimestamp();
+            helper.runAfterDelay(10, () -> {
+                helper.assertTrue(lobster.getLastHurtByMobTimestamp() == firstHurtTick,
+                        "a target must not be stung again during the bounded sting duration");
+                helper.runAfterDelay(31, () -> {
+                    helper.assertTrue(lobster.getLastHurtByMobTimestamp() > firstHurtTick,
+                            "a target must be eligible for another sting after the duration");
+                    helper.succeed();
+                });
+            });
+        });
     }
 
     @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 20)
