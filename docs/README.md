@@ -4,6 +4,7 @@
 * [Gameplay and technical reference](../DOCUMENTATION.md)
 * [Release changelog](../CHANGELOG.md)
 * [Release Candidate 1.0 Windows startup correction](verification/rc1-windows-startup.md)
+* [Release Candidate 1.0 performance rejection and evidence](verification/rc1-performance-20260911.md)
 * [Current release artifact checksums and source binding](verification/artifacts/README.md)
 * [Active development plan](general/plan.md)
 * [0.24 asset ledger](verification/asset-ledger.md)
