@@ -36,9 +36,23 @@ public final class ProbeAgent {
                                 : sensing && method.equals("m_5578_") ? "sensor_calls"
                                 : policy && method.equals("boundedLiving") ? "bounded_living_scans"
                                 : living && method.equals("m_6667_") ? "living_deaths" : null;
+                        String timer = policy ? switch (method) {
+                            case "tick" -> "policy_tick";
+                            case "boundedLiving" -> "policy_scan";
+                            case "findFoodBlock" -> "food_block_scan";
+                            case "findEscape" -> "escape_route";
+                            case "findSurface" -> "surface_route";
+                            case "findFloorRoute" -> "floor_route";
+                            case "reachable" -> "path_reachability";
+                            case "findNearbyFoodItem" -> "food_item_scan";
+                            case "findFood" -> "food_route";
+                            case "claimSocialRoute" -> "social_route";
+                            case "findThreat" -> "threat_scan";
+                            default -> null;
+                        } : null;
                         boolean action = animal && method.equals("beginBfsBehaviorAction");
                         boolean death = living && method.equals("m_6667_");
-                        if (!tick && counter == null && !action) return delegate;
+                        if (!tick && counter == null && timer == null && !action) return delegate;
                         System.out.println("PERF_HOOK " + name + "." + method + descriptor);
                         return new MethodVisitor(Opcodes.ASM9, delegate) {
                             @Override
@@ -48,6 +62,10 @@ public final class ProbeAgent {
                                 if (counter != null) {
                                     visitLdcInsn(counter);
                                     invoke("count", "(Ljava/lang/String;)V");
+                                }
+                                if (timer != null) {
+                                    visitLdcInsn(timer);
+                                    invoke("enter", "(Ljava/lang/String;)V");
                                 }
                                 if (action) {
                                     visitVarInsn(Opcodes.ALOAD, 1);
@@ -61,6 +79,13 @@ public final class ProbeAgent {
                             }
                             @Override
                             public void visitInsn(int opcode) {
+                                if (timer != null && (opcode == Opcodes.IRETURN || opcode == Opcodes.LRETURN
+                                        || opcode == Opcodes.FRETURN || opcode == Opcodes.DRETURN
+                                        || opcode == Opcodes.ARETURN || opcode == Opcodes.RETURN
+                                        || opcode == Opcodes.ATHROW)) {
+                                    visitLdcInsn(timer);
+                                    invoke("exit", "(Ljava/lang/String;)V");
+                                }
                                 if (tick && opcode == Opcodes.RETURN) {
                                     visitVarInsn(Opcodes.ALOAD, 0);
                                     invoke("afterTick", "(Ljava/lang/Object;)V");

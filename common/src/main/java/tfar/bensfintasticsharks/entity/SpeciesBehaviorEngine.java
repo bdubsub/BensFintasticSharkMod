@@ -108,7 +108,8 @@ public final class SpeciesBehaviorEngine {
         }
 
         LivingEntity threat = findThreat(entity, profile);
-        if (threat != null && profile.threatResponse() != SpeciesBehaviorProfile.ThreatResponse.NONE) {
+        if (threat != null && profile.threatResponse() != SpeciesBehaviorProfile.ThreatResponse.NONE
+                && !hasAnyWalkTarget(entity)) {
             Vec3 escape = findEscape(entity, threat, profile.scanRadius());
             if (escape != null && claimRoute(entity, "escape", profile.actionTimeoutTicks(), escape,
                     1.35f, threat, profile.memoryTicks())) return;

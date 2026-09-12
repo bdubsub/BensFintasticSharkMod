@@ -14,6 +14,9 @@ public final class TickProbe {
     private static final int LIMIT = Integer.getInteger("bfs.probe.ticks", 36000);
     private static final int WARMUP = Integer.getInteger("bfs.probe.warmup", 2400);
     private static final Map<String, Long> COUNTERS = new TreeMap<>();
+    private static final Map<String, Long> TIMING_NANOS = new TreeMap<>();
+    private static final ThreadLocal<Map<String, Long>> TIMING_STARTS =
+            ThreadLocal.withInitial(HashMap::new);
     private static final Map<Class<?>, Map<String, Method>> METHODS = new HashMap<>();
     private static Map<Object, double[]> positions = new HashMap<>();
     private static long started;
@@ -33,6 +36,16 @@ public final class TickProbe {
         if (armedAt >= 0 && observed - armedAt > WARMUP && measured < LIMIT) {
             COUNTERS.merge(name, 1L, Long::sum);
         }
+    }
+
+    public static void enter(String name) {
+        if (isMeasuring()) TIMING_STARTS.get().put(name, System.nanoTime());
+    }
+
+    public static void exit(String name) {
+        if (!isMeasuring()) return;
+        Long start = TIMING_STARTS.get().remove(name);
+        if (start != null) TIMING_NANOS.merge(name, System.nanoTime() - start, Long::sum);
     }
 
     public static void action(String action) {
@@ -76,6 +89,8 @@ public final class TickProbe {
                 ticks.write("tick,duration_ns\n");
                 wallStarted = System.nanoTime();
                 COUNTERS.clear();
+                TIMING_NANOS.clear();
+                TIMING_STARTS.get().clear();
                 sample(server, 0);
                 System.out.println("PERF_MEASUREMENT_STARTED " + LIMIT);
             }
@@ -89,7 +104,8 @@ public final class TickProbe {
                 ticks.close();
                 census.close();
                 Files.writeString(Path.of("probe.complete"), "ticks=" + measured + "\nwall_ns="
-                        + (System.nanoTime() - wallStarted) + "\ncounters=" + COUNTERS + "\n");
+                        + (System.nanoTime() - wallStarted) + "\ncounters=" + COUNTERS
+                        + "\ntimings_ns=" + TIMING_NANOS + "\n");
                 System.out.println("PERF_COMPLETE " + LIMIT);
             }
         } catch (Throwable exception) {
@@ -97,6 +113,10 @@ public final class TickProbe {
             exception.printStackTrace();
             System.out.println("PERF_FAILED " + exception.getClass().getName());
         }
+    }
+
+    private static boolean isMeasuring() {
+        return armedAt >= 0 && observed - armedAt > WARMUP && measured < LIMIT && !failed;
     }
 
     private static Object call(Object target, String method) throws ReflectiveOperationException {
