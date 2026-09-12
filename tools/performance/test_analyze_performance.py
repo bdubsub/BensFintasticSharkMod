@@ -1,3 +1,6 @@
+import csv
+import gzip
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -153,6 +156,31 @@ class CaptureValidationTest(unittest.TestCase):
         report = load_run(self.suite, self.name, expected_ticks=200)
         self.assertEqual(report["heap_bytes"]["minimum"], 1)
         self.assertEqual(report["heap_bytes"]["five_minute_window_minima"], [100000])
+
+
+class RetainedEvidenceTest(unittest.TestCase):
+    bundle = Path(__file__).resolve().parents[2] / "docs/verification/artifacts/performance-rc1"
+
+    def test_compressed_captures_match_recorded_raw_hashes(self):
+        for name, summary in (("baseline-normal", "baseline-normal.json"),
+                              ("candidate-normal", "candidate-normal-failed.json")):
+            record = json.loads((self.bundle / summary).read_text())
+            for suffix, key in (("probe-ticks.csv", "ticks"), ("probe-census.tsv", "census")):
+                data = gzip.decompress((self.bundle / f"{name}-{suffix}.gz").read_bytes())
+                self.assertEqual(hashlib.sha256(data).hexdigest(), record["raw_sha256"][key])
+
+    def test_retained_timing_data_reproduces_the_rejection(self):
+        with gzip.open(self.bundle / "baseline-normal-probe-ticks.csv.gz", "rt") as stream:
+            baseline = list(csv.DictReader(stream))
+        self.assertEqual([int(row["tick"]) for row in baseline], list(range(1, 36001)))
+        baseline_p95 = percentile([int(row["duration_ns"]) for row in baseline], 0.95)
+        self.assertEqual(baseline_p95, 6944770)
+        with gzip.open(self.bundle / "candidate-normal-probe-ticks.csv.gz", "rt") as stream:
+            candidate = list(csv.DictReader(stream))
+        self.assertEqual([int(row["tick"]) for row in candidate], list(range(1, 22401)))
+        verdict = irreversible_p95_failure([int(row["duration_ns"]) for row in candidate], baseline_p95)
+        record = json.loads((self.bundle / "candidate-normal-failed.json").read_text())
+        self.assertEqual(verdict, record["rejection"])
 
 
 if __name__ == "__main__":
