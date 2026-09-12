@@ -63,7 +63,7 @@ The retained gzip files contain only anonymous tick durations and species level 
 * [Failed candidate tick prefix](artifacts/performance-rc1/candidate-normal-probe-ticks.csv.gz).
 * [Failed candidate census](artifacts/performance-rc1/candidate-normal-probe-census.tsv.gz).
 
-The evidence validator's 19 tests pass locally and in CI. They cover complete tick and census sequences, missing and duplicate records, population prescriptions, unsuccessful shutdown, warmup boundaries, heap windows, and exact early rejection limits. Passing those tests proves recorder validation, not mod performance acceptance.
+The evidence validator's 21 tests pass locally. CI executes the same suite before the Forge build. They cover complete tick and census sequences, missing and duplicate records, population prescriptions, unsuccessful shutdown, warmup boundaries, heap windows, exact early rejection limits, compressed capture integrity, and recalculation from the retained data. The evidence directory explicitly marks gzip files as binary so Git cannot alter compressed bytes through text line ending conversion. Passing those tests proves recorder validation, not mod performance acceptance.
 
 The next performance action is scoped profiling and optimization, followed by a fresh exact candidate comparison at ordinary and doubled populations. Do not weaken the 10 percent threshold, claim a 30 minute candidate pass, reuse this incomplete prefix as one, or retire the plan. Existing Windows startup confirmation and unrelated completed gameplay evidence remain intact.
 
