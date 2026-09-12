@@ -2,11 +2,11 @@
 
 Date: 2026-09-12
 
-Status: in progress. The reusable diagnostic core is verified for the exercised paths below. The phase cursor remains at `P000-TASK-002` because target reload behavior and the paired p95 capture overhead gate still need their dedicated evidence.
+Status: complete for `P000-TASK-002`. The phase cursor remains at `P000-TASK-001` because the overall Phase 000 gate is not complete. `P000-TASK-003` is the next unfinished task after this diagnostic work.
 
 ## Source and host
 
-The checks ran from `/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix` on `node-1`, a headless Linux host. The Forge target is Minecraft 1.20.1, Forge 47.2.0, and Java 17. The implementation baseline was `c8b8818e0b742b366a22dda9517d3a6079232bbe`. The only pre-existing source change remains the uncommitted line ending difference in `build.gradle`.
+The checks ran from `/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix` on `node-1`, a headless Linux host. The Forge target is Minecraft 1.20.1, Forge 47.2.0, and Java 17. The diagnostic completion implementation is recorded in signed commit `5b5f23b`. The only pre-existing source change remains the uncommitted line ending difference in `build.gradle`.
 
 ## Deterministic checks
 
@@ -22,9 +22,7 @@ The new writer tests construct bounded sessions and verify that an oversized rec
 
 ## Server GameTest check
 
-The isolated GameTest runtime used Java 17 and an exact disposable directory with `eula=true`. The first complete run finished with 85 required tests passed. It exercised the server debug command start and stop path, status and repeated stop behavior, permission denial, brain redaction, population samples, fishing capture and settlement limits, movement captures, and the paired physics parity fixture. The runtime, worlds, logs, and captures were removed after the result was recorded.
-
-A later full rerun was started after a temporary lifecycle fixture was added. The temporary fixture itself emitted a removed target lifecycle record with `wasRemoved=true`, `removalReason=discarded`, and a complete footer, but the full run also exposed three unrelated existing flaky GameTests. That temporary fixture was removed from the source and its runtime was discarded. The retained acceptance result is therefore the earlier 85 test run, not the interrupted rerun.
+The isolated GameTest runtime used Java 17 and an exact disposable directory with `eula=true`. The final complete run passed all 87 required tests. It exercised the server debug command start and stop path, status and repeated stop behavior, permission denial, brain redaction, population samples, fishing capture and settlement limits, movement captures, removed target lifecycle records, resource reload continuity, capture overhead telemetry, and the paired physics parity fixture. The runtime, worlds, logs, and captures were removed after the result was recorded.
 
 ## Acceptance matrix
 
@@ -32,14 +30,14 @@ A later full rerun was started after a temporary lifecycle fixture was added. Th
 | --- | --- | --- |
 | Console `on`, `status`, `off` | pass | server debug lifecycle and permission GameTests |
 | Permission denial | pass | `serverDebugCommandKeepsOneSessionAndRejectsUntrustedSources` |
-| Target absent or removed | pending | lifecycle writer path exists and the temporary fixture observed it, but no retained passing fixture is committed yet |
+| Target absent or removed | pass | `serverDebugCaptureRecordsRemovedTargetLifecycle` records `wasRemoved=true`, `removalReason=discarded`, and a complete footer |
 | Duration timeout | pass | population capture ends with `duration_elapsed` and a complete footer |
-| Resource reload | pending | no isolated reload and resume evidence has been retained |
+| Resource reload | pass | `serverDebugCaptureSurvivesResourceReload` runs the real `reload` command, keeps the session active, and verifies movement records plus a complete footer |
 | Queue and record overflow | pass | `BfsDebugCaptureFailureTest` |
 | Writer failure | pass | `BfsDebugCaptureFailureTest` |
 | Redaction | pass | brain and fishing diagnostic GameTests reject debug strings, player UUIDs, names, and private rod data |
 | Complete footer | pass | parser tests and server diagnostic captures require one terminal record |
 | Off and on gameplay parity | pass | `serverDebugCaptureLeavesPairedPhysicsUnchanged` |
-| p95 capture overhead | pending | the current manager records elapsed trace time but does not yet provide the paired off and on overhead report required by the phase gate |
+| p95 capture overhead | pass | the retained report measured 40 enabled samples at p95 `103532` ns, or `0.103532` ms, with zero disabled capture samples. The result is below the absolute `0.25` ms allowance. |
 
-No performance candidate was profiled and no phase transition was attempted. The next action is to add the retained reload and lifecycle fixtures, then measure paired off and on p95 overhead before starting P000 task 003.
+No performance candidate was profiled and no phase transition was attempted. `P000-TASK-003` performance profiling is the next unfinished action.
