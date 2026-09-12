@@ -33,6 +33,8 @@ The post repair full server suite completed all 87 registered tests twice. The t
 
 A fresh paired 600 tick pilot with the rebuilt prebehavior baseline and the post repair candidate used the same installed dependencies, seed, fixture, 200 tick warmup and 22 species. The baseline measured p50 3.577636 ms, p95 14.138435 ms, p99 18.482764 ms and maximum 21.127771 ms. The post repair candidate measured p50 3.296426 ms, p95 8.026109 ms, p99 14.378608 ms and maximum 18.535846 ms. This is a positive causal pilot, but its short window and differing natural deaths do not satisfy the required 36,000 tick paired acceptance cases.
 
+The required matrix intake then ran the complete ordinary baseline and a bounded candidate prefix with the rebuilt installed artifacts. The baseline normal case completed all 36,000 measured ticks with p50 2.079120 ms, p95 4.562200 ms, p99 9.251872 ms and maximum 28.992155 ms. The candidate normal case stopped after 3,400 measured ticks because the live population repeatedly fell to 53 through 60 entities instead of the declared 63 target. Its prefix measured p50 5.450751 ms, p95 9.278981 ms, p99 14.723133 ms and maximum 21.258601 ms, and it recorded 88 American Lobster deaths caused by Common Stingrays. The prefix has no completion marker and is invalid for acceptance because its workload is lower and behaviorally different. The doubled cases did not start. This is an unverified matrix gate and a retained performance and workload failure, not a pass.
+
 ## Attribution observations
 
 The candidate's measured counter window at tick 1,000 reported 3,025 `bounded_living_scans`, 163 feed actions, 19 escape actions, 19 social actions, 1,531 navigation calls, 2,162 sensor calls, and 24 deaths. The corresponding baseline window reported no species policy scan counter, 1,752 navigation calls, 2,289 sensor calls, and six deaths. By tick 1,400, the candidate had 4,263 bounded living scans, 237 feed actions, 26 escape actions, 24 social actions, 2,156 navigation calls, 3,030 sensor calls, and 32 deaths, including 29 American Lobster deaths caused by Common Stingrays.
@@ -59,7 +61,13 @@ The inspected sanitized pilot inputs had these SHA 256 identities.
 | rebuilt baseline timing CSV | `4f87f4b9a43ce6d845547f950745c6e85ccfa07de6236e0f2fdb2184f4ff57b2` |
 | rebuilt baseline census TSV | `174b4c7b5676cc401c455931648ae48e4692c111b860c70a084b7b333257890b` |
 | rebuilt baseline completion record | `8003aa2e38959688aae6111a717391357ec21d3a7dd32a7a36262bff951aa891` |
+| full baseline normal timing CSV | `cbb9869763db0cf7e5d6b3f3a82de4aa584b374eb4429b1343a8b83237be7762` |
+| full baseline normal census TSV | `121d2e5163a87c137012f37dcc02f29a5ddd74871abbe678aa8da93527511950` |
+| full baseline normal completion record | `19c502bf6a397df1b7713473be4e2fdd8fb8ec804fe957c4e026f1d490ea1aac` |
+| candidate normal invalid prefix timing CSV | `6ca106fe4cfc6acf53336780c51b9577b4c7a67fdd233a742d98916217256e45` |
+| candidate normal invalid prefix census TSV | `38796f42bffe3dad116dfafc787b00b0189021e361c502e9d526c23107ed36a9` |
+| candidate normal invalid prefix console | `4b5c759de5d981d70f7e1a256269e988c4c1dc8dc8e7a0013b9b7e010e811be7` |
 
 The exact disposable server runtimes, worlds, logs, copied dependencies, and probe classes were removed after extraction. No owned process remained. The source worktree retains only the pre-existing uncommitted `build.gradle` line ending difference.
 
-The next task 003 action is the full installed four case matrix with diagnostics disabled for acceptance, followed by comparison and behavior review. No phase transition is allowed until those cases and the remaining release gates pass.
+The next task 003 action is to repair the candidate workload divergence without hiding predation or changing the prescribed fixture, then rerun the installed four case matrix with diagnostics disabled for acceptance. No phase transition is allowed until those cases and the remaining release gates pass.
