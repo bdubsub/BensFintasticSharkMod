@@ -2,7 +2,7 @@
 
 Date: 2026-09-12
 
-Status: incomplete. The retained ordinary pilot reproduced the timing regression and isolated a policy work lead, but it did not provide enough causal timing attribution to select a safe repair. No performance acceptance case or phase transition was attempted.
+Status: incomplete. The retained ordinary pilot reproduced the timing regression, and scoped method timing selected a behavior preserving repair. The required four case performance matrix and phase transition remain open.
 
 ## Scope and environment
 
@@ -21,13 +21,21 @@ The baseline completed 1,000 measured ticks after a 400 tick warmup. The candida
 
 The candidate p95 is about 30.35 percent above the matched baseline pilot. This is a bounded reproduction, not the required 2,400 warmup and 36,000 tick acceptance window.
 
+## Causal attribution and repair
+
+The 600 tick scoped timing run used the pre repair candidate and the same 200 tick warmup, seed, fixture, 22 species and installed dependencies. It attributed 52.474540 ms to `path_reachability`, 55.488279 ms to `escape_route` and 100.139698 ms to `policy_tick` across the measured window. `claimRoute` already rejects a new route when an existing walk target is present, but the policy built the escape path before that rejection. The repair in signed commit `54cffe0a7590aa398bd73db8b99651229f1bb0e2` moves the existing walk target guard before escape path construction. It leaves route selection, threat policy, predation, replenishment, targets and observer semantics unchanged.
+
+The rebuilt installed candidate has JAR SHA 256 `12dc39c2f7e042a149d9a2cc71fff51d7fa35677292b6dcf1136a53a819c4857` and SHA 512 `f465cbfa35a9d3699df77afc46994e376eaeece073ae5afb2704b7cf165b22a616094285fe6ef0d57bc387472d94c2b95ad73a23c121408050924774f2862cbe`. A bounded post repair timing run completed 600 measured ticks after a 200 tick warmup. Its p50 was 3.296426 ms, p95 8.026109 ms, p99 14.378608 ms and maximum 18.535846 ms. The scoped totals were `path_reachability=5.120411 ms`, `escape_route=5.432568 ms` and `policy_tick=50.820908 ms`. This pilot is attribution evidence only, not the acceptance matrix.
+
+The post repair full server suite completed all 87 registered tests twice. The tiger bite and new debug lifecycle tests passed in both runs. Each run exposed one different pre existing flaky fixture failure, `tigerbitelandsonceandrecoversaftertargetloss` in the first run and `sharkspotterandatlanticadvancementsrequiretheirgameplaysignals` in the second. The suite therefore remains unclaimed as a complete pass. Forge tests passed 52, debug parser tests passed 18 and performance analysis tests passed 21.
+
 ## Attribution observations
 
 The candidate's measured counter window at tick 1,000 reported 3,025 `bounded_living_scans`, 163 feed actions, 19 escape actions, 19 social actions, 1,531 navigation calls, 2,162 sensor calls, and 24 deaths. The corresponding baseline window reported no species policy scan counter, 1,752 navigation calls, 2,289 sensor calls, and six deaths. By tick 1,400, the candidate had 4,263 bounded living scans, 237 feed actions, 26 escape actions, 24 social actions, 2,156 navigation calls, 3,030 sensor calls, and 32 deaths, including 29 American Lobster deaths caused by Common Stingrays.
 
 The source path for `bounded_living` allocates a bounded result list for each policy scan and returns an immutable copy. A local experiment returned the bounded list directly. Its candidate JAR SHA 256 was `778843ce152d187f18ea4f5fd9c0be47e9a63c37b39c7e3360a9e7c797804838`. That experiment completed 1,000 ticks but measured a p95 of 11.107452 ms, compared with 8.556711 ms for the retained candidate prefix. The source experiment was reverted before evidence commit because the pilot did not demonstrate an improvement or establish causality.
 
-These observations identify species policy scanning, route selection, and associated predation and replenishment churn as profiling leads. They do not prove which operation dominates tick time, and no product repair is claimed.
+The method timers establish route construction as the causal work lead and the post repair pilot shows the measured route totals falling by about an order of magnitude. Full scale and behavior acceptance still require the installed four case matrix.
 
 ## Retained evidence and cleanup
 
@@ -41,7 +49,10 @@ The inspected sanitized pilot inputs had these SHA 256 identities.
 | candidate census TSV | `4d7c80f4cc8ba389066796073fffbb3cc068aaa13418a19eb30402d2cbe6dff3` |
 | experimental candidate timing CSV | `a8f3d281e231bba7c8c3d2c9d1e451714b3d88677eae9c476980bc935f46c72a` |
 | experimental candidate census TSV | `8521ffbbd024c3e2708e08e421b7a48c821d5fcaa1e8619f6c38fbc886e6264f` |
+| post repair timing CSV | `bb72ca44539f177c506a0c702b5ff82ad4f132a6d7a6796b2284971fac4c9544` |
+| post repair census TSV | `0ed05beba26bf2a131ad70c845d14e776cc9139942551aab5f61f155a4d49930` |
+| post repair completion record | `5c9b55758716a6b9be0d5e606346396c55aaf43c77cb67694d22cfd6de049b1d` |
 
 The exact disposable server runtimes, worlds, logs, copied dependencies, and probe classes were removed after extraction. No owned process remained. The source worktree retains only the pre-existing uncommitted `build.gradle` line ending difference.
 
-The next task 003 action is a scoped method timing attribution for the species policy and its route helpers, followed by a fresh candidate only if that attribution identifies a repair that preserves the fixture, predation, replenishment, and observer semantics.
+The next task 003 action is the full installed four case matrix with diagnostics disabled for acceptance, followed by comparison and behavior review. No phase transition is allowed until those cases and the remaining release gates pass.
