@@ -11,8 +11,8 @@
       "path": "plan.md",
       "kind": "master",
       "classification": "mandatory",
-      "requirementPrefix": "BFS",
-      "owner": "Ben's Fintastic Sharks",
+      "requirementPrefix": "BFS2",
+      "owner": "Repository maintainer",
       "dependsOn": []
     },
     {
@@ -21,8 +21,8 @@
       "kind": "phase",
       "classification": "mandatory",
       "requirementPrefix": "PHASE000",
-      "phaseId": "BFS-PHASE-000",
-      "owner": "Integration and verification maintainer",
+      "phaseId": "BFS2-PHASE-000",
+      "owner": "Repository maintainer",
       "dependsOn": []
     },
     {
@@ -31,9 +31,11 @@
       "kind": "phase",
       "classification": "mandatory",
       "requirementPrefix": "PHASE001",
-      "phaseId": "BFS-PHASE-001",
-      "owner": "Gameplay and compatibility maintainer",
-      "dependsOn": ["PLAN-PHASE-000"]
+      "phaseId": "BFS2-PHASE-001",
+      "owner": "Repository maintainer",
+      "dependsOn": [
+        "PLAN-PHASE-000"
+      ]
     },
     {
       "id": "PLAN-PHASE-002",
@@ -41,9 +43,11 @@
       "kind": "phase",
       "classification": "mandatory",
       "requirementPrefix": "PHASE002",
-      "phaseId": "BFS-PHASE-002",
-      "owner": "Entity animation and behavior maintainer",
-      "dependsOn": ["PLAN-PHASE-001"]
+      "phaseId": "BFS2-PHASE-002",
+      "owner": "Repository maintainer",
+      "dependsOn": [
+        "PLAN-PHASE-001"
+      ]
     },
     {
       "id": "PLAN-PHASE-003",
@@ -51,9 +55,11 @@
       "kind": "phase",
       "classification": "mandatory",
       "requirementPrefix": "PHASE003",
-      "phaseId": "BFS-PHASE-003",
-      "owner": "Advancement and localization maintainer",
-      "dependsOn": ["PLAN-PHASE-002"]
+      "phaseId": "BFS2-PHASE-003",
+      "owner": "Repository maintainer",
+      "dependsOn": [
+        "PLAN-PHASE-002"
+      ]
     },
     {
       "id": "PLAN-PHASE-004",
@@ -61,9 +67,11 @@
       "kind": "phase",
       "classification": "mandatory",
       "requirementPrefix": "PHASE004",
-      "phaseId": "BFS-PHASE-004",
-      "owner": "World generation and content maintainer",
-      "dependsOn": ["PLAN-PHASE-003"]
+      "phaseId": "BFS2-PHASE-004",
+      "owner": "Repository maintainer",
+      "dependsOn": [
+        "PLAN-PHASE-003"
+      ]
     },
     {
       "id": "PLAN-PHASE-005",
@@ -71,9 +79,35 @@
       "kind": "phase",
       "classification": "mandatory",
       "requirementPrefix": "PHASE005",
-      "phaseId": "BFS-PHASE-005",
-      "owner": "Release and verification maintainer",
-      "dependsOn": ["PLAN-PHASE-004"]
+      "phaseId": "BFS2-PHASE-005",
+      "owner": "Repository maintainer",
+      "dependsOn": [
+        "PLAN-PHASE-004"
+      ]
+    },
+    {
+      "id": "PLAN-PHASE-006",
+      "path": "phases/plan-phase-006.md",
+      "kind": "phase",
+      "classification": "mandatory",
+      "requirementPrefix": "PHASE006",
+      "phaseId": "BFS2-PHASE-006",
+      "owner": "Repository maintainer",
+      "dependsOn": [
+        "PLAN-PHASE-005"
+      ]
+    },
+    {
+      "id": "PLAN-PHASE-007",
+      "path": "phases/plan-phase-007.md",
+      "kind": "phase",
+      "classification": "mandatory",
+      "requirementPrefix": "PHASE007",
+      "phaseId": "BFS2-PHASE-007",
+      "owner": "Repository maintainer",
+      "dependsOn": [
+        "PLAN-PHASE-006"
+      ]
     }
   ]
 }

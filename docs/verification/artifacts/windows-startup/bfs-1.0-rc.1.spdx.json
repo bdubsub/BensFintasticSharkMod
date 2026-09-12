@@ -1,0 +1,166 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "BensFintasticSharks Forge 1.20.1 1.0-rc.1",
+  "documentNamespace": "https://github.com/bdubsub/BensFintasticSharkMod/spdx/bfs-1.0-rc.1-ac509f173563",
+  "creationInfo": {
+    "created": "2026-09-11T23:00:00Z",
+    "creators": [
+      "Person: EnVy"
+    ]
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-BFS",
+      "name": "bfs-1.0-rc.1.jar",
+      "versionInfo": "1.0-rc.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "APPLICATION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ac509f173563582485bb041f08cf75c827200110e2a73fb6b5b214f80906872a"
+        },
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "7f8786f21d7961310c15c2c4e7b3e69b1a69beeaff583ef3fee956b45fc091a76278c4e6208d7503fbb03caa7b4c55c30da10b9aecabd8521214bb0d43e1b4a0"
+        }
+      ],
+      "comment": "Exact owner-confirmed Windows startup correction built from 89a8daf03976cc3005da65e90418a687ccf34b5d, integrated into 1.20.1 at 33f849318b235ecded3012cdb625690096ad6795. Product source and resource trees are unchanged between those commits. Dependencies are externally required, not embedded. This component inventory does not claim a transitive dependency or file-level license audit."
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Minecraft",
+      "name": "net.minecraft:client",
+      "versionInfo": "1.20.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/net.minecraft/client@1.20.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Forge",
+      "name": "net.minecraftforge:forge",
+      "versionInfo": "1.20.1-47.2.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/net.minecraftforge/forge@1.20.1-47.2.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-GeckoLib",
+      "name": "software.bernie.geckolib:geckolib-forge-1.20.1",
+      "versionInfo": "4.4.7",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/software.bernie.geckolib/geckolib-forge-1.20.1@4.4.7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-SmartBrainLib",
+      "name": "net.tslat.smartbrainlib:SmartBrainLib-forge-1.20.1",
+      "versionInfo": "1.14.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/net.tslat.smartbrainlib/SmartBrainLib-forge-1.20.1@1.14.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Parchment",
+      "name": "net.minecraft:mappings_parchment",
+      "versionInfo": "2023.09.03-1.20.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/net.minecraft/mappings_parchment@2023.09.03-1.20.1"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-BFS"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-BFS",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-Minecraft"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-BFS",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-Forge"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-BFS",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-GeckoLib"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-BFS",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-SmartBrainLib"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Parchment",
+      "relationshipType": "BUILD_DEPENDENCY_OF",
+      "relatedSpdxElement": "SPDXRef-Package-BFS"
+    }
+  ]
+}

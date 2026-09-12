@@ -83,7 +83,7 @@ Cleanup verified that no process retained any of the three owned runtime directo
 
 The earlier production Forge candidate had SHA-256 `68ba7e05ed0f31fe149bd12ad4f1408ae533c95cc1c5d0c6f79afba9fa34e7f3`. Its server log recorded the owner's Salmon catch advancement at 19:04:24 on September 8, 2026, and the owner reported that the fishing rod worked. This preserves that limited feedback, not approval of untested delivery modes or the subsequent transaction repair. The server was stopped cleanly at 19:08:45.
 
-The authoritative [Phase 001 plan](../general/phases/plan-phase-001.md) defines the remaining acceptance. [Issue 15](https://github.com/bdubsub/BensFintasticSharkMod/issues/15) tracks the unfinished combined fishing and replacement gate.
+At the time of this record, the Phase 001 plan defined the remaining acceptance and [issue 15](https://github.com/bdubsub/BensFintasticSharkMod/issues/15) tracked the combined fishing and replacement gate. That issue has since closed. The old planning files were later removed for an owner requested restart; this historical test record is preserved.
 
 ## Obstruction safe live catch reel on September 9, 2026
 
@@ -185,7 +185,7 @@ The working source was still based on `04dc2deb264d0d314380d4bf479a7a0d23019b37`
 
 JAR SHA-512: `0ea455298ed9a429993b30ab0e6698412c2b36caca6331dabf32f11db4a45940299803bad16f71949cbaf0929f9ef4384b09bc268820a650e0a34fc4f3a645e9`. Archive integrity passed. This remains an intermediate `0.24` artifact, not the final `1.0-rc.1` deliverable.
 
-The extended diagnostics and packaged readiness do not close restart persistence, complete source/permission behavior, unrestricted ambient population recovery, final player/client acceptance, phase review or integration. The [Phase 001 plan](../general/phases/plan-phase-001.md) remains authoritative for those gates, and Phase 000 is not reopened.
+The extended diagnostics and packaged readiness recorded here did not close restart persistence, complete source/permission behavior, unrestricted ambient population recovery, final player/client acceptance, phase review or integration. Those were separate gates in the historical Phase 001 plan. Removing that plan for an owner requested restart does not change the scope of this evidence or reopen Phase 000.
 
 Cleanup verified that no process retained the owned test root as its working directory. After the final evidence consumers completed, `/tmp/bfsm-p001-fishing-debug.IifPSq` was removed and its absence verified. This removed the disposable source/build copy, three GameTest worlds, packaged server world, copied JARs, captures, raw logs and parser reports. Only the sanitized record above remains. The shared installed Forge libraries, dependency cache, source worktrees and unrelated runtimes were preserved.
 

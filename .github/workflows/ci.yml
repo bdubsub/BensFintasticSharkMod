@@ -19,5 +19,6 @@ jobs:
           java-version: "17"
           cache: gradle
       - uses: gradle/actions/wrapper-validation@v4
+      - run: python3 -B -m unittest discover -s tools/performance -p 'test_*.py' -v
       - run: chmod +x ./gradlew
       - run: ./gradlew :forge:build --no-daemon

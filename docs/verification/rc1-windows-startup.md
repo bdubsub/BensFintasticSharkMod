@@ -46,7 +46,9 @@ SHA 512:
 
 The replaced candidate's SHA 256 was `94bfe2c8b45fc54505d42b63d026e203086959c34bb28325da3cf762c46578bd`. Historical phase evidence and checksums describe that original artifact and remain unchanged. They must not be used to identify the corrected JAR.
 
-The corrected JAR was transferred to the owner's laptop Downloads directory, checked for archive integrity and matching SHA 256, then installed atomically over the exact original candidate. Personal game instances and worlds were untouched. No public release or default branch integration was performed.
+The corrected JAR was transferred to the owner's laptop Downloads directory, checked for archive integrity and matching SHA 256, then installed atomically over the exact original candidate. Personal game instances and worlds were untouched. No public release was performed.
+
+After owner confirmation, [PR 27](https://github.com/bdubsub/BensFintasticSharkMod/pull/27) merged the correction into `1.20.1` at `33f849318b235ecded3012cdb625690096ad6795`. Both the postmerge build and CodeQL checks passed. The [current artifact bundle](artifacts/README.md) binds the unchanged delivered binary to that integration and preserves the original candidate's historical identities separately.
 
 ## Cleanup
 

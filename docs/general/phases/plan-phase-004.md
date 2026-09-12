@@ -1,279 +1,268 @@
 # Phase 004 Execution Plan
 
-> **Plan ID:** PLAN-PHASE-004
-> **Phase ID:** BFS-PHASE-004
-> **Owner:** World generation maintainer
-> **Classification:** MANDATORY
-> **Master plan:** [plan.md](../plan.md)
-> **Phase sequence:** 004 of 005
+> **Plan ID:** PLAN-PHASE-004  
+> **Phase ID:** BFS2-PHASE-004  
+> **Owner:** Repository maintainer  
+> **Classification:** MANDATORY  
+> **Master plan:** [plan.md](../plan.md)  
+> **Phase sequence:** 004 of 007
 
 ## Purpose and Ownership
 
-This phase turns the complete supplied algae drop into permanent Forge 1.20.1 content. It canonically owns `BFS-REQ-020`, `BFS-REQ-021`, and closure of `DEF-024-008`: three correctly named, obtainable aquatic blocks with faithful assets and behavior, plus conservative data driven generation across supported vanilla ocean families.
-
-The master owns product scope, stable identifiers, source precedence, the frozen phase sequence, and release completion. This file owns only dependency ordered execution and evidence for `BFS-PHASE-004`. It must not change algae into experimental content, propagate source misspellings into public identifiers, invent ecology, revise earlier features, set the final release version, or weaken the fixed seed, runtime, compatibility, and artifact gates. A material conflict or owner decision stops execution with `PLAN_REVISION_REQUIRED`.
+This phase restores Zippy’s existing pale cyan lightning markings in ordinary daylight and its intended dark glow, without altering the supplied PNG pixels, variant selection, resource identifiers, GeckoLib animation, or unrelated renderers. It owns the detailed repair, diagnostics, visual evidence, documentation, and integration work for `BFS2-REQ-013`. The master remains the authority for product scope, interfaces, phase sequence, acceptance, host policy, and release endpoint.
 
 ## Evidence-Based Entry State
 
 | Evidence class | Area | Finding | Source or command | Freshness condition |
 |---|---|---|---|---|
-| VERIFIED | Product contract | The master assigns `BFS-REQ-020`, `BFS-REQ-021`, and `DEF-024-008` to this phase. | `docs/general/plan.md`, stable requirement register, defect ledger, and frozen phase catalog | Invalidated by an owner authorized master revision or changed plan index registration. |
-| VERIFIED | Compatibility | The supported target is Minecraft `1.20.1`, Forge `47.2.0`, Java `17`, Parchment `2023.09.03`, GeckoLib `4.4.7`, and SmartBrainLib `1.14.2`; Fabric remains unsupported. | `docs/general/plan.md`, `gradle.properties`, `forge/build.gradle` | Invalidated by an authorized compatibility revision. |
-| VERIFIED | Algae source inventory | `Content/Algae Textures/` contains one 16 by 16 `algea_block.png`, one 16 by 160 green strip with ten ordered frames, one 16 by 144 red strip with nine ordered frames, and the nineteen numbered frame files. | Master asset inventory, Phase 000 asset ledger, `file Content/Algae\ Textures/*.png` | Any source byte, name, dimension, frame order, or Phase 000 ledger change invalidates the asset evidence. |
-| VERIFIED | Authored holds | Green frames include repeated runs at 2 and 3, 4 through 6, 7 and 8, and 9 and 10. Red frames repeat in runs 1 through 3, 4 through 6, and 7 through 9. These are authored timing evidence, not redundant files to deduplicate. | SHA 256 comparison of numbered source frames and Phase 000 strip segmentation evidence | Any source hash or segmentation change requires the sequence and hold audit to be rerun. |
-| VERIFIED | Public identity | Source spellings such as `algea` are evidence names only. Required public IDs are `bensfintasticsharks:algae_block`, `bensfintasticsharks:large_green_algae`, and `bensfintasticsharks:large_red_algae`; display names are `Algae Block`, `Large Green Algae`, and `Large Red Algae`. | `docs/general/plan.md`, algae drop binding decisions | Invalidated only by an owner authorized product contract revision. |
-| VERIFIED | Registration baseline | `BensFintasticSharks.init()` uses the platform `registerAll` path for common registries, derives lower case IDs from public field names, and currently registers entity types, items, effects, and the creative tab but no block holder. | `common/src/main/java/tfar/bensfintasticsharks/BensFintasticSharks.java`; `forge/src/main/java/tfar/bensfintasticsharks/platform/ForgePlatformHelper.java` | Reinspect after common bootstrap, reflection registration, or registry lifecycle changes. |
-| VERIFIED | Creative item behavior | `ModCreativeTabs` enumerates all BFS items except `HiddenItem`, so ordinary algae block items enter the existing tab without a separate hard coded list. | `common/src/main/java/tfar/bensfintasticsharks/init/ModCreativeTabs.java`; `ModItems.java` | Reinspect after item class or creative display filtering changes. |
-| VERIFIED | Data generation | `ModDatagen` already wires language, blockstate, item model, loot, block tag, item tag, biome tag, and built in data pack providers. Blockstate and block loot providers currently contain no generated entries. | `forge/src/main/java/tfar/bensfintasticsharks/datagen/ModDatagen.java`; `ModBlockstateProvider.java`; `data/loot/ModBlockLoot.java`; `data/tags/ModBlockTagsProvider.java` | Provider registration, generated root, or provider implementation changes invalidate this map. |
-| VERIFIED | World generation baseline | The existing built in provider registers Forge biome modifiers for entity spawns. `BiomeModifiers` owns their keys. The only custom feature registration is the unrelated Sunken Trove boundary in `ModFeatures`. There are no algae configured features, placed features, biome tags, or add feature modifiers. | `forge/src/main/java/tfar/bensfintasticsharks/datagen/data/ModDataPackProvider.java`; `BiomeModifiers.java`; `worldgen/ModFeatures.java`; generated resources | Reinspect after any world generation registry, provider, tag, or generated resource change. |
-| VERIFIED | Client boundary | `ModClientForge.init()` and `setup()` are loaded only on the client distribution and are the existing Forge client registration boundary. No block render layer registration exists at baseline. | `forge/src/main/java/tfar/bensfintasticsharks/BensFintasticSharksForge.java`; `client/ModClientForge.java` | Reinspect after client bootstrap, distribution guards, or rendering setup changes. |
-| VERIFIED | Test contract | Phase 000 defines seed `240024`, Overworld chunks `0,0` through `15,15`, identical counting rules for algae and vanilla seagrass, and a Forge GameTest harness for aquatic placement, survival, and configured feature placement. | `docs/general/phases/plan-phase-000.md` and the registered `BFS-PHASE-000` algae, GameTest, and runtime-protocol tasks | Any approved Phase 000 evidence revision or fixture change invalidates dependent measurements. |
-| VERIFIED | Protected work | The master protects the line ending only `build.gradle` change and the untracked `Content/` directory. Supplied files remain immutable evidence and must not be committed. | `docs/general/plan.md`, global constraints and non goals | Recheck before each diff, commit, and integration action. |
+| OBSERVED | source lineage | The retained planning baseline is PR29 at `40207d1b4cbe8db9963f32e43b79bdcfce58918a`; it is not a future Phase 004 branch, and the historical root is not this phase’s source. | research brief F001 and F002 | Any ancestor, worktree, or complete diff mismatch invalidates dependent source evidence. |
+| OBSERVED | authored art | `zippy.png` and `zippy_glowmask.png` are supplied authored inputs with pinned hashes `cd4352898da93334fb3c313d293ada7f7cae1b7d99729e9b01ce7d10fba4767d` and `cb6035ce2dafe249c020c4e9fa4f2b847119b17470a0bdf8cf41f51af184ff8f`. | repository map F012 fingerprints | Any byte change, resource rename, or changed resource-pack precedence invalidates pixel-preservation evidence. |
+| OBSERVED | render path | `CommonThresherSharkEntity.hasGlowingLayer`, `CommonThresherRenderer`, and `ConditionalAutoGlowingLayer` form the current Zippy path. | repository map component table and F012 | Reinspect if those files or their pinned source hashes change. |
+| INFERRED | defect mechanism | GeckoLib 4.4.7 `AutoGlowingTexture.loadTexture` uses `_glowmask` and `createImageMask` clears marked base pixels before upload. The brightness gate then omits the glow layer at raw brightness eight or higher. | research brief F012 and exact GeckoLib source record | The hypothesis must be confirmed through scoped render observations and actual daylight reproduction before repair acceptance. |
+| OBSERVED | diagnostics | `BfsClientDebugManager` is a separate local client capture path and the server already provides bounded `bfs-debug-v2` capture controls. | research brief F005 and repository map | Reinspect if the Phase 000 `IFC-001` contract, parser, or client manager changes. |
+| OBSERVED | client environment | An authorized laptop connection, Hyprland, discrete NVIDIA capability, `wpctl`, and `pactl` were found, but no candidate window, renderer, laptop anchor, or stream has been verified for this phase. | repository map host finding | Revalidate immediately before every client launch under `EXT-001`. |
 
 ## Scope Boundaries
 
 ### Included Scope
 
-- `BFS-REQ-020`: register exactly the three public algae blocks and matching ordinary block items, translations, blockstates, models, textures, animation metadata, loot, render layers, block and item tags, and creative access.
-- `BFS-REQ-020`: preserve every supplied pixel, strip frame, order, and repeated authored hold while creating calm noninterpolated loops without atlas warnings or skipped frames.
-- `BFS-REQ-020`: implement replaceable and noncolliding submerged plant behavior, valid floor support, water preservation, neighbor survival, removal restoration, placement, collection, and seagrass compatible interaction semantics.
-- `BFS-REQ-021`: provide separate data driven configured and placed features for all three forms, attach them at the appropriate vegetation generation step through neutral biome tags, and expose both colors across supported vanilla ocean families.
-- `BFS-REQ-021`: bound candidate work and observed density per chunk, keep combined algae below common vanilla seagrass in the shared eligible sample, and prove fixed seed determinism, land rejection, valid support, collision freedom, and data pack override behavior.
-- `DEF-024-008`: close the defect with registry, data generation, GameTest, fixed seed, survival, loot, interactive rendering, navigation, dedicated server, and final Forge JAR evidence.
-- Existing save compatibility, old world loading, new chunk behavior, data pack rollback, documentation, phase integration, default branch verification, and signed annotated phase tagging required for the owned work.
+- `BFS2-REQ-013`: preserve Zippy’s original supplied lightning artwork in normal light, show its intended glow in darkness, and prove daylight return and resource reload behavior.
+- Local `render` observations in the inherited `IFC-001` diagnostic format, exact-art hashes, source-aware regression coverage, silent laptop presentation evidence, and the documentation and integration evidence that describe only implemented behavior.
 
 ### Explicit Exclusions
 
-- `BFS-REQ-001` through `BFS-REQ-019` belong to earlier merged and tagged phases. Algae work must not alter entity behavior, animations, advancement graph, icons, or localization copy except the three algae display names.
-- `BFS-REQ-022` and `BFS-REQ-023` final audit, version `0.24`, release packaging, checksums, SBOM, attestations, and publication belong to `BFS-PHASE-005`. This phase still inspects its candidate JAR and updates feature documentation.
-- `FUT-001` and `docs/modjam/` are unrelated. Platform upgrades, Fabric completion, new lore ecology, algae variants beyond the three public IDs, new structures, unrelated vegetation, and world migration tooling are not authorized.
-- The nineteen numbered PNGs are evidence frames, not nineteen blocks, items, or separately packaged public textures. The two strips are animation sheets, not spatially tall ten block or nine block textures.
-- Existing chunks are not retroactively decorated. No phase task scans, rewrites, or removes blocks from an existing world.
-- The supplied `Content/` directory must not be renamed, edited, staged, or committed.
+- `NG-004`: no redraw, recolor, redesign, replacement, or semantic change to supplied Zippy art.
+- `BFS2-REQ-010`, `BFS2-REQ-012`, algae, armor, movement, world generation, or unrelated entity behavior. Existing Great White glow and other Thresher skins are regressions, not change targets.
+- New diagnostic command roots, unbounded render telemetry, a new network channel, a singleplayer fallback, public release publication, or a new phase branch before Phase 003 is merged and tagged.
 
 ## Phase Contract
 
-### BFS-PHASE-004 — Permanent Algae and World Generation
+### BFS2-PHASE-004 — Restore original Zippy markings through lighting and reload
 
-**Objective:** Deliver three correctly identified and obtainable aquatic algae forms whose supplied art animates faithfully, whose placement and removal preserve water, and whose data driven natural generation is deterministic, valid, navigable, conservative, and packaged in the supported Forge artifact.
-**Owner:** World generation maintainer
-**Dependencies:** BFS-PHASE-003, DEC-001
-**Canonical requirements:** BFS-REQ-020, BFS-REQ-021
-**Documentation and release impact:** Update `README.md`, `DOCUMENTATION.md`, `CHANGELOG.md`, and `docs/README.md` with only verified algae behavior, data pack extension points, generation scope, compatibility, and troubleshooting. Do not set version `0.24` or publish.
-**Next transition:** `BFS-PHASE-005`, only after this phase pull request is merged, the result is present on the authoritative default branch, and the signed annotated Phase 004 tag is pushed and verified.
+**Objective:** Make the approved Zippy variant visibly retain its unchanged original lightning in daylight, darkness, daylight return, and after resource reload, while retaining intended darkness glow and unchanged unrelated variant and Great White glow behavior.  
+**Owner:** Repository maintainer  
+**Dependencies:** BFS2-PHASE-003, BFS2-REQ-013, BFS2-REQ-022, EXT-001, EXT-002  
+**Canonical requirements:** BFS2-REQ-013  
+**Documentation and release impact:** Update `README.md`, `DOCUMENTATION.md`, `docs/README.md`, `docs/test/debug-diagnostics.md`, the existing asset ledger, and the phase render evidence with verified behavior. Prepare matching wiki prose from merged tracked documentation only. No public artifact publication occurs.  
+**Next transition:** BFS2-PHASE-005 at its first numbered Work Packages entry  
 
 **Entry criteria**
 
-- `BFS-PHASE-003` is merged through GitHub, `origin/main` contains its merge commit, and its signed annotated phase tag verifies against that commit.
-- The Phase 004 branch is created from that updated `origin/main`. No future phase branch is stacked on it.
-- Phase 000 provides exact source hashes, strip segmentation equality, fixed seed `240024`, sample chunks `0,0` through `15,15`, counting rules, GameTest fixtures, evidence format, and protected path fingerprints.
-- The three public IDs and display names have no registry collision, and no stale `algea` public identifier exists.
-- Java 17 and the checked in Gradle wrapper resolve the pinned Forge toolchain without dependency changes.
-- No unresolved owner choice or contradiction affects block shape, acquisition, biome scope, distribution, or compatibility. A missing material decision blocks implementation.
+- Phase 003 pull request is merged through GitHub, `origin/1.20.1` contains its merge commit, and its signed annotated tag is verified. At execution start, record that exact sequential default commit as the Phase 004 source baseline; do not treat the PR29 planning baseline as the phase branch.
+- `EXT-001` confirms the laptop capability and `EXT-002` confirms EnVy identity, signing availability, branch protection, and required check visibility.
+- Create or update the matching phase milestone before implementation. The phase branch starts from that verified default commit, and the current render-path and two source-art hashes match the recorded inputs before any repair work.
+- Phase 000’s `IFC-001` and `IFC-008` interfaces are available at the integrated revision. A missing interface or prerequisite stops this phase at the earliest dependent task.
 
 **Implementation scope**
 
-- `BFS-REQ-020` and `BFS-REQ-021` are the complete canonical implementation assignment for `BFS-PHASE-004`.
-- `BFS-PHASE-004`: Add a common block registration holder and register blocks before their matching items through the existing `BensFintasticSharks.init()` and platform `registerAll` lifecycle.
-- `BFS-PHASE-004`: Add focused aquatic plant implementations using vanilla seagrass behavior as the semantic baseline while preserving the distinct patch presentation of `algae_block` and the supplied green and red visual forms.
-- `BFS-PHASE-004`: Extend the existing data generation providers rather than hand editing generated blockstates, item models, language, loot, tags, configured features, placed features, or biome modifiers.
-- `BFS-PHASE-004`: Keep texture animation and render layer setup entirely client safe. Common block behavior, feature placement, registries, codecs, tags, and server data must not import client classes.
-- `BFS-PHASE-004`: Use vanilla and Forge data pack feature types where they satisfy the contract. Do not couple algae to the Sunken Trove custom feature or introduce a custom feature codec without demonstrated necessity and codec tests.
+- `BFS2-REQ-013`: reproduce the daylight transition through the actual renderer, add only the narrow nondestructive renderer or layer behavior needed to preserve markings and dark glow, and keep resources byte-identical.
 
 **Execution order**
 
-1. `P004-TASK-001` for `BFS-PHASE-004` validates the Phase 003 handoff, protected work, registry vacancy, Phase 000 algae ledger, fixtures, fixed seed, and evidence bindings.
-2. `P004-TASK-002` for `BFS-PHASE-004` adds dependency ordered block and item registration with exact public IDs and creative access.
-3. `P004-TASK-003` for `BFS-PHASE-004` implements submerged placement, support, survival, water state, removal, collection, replacement, shape, and collision behavior for all three forms.
-4. `P004-TASK-004` for `BFS-PHASE-004` installs the supplied texture destinations, exact strip sequences, animation metadata, distinct models and blockstates, item models, cutout rendering, and visual asset audits.
-5. `P004-TASK-005` for `BFS-PHASE-004` extends language, loot, block and item tags, and deterministic generated data for all three content units.
-6. `P004-TASK-006` for `BFS-PHASE-004` adds separate configured and placed features, bounded placement modifiers, neutral biome tags, and Forge add feature biome modifiers at the vegetation decoration stage.
-7. `P004-TASK-007` for `BFS-PHASE-004` adds deterministic registry, codec, tag, asset, loot, blockstate, model, and per chunk bound tests.
-8. `P004-TASK-008` for `BFS-PHASE-004` adds and runs GameTests for valid placement, invalid placement, support loss, water restoration, collection, feature placement, cleanup, and aquatic navigation.
-9. `P004-TASK-009` for `BFS-PHASE-004` runs the shared fixed seed sample twice and compares exact coordinate multisets, land and support validity, per chunk maxima, each feature's observability, and combined algae coverage against vanilla seagrass.
-10. `P004-TASK-010` for `BFS-PHASE-004` completes dedicated server, interactive client, old save, new chunk, data pack override, navigation soak, and log review evidence.
-11. `P004-TASK-011` for `BFS-PHASE-004` runs the master ordered command matrix, inspects generated drift, final JAR paths, compatibility, documentation, complete diff, and protected work.
-12. `P004-TASK-012` for `BFS-PHASE-004` closes `DEF-024-008`, assembles the completion packet, synchronizes phase tracking, integrates through the required pull request, verifies the default branch merge and signed tag, and hands off to `BFS-PHASE-005`.
+1. `P004-TASK-001` executes BFS2-REQ-013 and BFS2-REQ-022 by binding the current resource hashes, inspecting the actual render selection and reproducing the light transition with scoped signals before implementation.
+2. `P004-TASK-002` executes BFS2-REQ-013 after P004-TASK-001 confirms the causal path, by implementing and testing a nondestructive marking and glow pass without changing authored pixels.
+3. `P004-TASK-003` executes BFS2-REQ-013 and BFS2-REQ-022 after P004-TASK-002, using headless checks first and the required silent-laptop targeted visual workflow for residual presentation claims.
+4. `P004-TASK-004` executes BFS2-REQ-013 and BFS2-REQ-022 after P004-TASK-003, by recording exact art, diagnostics, limitations, render proof, and operator support instructions in tracked documentation.
+5. `P004-TASK-005` contributes BFS2-REQ-013, BFS2-REQ-021, and BFS2-REQ-022 through IFC-008 after every preceding task passes, through required private independent review, required checks, merge commit integration, resulting default verification, signed phase tag, and postmerge wiki and tracking reconciliation.
 
 **Required evidence**
 
-- Registry and creative inventory evidence for exactly three block IDs and three matching item IDs, with exact display names and zero `algea` namespace paths or translation keys.
-- Pixel and animation audit proving exact source strip segmentation, all ten green and nine red frames in source order, authored repeated holds retained, noninterpolated calm cadence, and no resampling.
-- Generated blockstate, block model, item model, language, loot, block tag, item tag, configured feature, placed feature, biome tag, and biome modifier evidence with no unexplained drift.
-- GameTests proving source water, valid floor support, collision free placement, invalid dry and unsupported rejection, neighbor survival, removal water restoration, expected tool collection, and path completion through representative algae.
-- Fixed seed output for two independently generated worlds at seed `240024` and chunks `0,0` through `15,15`, including exact coordinate and state manifests, counts by form and chunk, maximum candidates and placements, rejection reasons, and seagrass comparison.
-- Dedicated server ready state without registry, codec, data pack, feature, tag, loot, model reference, or client class loading errors.
-- Interactive client captures of every item in hand and inventory, every placed form in water, a complete green and red animation cycle, generated ocean distribution, transparent edges, water surfaces, particles, breaking, collection, and removal.
-- Final tested Forge JAR inventory and hash proving every required class and resource is packaged at the correct public path and no numbered evidence frame or misspelled public destination leaked into the artifact.
+- Byte-for-byte hashes of both supplied Zippy PNGs before and after repair, source-layer and resource-resolution regression results, and a bounded `render` capture showing variant, texture, mask, layer, raw brightness, selection reason, reload generation, and result.
+- A silent laptop sequence showing the same spawned Zippy in daylight, darkness, daylight return, and after the actual resource reload, plus a comparison with an unaffected Common Thresher skin and existing Great White glow.
+- `IFC-008` evidence binding source commit, candidate artifact SHA 256 and SHA 512, dependencies/config digests, sanitized fixture/world identity, both host roles, tick windows, result, and cleanup result.
 
 **Exit criteria**
 
-- `BFS-REQ-020` and `BFS-REQ-021` pass every deterministic, generated data, GameTest, server, client, compatibility, navigation, fixed seed, and artifact gate.
-- `DEF-024-008` closes from its required evidence, not source inspection: all three forms register, survive and collect correctly, render, animate, generate naturally, and appear in the tested JAR.
-- Every form is observable in the shared eligible sample; no placement is on land, outside source water, on invalid support, or in occupied space; repeated generation produces an identical coordinate and state manifest.
-- Combined algae coverage remains strictly below common vanilla seagrass coverage under the same seed, chunks, eligibility rules, and counting method. Per chunk candidates and placements never exceed their configured finite caps.
-- Representative aquatic navigation completes through and around generated algae without a persistent path barrier, and the sustained sample does not dominate the seabed or replace structures.
-- Existing worlds load without migration or missing registry errors. Disabling the algae biome modifier stops generation in new chunks without deleting placed or previously generated algae.
-- The generated resource diff and complete repository diff are intentional. Protected `build.gradle` and `Content/` state remains unchanged and excluded.
-- The Phase 004 pull request is merged through GitHub with required checks resolved. One private independent review passes when supported, or verified capability unavailability is recorded. The default branch contains the merge, and the signed annotated Phase 004 tag points to it.
-- No known mandatory phase owned defect remains.
+- `BFS2-AC-013` passes. Zippy has visible original lightning before darkness, during darkness, after daylight return, and after resource reload. There is no missing texture, opaque mask background, altered variant, or changed supplied pixel hash.
+- The Phase 004 local diagnostic controls pass on, status, off, empty target set, selected-target removal, timeout, reload, bounds, redaction, disabled-overhead, enabled-bound, and completeness checks. Server-originated requests cannot start, inspect, or receive the local capture; inherited server permission evidence remains under `IFC-001`.
+- Other Common Thresher variants and existing Great White glow regressions pass at the verified candidate revision.
+- The phase branch is reviewed, merged to `1.20.1` with required checks, the resulting default is verified, `bfs2-phase-004` is signed and pushed, documentation and wiki obligations are complete, and no known mandatory phase-owned defect remains.
+
+## Shared Contract Projection
+
+```json
+{
+  "phase_id": "BFS2-PHASE-004",
+  "canonical_requirement_ids": [
+    "BFS2-REQ-013"
+  ],
+  "interfaces": [
+    {
+      "id": "IFC-001",
+      "signature": {
+        "capture": "start(category: Category, ticks: int[20,36000]=1200, targets: EntityRef[0,32]) -> CaptureResult",
+        "record": {
+          "format": "bfs-debug-v2",
+          "schemaMinor": "int>=0",
+          "captureId": "opaque string",
+          "sequence": "long>=0",
+          "tick": "long",
+          "side": "server|client",
+          "dimension": "registry ID",
+          "entity": "session pseudonym|null",
+          "entityType": "registry ID|null",
+          "event": "bounded enum",
+          "settingsRevision": "long|null",
+          "intentId": "opaque string|null",
+          "reason": "bounded enum",
+          "data": "typed event payload"
+        },
+        "status": "status() -> enabled, side, categories, targets, remainingTicks, wallDeadline, counters, exactOutputPath",
+        "stop": "stop(reason: StopReason) -> terminal completeness summary"
+      },
+      "acceptance_ids": [
+        "BFS2-AC-022",
+        "BFS2-AC-020"
+      ]
+    },
+    {
+      "id": "IFC-008",
+      "signature": {
+        "evidence": {
+          "schema": "int=1",
+          "requirementIds": "stable ID[]",
+          "taskIds": "stable ID[]",
+          "sourceCommit": "git object ID",
+          "artifactSha256": "hex string",
+          "artifactSha512": "hex string",
+          "dependenciesDigest": "hex string",
+          "configDigest": "hex string",
+          "fixtureId": "string",
+          "seed": "long|null",
+          "world": "sanitized instance ID|null",
+          "hostRoles": "headless_server|laptop_client[]",
+          "tickWindow": "start,end|null",
+          "result": "passed|failed|unverified",
+          "cleanup": "complete|incomplete"
+        },
+        "integrate": "verified phase branch -> checked GitHub merge commit on 1.20.1 -> verified resulting default -> signed annotated phase tag"
+      },
+      "acceptance_ids": [
+        "BFS2-AC-001",
+        "BFS2-AC-020",
+        "BFS2-AC-021"
+      ]
+    }
+  ]
+}
+```
+
+`IFC-001` is produced by Phase 000 and consumed here without a competing capture subsystem. P004-TASK-001 adds a bounded client-side `render` observation to the existing `bfs-debug-v2` contract before P004-TASK-003 depends on it. It records actual resource choice and layer decision, not a claim that a screenshot proves renderer state. The client observation remains local and cannot mutate server gameplay. `IFC-008`, also produced by Phase 000, binds the phase’s source, packaged artifact, configuration, fixtures, host roles, result, and cleanup through P004-TASK-005. It is consumed by Phase 005 as provenance only; it does not authorize future work before integration.
 
 ## Inputs and Upstream Contracts
 
 | Input or contract | Provider | Required state | Validation | Failure behavior |
 |---|---|---|---|---|
-| Master and registered phase set | Master plan and deterministic index | Phase 004 owns only `BFS-REQ-020`, `BFS-REQ-021`, and `DEF-024-008`; Phase 003 is the contiguous dependency | Read master, index, and handoff through EOF and verify digests | Stop on a material contract mismatch. Do not edit the master or goal. |
-| Phase 003 integration | `BFS-PHASE-003` | Pull request merged, default branch verified, signed phase tag pushed, registries and generated copy stable | GitHub merge state, `origin/main` containment, signature and tag target | Do not create or stack the Phase 004 branch until all gates pass. |
-| Algae source drop | Owner and `SRC-004` | All 22 files match the approved Phase 000 ledger and remain immutable | SHA 256, PNG dimensions, RGBA mode, strip segmentation, frame order, repeated frame groups | Stop asset work on any mismatch. Obtain corrected owner input or authorized revision. |
-| Public naming contract | Master and `DEC-001` | Exact three IDs and display names, with source misspellings excluded from public surfaces | Registry, translation, resource, generated data, and JAR scans | Fail registration and packaging checks on any collision, alias, fourth form, or misspelling. |
-| Evidence harness | `BFS-PHASE-000` | Fixed seed, bounded sample, GameTest framework, controls, count rules, capture schema, and artifact checks are executable | Run positive controls for vanilla seagrass and known valid or invalid aquatic placement | Block closure if a test cannot distinguish absent content from a broken fixture. |
-| Existing registration lifecycle | Common and Forge bootstrap | Blocks register before BlockItems and remain available to datagen without client classes | Registry events, duplicate key checks, dedicated server startup | Fix ordering within the phase. Never force registry writes after freeze. |
-| Existing data generation pipeline | `ModDatagen` and providers | Provider output under `common/src/generated/resources/` is authoritative and reproducible | Clean `./gradlew :forge:Data` and complete generated diff | Treat hand edited generated output or nondeterminism as blocking drift. |
+| `IFC-001` | BFS2-PHASE-000 | Existing bounded capture is default-off and supports client `render` extension without changing its v2 signature. | Check dispatcher, parser, capture schema, bounds, and local-output behavior at phase branch start. | Stop dependent visual assertion, repair the prerequisite through its owner path, and rerun P004-TASK-001. |
+| `IFC-008` | BFS2-PHASE-000 | Candidate identity and integration evidence schema are available. | Validate required evidence fields and source/artifact/config digests. | Mark evidence unusable and rerun from the earliest identity-producing gate. |
+| render baseline | BFS2-PHASE-003 | Approved default includes current Common Thresher renderer and exact two resource hashes. | Verify ancestry, paths, hashes, and current layer registration. | Stop. Do not copy code or art from the historical root. |
+| laptop client capability | EXT-001 | Actual laptop anchor, desktop session, discrete renderer, disposable instance, window-to-stream binding, and private server reachability can be verified at use time. | Perform the host and audio sequence in the local runbook. | Stop the owned client and leave only the client gate unverified. No node-1 graphics or singleplayer fallback. |
+| repository and signing capability | EXT-002 | EnVy identity, registered signing key, required-check access, protected default, and merge capability are current. | Revalidate before commit, PR, merge, and tag. | Do not commit, tag, or claim integration. |
 
 ## Outputs and Downstream Contracts
 
 | Output or contract | Consumer | Guaranteed state | Compatibility or versioning | Evidence |
 |---|---|---|---|---|
-| Three algae blocks and items | Players, commands, creative tab, data packs | Exact stable public IDs, display names, obtainability, placement, collection, and water safe removal | Additive to old saves; IDs may not be renamed after release | Registry dump, creative capture, give and place workflow, GameTests, JAR |
-| Faithful visual resource set | Client renderer and Phase 005 | Distinct block patch plus complete green and red animations with repeated holds and transparent rendering | Supplied pixels and sequence remain unchanged | Hash manifest, metadata audit, atlas log, cycle captures, JAR |
-| Generated content data | Runtime registries and resource loading | Complete blockstates, models, language, loot, and tags generated from providers | Generated data must match provider output exactly | Data run, JSON reference audit, clean second regeneration |
-| Data driven world generation | World generator and data packs | Three decodable configured and placed features attached by biome tag with finite default work and conservative density | Existing chunks unchanged; data packs may replace supported data entries | Codec tests, generated JSON, biome tag audit, fixed seed manifests |
-| Compatibility and rollback contract | Operators and Phase 005 | Old saves load; disabling the add feature modifier stops future placement; existing blocks remain; downgrade requires a backup | No silent block deletion or retroactive chunk mutation | Old save smoke, disabled pack test, backup and rollback run sheet |
-| Defect closure packet | `BFS-PHASE-005` | `DEF-024-008` has deterministic, runtime, and artifact proof bound to the merged revision | Any later registry, resource, placement, worldgen, or packaging change invalidates affected proof | Completion packet, merge commit, tag, artifact hash |
+| Zippy render repair | Players and BFS2-PHASE-005 | Existing Zippy resource IDs and supplied bytes remain unchanged while marking and glow visibility follows light and reload behavior. | Forge 47.2.0 and GeckoLib 4.4.7; `_glowmask` remains the executed suffix; no save, network, or public registry change. | Hashes, targeted layer/resource regressions, and silent-laptop sequence. |
+| local render diagnostics | Operators and final regression | Existing `bfs-debug-v2` client capture can explain Zippy resource and layer choices with bounded, redacted fields. | Additive phase-local event payload only; no incompatible format change. | Parser and control checks, sanitized capture, support guide. |
+| phase evidence packet | BFS2-PHASE-005 and BFS2-PHASE-007 | `IFC-008` record identifies the merged source and tagged phase result with cleanup status. | Schema 1, immutable historical evidence retained. | Merged default and signed `bfs2-phase-004` tag evidence. |
 
 ## Work Packages
 
 | Task ID | Requirement IDs | Work | Inputs and dependencies | Outputs | Affected components or interfaces | Verification |
 |---|---|---|---|---|---|---|
-| `P004-TASK-001` | `BFS-REQ-020`, `BFS-REQ-021` | Validate upstream merge and tag, source hashes, strip segmentation, public key vacancy, fixed seed fixtures, protected work, and evidence destinations. | Phase 003 merge; Phase 000 ledger and harness; `SRC-004` | Entry manifest and task traceability | Git, plan handoff, `Content/Algae Textures/`, registries, test fixtures | Every entry criterion passes on one named revision; protected hashes match. |
-| `P004-TASK-002` | `BFS-REQ-020` | Register three blocks before three matching BlockItems using exact field derived IDs; expose ordinary items through the existing creative tab. | `P004-TASK-001`; common registry lifecycle | Six registry entries and creative access | `BensFintasticSharks.init()`, new common block holder, `ModItems`, `ModCreativeTabs`, platform `registerAll` | Unit registry assertions, duplicate key scan, `/give`, creative inventory, server start. |
-| `P004-TASK-003` | `BFS-REQ-020` | Implement one block high aquatic vegetation semantics: replaceable, no collision, water source fluid state, sturdy submerged floor support, scheduled fluid maintenance, neighbor invalidation, water restoration, and vanilla seagrass style collection. Keep the block texture form visually distinct from both animated plant forms. | `P004-TASK-002`; vanilla seagrass contract | Three water safe block behaviors | Common block implementation and block properties | GameTests for valid and invalid states, support removal, fluid retention, collection tools, drops, and collision shape. |
-| `P004-TASK-004` | `BFS-REQ-020` | Map source art to correctly spelled destinations; preserve strip bytes and frame ordering; author metadata that retains repeated holds without interpolation; create distinct block and inventory presentation; register transparent plant render layers client side. | `P004-TASK-003`; Phase 000 asset ledger | Client assets and render setup | `common/src/main/resources/assets/bensfintasticsharks/`; `ModBlockstateProvider`; `ModItemModelProvider`; `ModClientForge` | PNG and segmentation audit, JSON reference audit, atlas log, interactive cycle and item captures. |
-| `P004-TASK-005` | `BFS-REQ-020` | Generate exact translations, blockstates, item models, collection loot, and applicable block and item tags. Ensure block and item tags agree where semantic parity is required. | `P004-TASK-002` through `P004-TASK-004` | Reproducible generated content data | `ModLangProvider`; `ModBlockstateProvider`; `ModItemModelProvider`; `ModBlockLoot`; `ModBlockTagsProvider`; `ModItemTagsProvider`; generated resources | Two data runs are byte stable; loot tests cover correct and incorrect tools; no missing reference. |
-| `P004-TASK-006` | `BFS-REQ-021` | Register separate configured and placed features for all three forms, use finite candidate modifiers and placement validation, attach at vegetation decoration through a neutral BFS ocean biome tag and Forge add feature modifiers. Include both color variants across supported vanilla ocean families without hard coded biome checks. | `P004-TASK-003`, `P004-TASK-005`; data pack registry lookup | Three data driven generation chains | `ModDataPackProvider`; `ModTags.Biomes`; `ModBiomeTagsProvider`; `BiomeModifiers`; generated configured feature, placed feature, biome tag, and biome modifier resources | Codec round trip, registry reference and generation step audit, data pack load, bounded candidate assertion. |
-| `P004-TASK-007` | `BFS-REQ-020`, `BFS-REQ-021` | Add deterministic audits for registry pairs, names, no misspelled public paths, source assets, metadata frames, models, tags, loot, feature codecs, biome attachment, generation step, and finite bounds. | `P004-TASK-002` through `P004-TASK-006`; Phase 000 JUnit layer | Automated algae audit suite | Forge test source set rooted at `forge/src/test/java` and generated resource interfaces | `./gradlew :forge:test`; known bad fixtures fail for the intended reason and are removed before commit. |
-| `P004-TASK-008` | `BFS-REQ-020`, `BFS-REQ-021` | Exercise placement, survival, update, break, collect, water restoration, configured placement, invalid support, occupied space, dry land, cleanup, and fish or shark navigation through representative patches. | `P004-TASK-003`, `P004-TASK-006`; Phase 000 GameTest harness | World dependent behavioral proof | Established Forge GameTest namespace and structures | All tests pass twice with bounded ticks, exact postconditions, and no leaked fixture state. |
-| `P004-TASK-009` | `BFS-REQ-021` | Generate two clean worlds with the shared seed and sample; record every algae and seagrass coordinate and state; verify determinism, each form, support, biome, land rejection, per chunk caps, total density, and structure nonreplacement. | `P004-TASK-006` through `P004-TASK-008`; seed `240024`, chunks `0,0` through `15,15` | Fixed seed manifests and density report | Forge server world generator, biome tags, placed features | Both manifests match exactly; each form count is positive; invalid count is zero; combined algae is below seagrass. |
-| `P004-TASK-010` | `BFS-REQ-020`, `BFS-REQ-021`, `DEF-024-008` | Run dedicated server, interactive client, old save, new chunk, data pack disable and override, navigation soak, and log matrix. | `P004-TASK-007` through `P004-TASK-009` | Runtime, compatibility, and recovery evidence | Forge Server and Client runs, test worlds, external data pack boundary | Ready state, visual acceptance, stable old save, expected new chunk generation, disabled generation behavior, clean logs. |
-| `P004-TASK-011` | `BFS-REQ-020`, `BFS-REQ-021` | Execute ordered checks, regenerate data, build Forge, inspect JAR and full diff, update documentation, and prove no protected or unrelated changes. | All implementation and test tasks | Verified phase candidate and documentation | Gradle tasks, generated resources, Forge JAR, `README.md`, `DOCUMENTATION.md`, `CHANGELOG.md`, `docs/README.md` | Every mandatory check passes and artifact inventory matches source references. |
-| `P004-TASK-012` | `BFS-REQ-020`, `BFS-REQ-021`, `DEF-024-008` | Assemble evidence, close the defect, synchronize tracking, complete independent review when supported, merge the phase pull request, verify default branch, and push the signed annotated phase tag. | All previous tasks and exit gates | Phase 004 completion packet and Phase 005 entry authorization | Issue, milestone, Project, pull request, checks, review, merge, tag | GitHub reports merged; required checks and conversations pass; `origin/main` contains merge; tag target and signature verify. |
+| P004-TASK-001 | BFS2-REQ-013, BFS2-REQ-022 | Create the phase milestone, reproduce the brightness transition, bind exact art, inspect actual variant, texture, mask, and layer mechanism, and add scoped signals before repair. | BFS2-PHASE-003, IFC-001, EXT-001, pinned render paths and source-art hashes. | Causal reproduction record, art manifest, diagnostic field contract, and current phase milestone. | `CommonThresherSharkEntity`, `CommonThresherRenderer`, `ConditionalAutoGlowingLayer`, `BfsClientDebugManager`, IFC-001. | Static checks followed by one bounded silent-laptop baseline reproduction with real client render capture, then failure classification before code change. |
+| P004-TASK-002 | BFS2-REQ-013 | Implement the minimal nondestructive normal-light and glow rendering arrangement that preserves original markings and dark glow. | P004-TASK-001 causal record and exact existing art. | Narrow renderer or layer change, unchanged PNG hashes, focused regression tests. | Existing Common Thresher renderer and conditional glow layer only. | Bright and dark layer selection, reload behavior, texture fallback, transparent-background, other skin, and Great White glow regressions. |
+| P004-TASK-003 | BFS2-REQ-013, BFS2-REQ-022 | Run the evidence ladder and final silent-laptop visual sequence for day, dark, return, reload, and unrelated regressions. | P004-TASK-002, IFC-001, IFC-008, EXT-001. | Sanitized headless and client evidence records with complete cleanup status. | Existing GameTest and audit surface, client diagnostics, renderer, dedicated server runtime. | Targeted unit and parser checks, server fixture readiness, client capture and final candidate visuals with no lower-fidelity substitute. |
+| P004-TASK-004 | BFS2-REQ-013, BFS2-REQ-022 | Update asset ledger, diagnostics support guide, render evidence, README and documentation cross-links from verified results. | P004-TASK-003 completed packet. | Accurate tracked documentation and prepared postmerge wiki update. | Existing asset ledger, `docs/test/debug-diagnostics.md`, `README.md`, `DOCUMENTATION.md`, `docs/README.md`, verification evidence. | Documentation review against artifact hashes, diagnostics procedure, and evidence limits. |
+| P004-TASK-005 | BFS2-REQ-013, BFS2-REQ-021, BFS2-REQ-022 | Review, integrate, verify default, tag, then publish matching wiki content and reconcile phase tracking. | P004-TASK-001 through P004-TASK-004, EXT-002. | Merged default commit, signed `bfs2-phase-004` tag, phase evidence packet, and postmerge documentation state. | GitHub PR, milestone, wiki, IFC-008. | Complete diff, required checks, required private independent review, GitHub merge commit, default ancestry, tag signature, and cleanup audit. |
 
-### Ordering, Parallelism, and Recovery
-
-`P004-TASK-001` is a hard prerequisite. Registration and common behavior are sequential because items, models, loot, and features depend on stable block identities. Asset work may proceed beside late behavior refinement only after IDs and model roles are fixed. Generated content and world generation follow final block semantics. Deterministic tests and GameTests may proceed in parallel after their target interfaces stabilize. Fixed seed measurement, runtime evidence, final verification, and integration are strictly sequential.
-
-If a registry or serialized identifier changes after evidence begins, invalidate all registry, generated data, world, and JAR proof and rebuild fresh test worlds. If generation writes an unsafe world, preserve the failing seed and coordinates as evidence, disable the phase data pack for further operator testing, and use disposable copies only. Roll back phase code and generated output together; never leave provider and generated resources at different revisions. Do not use an algae populated world to test a downgraded build without a backup.
+P004-TASK-001 begins with static inspection and bounded diagnostic self-tests, then runs its required silent-laptop baseline daylight reproduction before any renderer edit. It cannot run that visual assertion before exact client identity and silence are proven. P004-TASK-002 must use the measured selection and mask behavior from P004-TASK-001. If the layer mechanism differs from the hypothesis, it must record the observed path and choose the minimal solution that preserves the declared visual invariant. It must not rename the correct `_glowmask`, modify source PNG pixels, change the selected variant, or add an animated effect. P004-TASK-003 cannot turn a headless source assertion into a visual pass. P004-TASK-004 records results only after proof passes; a failed or unverified client gate is documented as such. P004-TASK-005 runs only after all phase criteria pass.
 
 ## Architecture and Implementation Boundaries
 
-### Registration and State
+The server entity selects whether it has a glowing layer by local raw brightness, while the Forge client renderer registers the Common Thresher’s GeckoLib layer. GeckoLib’s automatic glow-mask loading destructively derives a base texture, so a conditional omission of the glow layer can make supplied markings disappear. The repair belongs at the existing client renderer and layer boundary: compose the normal visible marking pass and the darkness glow pass from the already-authored resources without modifying texture files.
 
-The common block holder owns the three block instances. `BensFintasticSharks.init()` registers the block holder before `ModItems`, because each BlockItem depends on a stable block object. The existing platform helper and Forge `RegisterEvent` remain the registration mechanism. Public static field names must derive exactly the three required lower case registry paths. No alias under an `algea` spelling is permitted.
+The final implementation must retain the current selected resource identifier and skin routing. It must account for four states: brightness at or above eight, brightness below eight, a daylight return after darkness, and resource manager reload. It must make absence explicit: a missing resource, failed texture resolution, incompatible mask dimensions, or unexpected alpha/background does not silently select another skin or paint a fallback glow. It reports the reason through local render diagnostics and preserves the safe current resource path until corrected.
 
-All three forms are server safe block state. They occupy one block position, report no collision, permit aquatic pathing, expose a water source fluid state while present, and schedule water updates. Placement succeeds only into suitable water with valid ocean floor support and free plant space. Neighbor changes recheck survival. Invalidated plants follow vanilla aquatic vegetation cleanup and leave water rather than air. Collection behavior follows vanilla seagrass, including tool sensitive loot, unless the supplied visual form requires only a model exception. Block behavior does not depend on client classes or persistent block entities.
-
-### Assets and Rendering
-
-`algea_block.png` supplies the distinct `algae_block` patch or volume texture but never its misspelling. The green and red strips each represent one animated 16 by 16 texture. Their numbered files prove frame ordering and repeated holds; they are not independent runtime content. Animation metadata enumerates or times every authored frame without interpolation, deduplication, synthetic frames, reordering, or resampling. Cadence must be calm and repeatable, and a full loop must return without a visible discontinuity beyond the authored sequence.
-
-Transparent plant models use a cutout compatible render layer registered only through the Forge client boundary. Models must not stretch `algae_block` into the green or red plant forms. Inventory presentation must be identifiable and free of missing texture fallback. Atlas warnings, frame size errors, metadata errors, z fighting that breaks recognition, or opaque background pixels are blocking.
-
-### Generated Data and World Generation
-
-Providers are authoritative for generated resources. `ModDatagen` already owns the provider graph and `common/src/generated/resources/` output. Blockstates map every reachable state, block models use the correct textures, item models represent their blocks, language uses exact names, loot encodes collection rules, and tags capture semantic interoperability without broad accidental membership.
-
-Each block has its own configured feature and placed feature chain. Default configured data selects only its matching state. Placement modifiers establish a finite candidate budget per chunk, search eligible ocean floor positions, require source water and free plant space, and apply a biome filter. A Forge add feature biome modifier attaches each placed feature at vegetation decoration by neutral BFS biome tag. Implementation must use registry references and data pack entries, not Java biome identity conditionals. Both colors share supported vanilla ocean families by default; no temperature, rarity, or species lore distinction is inferred.
-
-The configured candidate ceiling is the static upper bound. Runtime evidence records both candidate and successful placement maxima. Combined successful BFS algae coverage must be less than common vanilla seagrass under the exact same eligible position counting in the shared sample. A data pack can override registered configured features, placed features, biome tags, and modifiers without a code change; malformed or cyclic references must fail data pack loading visibly rather than fall back to hidden hard coded generation.
-
-### Compatibility, Performance, and Security
-
-New registry entries are additive. Existing 0.23 worlds must load with no migration. Natural generation affects only chunks generated while the enabled data pack entries are active; existing placed algae persists when generation is disabled. Removal restores water but never edits neighboring terrain beyond normal block updates. Feature loops and search radii are finite, avoid broad chunk scans, do not force chunk loads, and do not replace structures or nonreplaceable blocks.
-
-World generation remains server authoritative and seed deterministic. Client code only selects rendering. No networking or persistent custom data is needed. Data packs are untrusted input at decode boundaries: invalid ranges, missing holders, invalid states, or malformed tags must fail with actionable registry or pack errors and no partial silent registration. Logs must not spam per placement or expose local paths.
+No server state, NBT schema, entity behavior controller, networking, configuration field, or persisted user data changes. Rendering is client-only, and the client diagnostic capture remains separately authorized and local. The change must avoid repeated image decode, allocation, or resource manager traversal per frame. Cache invalidation must follow actual resource reload semantics so old derived texture state cannot survive reload. Any cache or derived layer created by the candidate is test-owned only during verification and is removed with the disposable instance.
 
 ## Failure, Recovery, and Edge Cases
 
 | Scenario | Detection | Required behavior | Recovery or rollback | Regression proof |
 |---|---|---|---|---|
-| Source asset, dimension, or segmentation mismatch | Hash and PNG audit | Stop before copying; do not redraw or repair owner input. | Restore verified source or obtain owner authorized revision. | Repeat complete 22 file audit. |
-| Misspelled or duplicate public identifier | Registry and resource scan | Fail before world creation; do not provide compatibility aliases for never released IDs. | Correct field and all references, regenerate data, discard affected test worlds. | Registry dump and JAR scan contain only three correct paths. |
-| Registry ordering or freeze failure | Mod load exception or missing BlockItem target | Keep registration dependency ordered and fail startup visibly. | Repair bootstrap ordering; never mutate frozen registries late. | Unit registry test plus dedicated server ready state. |
-| Dry, flowing, unsupported, occupied, or land placement | Placement or survival oracle | Reject without replacing terrain or leaving air in water. | No world repair should be needed; fixture cleanup removes only test owned state. | Negative GameTests for each condition. |
-| Support is removed after placement | Neighbor update | Break the algae under vanilla aquatic semantics and preserve the water cell. | Restore test support and replace through normal placement only. | Support loss and fluid state GameTest. |
-| Wrong collection tool or explosion path | Loot context test | Follow generated loot and vanilla seagrass style collection without duplicate drops. | Correct provider, regenerate, and rerun loot matrix. | Tool positive and negative loot tests plus in game collection. |
-| Animation frame skipped, deduplicated, interpolated, or reordered | Strip segmentation, metadata sequence, and client capture | Block acceptance even if texture loads. | Restore exact source strip and authored hold mapping. | Full loop frame timeline and source hash comparison. |
-| Texture atlas or render layer fault | Client log, missing texture, opaque quad, or visual artifact | Keep visual gate open. | Correct resource reference or client only render registration. | Clean atlas log and interactive captures. |
-| Missing configured or placed feature holder | Data pack registry error | Fail load visibly; never substitute a hard coded fallback. | Repair provider references and regenerate from a clean output. | Codec, holder, and dedicated server reload tests. |
-| Generation on land, invalid floor, or occupied space | Fixed seed coordinate validator | Fail the phase and preserve failing coordinates. | Repair placement predicate or modifiers, discard generated test worlds, rerun full sample. | Zero invalid placements in both repeated worlds. |
-| Density equals or exceeds seagrass, or per chunk cap is exceeded | Shared sample report | Treat as a world generation flood and keep `DEF-024-008` open. | Reduce finite default attempts or patch spread, regenerate worlds, repeat all density evidence. | Combined count below seagrass and maxima within configured caps. |
-| A required form is absent from the sample | Zero count with seagrass positive control | Treat as failed exposure, not conservative success. | Adjust data driven default placement without adding lore partitioning. | Positive count for all three forms in both identical manifests. |
-| Navigation stalls or reroutes broadly | Bounded aquatic path GameTest and runtime soak | Keep collision and path obstruction gate open. | Correct shape and pathfinding semantics; regenerate representative patches. | Repeated fish and shark path completion through and around algae. |
-| Data pack disables or overrides algae | Controlled pack test | New chunks follow the active pack; existing blocks remain intact. | Remove the override or restore default pack and create fresh chunks. | Default, disabled, and bounded override cases pass. |
-| Old save or downgrade risk | Backup rehearsal and registry log | Old save must load forward. Never promise safe downgrade with registered blocks present. | Restore backup for downgrade; disabling generation is the supported runtime rollback. | Forward load smoke and documented backup restore rehearsal. |
-| Dedicated server loads a client class | Class loading exception or client package reference audit | Fail the phase. | Move rendering registration back behind `ModClientForge` and rebuild. | Static boundary test and dedicated server ready state. |
-| Provider and generated output disagree | Second Data run or source comparison | Treat as blocking drift; never patch only generated JSON. | Fix provider, regenerate from clean output, inspect complete diff. | Two consecutive data runs are byte stable. |
+| Daylight suppresses glow after base mask extraction. | `render` capture shows Zippy variant, `_glowmask`, raw brightness at least eight, omitted glow layer, and missing normal marking pass. | The normal pass preserves visible authored lightning without forcing emissive glow. | Restore the narrow prior renderer change, retain source art, inspect actual selection, and rerun from P004-TASK-001. | Daylight screenshot and capture, exact pixels, no opaque background. |
+| Darkness glow is absent, doubled, or masks all base detail. | Capture records brightness below eight, selected passes, and compositing reason; targeted visual proves presentation. | Exactly intended dark glow appears while original texture remains valid. | Correct only the layer composition or cache lifecycle. | Dark screenshot, layer regression, and other variant control. |
+| Daylight return or resource reload leaves stale derived texture state. | Reload generation and resource identity differ from active cached record, or postreload sequence differs. | Clear or rebuild only owned derived state and reproduce current resource selection. | Stop capture, recreate disposable client state, and rerun day, dark, day, reload from the earliest changed resource gate. | Bounded sequence after actual reload and reload-reset diagnostics. |
+| Resource missing, malformed, wrong-sized, or opaque background appears. | Explicit resource-resolution failure, dimensions or alpha predicate, or texture fallback record. | Fail safely with an actionable reason; do not silently substitute another variant or claim visual success. | Restore verified resource package and rerun static and client gates. | Negative fixture or focused resolver test plus untouched-hash manifest. |
+| Other Common Thresher skin or Great White glow changes. | Variant and entity-type control captures plus comparison visuals. | Their existing selection and glow behavior remain unchanged. | Revert the overbroad conditional or renderer registration. | Regression tests and targeted control visuals. |
+| Target set is empty, selected entity is removed, or capture expires during reproduction. | Local status reports selected count, target removal, timeout, or terminal completeness reason. | Do not fabricate a record or pass. Stop cleanly and restore the one-entity fixture. | Reset fixture and capture window, then repeat once exactly one BFS entity is automatically selected. | Empty-set, removal, timeout, status, and off checks. |
+| Capture reaches an inherited limit or I/O fails. | `CAPTURE_INCOMPLETE`, counters, footer, or `IO_FAILURE`. | Evidence is unusable for acceptance and gameplay remains unchanged. | Retain minimal sanitized failure, correct bounded fixture or output path, then rerun. | Overflow, output-limit, and disabled-versus-enabled parity checks. |
+| Laptop stream identity or mute cannot be proven. | Window PID, descendant-stream correlation, or mute readback is missing. | Stop the owned client before assertions and leave the visual gate unverified. | Reconcile only the owned instance and retry after capability restoration. | Host, renderer, window, stream, and teardown record. |
+
+## Diagnostics and Debugging
+
+**Requirement IDs:** BFS2-REQ-013, BFS2-REQ-022  
+**Task IDs:** P004-TASK-001, P004-TASK-002, P004-TASK-003, P004-TASK-004  
+**Controls:** Use the existing laptop-local `/bfs debug client on`, `/bfs debug client status`, and `/bfs debug client off` controls. `on` automatically selects up to 32 BFS living entities within 128 blocks and has no target argument, so the fixture contains exactly one BFS living entity within that radius for each capture. The server cannot start, inspect, or receive this local capture. Server console setup establishes only entity identity and state through the real server path. P004-TASK-001 adds bounded render payloads to this existing client manager and records the controls and automatic target selection in the support guide before P004-TASK-003. Unknown or unavailable local client state, target removal, timeout, reload, repeated off, and output failure return bounded reasoned results without changing gameplay.  
+**Signals:** Use existing `bfs-debug-v2` header identity plus `render.variantId`, `render.baseResource`, `render.maskResource`, `render.rawBrightness` in local raw-light units, `render.layer` as `base`, `marking`, or `glow`, `render.selected` boolean, `render.reason`, `render.resourceReloadGeneration`, `render.textureHash`, `render.maskHash`, `render.alphaBackgroundCheck`, and client frame/tick sequence. All records include client side, session pseudonym, entity type, capture ID, sequence, tick, and reason. Missing values are null with a reason.  
+**Collection procedure:** Follow the local numbered runbook below. It uses default-off automatic capture with a one-entity fixture inside the 128-block selection radius and bounded lighting transitions, preserves exact artifacts, redacts endpoints, paths, chat, and identities, and stops on incompleteness.  
+**Headless verification:** Inspect the actual Gradle task graph before running only non-graphical focused tests. Add source or unit coverage for resource identity, hash comparison, brightness boundary on both sides of eight, layer decision, reload invalidation, missing-resource handling, and untouched controls. A dedicated `node-1` server may confirm fixture readiness and server-side entity identity with `eula=true` readback, but it cannot establish rendering or local capture state.  
+**Client verification:** The residual claim is visible original lightning and intended dark glow across day, dark, return, and resource reload. The laptop must provide the actual discrete renderer, client render capture, and one targeted visual for each state plus two unaffected controls. If authorized controls cannot capture the needed visual or human presentation judgment is specifically required, request that exact action with expected frame and comparison. A server log never closes this claim.  
+**Client audio isolation:** Before launch, discover the isolated pinned-version client instance and set only its master audio option to zero. Verify the laptop desktop session and discrete renderer. After launch, use `hyprctl clients -j` to bind the exact owned window address, class, title, and PID, then correlate only that PID tree to its PipeWire node or PulseAudio sink input. Mute that transient application stream with `wpctl` or `pactl` and read back its muted state before any assertion. After resource reload, reconnect, device change, restart, or stream recreation, repeat correlation and muting. Never touch the default sink, a microphone, a personal instance, or an unrelated application. At teardown stop the owned client and watcher, confirm window, process, and stream exit, and remove the isolated audio state. Failure to prove identity or mute stops the client gate.  
+**Budgets and privacy:** The existing local capture is default-off, automatically selects at most 32 BFS living entities within 128 blocks, lasts at most 1200 client ticks or 90 wall seconds, samples presentation every four ticks, limits its queue to 8192 records, record size to 16 KiB, capture size to 32 MiB, and directory size to 256 MiB. This phase creates a one-entity fixture and stops the capture within 200 client ticks after the last state observation, preserving the stricter existing client budgets. Render payloads are event-driven and must not add render-thread I/O or per-frame dumps. Retain only minimal sanitized event excerpts and selected required comparison frames, never private endpoints, chat, player names, credentials, or absolute personal paths.  
+**Regression and support:** Test controls, parser handling, disabled overhead, bounded enabled overhead, unchanged selection behavior, and the phase visual sequence. Update `docs/test/debug-diagnostics.md` so operators can enable scoped render capture, reproduce brightness and reload transitions, disable capture, find the output, redact it, and submit the minimum support packet. Keep the reusable diagnostics; remove only test-created captures, runtimes, watchers, routes, and redundant frames after their final consumer.
+
+| Signal | Source and unit | Expected observation |
+|---|---|---|
+| `render.variantId`, `render.baseResource`, `render.maskResource` | client renderer, registry/resource identifier | Zippy selects existing Zippy base and `_glowmask`; controls select their own unchanged resources. |
+| `render.rawBrightness`, `render.layer`, `render.selected`, `render.reason` | client renderer, local raw-light unit and bounded enum | At brightness at least eight, an ordinary marking pass remains selected. Below eight, intended glow is selected without removing base markings. |
+| `render.textureHash`, `render.maskHash`, `render.alphaBackgroundCheck` | resource resolution, SHA 256 and boolean | Both authored hashes match the entry manifest and no opaque mask background enters the presentation. |
+| `render.resourceReloadGeneration` | client resource manager, monotonic reload generation | Reload changes or revalidates the owned resource generation and yields the same required selection behavior. |
+| capture counters and terminal reason | IFC-001 status/footer, records and bounded enum | No dropped records, limit stop, I/O failure, or missing terminal footer is accepted as proof. |
+| window PID, renderer, stream mute | laptop host checks, process identifier and mute boolean | Exact owned client uses discrete renderer and its matched application stream is muted before every visual assertion. |
+
+### Local collection and support procedure
+
+1. Resolve the verified sequential default commit for the phase branch, then the baseline or candidate JAR SHA 256 and SHA 512, Forge 47.2.0, GeckoLib 4.4.7, dependency and configuration digests, and exact test-owned scratch paths. Discover the laptop project anchor and isolated client instance through the authorized connection. Create unique disposable runtime directories only beneath the verified project anchor after parent exclusions and active-use checks. Register teardown for the `node-1` server, laptop client, audio watcher, world, temporary configuration, logs, captures, screenshots, and scratch evidence before launch.
+2. Rehash the two tracked Zippy resources. Run focused non-graphical resource and layer tests, including raw-light values seven and eight, resource reload invalidation, missing-resource handling, and unchanged controls. During the dedicated-server fixture in the next step, run the local client-control regression before a BFS entity enters the 128-block search volume. Assert `/bfs debug client on` reports zero selected targets, `/bfs debug client status` reports the local session, and `/bfs debug client off` is idempotent. Record the baseline failure or precise evidence gap before P004-TASK-002.
+3. For baseline P004-TASK-001 reproduction and final P004-TASK-003 acceptance, create a disposable no-GUI dedicated server on `node-1`, set and read back only that runtime’s `eula=true`, confirm readiness and existing private reachability, and record the sanitized endpoint internally. Build or place the exact baseline or candidate on both hosts only after verifying source, artifact, dependency, and config identity. Use the server console to prepare a bounded water fixture with an open-sky position that reads raw brightness eight or higher and a removable opaque roof position that reads raw brightness seven or lower. Spawn one Common Thresher and use the real lightning strike path that calls `thunderHit` to set its synchronized `Variant.ZIPPY` value. Confirm `isZippy()` before it enters the 128-block search volume. Keep it as the sole BFS living entity in that radius. Hold each brightness state for 20 simulation ticks. For controls, replace the sole selected entity with one unchanged `DEFAULT_1` Common Thresher and then one Great White, still keeping exactly one BFS entity within 128 blocks. Use actual resource reload as the fourth stimulus.
+4. Before each P004-TASK-001 baseline or P004-TASK-003 candidate client launch, complete the client audio-isolation sequence and verify the actual discrete renderer. Use a supported version-specific direct-connect or authorized desktop control to join the exact owned server and confirm intended player and world on both sides. Execute `/bfs debug client on`, then `/bfs debug client status`; assert that the local capture selected exactly one entity and no exclusion occurred. The client command owns the capture. Server console setup establishes only fixture/entity state and never starts, inspects, or receives client records.
+5. For baseline reproduction, observe the open-sky Zippy state at raw brightness eight or higher and record the actual variant, base resource, mask resource, layer decision, and visible marking result before implementation. Stop with `/bfs debug client off`, verify `/bfs debug client status` shows inactive with a complete terminal summary, retain a sanitized baseline record, and tear down this early owned client/server fixture. For final acceptance, repeat with the candidate through daylight, darkness, daylight return, and postreload states, never exceeding 200 client ticks before `/bfs debug client off`. Recheck stream identity and mute immediately after resource reload.
+6. The falsifiable oracle is that every Zippy frame contains the original lightning, every selected base and mask hash matches the entry manifest, daylight at raw brightness eight or higher has the normal marking pass without unintended emissive-only substitution, darkness at raw brightness seven or lower includes intended glow, return restores the daylight result, reload yields the same sequence, and neither one-entity control changes behavior. Do not repeatedly poll screenshots for values present in records. Inspect captures by capture ID, sequence, selected-target count, render layer, raw brightness, reload generation, and reason. A missing record, zero or multiple selected fixture targets, invalid hash, mismatch, missing terminal footer, or incomplete capture is a failure or unverified gate, never a pass.
+7. Retain only sanitized decisive excerpts, required targeted visuals, identity manifests, and `IFC-008` evidence. Update the support guide with the real client commands, automatic 128-block target selection, one-entity fixture, raw-light stimuli, and redaction instructions. Gracefully stop exact owned server, client, watcher, and temporary audio route; verify their processes and playback stream are gone; remove only verified test-created runtime, world, logs, crash reports, temporary configuration, downloads, redundant frames, and scratch paths on both hosts. Report any exact leftover as cleanup incomplete and reconcile it before a new disposable run.
 
 ## Verification Matrix
 
-| Requirement or task | Static or unit | Integration | Real workflow or runtime | Negative and recovery | Evidence artifact |
-|---|---|---|---|---|---|
-| `BFS-REQ-020`, identities | Exact registry and item pairs, translations, no `algea` paths | Common bootstrap through Forge registry event | Creative inventory, `/give`, place and pick workflows | Duplicate or misspelled fixture rejected | Registry manifest and screenshots |
-| `BFS-REQ-020`, behavior | Properties, shapes, fluid state, loot contexts | GameTests for place, survive, update, break, collect | Interactive underwater placement and removal | Dry, invalid support, occupied, wrong tool, and support loss cases | Test reports and fluid state captures |
-| `BFS-REQ-020`, assets | Source hashes, dimensions, strip segmentation, ordered metadata | Model, blockstate, item model, and atlas reference audit | Full green and red loops in water, item and block rendering | Altered frame, order, metadata, and missing texture controls | Asset manifest, client log, captures |
-| `P004-TASK-005`, generated data | Provider coverage and JSON schema tests | Two byte stable Data runs | Resource reload with all blocks and loot usable | Stale generated file and missing reference controls | Generated diff and regeneration hashes |
-| `BFS-REQ-021`, data driven features | Codec round trip, holder graph, tag membership, finite limits | Configured to placed to biome modifier chain | Dedicated server data pack load and reload | Malformed holder, missing tag, and disabled modifier cases | Registry dump and server logs |
-| `BFS-REQ-021`, fixed seed | Coordinate, support, biome, chunk maximum, and count validator | Two clean worlds, seed `240024`, chunks `0,0` through `15,15` | Generated ocean inspection and navigation soak | Land, invalid support, absent form, cap breach, and density breach fail | Coordinate manifests and density report |
-| Compatibility and rollback | No existing ID changes, no migration schema | Existing 0.23 save forward load and data pack disable | Existing block persistence and new chunk behavior | Backup restore for downgrade, malformed override failure | Compatibility run sheet and backup record |
-| `DEF-024-008` | Combined deterministic suite | Data generation, GameTests, build, server, and JAR chain | Client rendering and fixed seed natural generation | All defect oracle failures keep defect open | Closure record bound to revision and JAR hash |
-
-### Environments, Fixtures, and Rerun Order
-
-Use the Phase 000 Forge GameTest structures and evidence schema. Fixed seed acceptance uses Overworld seed `240024`, inclusive chunk square `0,0` through `15,15`, default BFS data pack, unchanged relevant configuration, and one named Forge build. The seagrass positive control and algae counter must share eligibility rules. Record block state, position, biome, floor state, fluid state, feature origin when observable, and chunk for every counted placement.
-
-Run formatter or record its absence, configured static analysis or record its absence, `./gradlew :forge:test`, `./gradlew :forge:Data`, Forge GameTests, `./gradlew :forge:build`, `./gradlew :forge:Server`, `./gradlew :forge:Client`, compatibility and data pack workflows, then JAR and full diff inspection. A source, generated data, registry, block behavior, placement, tag, or density change invalidates downstream proof. Restart from the earliest affected step. The unsupported root Fabric build is recorded separately and never substitutes for Forge success. Headless client loading cannot satisfy visual acceptance.
+| Requirement or task | Static or unit | Integration | Real workflow or runtime | Negative and recovery | Execution host and prerequisites | Evidence artifact |
+|---|---|---|---|---|---|---|
+| P004-TASK-001, BFS2-REQ-013 | Compare source hashes, resource IDs, suffix, brightness values seven and eight, layer choice, and local control behavior. | Verify selected entity to renderer to conditional-layer path and bounded diagnostic schema. | One silent laptop baseline reproduction after static diagnostics, using the one-entity fixture at raw brightness eight or higher. | Missing mask, wrong dimensions, opaque background, wrong variant, zero or multiple selected targets, client capture failure, mute ambiguity, timeout, and output failure. | `node-1` headless fixture server plus verified Linux laptop client under EXT-001, matched baseline identity, joined-world confirmation, prelaunch zero volume, and verified application mute. | Focused test reports, hash manifest, complete local capture, one baseline visual, host/audio record, and cleanup confirmation. |
+| P004-TASK-002, BFS2-REQ-013 | Renderer/layer regression for bright, dark, boundary, return, reload and controls. | Verify resource reload invalidates only owned derived state and keeps saved/resource identifiers intact. | Dedicated server fixture may validate entity identity only. | Cache staleness, resource failure, duplicate glow, missing daylight markings, unaffected variants. | `node-1` only for truly headless tests. If server is used, unique runtime, `eula=true` readback, readiness, and teardown. | Test reports and bounded server fixture record, explicitly limited to nonvisual claims. |
+| P004-TASK-003, BFS2-REQ-013, BFS2-REQ-022 | Parser, enable/status/off, permission, limits, redaction, disabled-overhead and capture-completeness tests. | Verify candidate identity on both hosts, real server fixture, and client capture correlation. | Actual silent laptop day, dark, return, reload sequence and two targeted controls. | Removed target, reload stream recreation, failed connection, renderer mismatch, mute ambiguity, incomplete capture, and control regression. | `node-1` headless server plus verified Linux laptop client under EXT-001, matched artifacts, existing private connection, joined-world confirmation, prelaunch zero volume and verified application mute. | Sanitized `bfs-debug-v2` capture, visual comparison set, host/audio record, IFC-008 record, cleanup confirmation. |
+| P004-TASK-004, BFS2-REQ-013 | Review all factual claims against evidence and hashes. | Check README and docs cross-links and support instructions. | No runtime claim. | Failed/unverified visual gate remains explicit; do not publish it as completed. | Repository checkout only, no temporary process or files beyond the edited tracked docs. | Reviewed docs and phase evidence references. |
+| P004-TASK-005, BFS2-REQ-013, BFS2-REQ-021, BFS2-REQ-022 | `git diff --check`, full diff, source/artifact manifest and documentation review. | Required checks, required private independent review, merge commit, default ancestry, tag signature. | No client. | Signing failure, blocked merge, failed check, stale default, tag mismatch, or incomplete cleanup stops transition. | Authenticated repository capability under EXT-002. No runtime resources are created by this audit. | PR state, resulting default commit, signed `bfs2-phase-004` tag, final evidence packet. |
 
 ## Documentation, Operations, and Release
 
-- Update `README.md` with the three algae forms, creative access, natural ocean generation, supported version, and links to technical details after behavior passes.
-- Update `DOCUMENTATION.md` with registration flow, aquatic block semantics, asset and animation pipeline, provider ownership, configured and placed feature graph, biome tag extension point, generation step, default distribution principles, compatibility, and client boundary.
-- Update `CHANGELOG.md` with verified algae content and world generation behavior without claiming the complete `0.24` release is published.
-- Update `docs/README.md` links if algae or verification topic documentation is added. Store test procedures and results under the existing documentation layout rather than inside this protected plan file.
-- Document operator rollback: back up worlds before upgrade, disable the algae add feature biome modifier or biome tag through a data pack to stop future generation, retain existing algae blocks, and restore a backup before downgrading to a build that lacks the registry entries.
-- Record identifiers and data pack entry points for pack authors. Do not claim unsupported biome ecology, retroactive generation, Fabric support, or safe downgrade of populated worlds.
-- Phase 005 owns final version metadata, checksums, SBOM, attestations, release notes, publication, and final plan wide revalidation.
+P004-TASK-004 updates the existing asset ledger with both Zippy resource paths, their unchanged hashes, the render-use mapping, and the distinction between normal marking and dark glow. It updates `docs/test/debug-diagnostics.md` with exact scoped render collection, status, stop, redaction, and cleanup behavior, then links verified user-facing behavior and support guidance through `README.md`, `DOCUMENTATION.md`, and `docs/README.md`. It adds a phase-specific sanitized render evidence record that binds the source, artifact, fixture, observations, control regressions, visual limits, and cleanup status.
+
+P004-TASK-001 creates or updates the corresponding milestone before implementation and P004-TASK-005 updates its linked issue or PR status before integration. After an approved merge, it verifies `origin/1.20.1`, creates and pushes the signed annotated `bfs2-phase-004` tag, then publishes the prepared wiki change from merged tracked documentation and reconciles project or milestone state. It does not close unrelated issue28, publish a release, change historical tags, or present a test JAR as a public release.
 
 ## Risks and Evidence Invalidation
 
-| Risk | Prevention | Detection | Recovery | Evidence invalidated | Reverification |
+| Risk ID and owner task | Prevention | Detection | Recovery | Evidence invalidated | Reverification |
 |---|---|---|---|---|---|
-| Reflection derived field name creates wrong public ID | Exact holder naming and preworld registry test | Registry dump and `algea` scan | Correct holder and every reference, regenerate | Registry, data, worlds, JAR | Full phase matrix |
-| Repeated frames are optimized away | Treat numbered frames and strips as immutable authored timing | Frame hash groups and timeline audit | Restore exact strip and metadata | Asset, client, JAR | Asset audit and full loop capture |
-| Aquatic removal creates air or deletes water | Vanilla seagrass semantics and fluid update tests | GameTest fluid state after all removal paths | Correct block update and fluid behavior | Behavior, feature, navigation | GameTests through runtime matrix |
-| Generation floods or dominates seabed | Finite attempts, conservative defaults, shared seagrass comparison | Per chunk maxima and aggregate density | Reduce defaults and regenerate fresh worlds | Fixed seed, runtime, docs | Both world manifests and navigation soak |
-| Tag scope silently excludes or partitions a color | Neutral shared ocean family coverage | Tag and observed biome matrix | Correct provider and regenerate | Worldgen, server, docs | Codec, tags, fixed seed, runtime |
-| Transparent rendering leaks into server | Client only registration | Dependency scan and server startup | Move all renderer references behind client boundary | Build, server, client, JAR | Static audit then server and client |
-| Existing world compatibility is assumed | Use representative 0.23 save and backup copy | Registry and data pack load logs | Fix additive registration or restore backup | Compatibility and completion | Forward load and new chunk generation |
-| Data pack override bypasses placement safety | Keep survival and replacement checks in block and feature contract | Malformed and high attempt override tests | Reject invalid data or rely on block placement validation | Codec, recovery, security | Unit, GameTest, server reload |
-| Later phase changes an algae surface | Bind proof to source revision and JAR hash | Phase 005 diff against completion packet | Reopen affected gate | Exact touched evidence | Rerun from earliest impacted verification step |
+| BFS2-RISK-007, P004-TASK-001 through P004-TASK-003 | Preserve source PNGs, use nondestructive passes, and inspect real layer choice before repair. | Variant, mask, layer, brightness, reload, pixel-hash, and control signals. | Restore correct resource path or narrow composition and rerun from cause reproduction. | Any art hash, renderer path, GeckoLib version, resource pack precedence, or resource-reload change. | Static and client day, dark, return, reload, and control sequence. |
+| BFS2-RISK-012, P004-TASK-001 and P004-TASK-003 | Default-off bounded local capture with a one-entity fixture and no render-thread I/O. | Status, selected-target count, counters, terminal footer, redaction, and off/on parity. | Stop capture, retain minimal sanitized failure, correct the bounded fixture, rerun. | Diagnostic schema, parser, bounds, writer, or client manager change. | Control, parser, limit, completeness, and behavior parity checks. |
+| BFS2-RISK-013, P004-TASK-003 and P004-TASK-005 | Verify laptop renderer, prelaunch zero volume, exact stream mute, and resource teardown. | Host, desktop, renderer, window/PID, stream mute, process exit, and path absence. | Stop owned client on ambiguity, preserve user data, reconcile exact leftovers. | Laptop host, client instance, artifact/config identity, stream recreation, or cleanup failure. | Full split-host visual procedure and cleanup audit. |
+| BFS2-RISK-001, P004-TASK-001 and P004-TASK-005 | Start from verified sequential default and preserve historical root and PR29 worktree. | Ancestry, complete diff, and source hash mismatch. | Stop mismatched work and recreate phase branch only from verified default. | Any upstream merge, branch, source, or tag change. | Revalidate Phase 003 integration, default ancestry, exact resource hashes, then rerun affected gates. |
 
 ## Phase Completion Packet
 
-The phase may close only with all of the following proof stored outside the protected plan set:
+The closure packet contains the phase branch commit and complete diff review, exact authored-art hashes, focused test and parser outcomes, source and candidate artifact hashes, dependency and config digests, sanitized fixture and host records, complete bounded capture, targeted visual comparison set, renderer and muted-stream proof, cleanup results for each host, documentation changes, support guide verification, milestone and PR state, private review result, required check results, GitHub merge commit, verified resulting `origin/1.20.1` commit, and signed annotated `bfs2-phase-004` tag.
 
-1. Phase branch point, Phase 003 merge and tag verification, source revision, dependency versions, configuration, protected path hashes, and clean scope manifest.
-2. All 22 source asset hashes and dimensions, strip segmentation proof, repeated hold groups, source to destination map, and no misspelled public path scan.
-3. Registry and creative inventory manifests for the three blocks and three items, with exact translations.
-4. Generated blockstate, model, item model, language, loot, block tag, item tag, configured feature, placed feature, biome tag, and biome modifier inventories plus two byte stable Data runs.
-5. Deterministic test and GameTest reports covering identities, assets, loot, codecs, valid and invalid placement, survival, fluid restoration, collection, feature placement, cleanup, and navigation.
-6. Two fixed seed coordinate and state manifests for seed `240024` and chunks `0,0` through `15,15`, per form and per chunk counts, finite cap proof, invalid placement report, structure check, and common seagrass comparison.
-7. Dedicated server ready log and data pack reload results with no registry, codec, tag, loot, feature, or client class loading fault.
-8. Interactive client captures for inventory, in hand and placed presentation, full animation loops, generated ocean distribution, collection, removal, and clean atlas log.
-9. Existing 0.23 save forward load, new chunk generation, disabled generation pack, bounded override, backup, rollback, and downgrade warning evidence.
-10. Ordered command results, Forge JAR hash and complete inventory, complete Git diff, generated diff, documentation changes, and protected owner work verification.
-11. `DEF-024-008` closure record mapping every minimum and phase acceptance criterion to exact evidence.
-12. Issue, milestone, Project, pull request, deterministic checks, independent review disposition when supported or verified capability-unavailability record, merge commit, `origin/main` containment, signed annotated Phase 004 tag target and signature, and Phase 005 handoff.
+Every test, build, audit, server, client, capture, and visual workflow declares its exact disposable paths and owned processes before it begins. It retains only required sanitized evidence after its final consumer. It verifies graceful process exit, playback-stream disappearance, audio-watcher removal, and exact test-created path removal on every used host. A test result and cleanup result are recorded separately. `CLEANUP_INCOMPLETE` keeps this phase open until the exact leftovers are reconciled; source changes, personal instances, pre-existing worlds, shared caches, active PR29 worktree, owner `Content`, and unrelated resources remain protected.
 
 ## Next Transition
 
-The only next transition is `BFS-PHASE-005`, systematic defect audit and release. After GitHub reports the Phase 004 pull request merged, fetch the remote, verify the resulting merge commit is contained by the authoritative default branch, create and push the signed annotated Phase 004 tag on that merge commit, and verify its signature and target. Then reread the master and `docs/general/phases/plan-phase-005.md` through EOF, rebind Phase 004 evidence to the merged revision, and begin the first unfinished Phase 005 task from updated `origin/main`. Do not start Phase 005 from the Phase 004 branch or while any Phase 004 check, review, merge, tag, defect closure, or evidence gate remains open.
+After all Phase 004 implementation, evidence, documentation, review, merge, resulting-default verification, signed tag, wiki, tracking, and cleanup gates pass, atomically advance the execution cursor to BFS2-PHASE-005 and begin its first numbered Work Packages entry. Do not create or start the Phase 005 branch before the Phase 004 pull request has merged and the resulting `1.20.1` tag is verified.

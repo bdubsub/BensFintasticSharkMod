@@ -59,9 +59,11 @@ import com.mojang.authlib.GameProfile;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import tfar.bensfintasticsharks.entity.BottlenoseDolphinEntity;
+import tfar.bensfintasticsharks.entity.AmericanLobsterEntity;
 import tfar.bensfintasticsharks.entity.CannonballJellyfishEntity;
 import tfar.bensfintasticsharks.entity.CaribbeanReefOctopusEntity;
 import tfar.bensfintasticsharks.entity.CommonOctopusEntity;
+import tfar.bensfintasticsharks.entity.CommonStingrayEntity;
 import tfar.bensfintasticsharks.entity.OctopusEscapePolicy;
 import tfar.bensfintasticsharks.entity.AtlanticCodEntity;
 import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
@@ -115,6 +117,34 @@ public final class BfsGameTests {
         helper.assertTrue(ModBlocks.ALGAE_BLOCK.defaultBlockState().canSurvive(helper.getLevel(), absoluteAlgaePos),
                 "algae must survive while its water support is present");
         helper.succeed();
+    }
+
+    @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 100)
+    public static void stingrayContactUsesBoundedCooldown(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        CommonStingrayEntity stingray = helper.spawn(ModEntityTypes.COMMON_STINGRAY, new BlockPos(3, 3, 3));
+        AmericanLobsterEntity lobster = helper.spawn(ModEntityTypes.AMERICAN_LOBSTER, new BlockPos(3, 3, 3));
+        stingray.setNoAi(true);
+        lobster.setNoAi(true);
+        stingray.setNoGravity(true);
+        lobster.setNoGravity(true);
+        stingray.setDeltaMovement(Vec3.ZERO);
+        lobster.setDeltaMovement(Vec3.ZERO);
+
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(lobster.getHealth() < lobster.getMaxHealth(),
+                    "overlapping stingray must sting a living mob");
+            int firstHurtTick = lobster.getLastHurtByMobTimestamp();
+            helper.runAfterDelay(10, () -> {
+                helper.assertTrue(lobster.getLastHurtByMobTimestamp() == firstHurtTick,
+                        "a target must not be stung again during the bounded sting duration");
+                helper.runAfterDelay(31, () -> {
+                    helper.assertTrue(lobster.getLastHurtByMobTimestamp() > firstHurtTick,
+                            "a target must be eligible for another sting after the duration");
+                    helper.succeed();
+                });
+            });
+        });
     }
 
     @GameTest(template = "empty", batch = "bfs_baseline", timeoutTicks = 20)
@@ -357,6 +387,141 @@ public final class BfsGameTests {
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
             helper.fail("BFS debug start command failed: " + exception.getMessage());
         }
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_lifecycle_removed", timeoutTicks = 140)
+    public static void serverDebugCaptureRecordsRemovedTargetLifecycle(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        AtlanticCodEntity target = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 3, 3));
+        BfsDebugManager.stop("gametest_setup");
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(target.position())
+                .withPermission(4);
+        helper.runAfterDelay(1, () -> {
+            BfsDebugManager.StartResult started = BfsDebugManager.start(source, "movement", 80, List.of(target));
+            helper.assertTrue(started.started() && started.activeSession().targetCount() == 1,
+                    "lifecycle fixture must select its one target");
+            helper.runAfterDelay(5, () -> {
+                target.remove(Entity.RemovalReason.DISCARDED);
+                helper.runAfterDelay(8, () -> {
+                    try {
+                        server.getCommands().getDispatcher().execute("bfs debug off", source);
+                        verifyRemovedTargetCapture(helper, BfsDebugManager.status().lastStop().outputPath(), 20);
+                    } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+                        helper.fail("BFS removed target stop command failed: " + exception.getMessage());
+                    }
+                });
+            });
+        });
+    }
+
+    private static void verifyRemovedTargetCapture(GameTestHelper helper, Path output, int remainingChecks) {
+        helper.runAfterDelay(1, () -> {
+            try {
+                if (!Files.exists(output)) {
+                    if (remainingChecks > 1) {
+                        verifyRemovedTargetCapture(helper, output, remainingChecks - 1);
+                    } else {
+                        helper.fail("removed target diagnostic output was not written: " + output);
+                    }
+                    return;
+                }
+                String contents = Files.readString(output);
+                helper.assertTrue(contents.contains("\"event\":\"target_lifecycle\""),
+                        "removed target capture must emit a lifecycle record");
+                helper.assertTrue(contents.contains("\"wasRemoved\":true"),
+                        "removed target lifecycle must preserve the engine removal state");
+                helper.assertTrue(contents.contains("\"removalReason\":\"discarded\""),
+                        "removed target lifecycle must preserve the engine removal reason");
+                helper.assertTrue(contents.contains("\"event\":\"end\"")
+                                && contents.contains("\"incomplete\":false"),
+                        "removed target capture must finish with a complete terminal record");
+                Files.deleteIfExists(output);
+                helper.succeed();
+            } catch (IOException exception) {
+                helper.fail("unable to verify removed target diagnostic output: " + exception.getMessage());
+            }
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_debug_lifecycle_reload", timeoutTicks = 260)
+    public static void serverDebugCaptureSurvivesResourceReload(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        AtlanticCodEntity target = helper.spawn(ModEntityTypes.ATLANTIC_COD, new BlockPos(3, 3, 3));
+        BfsDebugManager.stop("gametest_setup");
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(target.position())
+                .withPermission(4);
+        helper.runAfterDelay(1, () -> {
+            BfsDebugManager.StartResult started = BfsDebugManager.start(source, "movement", 120, List.of(target));
+            helper.assertTrue(started.started(), "reload fixture must start a diagnostic session");
+            try {
+                int reloadResult = server.getCommands().getDispatcher().execute("reload", source);
+                helper.assertTrue(reloadResult >= 0, "resource reload command must be accepted by the server");
+                helper.runAfterDelay(40, () -> finishReloadCapture(helper, server, source));
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+                helper.fail("BFS resource reload command failed: " + exception.getMessage());
+            }
+        });
+    }
+
+    private static void finishReloadCapture(GameTestHelper helper, net.minecraft.server.MinecraftServer server,
+                                             net.minecraft.commands.CommandSourceStack source) {
+        helper.assertTrue(BfsDebugManager.status().active(),
+                "resource reload must leave the diagnostic session active until its requested stop");
+        try {
+            server.getCommands().getDispatcher().execute("bfs debug off", source);
+            BfsDebugManager.StopSummary stop = BfsDebugManager.status().lastStop();
+            helper.assertTrue(!stop.incomplete(),
+                    "resource reload must not make the active diagnostic capture incomplete");
+            verifyReloadCapture(helper, stop.outputPath(), 20);
+        } catch (com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+            helper.fail("BFS reload capture stop command failed: " + exception.getMessage());
+        }
+    }
+
+    private static void verifyReloadCapture(GameTestHelper helper, Path output, int remainingChecks) {
+        helper.runAfterDelay(1, () -> {
+            try {
+                if (!Files.exists(output)) {
+                    if (remainingChecks > 1) {
+                        verifyReloadCapture(helper, output, remainingChecks - 1);
+                    } else {
+                        helper.fail("resource reload diagnostic output was not written: " + output);
+                    }
+                    return;
+                }
+                String contents = Files.readString(output);
+                helper.assertTrue(contents.contains("\"event\":\"movement\""),
+                        "resource reload capture must retain movement records");
+                helper.assertTrue(contents.contains("\"event\":\"end\"")
+                                && contents.contains("\"incomplete\":false"),
+                        "resource reload capture must finish with a complete terminal record");
+                helper.assertTrue(contents.contains("\"captureTickP95Nanos\":"),
+                        "terminal record must expose bounded capture overhead telemetry");
+                JsonObject terminal = Files.readAllLines(output).stream()
+                        .map(JsonParser::parseString)
+                        .map(json -> json.getAsJsonObject())
+                        .filter(record -> "end".equals(record.get("event").getAsString()))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException("terminal record is missing"));
+                Path report = Path.of("phase-000-debug-overhead-report.json");
+                JsonObject sanitized = new JsonObject();
+                sanitized.addProperty("captureTickSamples", terminal.get("captureTickSamples").getAsInt());
+                sanitized.addProperty("captureTickP95Nanos", terminal.get("captureTickP95Nanos").getAsLong());
+                sanitized.addProperty("captureTickP95Millis", terminal.get("captureTickP95Millis").getAsDouble());
+                sanitized.addProperty("captureOffTraceSamples", 0);
+                Files.writeString(report, sanitized.toString() + "\n");
+                Files.deleteIfExists(output);
+                helper.succeed();
+            } catch (IOException exception) {
+                helper.fail("unable to verify resource reload diagnostic output: " + exception.getMessage());
+            }
+        });
     }
 
     @GameTest(template = "empty", batch = "bfs_debug_population", timeoutTicks = 1_300)

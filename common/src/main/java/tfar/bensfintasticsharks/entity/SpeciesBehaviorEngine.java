@@ -108,7 +108,8 @@ public final class SpeciesBehaviorEngine {
         }
 
         LivingEntity threat = findThreat(entity, profile);
-        if (threat != null && profile.threatResponse() != SpeciesBehaviorProfile.ThreatResponse.NONE) {
+        if (threat != null && profile.threatResponse() != SpeciesBehaviorProfile.ThreatResponse.NONE
+                && !hasAnyWalkTarget(entity)) {
             Vec3 escape = findEscape(entity, threat, profile.scanRadius());
             if (escape != null && claimRoute(entity, "escape", profile.actionTimeoutTicks(), escape,
                     1.35f, threat, profile.memoryTicks())) return;
@@ -194,6 +195,9 @@ public final class SpeciesBehaviorEngine {
         if (candidate instanceof Player || candidate.getType().is(APEX_PREDATOR)) return false;
         if (candidate.getType() == hunter.getType()) return false;
         String id = candidate.getType().builtInRegistryHolder().key().location().getPath();
+        String hunterId = hunter.getType().builtInRegistryHolder().key().location().getPath();
+        if ((hunterId.equals("common_stingray") && id.equals("american_lobster"))
+                || (hunterId.equals("american_lobster") && id.equals("common_stingray"))) return false;
         return switch (profile.foodMode()) {
             case SMALL_FISH -> id.contains("cod") || id.contains("salmon") || id.contains("squid");
             case FISH_AND_INVERTEBRATE -> id.contains("cod") || id.contains("salmon") || id.contains("squid")
