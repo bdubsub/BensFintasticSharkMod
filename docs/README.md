@@ -6,7 +6,6 @@
 * [Release Candidate 1.0 Windows startup correction](verification/rc1-windows-startup.md)
 * [Release Candidate 1.0 performance rejection and evidence](verification/rc1-performance-20260911.md)
 * [Current release artifact checksums and source binding](verification/artifacts/README.md)
-* [Active development plan](general/plan.md)
 * [0.24 asset ledger](verification/asset-ledger.md)
 * [Phase 000 evidence](verification/phase-000-evidence.md)
 * [Phase 000 evidence follow up](verification/phase-000-evidence-follow-up-20260906.md)
@@ -70,6 +69,5 @@
 * [Release candidate installation and rollback](test/release-rollback.md)
 * [Depth route regressions and acceptance boundaries](test/depth-route-regressions.md)
 * [Phase 001 fishing transaction regressions](test/phase-001-fishing-transactions.md)
-* [BFS:AO The Trench Minecraft 26.2 ModJam plan](modjam/26.2-port-plan.md)
 
-Tracked documentation describes released or currently implemented behavior. The active plan records work that is still awaiting verification or integration.
+Tracked documentation describes released or currently implemented behavior. The previous planning files were removed at the owner's request to start fresh. Historical evidence remains available, and unresolved performance work is recorded in [issue 28](https://github.com/bdubsub/BensFintasticSharkMod/issues/28) and [pull request 29](https://github.com/bdubsub/BensFintasticSharkMod/pull/29). Removing the plans does not mark that work complete.
