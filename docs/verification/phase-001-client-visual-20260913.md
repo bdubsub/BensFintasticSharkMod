@@ -73,7 +73,8 @@ tail, belly, dorsal fin, and interpolated pitch evidence.
 
 Before launch, the isolated client master category was zero. During the test, the exact owned
 Java playback stream for PID `1575054` reported `Mute: yes` through the laptop audio server. No
-system sink or unrelated application was muted. The client and server are stopped during cleanup,
-and the temporary candidate, backup, screenshot, world, logs, and runtime paths are removed after
-their hashes and observations are recorded. The user owned instance files are restored and their
-pre test hashes are checked.
+system sink or unrelated application was muted. The client and server were stopped during cleanup,
+and the temporary candidate, backup, screenshot, world, logs, and runtime paths were removed after
+their hashes and observations were recorded. The user owned instance files were restored and
+matched their pre test hashes for `instance.cfg`, `options.txt`, `servers.dat`, and the original
+BFS jar.
