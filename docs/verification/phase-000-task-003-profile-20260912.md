@@ -73,3 +73,16 @@ The inspected sanitized pilot inputs had these SHA 256 identities.
 The exact disposable server runtimes, worlds, logs, copied dependencies, and probe classes were removed after extraction. No owned process remained. The source worktree retains only the pre-existing uncommitted `build.gradle` line ending difference.
 
 The next task 003 action is to commit this scoped repair and rerun the installed four case matrix with diagnostics disabled for acceptance. No phase transition is allowed until those cases and the remaining release gates pass.
+
+## Subsequent scan reduction trials
+
+On September 13, 2026, the candidate policy path was reduced in four bounded steps. The server now scans at most once every 40 ticks, skips a policy pass while its owned action is active, reuses one bounded nearby living snapshot for threat, social and food selection, and returns before that snapshot when another walk target already owns the entity. The interval 50 trial was not retained after its game test run reported failures, so the supported cadence remains 40 ticks.
+
+The retained complete normal comparison in `performance-matrix-20260912-interval50` used the same seed, fixture, installed dependencies, probe binaries and 36,000 tick window for both runs. Baseline JAR SHA 256 was `f61b5580109577a6ef6387e551755d7054d4799222a1c5d60ecb3264092c0f4c`. Candidate JAR SHA 256 was `641c4997fc4a1664f328ece10417df9bd0b214aef6d47a69f32534de453cbfee`.
+
+| Run | Warmup | Measured ticks | Median | P95 | P99 | Maximum |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| baseline normal | 2,400 | 36,000 | 1.994645 ms | 4.381367 ms | 9.517401 ms | 29.271806 ms |
+| candidate normal | 2,400 | 36,000 | 2.369172 ms | 4.874258 ms | 9.403364 ms | 41.267318 ms |
+
+The candidate is 11.25 percent above the paired P95 and fails the unchanged 10 percent allowance. The candidate normal run is complete and retained as failed evidence. The doubled cases were not started for this rejected candidate. A later early return guard reduced the short pilot P95, but its full candidate prefix crossed the analyzer's irreversible slow tick boundary before completion and was not retained as acceptance evidence. The installed four case matrix and phase exit therefore remain open.

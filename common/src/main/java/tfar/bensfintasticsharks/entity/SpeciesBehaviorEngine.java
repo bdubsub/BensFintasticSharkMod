@@ -34,7 +34,7 @@ import static tfar.bensfintasticsharks.init.ModTags.EntityTypes.APEX_PREDATOR;
  */
 public final class SpeciesBehaviorEngine {
 
-    private static final int SCAN_INTERVAL_TICKS = 20;
+    private static final int SCAN_INTERVAL_TICKS = 40;
     private static final int MAX_CANDIDATES = 32;
     private static final int MAX_NEIGHBORS = 8;
     private static final int ESCAPE_DISTANCE = 8;
@@ -95,6 +95,7 @@ public final class SpeciesBehaviorEngine {
             BrainUtils.clearMemory(entity.getBrain(), MemoryModuleType.WALK_TARGET);
             entity.clearBfsBehaviorAction();
         }
+        if (entity.hasBfsBehaviorAction()) return;
         if (entity.getBfsBehaviorScanCooldown() > 0) {
             entity.setBfsBehaviorScanCooldown(entity.getBfsBehaviorScanCooldown() - 1);
             return;
@@ -106,8 +107,10 @@ public final class SpeciesBehaviorEngine {
             clearOwnedRoute(entity);
             return;
         }
+        if (hasAnyWalkTarget(entity)) return;
 
-        LivingEntity threat = findThreat(entity, profile);
+        List<LivingEntity> nearby = nearby(entity, profile.scanRadius());
+        LivingEntity threat = findThreat(entity, profile, nearby);
         if (threat != null && profile.threatResponse() != SpeciesBehaviorProfile.ThreatResponse.NONE
                 && !hasAnyWalkTarget(entity)) {
             Vec3 escape = findEscape(entity, threat, profile.scanRadius());
@@ -121,11 +124,11 @@ public final class SpeciesBehaviorEngine {
                     1.0f, null, 0)) return;
         }
 
-        if (profile.social() && claimSocialRoute(entity, profile)) return;
+        if (profile.social() && claimSocialRoute(entity, profile, nearby)) return;
 
         if (profile.foodMode() != SpeciesBehaviorProfile.FoodMode.PASSIVE
                 && profile.foodMode() != SpeciesBehaviorProfile.FoodMode.PLANKTON) {
-            TargetRoute food = findFood(entity, profile);
+            TargetRoute food = findFood(entity, profile, nearby);
             if (food != null && claimRoute(entity, "feed", profile.actionTimeoutTicks(), food.position(),
                     0.9f, food.target(), profile.memoryTicks())) return;
         }
@@ -140,11 +143,12 @@ public final class SpeciesBehaviorEngine {
         }
     }
 
-    private static boolean claimSocialRoute(SmartWaterAnimal<?> entity, SpeciesBehaviorProfile.Profile profile) {
+    private static boolean claimSocialRoute(SmartWaterAnimal<?> entity, SpeciesBehaviorProfile.Profile profile,
+                                            List<LivingEntity> nearby) {
         if (hasAnyWalkTarget(entity)) return false;
-        List<LivingEntity> neighbors = nearby(entity, profile.scanRadius(),
-                other -> other.getType() == entity.getType() && other != entity && other.isAlive())
-                .stream().limit(MAX_NEIGHBORS).toList();
+        List<LivingEntity> neighbors = nearby.stream()
+                .filter(other -> other.getType() == entity.getType())
+                .limit(MAX_NEIGHBORS).toList();
         if (neighbors.isEmpty()) return false;
         Vec3 center = neighbors.stream().map(Entity::position).reduce(Vec3.ZERO, Vec3::add)
                 .scale(1.0 / neighbors.size());
@@ -158,13 +162,13 @@ public final class SpeciesBehaviorEngine {
     }
 
     @Nullable
-    private static LivingEntity findThreat(SmartWaterAnimal<?> entity, SpeciesBehaviorProfile.Profile profile) {
+    private static LivingEntity findThreat(SmartWaterAnimal<?> entity, SpeciesBehaviorProfile.Profile profile,
+                                           List<LivingEntity> nearby) {
         if (profile.threatResponse() == SpeciesBehaviorProfile.ThreatResponse.NONE) return null;
-        return nearby(entity, profile.scanRadius(), other -> other != entity && other.isAlive()
-                && other.getType().is(APEX_PREDATOR)
+        return nearby.stream().filter(other -> other.getType().is(APEX_PREDATOR)
                 && !(other instanceof Player player && (player.isCreative() || player.isSpectator()))
                 && !visualThreatHidden(entity, other))
-                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+                .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
 
     private static boolean visualThreatHidden(SmartWaterAnimal<?> entity, LivingEntity threat) {
@@ -177,9 +181,11 @@ public final class SpeciesBehaviorEngine {
     }
 
     @Nullable
-    private static TargetRoute findFood(SmartWaterAnimal<?> entity, SpeciesBehaviorProfile.Profile profile) {
-        List<LivingEntity> candidates = nearby(entity, profile.scanRadius(), other ->
-                other != entity && other.isAlive() && isFood(entity, other, profile));
+    private static TargetRoute findFood(SmartWaterAnimal<?> entity, SpeciesBehaviorProfile.Profile profile,
+                                        List<LivingEntity> nearby) {
+        List<LivingEntity> candidates = nearby.stream()
+                .filter(other -> isFood(entity, other, profile))
+                .toList();
         LivingEntity prey = candidates.stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if (prey != null) return new TargetRoute(prey.position(), prey);
         if (profile.foodMode() == SpeciesBehaviorProfile.FoodMode.BENTHIC_INVERTEBRATE
@@ -307,9 +313,9 @@ public final class SpeciesBehaviorEngine {
         return path != null && path.canReach();
     }
 
-    private static List<LivingEntity> nearby(SmartWaterAnimal<?> entity, int radius,
-                                             java.util.function.Predicate<LivingEntity> filter) {
-        return boundedLiving(entity, entity.getBoundingBox().inflate(radius), filter);
+    private static List<LivingEntity> nearby(SmartWaterAnimal<?> entity, int radius) {
+        return boundedLiving(entity, entity.getBoundingBox().inflate(radius),
+                other -> other != entity && other.isAlive());
     }
 
     private static List<LivingEntity> boundedLiving(Entity source, AABB area,
