@@ -111,9 +111,18 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     protected float disengageTimeoutMult() { return globalDisengageTimeoutMult; }
 
     /** Effective detection radius after config scaling. */
-    public float effectiveDetectionRadius() { return params.detectionRadius() * detectionRadiusMult(); }
-    public float effectiveDisengageDistance() { return params.disengageDistance() * disengageDistanceMult(); }
-    public int effectiveDisengageTimeoutTicks() { return (int)(params.disengageTimeoutTicks() * disengageTimeoutMult()); }
+    public float effectiveDetectionRadius() {
+        return (float) SpeciesSettingsService.valueFor(this, SpeciesSettingsService.Field.DETECTION_RADIUS,
+                params.detectionRadius() * detectionRadiusMult());
+    }
+    public float effectiveDisengageDistance() {
+        return (float) SpeciesSettingsService.valueFor(this, SpeciesSettingsService.Field.DISENGAGE_DISTANCE,
+                params.disengageDistance() * disengageDistanceMult());
+    }
+    public int effectiveDisengageTimeoutTicks() {
+        return SpeciesSettingsService.intValue(this, SpeciesSettingsService.Field.ACTION_TIMEOUT,
+                (int) (params.disengageTimeoutTicks() * disengageTimeoutMult()));
+    }
 
     @Override
     protected void defineSynchedData() {

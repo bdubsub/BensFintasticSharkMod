@@ -46,6 +46,9 @@ public final class SpeciesSettingsConfigBridge {
             }
             if (knockback != null && knockback.get() >= 0) {
                 values.put(SpeciesSettingsService.Field.KNOCKBACK_RESISTANCE, knockback.get());
+            } else if ("orca".equals(species)) {
+                values.put(SpeciesSettingsService.Field.KNOCKBACK_RESISTANCE,
+                        config.orcaKnockbackResistance.get());
             }
             if (isShark(species)) {
                 values.put(SpeciesSettingsService.Field.DETECTION_RADIUS,

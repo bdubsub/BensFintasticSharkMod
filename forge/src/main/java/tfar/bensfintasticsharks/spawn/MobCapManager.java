@@ -19,6 +19,7 @@ import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.config.BfsConfig;
+import tfar.bensfintasticsharks.entity.SpeciesSettingsService;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 
 import java.util.ArrayList;
@@ -204,8 +205,13 @@ public class MobCapManager {
         // finalizes. Only on NATURAL/CHUNK_GENERATION to avoid spawner/patrol stacking.
         if (reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) {
             var groupMin = BfsConfig.COMMON.speciesGroupMin.get(speciesPath);
-            if (groupMin != null && groupMin.get() > 1 && !SPAWNING_GROUP_EXTRAS.get()) {
-                spawnGroupExtras(event, groupMin.get());
+            int configuredMin = SpeciesSettingsService.intValue(entity,
+                    SpeciesSettingsService.Field.SPAWN_GROUP_MIN,
+                    groupMin == null ? 1 : groupMin.get());
+            int configuredMax = SpeciesSettingsService.intValue(entity,
+                    SpeciesSettingsService.Field.SPAWN_GROUP_MAX, configuredMin);
+            if (configuredMin > 1 && !SPAWNING_GROUP_EXTRAS.get()) {
+                spawnGroupExtras(event, configuredMin, Math.max(configuredMin, configuredMax));
             }
         }
     }
@@ -482,7 +488,8 @@ public class MobCapManager {
                 || type == EntityType.TURTLE;
     }
 
-    private void spawnGroupExtras(MobSpawnEvent.FinalizeSpawn event, int desiredGroupSize) {
+    private void spawnGroupExtras(MobSpawnEvent.FinalizeSpawn event, int minimumGroupSize,
+                                  int maximumGroupSize) {
         if (!(event.getLevel() instanceof net.minecraft.server.level.ServerLevel sl)) return;
         Mob primary = event.getEntity();
         EntityType<?> type = primary.getType();
@@ -490,6 +497,8 @@ public class MobCapManager {
         int existing = sl.getEntitiesOfClass(primary.getClass(), nearby, e -> e != primary && e.isAlive()).size();
         int cap = getCap(type);
         int available = cap > 0 ? Math.max(0, cap - existing - 1) : Integer.MAX_VALUE;
+        int desiredGroupSize = minimumGroupSize + sl.getRandom().nextInt(
+                Math.max(1, maximumGroupSize - minimumGroupSize + 1));
         int toSpawn = Math.min(available, Math.max(0, desiredGroupSize - 1 - existing));
         if (toSpawn <= 0) return;
         var rnd = sl.getRandom();

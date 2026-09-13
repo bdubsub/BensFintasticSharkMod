@@ -274,8 +274,12 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
             @NotNull net.minecraft.world.entity.MobSpawnType reason,
             @org.jetbrains.annotations.Nullable net.minecraft.world.entity.SpawnGroupData data,
             @org.jetbrains.annotations.Nullable net.minecraft.nbt.CompoundTag tag) {
-        float min = bfsScaleMin();
-        float max = bfsScaleMax();
+        float min = (float) SpeciesSettingsService.valueFor(this,
+                SpeciesSettingsService.Field.SCALE_MIN, bfsScaleMin());
+        float max = (float) SpeciesSettingsService.valueFor(this,
+                SpeciesSettingsService.Field.SCALE_MAX, bfsScaleMax());
+        min = Math.max(0.25F, Math.min(2.0F, min));
+        max = Math.max(min, Math.min(2.0F, max));
         if (max > min) {
             float r = getRandom().nextFloat();
             setBfsScale(min + r * (max - min));

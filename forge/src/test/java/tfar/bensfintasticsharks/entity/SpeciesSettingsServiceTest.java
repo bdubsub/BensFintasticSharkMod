@@ -7,6 +7,8 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.world.phys.Vec3;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,6 +26,11 @@ class SpeciesSettingsServiceTest {
         assertEquals(22, SpeciesSettingsService.speciesIds().size());
         assertEquals(SpeciesSettingsService.Field.values().length,
                 SpeciesSettingsService.snapshot().species().get("great_white_shark").fields().size());
+        assertEquals(22, SpeciesMovementAdapterCatalog.all().size());
+        for (String species : SpeciesSettingsService.speciesIds()) {
+            assertTrue(SpeciesMovementAdapterCatalog.forSpecies(species) != null,
+                    "missing movement adapter for " + species);
+        }
     }
 
     @Test
@@ -42,6 +49,15 @@ class SpeciesSettingsServiceTest {
                 .field(SpeciesSettingsService.Field.HORIZONTAL_SPEED).source());
         assertEquals(6.0D, result.snapshot().species().get("great_white_shark")
                 .field(SpeciesSettingsService.Field.HORIZONTAL_SPEED).value());
+    }
+
+    @Test
+    void independentPoweredVelocityEquationKeepsAxesSeparate() {
+        Vec3 result = SpeciesSettingsService.composeVelocity(new Vec3(3.0D, 4.0D, 0.0D), 6.0D, 2.0D);
+        assertEquals(0.18D, result.x, 1.0e-9);
+        assertEquals(0.08D, result.y, 1.0e-9);
+        assertEquals(0.0D, result.z, 1.0e-9);
+        assertEquals(Vec3.ZERO, SpeciesSettingsService.composeVelocity(Vec3.ZERO, 6.0D, 2.0D));
     }
 
     @Test

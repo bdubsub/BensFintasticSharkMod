@@ -63,6 +63,7 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> impleme
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(HarborSealEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> DATA_BFS_SCALE = SynchedEntityData.defineId(HarborSealEntity.class, EntityDataSerializers.FLOAT);
     private Vec3 bfsPoweredVelocity = Vec3.ZERO;
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -72,19 +73,25 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> impleme
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_VARIANT, 0);
+        this.entityData.define(DATA_BFS_SCALE, 1.0F);
     }
 
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
         RandomSource randomsource = pLevel.getRandom();
         this.setVariant(Variant.getSpawnVariant(randomsource,pLevel.getBiome(blockPosition())));
+        setBfsScale(BfsScaleUtil.roll(this, getRandom(), 1.0F, 1.0F));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
     }
+
+    public float getBfsScale() { return entityData.get(DATA_BFS_SCALE); }
+    public void setBfsScale(float value) { entityData.set(DATA_BFS_SCALE, Math.max(0.25F, Math.min(2.0F, value))); }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         setVariant(Variant.byId(tag.getInt("Variant")));
+        if (tag.contains("BfsScale")) setBfsScale(tag.getFloat("BfsScale"));
     }
 
 
@@ -92,6 +99,12 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> impleme
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("Variant", getVariant().getId());
+        tag.putFloat("BfsScale", getBfsScale());
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        return BfsScaleUtil.scale(super.getDimensions(pose), getBfsScale());
     }
 
     @Override

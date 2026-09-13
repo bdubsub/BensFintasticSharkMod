@@ -265,13 +265,35 @@ public class PitchSwimmingMoveControl extends MoveControl {
         Vec3 displacement = to.subtract(from);
         int samples = (int) Math.ceil(displacement.length() * 2);
         if (samples > 96) return false;
-        AABB bounds = mob.getBoundingBox().move(from.subtract(mob.position())).deflate(0.01);
         for (int i = 0; i <= samples; i++) {
             Vec3 offset = displacement.scale(i / (double) Math.max(1, samples));
-            AABB sample = bounds.move(offset);
-            if (!mob.level().noCollision(mob, sample)
-                    || !mob.level().getFluidState(BlockPos.containing(sample.getCenter())).is(FluidTags.WATER)) {
+            AABB sample = bodyEnvelope(from.add(offset));
+            if (!mob.level().noCollision(mob, sample) || !isFullySubmerged(sample)) {
                 return false;
+            }
+        }
+        return true;
+    }
+
+    /** Conservative scaled body and dorsal fin envelope used by both routing and recovery. */
+    private AABB bodyEnvelope(Vec3 position) {
+        AABB local = mob.getBoundingBox().move(position.subtract(mob.position())).deflate(0.01D);
+        double horizontalMargin = Math.max(0.12D, mob.getBbWidth() * 0.35D);
+        double verticalMargin = Math.max(0.10D, mob.getBbHeight() * 0.30D);
+        return local.inflate(horizontalMargin, verticalMargin, horizontalMargin);
+    }
+
+    private boolean isFullySubmerged(AABB envelope) {
+        double[] xs = {envelope.minX, envelope.getCenter().x, envelope.maxX};
+        double[] ys = {envelope.minY, envelope.getCenter().y, envelope.maxY};
+        double[] zs = {envelope.minZ, envelope.getCenter().z, envelope.maxZ};
+        for (double x : xs) {
+            for (double y : ys) {
+                for (double z : zs) {
+                    if (!mob.level().getFluidState(BlockPos.containing(x, y, z)).is(FluidTags.WATER)) {
+                        return false;
+                    }
+                }
             }
         }
         return true;

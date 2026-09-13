@@ -215,6 +215,10 @@ public final class SpeciesSettingsService {
         return value == null ? fallback : value.value();
     }
 
+    public static int intValue(Entity entity, Field field, int fallback) {
+        return (int) Math.round(valueFor(entity, field, fallback));
+    }
+
     /** Pursuit and escape are the only states that activate sprint multipliers. */
     public static boolean sprintActive(Entity entity) {
         if (!(entity instanceof Mob mob)) return false;
@@ -238,9 +242,17 @@ public final class SpeciesSettingsService {
             horizontal *= valueFor(entity, Field.HORIZONTAL_SPRINT, 1.0D);
             vertical *= valueFor(entity, Field.VERTICAL_SPRINT, 1.0D);
         }
-        return new Vec3(direction.x * horizontal / 20.0D,
-                direction.y * vertical / 20.0D,
-                direction.z * horizontal / 20.0D);
+        return composeVelocity(direction, horizontal, vertical);
+    }
+
+    /** Independent IFC 003 equation, with speeds expressed in blocks per second. */
+    public static Vec3 composeVelocity(Vec3 normalizedIntent, double horizontalBps,
+                                       double verticalBps) {
+        if (normalizedIntent == null || normalizedIntent.lengthSqr() <= 1.0e-10) return Vec3.ZERO;
+        Vec3 direction = normalizedIntent.normalize();
+        return new Vec3(direction.x * horizontalBps / 20.0D,
+                direction.y * verticalBps / 20.0D,
+                direction.z * horizontalBps / 20.0D);
     }
 
     public static MutationResult apply(long expectedRevision, String target,
@@ -484,8 +496,9 @@ public final class SpeciesSettingsService {
             values.put(Field.VERTICAL_SPRINT, 1.5D);
             values.put(Field.SPAWN_GROUP_MIN, profile.social() ? 2.0D : 1.0D);
             values.put(Field.SPAWN_GROUP_MAX, profile.social() ? 4.0D : 1.0D);
-            values.put(Field.SCALE_MIN, 1.0D);
-            values.put(Field.SCALE_MAX, 1.0D);
+            double[] scaleRange = defaultScaleRange(species);
+            values.put(Field.SCALE_MIN, scaleRange[0]);
+            values.put(Field.SCALE_MAX, scaleRange[1]);
             values.put(Field.HEALTH_MULTIPLIER, 1.0D);
             values.put(Field.DAMAGE_MULTIPLIER, 1.0D);
             values.put(Field.KNOCKBACK_RESISTANCE, 0.0D);
@@ -497,6 +510,28 @@ public final class SpeciesSettingsService {
             baseline.put(species, values);
         }
         return baseline;
+    }
+
+    private static double[] defaultScaleRange(String species) {
+        return switch (species) {
+            case "great_white_shark" -> new double[]{0.90D, 1.10D};
+            case "great_hammerhead_shark", "common_thresher_shark", "oceanic_whitetip_shark",
+                    "orca" -> new double[]{0.90D, 1.05D};
+            case "shortfin_mako_shark" -> new double[]{0.75D, 1.25D};
+            case "tiger_shark" -> new double[]{0.85D, 1.00D};
+            case "sandtiger_shark" -> new double[]{0.72D, 1.45D};
+            case "blacktip_reef_shark" -> new double[]{0.90D, 1.05D};
+            case "bottlenose_dolphin" -> new double[]{0.50D, 2.00D};
+            case "green_sea_turtle" -> new double[]{0.85D, 1.15D};
+            case "common_octopus" -> new double[]{0.45D, 0.90D};
+            case "caribbean_reef_octopus" -> new double[]{0.40D, 0.85D};
+            case "nautilus" -> new double[]{0.85D, 1.10D};
+            case "giant_moray_eel" -> new double[]{0.55D, 1.00D};
+            case "american_lobster" -> new double[]{0.50D, 1.00D};
+            case "black_sea_nettle_jellyfish" -> new double[]{0.80D, 1.15D};
+            case "cannonball_jellyfish" -> new double[]{0.40D, 0.65D};
+            default -> new double[]{1.00D, 1.00D};
+        };
     }
 
     private static List<String> createSpeciesList() {
