@@ -120,9 +120,9 @@ public class AmericanLobsterEntity extends BfsAquaticEntity<AmericanLobsterEntit
     @Override
     public void travel(@NotNull Vec3 movementInput) {
         if (this.isEffectiveAi() && this.isInWater()) {
-            this.moveRelative(this.getSpeed() * swimSpeedMultiplier(), movementInput);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.85));
+            Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
+            applyConfiguredWaterTravel(worldIntent, this.getSpeed() * swimSpeedMultiplier() * 20.0D,
+                    this.getSpeed() * swimSpeedMultiplier() * 20.0D, 0.85D);
             Vec3 dm = this.getDeltaMovement();
             double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
             float cap = maxHorizontalSpeed();

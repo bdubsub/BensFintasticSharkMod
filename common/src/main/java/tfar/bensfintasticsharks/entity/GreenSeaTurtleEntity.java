@@ -89,9 +89,9 @@ public class GreenSeaTurtleEntity extends BfsAquaticEntity<GreenSeaTurtleEntity>
             // Slower than the previous tuning — turtles are leisurely swimmers, not torpedoes.
             // moveRelative scaled by 0.35x of base speed; friction at 0.82 so velocity bleeds
             // off naturally instead of accumulating into a runaway sprint.
-            this.moveRelative(this.getSpeed() * 0.35f, movementInput);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.82));
+            Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
+            applyConfiguredWaterTravel(worldIntent, this.getSpeed() * 0.35D * 20.0D,
+                    this.getSpeed() * 0.35D * 20.0D, 0.82D);
             // Hard horizontal cap so stacked impulses can't break the slowdown.
             Vec3 dm = this.getDeltaMovement();
             double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);

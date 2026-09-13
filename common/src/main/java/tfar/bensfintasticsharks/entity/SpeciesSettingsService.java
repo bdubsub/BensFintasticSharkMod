@@ -469,14 +469,14 @@ public final class SpeciesSettingsService {
                 case FISH -> 3.0D;
                 case TURTLE -> 2.0D;
                 case OCTOPUS, BENTHIC -> 1.8D;
-                case JELLYFISH -> 1.0D;
+                case JELLYFISH -> 0.5D;
             };
             double vertical = switch (profile.family()) {
                 case SHARK -> 3.5D;
                 case FISH -> 2.0D;
                 case MAMMAL -> 2.5D;
                 case TURTLE, OCTOPUS, BENTHIC -> 1.5D;
-                case JELLYFISH -> 1.0D;
+                case JELLYFISH -> 0.5D;
             };
             values.put(Field.HORIZONTAL_SPEED, horizontal);
             values.put(Field.VERTICAL_SPEED, vertical);

@@ -68,14 +68,16 @@ public class BlackSeaNettleJellyfishEntity extends BfsAquaticEntity<BlackSeaNett
         double y = pulse + riseBias;
 
         // Horizontal: slow drift.
-        double driftX = this.driftDirection.x * 0.025;
-        double driftZ = this.driftDirection.z * 0.025;
+        Vec3 intent = new Vec3(this.driftDirection.x, y, this.driftDirection.z);
+        Vec3 configured = configuredWaterVelocity(intent, 0.5D, 1.0D);
+        double driftX = configured.x;
+        double driftZ = configured.z;
 
         // Blend toward the drift velocity instead of overwriting it — a hard set
         // swallowed every external impulse the same tick it landed, which is why
         // punches and shoves produced zero knockback. The lerp lets a knockback
         // impulse play out over ~15 ticks before the drift reasserts itself.
-        this.setDeltaMovement(this.getDeltaMovement().lerp(new Vec3(driftX, y, driftZ), 0.15));
+        this.setDeltaMovement(this.getDeltaMovement().lerp(new Vec3(driftX, configured.y, driftZ), 0.15));
         this.move(MoverType.SELF, this.getDeltaMovement());
     }
 

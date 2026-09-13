@@ -167,20 +167,13 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
         if (this.isEffectiveAi() && this.isInWater()) {
             // Apply one bounded powered vector so movement attributes cannot compound into
             // runaway horizontal or vertical speed.
-            Vec3 previous = this.getDeltaMovement();
-            Vec3 external = previous.subtract(bfsPoweredVelocity);
             Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
             double fallbackHorizontal = this.getSpeed() * swimSpeedMultiplier() * 20.0D;
             double fallbackVertical = fallbackHorizontal * verticalSwimSpeedMultiplier();
-            Vec3 powered = SpeciesSettingsService.requestedVelocity(this, worldIntent,
-                    fallbackHorizontal, fallbackVertical);
-            Vec3 velocity = external.add(powered);
-            this.move(MoverType.SELF, velocity);
-            double friction = this.wasTouchingWater ? 0.82D : 0.25D;
-            this.setDeltaMovement(velocity.scale(friction));
-            bfsPoweredVelocity = powered.scale(friction);
-            // Hard cap on horizontal speed so bad pathing or stacked impulses can't break it.
+            applyConfiguredWaterTravel(worldIntent, fallbackHorizontal, fallbackVertical,
+                    this.wasTouchingWater ? 0.82D : 0.25D);
             Vec3 dm = this.getDeltaMovement();
+            // Hard cap on horizontal speed so bad pathing or stacked impulses can't break it.
             double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
             float cap = maxHorizontalSpeed();
             if (horiz > cap) {
@@ -194,6 +187,24 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
             bfsPoweredVelocity = Vec3.ZERO;
             super.travel(movementInput);
         }
+    }
+
+    /** Applies one settings powered vector while preserving impulses from other systems. */
+    protected final void applyConfiguredWaterTravel(Vec3 worldIntent, double fallbackHorizontalBps,
+                                                    double fallbackVerticalBps, double friction) {
+        Vec3 previous = this.getDeltaMovement();
+        Vec3 external = previous.subtract(bfsPoweredVelocity);
+        Vec3 powered = configuredWaterVelocity(worldIntent, fallbackHorizontalBps, fallbackVerticalBps);
+        Vec3 velocity = external.add(powered);
+        this.move(MoverType.SELF, velocity);
+        this.setDeltaMovement(velocity.scale(friction));
+        bfsPoweredVelocity = powered.scale(friction);
+    }
+
+    protected final Vec3 configuredWaterVelocity(Vec3 worldIntent, double fallbackHorizontalBps,
+                                                double fallbackVerticalBps) {
+        return SpeciesSettingsService.requestedVelocity(this, worldIntent,
+                fallbackHorizontalBps, fallbackVerticalBps);
     }
 
     @Override
