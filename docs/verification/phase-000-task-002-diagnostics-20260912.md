@@ -2,7 +2,7 @@
 
 Date: 2026-09-12
 
-Status: complete for `P000-TASK-002`. The phase cursor remains at `P000-TASK-001` because the overall Phase 000 gate is not complete. `P000-TASK-003` is the next unfinished task after this diagnostic work.
+Status: complete for `P000-TASK-002`. The phase cursor remains at `P000-TASK-001` because the overall Phase 000 gate is not complete. `P000-TASK-003` and `P000-TASK-004` are now complete, and `P000-TASK-005` remains the next unfinished task.
 
 ## Source and host
 
@@ -40,4 +40,4 @@ The isolated GameTest runtime used Java 17 and an exact disposable directory wit
 | Off and on gameplay parity | pass | `serverDebugCaptureLeavesPairedPhysicsUnchanged` |
 | p95 capture overhead | pass | the retained report measured 40 enabled samples at p95 `103532` ns, or `0.103532` ms, with zero disabled capture samples. The result is below the absolute `0.25` ms allowance. |
 
-No performance candidate was profiled and no phase transition was attempted. `P000-TASK-003` performance profiling is the next unfinished action.
+The final installed performance matrix is recorded in `phase-000-task-003-profile-20260912.md` and passes both retained P95 gates. No phase transition was attempted. `P000-TASK-005` integration, tracking, default verification and signed tag work remain.
