@@ -79,10 +79,10 @@ public final class BfsDebugCommands {
                         .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
                                 .then(Commands.argument("field", StringArgumentType.word()).suggests(FIELD_SUGGESTIONS)
                                         .then(Commands.argument("value", DoubleArgumentType.doubleArg())
-                                                .executes(context -> settingsSet(context, currentRevision(), false))
+                                                .executes(context -> settingsSet(context, currentRevision()))
                                                 .then(Commands.argument("revision", LongArgumentType.longArg())
                                                         .executes(context -> settingsSet(context,
-                                                                LongArgumentType.getLong(context, "revision"), false)))))))
+                                                                LongArgumentType.getLong(context, "revision"))))))))
                 .then(Commands.literal("reset")
                         .executes(context -> settingsReset(context, "*", Set.of(), currentRevision()))
                         .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
@@ -246,8 +246,7 @@ public final class BfsDebugCommands {
         }
     }
 
-    private static int settingsSet(CommandContext<CommandSourceStack> context, long expectedRevision,
-                                   boolean unused) {
+    private static int settingsSet(CommandContext<CommandSourceStack> context, long expectedRevision) {
         String fieldName = StringArgumentType.getString(context, "field");
         SpeciesSettingsService.Field field = SpeciesSettingsService.Field.parse(fieldName);
         if (field == null) {

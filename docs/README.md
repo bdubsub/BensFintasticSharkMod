@@ -72,6 +72,7 @@
 * [Phase 000 test runbook](test/phase-000-runbook.md)
 * [BFS debug diagnostics](test/debug-diagnostics.md)
 * [Phase 001 task 001 settings evidence](verification/phase-001-task-001-settings-20260913.md)
+* [Phase 001 movement and lifecycle consumer evidence](verification/phase-001-consumers-20260913.md)
 * [Packaged server performance verification](test/packaged-performance.md)
 * [Release candidate installation and rollback](test/release-rollback.md)
 * [Depth route regressions and acceptance boundaries](test/depth-route-regressions.md)

@@ -160,6 +160,10 @@ Movement records also expose `speciesProfile`, `locomotionMode`, `behaviorAction
 `scalarPropulsionSpeed`, `verticalTravelClass`, `verticalSpeedRatio`,
 `verticalReferenceSpeed`, and `verticalSpeedCeiling` when the selected entity has a
 registered species policy.
+They also expose `settingsRevision`, `movementAdapter`, `movementWriter`,
+`movementStateSource`, `configuredHorizontalSpeed`, `configuredVerticalSpeed`,
+`configuredHorizontalSprint`, and `configuredVerticalSprint`. These fields bind the sample to the
+same session snapshot used by the powered movement owner.
 Shark actions use the authoritative shark state. SmartBrain aquatic animals use the
 bounded policy action. These fields are observations, not acceptance thresholds by
 themselves.

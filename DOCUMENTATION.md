@@ -191,7 +191,7 @@ Every `/bfs` command needs op permission (level 2). Species names and disturbanc
 | `/bfs debug setspeed <entity|*> <horizontal> <vertical> [revision]` | Sets independent horizontal and vertical base movement values |
 | `/bfs debug setsprint <entity|*> <horizontal> <vertical> [revision]` | Sets independent horizontal and vertical sprint multipliers |
 | `/bfs debug setspawnsize <entity|*> <minimum> <maximum> [revision]` | Sets natural group admission bounds without changing summon or spawn egg creation |
-| `/bfs debug setscale <entity|*> <minimum> <maximum> [revision]` | Sets the normalized scale envelope used by later lifecycle and clearance consumers |
+| `/bfs debug setscale <entity|*> <minimum> <maximum> [revision]` | Sets the normalized scale envelope used by future natural spawns, dimensions, rendering, and route clearance |
 | `/bfs debug sethealth <entity|*> <multiplier> [revision]` | Sets the session health multiplier |
 | `/bfs debug setdamage <entity|*> <multiplier> [revision]` | Sets the session attack damage multiplier |
 | `/bfs debug setknockback <entity|*> <value> [revision]` | Sets the session knockback resistance value |
@@ -411,6 +411,8 @@ Sharks can't actually leave water. The pathfinding uses the water bound path nav
 Stingrays apply persistent downward gravity (0.04 blocks per tick). They essentially rest on the seafloor unless their AI walks them somewhere specifically.
 
 Sharks use continuous vertical steering and visibly lean into meaningful ascent or descent. Their powered vertical travel is capped at 25% of the accepted same species, same state propulsion speed. Atlantic Cod and Atlantic Salmon use a 20% cap. Each cap applies once to the whole powered movement vector rather than being compounded across controller updates. Fish and sharks use a curved depth approach with a level endpoint. Pitch changes during travel, and the curve's turning demand bounds speed without a separate pitch error brake. A stopped route can finish a water clear, translating level exit while retaining its original arrival, cancellation or blocked reason. It must hold its safe pose when that exit is obstructed. The movement controller retains heading ownership during the exit. Level travel keeps its existing speed and turning behavior. Octopuses also visibly lean into vertical travel. Lobsters remain level as seafloor crawlers. The Nautilus may pitch toward a vertical destination and now has enough controlled acceleration to reach it.
+
+The session tuning service supplies one independent horizontal and vertical speed to every current BFS species. Pursuit and flee states can apply separate sprint multipliers, while cruise leaves them inactive. Natural group bounds, scale ranges, sensing, behavior timing, health, damage, and knockback values use the same revisioned session snapshot. Values are debug controls and clear when the server restarts. The movement capture records the selected adapter and settings revision so a measured route can be matched to its exact tuning state.
 
 All BFS aquatic mobs now drown when beached. They follow the vanilla water animal pattern: when out of water their air supply ticks down by one per tick, and when it hits negative twenty they take two drown damage and reset the counter. This means a beached shark or stingray won't just live forever on the sand. Mammals with their own air systems (the dolphin) override this so they can still surface to breathe.
 
