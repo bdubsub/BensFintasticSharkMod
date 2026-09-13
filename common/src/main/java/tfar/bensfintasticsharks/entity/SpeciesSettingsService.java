@@ -222,6 +222,9 @@ public final class SpeciesSettingsService {
     /** Pursuit and escape are the only states that activate sprint multipliers. */
     public static boolean sprintActive(Entity entity) {
         if (!(entity instanceof Mob mob)) return false;
+        if (MovementIntentOverrides.active(entity)) {
+            return mob.getTarget() != null && mob.getTarget().isAlive();
+        }
         if (mob.getTarget() != null && mob.getTarget().isAlive()) return true;
         return entity instanceof SmartWaterAnimal<?> animal
                 && "escape".equals(animal.getBfsBehaviorAction());

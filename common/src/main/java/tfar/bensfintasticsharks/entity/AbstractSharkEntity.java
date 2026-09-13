@@ -390,6 +390,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     /** Hook for species-specific tick behaviors (item investigation, hovering, etc). */
     protected void onSharkTick() {
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) return;
 
         // Sustained flight from a larger shark (Ben 0.19). While fleeing the shark neither
         // hunts nor chases — it just keeps re-pathing away every half-second until the timer
@@ -865,6 +866,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
      *        raw {@link #getSpeed()} with their own lower friction.
      */
     protected void swimInWater(Vec3 movementInput, double waterFriction, double idleSink, boolean useSwimMultiplier) {
+        movementInput = MovementIntentOverrides.resolve(this, movementInput);
         LivingEntity tgt = this.getTarget();
         // While a victim is grabbed (grabber species) the prey is already caught — don't brake
         // or burst, just cruise so the grab/thrash keeps the exact feel it had before 0.19.
@@ -940,7 +942,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
 
     @Override
     public void travel(@NotNull Vec3 movementInput) {
-        if (this.isEffectiveAi() && this.isInWater()) {
+        if (MovementIntentOverrides.active(this) || (this.isEffectiveAi() && this.isInWater())) {
             // Braking, chase burst, cap, chase floor and backslide damping all live in the
             // shared helper so this path and the four bespoke species overrides can't drift
             // apart. Braking (inside bite range) zeroes input and applies heavy friction so

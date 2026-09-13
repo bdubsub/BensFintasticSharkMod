@@ -49,6 +49,13 @@ public class CannonballJellyfishEntity extends BfsAquaticEntity<CannonballJellyf
             super.travel(travelVector);
             return;
         }
+        if (MovementIntentOverrides.active(this)) {
+            Vec3 configured = configuredWaterVelocity(MovementIntentOverrides.resolve(this, travelVector), 0.5D, 1.0D);
+            setBfsPoweredVelocityForDiagnostics(configured);
+            setDeltaMovement(configured);
+            move(MoverType.SELF, configured);
+            return;
+        }
         if (this.tickCount % 600 == 0 && !level().isClientSide) {
             this.driftDirection = randomDriftDirection();
         }
@@ -63,7 +70,8 @@ public class CannonballJellyfishEntity extends BfsAquaticEntity<CannonballJellyf
         }
         double y = pulse + riseBias;
 
-        Vec3 intent = new Vec3(this.driftDirection.x, y, this.driftDirection.z);
+        Vec3 intent = MovementIntentOverrides.resolve(this,
+                new Vec3(this.driftDirection.x, y, this.driftDirection.z));
         Vec3 configured = configuredWaterVelocity(intent, 0.5D, 1.0D);
         setBfsPoweredVelocityForDiagnostics(configured);
         double driftX = configured.x;

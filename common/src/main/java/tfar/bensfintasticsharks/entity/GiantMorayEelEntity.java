@@ -99,6 +99,7 @@ public class GiantMorayEelEntity extends BfsAquaticEntity<GiantMorayEelEntity> i
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) return;
         // Eels anchor in place between lunges — long hide intervals interrupted by player proximity.
         if (hideTicks > 0) {
             hideTicks--;

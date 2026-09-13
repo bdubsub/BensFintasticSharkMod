@@ -24,6 +24,10 @@ public abstract class SmartWaterAnimal<T extends SmartWaterAnimal<T>> extends Wa
         bfsBehaviorProfile = SpeciesBehaviorProfile.forEntity(this);
     }
 
+    /** Clears transient powered movement state for bounded server side movement fixtures. */
+    public void resetFixtureMovementState() {
+    }
+
     @Override
     public void tick() {
         super.tick();

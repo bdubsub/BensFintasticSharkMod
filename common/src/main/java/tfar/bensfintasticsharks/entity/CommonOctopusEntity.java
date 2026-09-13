@@ -155,6 +155,7 @@ public class CommonOctopusEntity extends BfsAquaticEntity<CommonOctopusEntity>
     @Override
     public void tick() {
         super.tick();
+        if (MovementIntentOverrides.active(this)) return;
         updateBodyPitch();
         OctopusCamouflage.tick(this);
         if (level().isClientSide) return;

@@ -281,7 +281,7 @@ public class GreatWhiteSharkEntity extends AbstractSharkEntity<GreatWhiteSharkEn
         if (this.tickCount % 10 == 0)
             this.refreshDimensions();
 
-        if (isEffectiveAi() && this.isInWater()) {
+        if (MovementIntentOverrides.active(this) || (isEffectiveAi() && this.isInWater())) {
             // 0.19 — route through the shared swim step so the Great White gets the chase
             // acceleration burst (Ben: "doesn't increase speed when chasing"), the in-range
             // brake, and backslide damping. This override previously only re-applied the flat

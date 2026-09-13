@@ -95,7 +95,7 @@ public class AtlanticCodEntity extends Cod {
 
     @Override
     public void travel(Vec3 movementInput) {
-        if (isEffectiveAi() && isInWater()) {
+        if (MovementIntentOverrides.active(this) || (isEffectiveAi() && isInWater())) {
             BfsFishMoveControl.travel(this, movementInput);
         } else {
             super.travel(movementInput);

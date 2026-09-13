@@ -72,6 +72,12 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity>
         return bfsPoweredVelocity;
     }
 
+    @Override
+    public void resetFixtureMovementState() {
+        super.resetFixtureMovementState();
+        bfsPoweredVelocity = Vec3.ZERO;
+    }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 25).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 2);
     }
@@ -115,7 +121,9 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity>
 
     @Override
     public void travel(Vec3 $$0) {
-        if (this.isControlledByLocalInstance() && this.isInWater()) {
+        $$0 = MovementIntentOverrides.resolve(this, $$0);
+        if (MovementIntentOverrides.active(this)
+                || (this.isControlledByLocalInstance() && this.isInWater())) {
             Vec3 previous = this.getDeltaMovement();
             Vec3 external = previous.subtract(bfsPoweredVelocity);
             Vec3 worldIntent = $$0.yRot((float) Math.toRadians(-this.getYRot()));

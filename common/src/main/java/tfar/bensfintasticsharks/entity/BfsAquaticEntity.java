@@ -75,6 +75,7 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) return;
         if (!fleesFromApex()) return;
         if (fleeCheckCooldown-- > 0) return;
         fleeCheckCooldown = 20;
@@ -174,7 +175,8 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
 
     @Override
     public void travel(@NotNull Vec3 movementInput) {
-        if (this.isEffectiveAi() && this.isInWater()) {
+        movementInput = MovementIntentOverrides.resolve(this, movementInput);
+        if (MovementIntentOverrides.active(this) || (this.isEffectiveAi() && this.isInWater())) {
             // Apply one bounded powered vector so movement attributes cannot compound into
             // runaway horizontal or vertical speed.
             Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
@@ -186,11 +188,12 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
             // Hard cap on horizontal speed so bad pathing or stacked impulses can't break it.
             double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
             float cap = maxHorizontalSpeed();
-            if (horiz > cap) {
+            if (horiz > cap && !MovementIntentOverrides.active(this)) {
                 double s = cap / horiz;
                 this.setDeltaMovement(dm.x * s, dm.y, dm.z * s);
             }
-            if (this.getTarget() == null && !usesPitchDrivenVerticalMovement()) {
+            if (this.getTarget() == null && !usesPitchDrivenVerticalMovement()
+                    && !MovementIntentOverrides.active(this)) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.002, 0.0));
             }
         } else {
@@ -215,6 +218,11 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
                                                 double fallbackVerticalBps) {
         return SpeciesSettingsService.requestedVelocity(this, worldIntent,
                 fallbackHorizontalBps, fallbackVerticalBps);
+    }
+
+    /** Clears the last owned travel vector for the server side movement fixture. */
+    public void resetFixtureMovementState() {
+        bfsPoweredVelocity = Vec3.ZERO;
     }
 
     @Override

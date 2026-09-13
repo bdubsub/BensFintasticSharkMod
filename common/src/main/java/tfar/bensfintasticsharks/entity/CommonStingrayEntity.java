@@ -89,6 +89,12 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
         return bfsPoweredVelocity;
     }
 
+    @Override
+    public void resetFixtureMovementState() {
+        super.resetFixtureMovementState();
+        bfsPoweredVelocity = Vec3.ZERO;
+    }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 2);
     }
@@ -162,7 +168,8 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
      */
     @Override
     public void travel(@org.jetbrains.annotations.NotNull net.minecraft.world.phys.Vec3 movementInput) {
-        if (this.isEffectiveAi() && this.isInWater()) {
+        movementInput = MovementIntentOverrides.resolve(this, movementInput);
+        if (MovementIntentOverrides.active(this) || (this.isEffectiveAi() && this.isInWater())) {
             Vec3 previous = this.getDeltaMovement();
             Vec3 external = previous.subtract(bfsPoweredVelocity);
             Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
@@ -174,7 +181,9 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
             this.setDeltaMovement(velocity.scale(0.6D));
             bfsPoweredVelocity = powered.scale(0.6D);
             // Persistent sink toward the seafloor.
-            this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
+            if (!MovementIntentOverrides.active(this)) {
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
+            }
         } else {
             bfsPoweredVelocity = Vec3.ZERO;
             super.travel(movementInput);

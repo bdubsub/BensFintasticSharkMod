@@ -45,6 +45,7 @@ public class OrcaEntity extends BfsAquaticEntity<OrcaEntity> {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) return;
         if (!(level() instanceof ServerLevel sl)) return;
         if (breachTicks > 0) breachTicks--;
         if (airTicks > 0) { airTicks--; return; }

@@ -141,6 +141,7 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
 
     @Override
     protected void onSharkTick() {
+        if (MovementIntentOverrides.active(this)) return;
         if (postGrabCooldown > 0) {
             postGrabCooldown--;
             setTarget(null);

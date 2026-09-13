@@ -2,8 +2,10 @@
 
 Date: 2026-09-13
 
-Status: local implementation and headless verification complete on the phase branch. This record
-does not claim the silent laptop client, pull request, merge, default branch, or phase tag gates.
+Status: local implementation and current headless verification complete on the phase branch. This
+record does not claim the silent laptop client, pull request, merge, default branch, or phase tag
+gates. The current movement oracle result is recorded in
+`phase-001-movement-oracle-20260913.md`.
 
 ## Implemented consumers
 
@@ -59,12 +61,13 @@ Ran 18 tests in 0.001s
 OK
 ```
 
-The required headless GameTest run passed all 89 required tests on the phase branch.
+The required headless GameTest run passed all 91 required tests on the phase branch, including the
+24,000 tick population soak and the real fishing round trip.
 
 ```text
-./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-bfs2-p001-gametest-r53
-All 89 required tests passed :)
-BUILD SUCCESSFUL in 4m 7s
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-bfs2-p001-pop-r147
+All 91 required tests passed :)
+BUILD SUCCESSFUL in 5m
 ```
 
 That run covered the movement diagnostics, algae navigation, pitch settling and progress,
@@ -74,17 +77,16 @@ inventory fixture, and the existing baseline fixtures.
 The disposable GameTest runtime and logs were removed after review. No graphical client was
 launched.
 
-After adding the shared powered velocity diagnostic source, a focused server GameTest run passed
-all 22 required tests. It included the five existing depth movement captures and the all species
-movement adapter inventory fixture, plus the other debug and fishing fixtures that share the same
-diagnostic writer. The long population soak and unrelated world-generation batches were excluded
-from this focused run because the full 24,000 tick soak is a separate phase gate and the algae
-navigation fixture is independently flaky on this host.
+After adding the shared powered velocity diagnostic source, the focused server GameTest run passed
+the movement oracle and writer coverage fixtures for all 22 species. The oracle includes the
+required anisotropic cruise and pursuit or flee pairs, settling interval, measured interval, and
+external impulse assertion. The complete run above then exercised the same source with the full
+population and fishing gates.
 
 ```text
-./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-bfs2-p001-gametest-r57
-All 22 required tests passed :)
-BUILD SUCCESSFUL in 54s
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-bfs2-p001-movement-oracle
+All 2 required tests passed :)
+BUILD SUCCESSFUL
 ```
 
 The focused disposable runtime and logs were removed after review.
@@ -110,8 +112,6 @@ phase tag.
 
 ## Gates still open
 
-The independent movement oracle still needs matched 200 tick captures for every registry entry,
-including pursuit and flee state transitions and external impulse assertions. The silent laptop
-visual gate for the scaled pitched body remains open. Complete diagnostics parser evidence, the
-private independent review, pull request checks, merge, default branch verification, and signed
-phase tag remain open.
+The independent movement oracle and complete headless GameTest gate now pass. The silent laptop
+visual gate for the scaled pitched body remains open. The private independent review, pull request
+checks, merge, default branch verification, and signed phase tag also remain open.

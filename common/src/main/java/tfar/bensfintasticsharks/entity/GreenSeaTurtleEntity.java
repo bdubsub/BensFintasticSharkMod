@@ -85,6 +85,7 @@ public class GreenSeaTurtleEntity extends BfsAquaticEntity<GreenSeaTurtleEntity>
 
     @Override
     public void travel(@NotNull Vec3 movementInput) {
+        movementInput = MovementIntentOverrides.resolve(this, movementInput);
         if (this.isControlledByLocalInstance() && this.isInWater()) {
             // Slower than the previous tuning — turtles are leisurely swimmers, not torpedoes.
             // moveRelative scaled by 0.35x of base speed; friction at 0.82 so velocity bleeds
@@ -96,7 +97,7 @@ public class GreenSeaTurtleEntity extends BfsAquaticEntity<GreenSeaTurtleEntity>
             Vec3 dm = this.getDeltaMovement();
             double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
             double cap = 0.18;
-            if (horiz > cap) {
+            if (horiz > cap && !MovementIntentOverrides.active(this)) {
                 double scl = cap / horiz;
                 this.setDeltaMovement(dm.x * scl, dm.y, dm.z * scl);
             }
@@ -176,6 +177,7 @@ public class GreenSeaTurtleEntity extends BfsAquaticEntity<GreenSeaTurtleEntity>
     public void aiStep() {
         super.aiStep();
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) return;
         if (basksTicks > 0) {
             basksTicks--;
             setDeltaMovement(getDeltaMovement().scale(0.5));
