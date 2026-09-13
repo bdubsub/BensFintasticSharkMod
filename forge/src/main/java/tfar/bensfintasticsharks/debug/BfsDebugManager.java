@@ -53,6 +53,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -246,54 +247,59 @@ public final class BfsDebugManager {
         if (active == null) {
             return;
         }
-        long now = System.currentTimeMillis();
-        MinecraftServer server = event.getServer();
-        ServerLevel level = server.getLevel(active.dimension);
-        if (level == null) {
-            active.markIncomplete("source dimension is unavailable");
-            stop("source_dimension_unavailable");
-            return;
-        }
-        long tick = level.getGameTime();
-        active.lastTick = tick;
-        for (FishingCatchTrace trace : active.pendingFishing.values()) {
-            recordFishing(active.id, tick, trace.settlement());
-        }
-        active.pendingFishing.clear();
-        if (tick >= active.endTick) {
+        long traceStarted = System.nanoTime();
+        try {
+            long now = System.currentTimeMillis();
+            MinecraftServer server = event.getServer();
+            ServerLevel level = server.getLevel(active.dimension);
+            if (level == null) {
+                active.markIncomplete("source dimension is unavailable");
+                stop("source_dimension_unavailable");
+                return;
+            }
+            long tick = level.getGameTime();
+            active.lastTick = tick;
+            for (FishingCatchTrace trace : active.pendingFishing.values()) {
+                recordFishing(active.id, tick, trace.settlement());
+            }
+            active.pendingFishing.clear();
+            if (tick >= active.endTick) {
+                if (active.category.capturesPopulation()
+                        && tick > active.startTick
+                        && (tick - active.startTick) % POPULATION_SAMPLE_INTERVAL_TICKS == 0) {
+                    enqueue(active, populationRecord(active, level, tick));
+                }
+                stop("duration_elapsed");
+                return;
+            }
+            if (now >= active.wallDeadlineMillis) {
+                active.markIncomplete("wall deadline elapsed before the requested tick duration");
+                stop("wall_deadline_elapsed");
+                return;
+            }
             if (active.category.capturesPopulation()
                     && tick > active.startTick
                     && (tick - active.startTick) % POPULATION_SAMPLE_INTERVAL_TICKS == 0) {
                 enqueue(active, populationRecord(active, level, tick));
             }
-            stop("duration_elapsed");
-            return;
-        }
-        if (now >= active.wallDeadlineMillis) {
-            active.markIncomplete("wall deadline elapsed before the requested tick duration");
-            stop("wall_deadline_elapsed");
-            return;
-        }
-        if (active.category.capturesPopulation()
-                && tick > active.startTick
-                && (tick - active.startTick) % POPULATION_SAMPLE_INTERVAL_TICKS == 0) {
-            enqueue(active, populationRecord(active, level, tick));
-        }
-        if (!active.category.capturesMovement()) {
-            return;
-        }
-        for (UUID targetId : active.trackedTargets()) {
-            Entity target = level.getEntity(targetId);
-            if (target == null) {
-                releaseTarget(active, level, targetId, "entity_unavailable_in_source_dimension");
-                continue;
+            if (!active.category.capturesMovement()) {
+                return;
             }
-            if (active.category.capturesMovement()) {
-                enqueue(active, movementRecord(active, level, target, tick));
+            for (UUID targetId : active.trackedTargets()) {
+                Entity target = level.getEntity(targetId);
+                if (target == null) {
+                    releaseTarget(active, level, targetId, "entity_unavailable_in_source_dimension");
+                    continue;
+                }
+                if (active.category.capturesMovement()) {
+                    enqueue(active, movementRecord(active, level, target, tick));
+                }
+                if (active.category.capturesBrain()) {
+                    enqueue(active, brainRecord(active, level, target, tick));
+                }
             }
-            if (active.category.capturesBrain()) {
-                enqueue(active, brainRecord(active, level, target, tick));
-            }
+        } finally {
+            active.recordTraceNanos(System.nanoTime() - traceStarted);
         }
     }
 
@@ -760,6 +766,9 @@ public final class BfsDebugManager {
         record.addProperty("incompleteReason", active.incompleteReason);
         record.addProperty("missingTargets", active.missingTargets.size());
         record.addProperty("remainingTargets", active.targetCount());
+        record.addProperty("captureTickSamples", active.traceSampleCount());
+        record.addProperty("captureTickP95Nanos", active.traceP95Nanos());
+        record.addProperty("captureTickP95Millis", active.traceP95Nanos() / 1_000_000.0D);
         return record;
     }
 
@@ -1067,6 +1076,8 @@ public final class BfsDebugManager {
         private final AtomicLong accepted = new AtomicLong();
         private final AtomicLong dropped = new AtomicLong();
         private final AtomicLong sequence = new AtomicLong();
+        private final long[] traceNanos = new long[MAX_DURATION_TICKS];
+        private volatile int traceSamples;
         private final Set<UUID> missingTargets = new LinkedHashSet<>();
         private final Map<UUID, Vec3> previousPositions = new HashMap<>();
         private final Map<UUID, Long> previousSampleNanos = new HashMap<>();
@@ -1153,6 +1164,21 @@ public final class BfsDebugManager {
             return incomplete.get();
         }
 
+        public int traceSampleCount() {
+            return traceSamples;
+        }
+
+        public long traceP95Nanos() {
+            int count = traceSamples;
+            if (count == 0) {
+                return 0L;
+            }
+            long[] sorted = Arrays.copyOf(traceNanos, count);
+            Arrays.sort(sorted);
+            int index = Math.max(0, (count * 95 + 99) / 100 - 1);
+            return sorted[index];
+        }
+
         public String incompleteReason() {
             return incompleteReason;
         }
@@ -1166,6 +1192,14 @@ public final class BfsDebugManager {
             incomplete.set(true);
             if ("none".equals(incompleteReason)) {
                 incompleteReason = reason;
+            }
+        }
+
+        private void recordTraceNanos(long elapsedNanos) {
+            int index = traceSamples;
+            if (index < traceNanos.length) {
+                traceNanos[index] = elapsedNanos;
+                traceSamples = index + 1;
             }
         }
 

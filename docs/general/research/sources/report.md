@@ -1,0 +1,3 @@
+# Report and Examples
+
+Ben reports upward pursuit surface stalls, missing Zippy lightning, large red algae inside underwater caves, cross textured small algae rather than supported face placement, one tall natural large algae, and inability to stack it. Speed complaints concern slow or excessive vertical pursuit and the player outswimming sharks. The owner routes subjective speed balancing through debug controls while retaining mechanical safety repairs. Fishing, Prismarine armor and existing advancement icons were praised and remain regression constraints. Referenced screenshots and videos were not supplied. Quoted command examples are examples, not command execution or final tuning defaults.

@@ -12,6 +12,7 @@ import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class SmartWaterAnimal<T extends SmartWaterAnimal<T>> extends WaterAnimal implements SmartBrainOwner<T> {
+    private final SpeciesBehaviorProfile.Profile bfsBehaviorProfile;
     private int bfsBehaviorScanCooldown;
     private int bfsBehaviorActionTicks;
     private String bfsBehaviorAction = "none";
@@ -20,12 +21,39 @@ public abstract class SmartWaterAnimal<T extends SmartWaterAnimal<T>> extends Wa
 
     protected SmartWaterAnimal(EntityType<T> $$0, Level $$1) {
         super($$0, $$1);
+        bfsBehaviorProfile = SpeciesBehaviorProfile.forEntity(this);
     }
 
     @Override
     public void tick() {
         super.tick();
-        SpeciesBehaviorEngine.tick(this);
+        if (bfsBehaviorProfile != null && bfsBehaviorProfile.family() != SpeciesBehaviorProfile.Family.SHARK) {
+            if (prepareBfsBehaviorTick()) {
+                SpeciesBehaviorEngine.tick(this);
+            }
+        }
+    }
+
+    SpeciesBehaviorProfile.Profile getBfsBehaviorProfile() {
+        return bfsBehaviorProfile;
+    }
+
+    boolean prepareBfsBehaviorTick() {
+        tickBfsBehaviorAction();
+        tickBfsBehaviorMemory();
+        if (hasBfsBehaviorAction()
+                && (hasLostBfsBehaviorTarget() || hasExpiredBfsBehaviorMemory())) return true;
+        if (hasExpiredBfsBehaviorAction()) return true;
+        if (!hasBfsBehaviorTarget() && bfsBehaviorScanCooldown > 0) {
+            bfsBehaviorScanCooldown--;
+            return false;
+        }
+        if (bfsBehaviorProfile == null) return false;
+        if (bfsBehaviorScanCooldown > 0) {
+            bfsBehaviorScanCooldown--;
+            return false;
+        }
+        return true;
     }
 
     int getBfsBehaviorScanCooldown() {

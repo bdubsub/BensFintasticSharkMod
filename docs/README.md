@@ -1,10 +1,17 @@
 # Documentation
 
 * [Project overview and setup](../README.md)
+* [Debug and content plan validation](verification/bfs2-plan-validation.md)
+* [Phase 000 task 001 intake](verification/phase-000-task-001-intake-20260912.md)
+* [Phase 000 task 002 diagnostic verification](verification/phase-000-task-002-diagnostics-20260912.md)
+* [Execution goal](plan/goal.md)
+* [Active phase cursor](plan/active_phase.md)
+* [Execution goal validation](verification/bfs2-goal-validation.md)
 * [Gameplay and technical reference](../DOCUMENTATION.md)
 * [Release changelog](../CHANGELOG.md)
 * [Release Candidate 1.0 Windows startup correction](verification/rc1-windows-startup.md)
-* [Active development plan](general/plan.md)
+* [Release Candidate 1.0 performance rejection and evidence](verification/rc1-performance-20260911.md)
+* [Current release artifact checksums and source binding](verification/artifacts/README.md)
 * [0.24 asset ledger](verification/asset-ledger.md)
 * [Phase 000 evidence](verification/phase-000-evidence.md)
 * [Phase 000 evidence follow up](verification/phase-000-evidence-follow-up-20260906.md)
@@ -64,9 +71,9 @@
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
 * [Phase 000 test runbook](test/phase-000-runbook.md)
 * [BFS debug diagnostics](test/debug-diagnostics.md)
+* [Packaged server performance verification](test/packaged-performance.md)
 * [Release candidate installation and rollback](test/release-rollback.md)
 * [Depth route regressions and acceptance boundaries](test/depth-route-regressions.md)
 * [Phase 001 fishing transaction regressions](test/phase-001-fishing-transactions.md)
-* [BFS:AO The Trench Minecraft 26.2 ModJam plan](modjam/26.2-port-plan.md)
 
-Tracked documentation describes released or currently implemented behavior. The active plan records work that is still awaiting verification or integration.
+Gameplay and technical documentation describe released or currently implemented behavior. The [debug and content implementation plan](general/plan.md) defines the next pass across eight phases. Its [phase manifest](general/plan.index.json) registers the execution blueprints, and its [research package](general/research/brief.md) records the supporting evidence and resolved product decisions. Planned behavior is not yet implemented. Historical evidence remains available, and unresolved performance work is recorded in [issue 28](https://github.com/bdubsub/BensFintasticSharkMod/issues/28) and [pull request 29](https://github.com/bdubsub/BensFintasticSharkMod/pull/29). The previous planning reset did not mark that work complete.

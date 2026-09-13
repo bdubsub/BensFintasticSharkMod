@@ -1,0 +1,228 @@
+{
+  "name": "baseline-normal",
+  "ticks": 36000,
+  "warmup_ticks": 2400,
+  "scale": 1,
+  "seed": 240024,
+  "jar_sha256": "c0c1f50ade56a35ccc7590d8196605467634ae86483987163f2a08f613939ff4",
+  "warmup_census_rows": 13,
+  "measurement_census_rows": 181,
+  "geckolib_sha256": "6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0",
+  "smartbrainlib_sha256": "3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b",
+  "probe_agent_sha256": "a181c2b235fad5a1ec231664335f903f76645e45f22131620ee3ecb06b9bd6ab",
+  "probe_data_sha256": "ff2bf7e3f97d742c4411976af827bee132a4d284cf46f28088ca2d5a03cb6685",
+  "tick_ms": {
+    "median": 3.387195,
+    "p95": 6.94477,
+    "p99": 15.459513,
+    "maximum": 33.71429
+  },
+  "heap_bytes": {
+    "minimum": 245048320,
+    "maximum": 1461396480,
+    "final": 628827136,
+    "five_minute_window_minima": [
+      259728384,
+      252912640,
+      261301248,
+      257631232,
+      245048320,
+      252388352
+    ]
+  },
+  "per_species_counts": {
+    "AmericanLobsterEntity": {
+      "minimum": 9,
+      "maximum": 10,
+      "mean": 9.955801104972375,
+      "final": 10
+    },
+    "AtlanticCodEntity": {
+      "minimum": 7,
+      "maximum": 8,
+      "mean": 7.9502762430939224,
+      "final": 7
+    },
+    "AtlanticSalmonEntity": {
+      "minimum": 7,
+      "maximum": 8,
+      "mean": 7.9779005524861875,
+      "final": 8
+    },
+    "BlackSeaNettleJellyfishEntity": {
+      "minimum": 1,
+      "maximum": 1,
+      "mean": 1,
+      "final": 1
+    },
+    "BlacktipReefSharkEntity": {
+      "minimum": 2,
+      "maximum": 3,
+      "mean": 2.994475138121547,
+      "final": 3
+    },
+    "BottlenoseDolphinEntity": {
+      "minimum": 3,
+      "maximum": 4,
+      "mean": 3.983425414364641,
+      "final": 4
+    },
+    "CannonballJellyfishEntity": {
+      "minimum": 2,
+      "maximum": 2,
+      "mean": 2,
+      "final": 2
+    },
+    "CaribbeanReefOctopusEntity": {
+      "minimum": 1,
+      "maximum": 2,
+      "mean": 1.988950276243094,
+      "final": 2
+    },
+    "CommonOctopusEntity": {
+      "minimum": 3,
+      "maximum": 3,
+      "mean": 3,
+      "final": 3
+    },
+    "CommonStingrayEntity": {
+      "minimum": 2,
+      "maximum": 3,
+      "mean": 2.994475138121547,
+      "final": 3
+    },
+    "CommonThresherSharkEntity": {
+      "minimum": 1,
+      "maximum": 1,
+      "mean": 1,
+      "final": 1
+    },
+    "GiantMorayEelEntity": {
+      "minimum": 4,
+      "maximum": 4,
+      "mean": 4,
+      "final": 4
+    },
+    "GreatHammerheadSharkEntity": {
+      "minimum": 1,
+      "maximum": 1,
+      "mean": 1,
+      "final": 1
+    },
+    "GreatWhiteSharkEntity": {
+      "minimum": 1,
+      "maximum": 1,
+      "mean": 1,
+      "final": 1
+    },
+    "GreenSeaTurtleEntity": {
+      "minimum": 3,
+      "maximum": 3,
+      "mean": 3,
+      "final": 3
+    },
+    "HarborSealEntity": {
+      "minimum": 2,
+      "maximum": 3,
+      "mean": 2.994475138121547,
+      "final": 3
+    },
+    "NautilusEntity": {
+      "minimum": 1,
+      "maximum": 1,
+      "mean": 1,
+      "final": 1
+    },
+    "OceanicWhitetipSharkEntity": {
+      "minimum": 1,
+      "maximum": 1,
+      "mean": 1,
+      "final": 1
+    },
+    "OrcaEntity": {
+      "minimum": 1,
+      "maximum": 1,
+      "mean": 1,
+      "final": 1
+    },
+    "SandtigerSharkEntity": {
+      "minimum": 1,
+      "maximum": 1,
+      "mean": 1,
+      "final": 1
+    },
+    "ShortfinMakoSharkEntity": {
+      "minimum": 1,
+      "maximum": 1,
+      "mean": 1,
+      "final": 1
+    },
+    "TigerSharkEntity": {
+      "minimum": 1,
+      "maximum": 1,
+      "mean": 1,
+      "final": 1
+    }
+  },
+  "minimum_air": {
+    "AmericanLobsterEntity": 300,
+    "AtlanticCodEntity": 300,
+    "AtlanticSalmonEntity": 300,
+    "BlackSeaNettleJellyfishEntity": 300,
+    "BlacktipReefSharkEntity": 300,
+    "BottlenoseDolphinEntity": 700,
+    "CannonballJellyfishEntity": 300,
+    "CaribbeanReefOctopusEntity": 300,
+    "CommonOctopusEntity": 300,
+    "CommonStingrayEntity": 300,
+    "CommonThresherSharkEntity": 300,
+    "GiantMorayEelEntity": 300,
+    "GreatHammerheadSharkEntity": 300,
+    "GreatWhiteSharkEntity": 300,
+    "GreenSeaTurtleEntity": 300,
+    "HarborSealEntity": 300,
+    "NautilusEntity": 300,
+    "OceanicWhitetipSharkEntity": 300,
+    "OrcaEntity": 691,
+    "SandtigerSharkEntity": 300,
+    "ShortfinMakoSharkEntity": 300,
+    "TigerSharkEntity": 300
+  },
+  "counters": {
+    "death_AmericanLobsterEntityForge_mob_by_BlacktipReefSharkEntity": 4,
+    "death_AmericanLobsterEntityForge_mob_by_CommonStingrayEntity": 3,
+    "death_AmericanLobsterEntityForge_mob_by_SandtigerSharkEntity": 1,
+    "death_AtlanticCodEntityForge_mob_by_BlacktipReefSharkEntity": 2,
+    "death_AtlanticCodEntityForge_mob_by_CommonThresherSharkEntity": 3,
+    "death_AtlanticCodEntityForge_mob_by_GreatHammerheadSharkEntity": 2,
+    "death_AtlanticCodEntityForge_mob_by_SandtigerSharkEntity": 1,
+    "death_AtlanticCodEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+    "death_AtlanticSalmonEntityForge_mob_by_GreatWhiteSharkEntity": 1,
+    "death_AtlanticSalmonEntityForge_mob_by_ShortfinMakoSharkEntity": 2,
+    "death_AtlanticSalmonEntityForge_mob_by_TigerSharkEntity": 1,
+    "death_BlacktipReefSharkEntityForge_mob_by_GreatWhiteSharkEntity": 1,
+    "death_BottlenoseDolphinEntityForge_mob_by_OceanicWhitetipSharkEntity": 3,
+    "death_CaribbeanReefOctopusEntityForge_mob_by_BlacktipReefSharkEntity": 1,
+    "death_CaribbeanReefOctopusEntityForge_mob_by_SandtigerSharkEntity": 1,
+    "death_CommonStingrayEntityForge_mob_by_GreatHammerheadSharkEntity": 1,
+    "death_HarborSealEntityForge_mob_by_TigerSharkEntity": 1,
+    "living_deaths": 29,
+    "navigation_calls": 49716,
+    "sensor_calls": 82190
+  },
+  "population": {
+    "target": 63,
+    "minimum": 60,
+    "maximum": 63,
+    "mean": 62.83977900552486
+  },
+  "maximum_brain_memories": 11,
+  "moving_entity_samples": 10682,
+  "maximum_observer_position_entries": 63,
+  "raw_sha256": {
+    "ticks": "25d6d2abd6f674fb3f20075a3b65b00eea3ca4467858fda2e742f2d926441f06",
+    "census": "2ba766b2ac7e853f9d4169b7313edb55af3cd83d932058735e6e6540bde8467f",
+    "completion": "87c2e1c748db8db83b2f74f8c34847ee469b7ac3245a1d0798842880cc22cb88",
+    "console": "f752b92de8ab9c09ad3ff0a3e62ad0d90ea4d572ed0b5c52feb5810aa39f0bfb"
+  }
+}

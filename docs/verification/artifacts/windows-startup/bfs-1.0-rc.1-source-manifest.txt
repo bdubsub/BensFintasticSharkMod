@@ -1,0 +1,30 @@
+Release: Ben's Fintastic Sharks, Minecraft Forge 1.20.1, version 1.0-rc.1.
+Display designation: Release Candidate 1.0.
+Artifact: bfs-1.0-rc.1.jar.
+Artifact size: 2013918 bytes.
+Archive entries: 939.
+Uncompressed archive size: 5799069 bytes.
+Artifact SHA256: ac509f173563582485bb041f08cf75c827200110e2a73fb6b5b214f80906872a
+Artifact SHA512: 7f8786f21d7961310c15c2c4e7b3e69b1a69beeaff583ef3fee956b45fc091a76278c4e6208d7503fbb03caa7b4c55c30da10b9aecabd8521214bb0d43e1b4a0
+Source commit: 89a8daf03976cc3005da65e90418a687ccf34b5d
+Owner confirmation evidence commit: 51e9dcff2d059008999e32cb887dc7be50fa2d20
+Verified default branch: 1.20.1.
+Default branch integration commit: 33f849318b235ecded3012cdb625690096ad6795
+Integration: https://github.com/bdubsub/BensFintasticSharkMod/pull/27
+Source binding: Git comparison of common, forge, build.gradle, settings.gradle and gradle.properties is empty between the source commit and the integration commit. The exact delivered artifact is retained, not rebuilt or relabeled as a different binary.
+Java: Temurin 17.0.19+10.
+Minecraft: 1.20.1.
+Forge: 47.2.0.
+Parchment: 2023.09.03-1.20.1, build input only.
+GeckoLib: 4.4.7, SHA256 6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0
+SmartBrainLib: 1.14.2, SHA256 3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b
+SBOM: bfs-1.0-rc.1.spdx.json, SPDX 2.3 component inventory.
+Checksum files: bfs-1.0-rc.1.jar.sha256 and bfs-1.0-rc.1.jar.sha512.
+Verification: ../../rc1-windows-startup.md
+Postmerge build: https://github.com/bdubsub/BensFintasticSharkMod/actions/runs/34653900188
+Postmerge CodeQL: https://github.com/bdubsub/BensFintasticSharkMod/actions/runs/34653900177
+Archive integrity: unzip -tqq passed for the exact copy retrieved from the delivered file on September 11, 2026.
+Superseded artifact SHA256: 94bfe2c8b45fc54505d42b63d026e203086959c34bb28325da3cf762c46578bd
+Historical evidence: Parent-directory manifests and SPDX identify the original candidate. Those identities remain historical and do not identify this correction.
+Attestation capability: No configured artifact attestation or binary signing pipeline. Signed Git history, CI and CodeQL do not constitute a binary attestation.
+Distribution: Owner delivery only. No public release upload is claimed or authorized by this record.

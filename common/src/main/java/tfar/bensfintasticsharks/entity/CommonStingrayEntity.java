@@ -41,7 +41,10 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTar
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 
 import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
@@ -66,6 +69,8 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
 
 
     protected boolean stinging;
+    private static final int MAX_STING_COOLDOWNS = 64;
+    private final Map<UUID, Long> stingCooldowns = new LinkedHashMap<>();
 
     protected CommonStingrayEntity(EntityType<CommonStingrayEntity> $$0, Level $$1) {
         super($$0, $$1);
@@ -249,6 +254,7 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
     }
 
     private void touch(Mob pMob) {
+        if (!canSting(pMob)) return;
         int i = 2;
         if (pMob.hurt(this.damageSources().mobAttack(this), (float) (1 + i))) {
             pMob.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this);
@@ -261,13 +267,25 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
      */
     public void playerTouch(Player pEntity) {
         if (pEntity.isCreative() || pEntity.isSpectator()) return;
+        if (!(pEntity instanceof ServerPlayer) || !canSting(pEntity)) return;
         int i = 2;
-        if (pEntity instanceof ServerPlayer && pEntity.hurt(this.damageSources().mobAttack(this), 1 + i)) {
+        if (pEntity.hurt(this.damageSources().mobAttack(this), 1 + i)) {
             if (!this.isSilent()) {
                 ((ServerPlayer) pEntity).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PUFFER_FISH_STING, 0.0F));
             }
             pEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this);
         }
+    }
+
+    private boolean canSting(LivingEntity target) {
+        long now = level().getGameTime();
+        stingCooldowns.entrySet().removeIf(entry -> now - entry.getValue() >= STING_DURATION_TICKS);
+        if (stingCooldowns.containsKey(target.getUUID())) return false;
+        if (stingCooldowns.size() >= MAX_STING_COOLDOWNS) {
+            stingCooldowns.remove(stingCooldowns.keySet().iterator().next());
+        }
+        stingCooldowns.put(target.getUUID(), now);
+        return true;
     }
 
 }

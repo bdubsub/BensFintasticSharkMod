@@ -1,0 +1,548 @@
+{
+  "contract_schema_version": 2,
+  "mode": "EXISTING_PROJECT_BOOTSTRAP",
+  "planning_subject": {
+    "name": "Ben's Fintastic Sharks debug and repair pass",
+    "requested_artifact": "authoritative_plan",
+    "plan_profile": "software_product",
+    "source_artifacts": [
+      {
+        "id": "SRC-001",
+        "role": "owner_request",
+        "subject": "Original required behavior",
+        "source": "Current owner request",
+        "use": "Scope authority"
+      },
+      {
+        "id": "SRC-002",
+        "role": "review_feedback",
+        "subject": "Reported bugs and command examples",
+        "source": "Report and conversation pasted by owner",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-003",
+        "role": "owner_request",
+        "subject": "Resolved scope answers",
+        "source": "Owner reply resolving five questions",
+        "use": "Scope authority"
+      },
+      {
+        "id": "SRC-004",
+        "role": "reference",
+        "subject": "Dive inventory icon dive_helmet.png",
+        "source": "Supplied attachment dive_helmet.png",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-005",
+        "role": "reference",
+        "subject": "Dive inventory icon dive_leggings.png",
+        "source": "Supplied attachment dive_leggings.png",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-006",
+        "role": "reference",
+        "subject": "Dive inventory icon dive_chestplate.png",
+        "source": "Supplied attachment dive_chestplate.png",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-007",
+        "role": "reference",
+        "subject": "Dive inventory icon dive_boots.png",
+        "source": "Supplied attachment dive_boots.png",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-008",
+        "role": "repository_evidence",
+        "subject": "Authorized host capability",
+        "source": "Read-only hardware, desktop and private connection checks",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-009",
+        "role": "reference",
+        "subject": "Dive worn texture atlas",
+        "source": "Supplied Photo 1.jpg",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-101",
+        "role": "repository_evidence",
+        "subject": "Historical anchor a4d4e41 and CodeGraph coverage gap",
+        "source": "Historical anchor a4d4e41 and CodeGraph coverage gap",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-102",
+        "role": "repository_evidence",
+        "subject": "Pinned current repository source at 40207d1",
+        "source": "Pinned current repository source at 40207d1",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-103",
+        "role": "audit_evidence",
+        "subject": "https://github.com/bdubsub/BensFintasticSharkMod/pull/29",
+        "source": "https://github.com/bdubsub/BensFintasticSharkMod/pull/29",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-104",
+        "role": "audit_evidence",
+        "subject": "https://github.com/bdubsub/BensFintasticSharkMod/issues/28",
+        "source": "https://github.com/bdubsub/BensFintasticSharkMod/issues/28",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-105",
+        "role": "repository_evidence",
+        "subject": "Pinned performance and provenance records at 40207d1",
+        "source": "Pinned performance and provenance records at 40207d1",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-106",
+        "role": "repository_evidence",
+        "subject": "Pinned configuration, scale and spawning source at 40207d1",
+        "source": "Pinned configuration, scale and spawning source at 40207d1",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-107",
+        "role": "repository_evidence",
+        "subject": "Pinned authored assets and generated data at 40207d1",
+        "source": "Pinned authored assets and generated data at 40207d1",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-108",
+        "role": "reference",
+        "subject": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.2.0/forge-1.20.1-47.2.0-sources.jar",
+        "source": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.2.0/forge-1.20.1-47.2.0-sources.jar",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-109",
+        "role": "reference",
+        "subject": "GeckoLib Forge 1.20.1 version4.4.7 exact sources",
+        "source": "GeckoLib Forge 1.20.1 version4.4.7 exact sources",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-110",
+        "role": "repository_evidence",
+        "subject": "Pinned current diagnostic manager, parser and support guide",
+        "source": "Pinned current diagnostic manager, parser and support guide",
+        "use": "Evidence only, subordinate to owner requirements"
+      }
+    ]
+  },
+  "profile_contract": [
+    {
+      "area": "inputs and outputs",
+      "status": "covered",
+      "source": "SRC-001, SRC-003, SRC-102, DEC-001, DEC-003",
+      "plan_section": "Product Contract and Profile Coverage",
+      "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
+    },
+    {
+      "area": "component architecture",
+      "status": "covered",
+      "source": "SRC-001, SRC-003, SRC-102, DEC-001, DEC-003",
+      "plan_section": "Product Contract and Profile Coverage",
+      "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
+    },
+    {
+      "area": "state and persistence",
+      "status": "covered",
+      "source": "SRC-001, SRC-003, SRC-102, DEC-001, DEC-003",
+      "plan_section": "Product Contract and Profile Coverage",
+      "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
+    },
+    {
+      "area": "failure taxonomy",
+      "status": "covered",
+      "source": "SRC-001, SRC-003, SRC-102, DEC-001, DEC-003",
+      "plan_section": "Product Contract and Profile Coverage",
+      "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
+    },
+    {
+      "area": "versioning",
+      "status": "covered",
+      "source": "SRC-001, SRC-003, SRC-102, DEC-001, DEC-003",
+      "plan_section": "Product Contract and Profile Coverage",
+      "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
+    },
+    {
+      "area": "security",
+      "status": "covered",
+      "source": "SRC-001, SRC-003, SRC-102, DEC-001, DEC-003",
+      "plan_section": "Product Contract and Profile Coverage",
+      "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
+    },
+    {
+      "area": "test system",
+      "status": "covered",
+      "source": "SRC-001, SRC-003, SRC-102, DEC-001, DEC-003",
+      "plan_section": "Product Contract and Profile Coverage",
+      "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
+    },
+    {
+      "area": "release lifecycle",
+      "status": "covered",
+      "source": "SRC-001, SRC-003, SRC-102, DEC-001, DEC-003",
+      "plan_section": "Product Contract and Profile Coverage",
+      "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
+    },
+    {
+      "area": "generalization",
+      "status": "covered",
+      "source": "SRC-001, SRC-003, SRC-102, DEC-001, DEC-003",
+      "plan_section": "Product Contract and Profile Coverage",
+      "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
+    },
+    {
+      "area": "determinism",
+      "status": "covered",
+      "source": "SRC-001, SRC-003, SRC-102, DEC-001, DEC-003",
+      "plan_section": "Product Contract and Profile Coverage",
+      "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
+    }
+  ],
+  "completion_endpoint": "All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded.",
+  "optional_future_disposition": "excluded",
+  "project_identity": {
+    "status": "matched",
+    "request_or_plan": "Ben's Fintastic Sharks Forge1.20.1 debug pass",
+    "repository": "/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix",
+    "package_metadata": "gradle.properties mod_id=bensfintasticsharks version=1.0-rc.1 minecraft_version=1.20.1 forge_version=47.2.0",
+    "remote": "origin https://github.com/bdubsub/BensFintasticSharkMod.git"
+  },
+  "mandatory_scope": [
+    {
+      "id": "BFS2-REQ-001",
+      "summary": "Start from approved current source, reconcile PR29 and issue28 without restoring deleted plans or treating rejection as a pass.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-002",
+      "summary": "Discoverable /bfs debug controls with species or *, typed bounds, atomic bulk edits, effective readback and reset, with manually recorded session tuning.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-003",
+      "summary": "`setspeed` independently controls horizontal and vertical base movement for every BFS species. Values are not prescribed balance defaults.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-004",
+      "summary": "`setsprint` independently multiplies the matching horizontal and vertical base values in declared active states. Prevent duplicate multiplication and hidden override.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-005",
+      "summary": "`setspawnsize` controls group quantity, with separate physical size controls and explicit natural versus administrative behavior.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-006",
+      "summary": "Useful comprehensive species controls for spawning, scale, health/damage where supported, hunting, sensing, cooldown, movement and recovery, with safe reload.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-007",
+      "summary": "Inspect and tune disturbance source, radius, sensitivity, rate and reaction eligibility per species where applicable.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-008",
+      "summary": "NBT marked follow stick selects and follows all mob families, including bosses and other mods, through temporary movement ownership without a species whitelist.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-009",
+      "summary": "Release selected followers and restore ordinary behavior on explicit stop and bounded lifecycle exits, without deleting unrelated behavior state.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-010",
+      "summary": "Sharks remain physically and visually safe at surface, seabed, walls and slopes during pursuit, pitch, turning and recovery, across supported scales and tuning limits.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-011",
+      "summary": "Real jumping/water entry and occupied moving boats produce bounded, observable shark alerts through real event paths.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-012",
+      "summary": "Great whites follow eligible boats from behind with body submerged and fin visible where safe, and recover when depth, target or route becomes invalid. No boat damage is implied.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-013",
+      "summary": "Restore Zippy's existing authored lightning markings and intended glow with correct daytime, darkness and resource reload behavior.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-014",
+      "summary": "Small algae attaches to supported side/top faces like glow lichen, with underwater placement, water preservation, support and loot behavior.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-015",
+      "summary": "Large green and red algae support vertical columns and manual stacking like kelp, correct growth/harvest/support transitions, and natural multi block generation.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-016",
+      "summary": "Increase bounded algae population and retain existing life animation, with natural red algae excluded from enclosed underwater caves.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-017",
+      "summary": "Four dive armor items preserve supplied item PNGs and use the supplied JPEG worn atlas with verified geometry and UV mapping, with no crafting recipes.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-018",
+      "summary": "Complete suit underwater enables seabed walking and moonlike buoyant jumping, suppresses swim pose/ascent, and removes only water work penalties.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-019",
+      "summary": "Full suit supplies 6000 protected submerged ticks of oxygen, refills in real air, persists against swap/reconnect exploits, and retains movement while normal drowning begins when empty.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-020",
+      "summary": "Resolve measured performance regression by evidence guided work and complete ordinary/doubled installed Forge comparison at the retained threshold.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-021",
+      "summary": "Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final regression evidence.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "post_change",
+      "production_verification": "none"
+    },
+    {
+      "id": "BFS2-REQ-022",
+      "summary": "Extend existing diagnostics and support workflows for every new behavior, prove permissions, completeness, overhead and cleanup, and keep visual acceptance on the verified silent laptop.",
+      "source": "Current owner request and research finding catalogue",
+      "lifecycle_stage": "change",
+      "production_verification": "none"
+    }
+  ],
+  "optional_future_scope": [
+    {
+      "id": "FUT-001",
+      "summary": "Respect the Wildlife Common Stingray advancement icon",
+      "source": "Owner explicitly says ignore it now",
+      "disposition": "excluded"
+    },
+    {
+      "id": "FUT-002",
+      "summary": "Final subjective swim speed balance for each species",
+      "source": "The owner performs final tuning and records values manually.",
+      "disposition": "excluded"
+    },
+    {
+      "id": "FUT-003",
+      "summary": "Named tuning profile library and import/export",
+      "source": "Owner chooses manual tuning and handwritten transfer",
+      "disposition": "excluded"
+    },
+    {
+      "id": "FUT-004",
+      "summary": "Public release publication",
+      "source": "Owner accepts merged testing JAR endpoint",
+      "disposition": "excluded"
+    }
+  ],
+  "non_goals": [
+    {
+      "id": "NG-001",
+      "summary": "No dive armor crafting recipes in this pass",
+      "source": "Owner request"
+    },
+    {
+      "id": "NG-002",
+      "summary": "No platform upgrade or Fabric artifact",
+      "source": "Project scope"
+    },
+    {
+      "id": "NG-003",
+      "summary": "No boat destruction or unrelated ecosystem redesign",
+      "source": "Owner scope boundary"
+    },
+    {
+      "id": "NG-004",
+      "summary": "No redesign of Zippy or supplied authored assets",
+      "source": "Owner and project asset boundaries"
+    },
+    {
+      "id": "NG-005",
+      "summary": "No silent persistence of debug overrides, no tuning balance lock based on example numbers",
+      "source": "Resolved manual tuning workflow"
+    },
+    {
+      "id": "NG-006",
+      "summary": "No player control or nonmob following implied by the mob testing tool",
+      "source": "Original mob-follow context and player authority boundary"
+    }
+  ],
+  "unresolved_owner_questions": [],
+  "owner_decisions": [
+    {
+      "id": "DEC-001",
+      "question": "How is species tuning performed and transferred",
+      "status": "resolved",
+      "selected_choice": "The owner tunes manually and records values. Provide live session overrides, effective readback and reset. Profile libraries and import/export are excluded."
+    },
+    {
+      "id": "DEC-002",
+      "question": "Which worn armor art is authoritative",
+      "status": "resolved",
+      "selected_choice": "Use the four supplied item PNGs and supplied JPEG worn atlas. Preserve their source identities, create compatible geometry and UV mapping, and validate the rendered result without silently repainting the art."
+    },
+    {
+      "id": "DEC-003",
+      "question": "What is the completion endpoint",
+      "status": "resolved",
+      "selected_choice": "All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded."
+    },
+    {
+      "id": "DEC-004",
+      "question": "What happens when suit oxygen is empty",
+      "status": "resolved",
+      "selected_choice": "Continue seabed movement and apply ordinary drowning. Refill only in real breathable air, never on equip, swap, disconnect or server restart underwater."
+    },
+    {
+      "id": "DEC-005",
+      "question": "Which mobs can the follow tool control",
+      "status": "resolved",
+      "selected_choice": "All mob families, including bosses and other mods, without a BFS or ordinary vanilla whitelist. Preserve movement safety and restore ordinary behavior. Players and nonmob entities do not become followers."
+    },
+    {
+      "id": "DEC-006",
+      "question": "Which report requests are excluded",
+      "status": "resolved",
+      "selected_choice": "The Respect the Wildlife Common Stingray advancement icon and subjective final species speed balancing are excluded. Debug tuning does not exclude mechanical movement safety repairs."
+    },
+    {
+      "id": "DEC-007",
+      "question": "Where do verification workloads run",
+      "status": "resolved",
+      "selected_choice": "Headless checks and disposable dedicated servers run on node-1. Minecraft clients run only on the verified Linux laptop with its discrete GPU and verified silent application stream. No graphical node-1 fallback."
+    },
+    {
+      "id": "DEC-008",
+      "question": "How are test servers authorized and cleaned",
+      "status": "resolved",
+      "selected_choice": "Configure and read back eula=true under standing authorization. Every check and runtime uses exact owned resources and verifies teardown after its final consumer, preserving owner data and shared caches."
+    },
+    {
+      "id": "DEC-009",
+      "question": "Which baseline and integration workflow applies",
+      "status": "resolved",
+      "selected_choice": "Use current PR29 worktree source matching approved 1.20.1. Preserve the historical anchor and old evidence. Complete existing PR29 work before new sequential phase branches, use checked merge commits and signed phase tags, and never push directly to 1.20.1."
+    },
+    {
+      "id": "DEC-010",
+      "question": "How should comprehensive controls and algae scope be bounded",
+      "status": "resolved",
+      "selected_choice": "Use distinct group quantity and physical scale controls, tune existing behavior and hunting capabilities, and report effective limits. Restore face and column algae behavior with bounded richer natural generation, preserving authored animation. Do not add boat damage or unrelated ecosystem features."
+    }
+  ],
+  "prerequisites": [
+    {
+      "id": "EXT-001",
+      "name": "Existing laptop and private desktop control capability",
+      "affected_requirements": [
+        "BFS2-REQ-008",
+        "BFS2-REQ-010",
+        "BFS2-REQ-012",
+        "BFS2-REQ-013",
+        "BFS2-REQ-017",
+        "BFS2-REQ-018",
+        "BFS2-REQ-019",
+        "BFS2-REQ-021",
+        "BFS2-REQ-022"
+      ],
+      "mandatory_for_endpoint": true,
+      "kind": "environment",
+      "availability": "available",
+      "authorization": "authorized",
+      "blocked_plan_approved": false,
+      "required_evidence": [
+        "Recheck laptop identity, active desktop and discrete candidate renderer before launch.",
+        "Bind exact owned window/PID and mute only its application stream; verify mute and recreation cleanup.",
+        "Discover its project anchor and verify matching candidate and private dedicated-server connection."
+      ]
+    },
+    {
+      "id": "EXT-002",
+      "name": "Existing repository write and registered signing capability",
+      "affected_requirements": [
+        "BFS2-REQ-001",
+        "BFS2-REQ-020",
+        "BFS2-REQ-021"
+      ],
+      "mandatory_for_endpoint": true,
+      "kind": "credential",
+      "availability": "available",
+      "authorization": "authorized",
+      "blocked_plan_approved": false,
+      "required_evidence": [
+        "Authenticated EnVisione account with repository write permission.",
+        "Registered SSH signing key and EnVy author identity before commit and tag.",
+        "GitHub merge state, required checks, resulting default commit and signed phase tag."
+      ]
+    }
+  ]
+}

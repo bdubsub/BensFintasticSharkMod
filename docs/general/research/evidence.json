@@ -1,0 +1,1024 @@
+{
+  "schema_version": 1,
+  "project_id": "bens-fintastic-sharks-debug",
+  "documents": {
+    "brief": {
+      "path": "brief.md",
+      "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+    },
+    "repository_map": {
+      "path": "repository-map.md",
+      "sha256": "25f962d8f51c54bcd32903a41b74b0939b532569fcc3d6f5aa4ba474fb8b89c4"
+    },
+    "intake": {
+      "path": "intake.json",
+      "sha256": "76883ff234ef266aa300fa334955d7298b2841b211ba42fef90c28360cf2800d"
+    }
+  },
+  "sources": [
+    {
+      "id": "SRC-001",
+      "role": "owner_request",
+      "locator": "Current owner request",
+      "revision": "Initial request",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/owner-requirements.md",
+        "sha256": "4f41d015aaddada6017509c0885237dc568ca26f123f1eba2a86ff218a202d4e"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-002",
+      "role": "review_feedback",
+      "locator": "Report and conversation pasted by owner",
+      "revision": "Initial report",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/report.md",
+        "sha256": "bed5627af0220393bd923350d0c4128393be0803056d032ef0383c60e30cca5c"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-003",
+      "role": "owner_request",
+      "locator": "Owner reply resolving five questions",
+      "revision": "Current answer",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/owner-answers.md",
+        "sha256": "4de1312cc2941dbcf410e38f3a49bec8966bf0eca7248d5078e3dc3a52f01a90"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-004",
+      "role": "reference",
+      "locator": "Supplied attachment dive_helmet.png",
+      "revision": "058fa3e99357fbdcb3830daf100138672cbd1eef667b1aa3d006e04829fe4b14",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/dive_helmet.png",
+        "sha256": "058fa3e99357fbdcb3830daf100138672cbd1eef667b1aa3d006e04829fe4b14"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-005",
+      "role": "reference",
+      "locator": "Supplied attachment dive_leggings.png",
+      "revision": "cebbb9f8f7eb2cc08c817624d26d709149622b67080857de8b8f8dd4553a4ff6",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/dive_leggings.png",
+        "sha256": "cebbb9f8f7eb2cc08c817624d26d709149622b67080857de8b8f8dd4553a4ff6"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-006",
+      "role": "reference",
+      "locator": "Supplied attachment dive_chestplate.png",
+      "revision": "c7e9694ac408a79139d30a58014a7e973c15ab046d3c474304c57cb8434048ae",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/dive_chestplate.png",
+        "sha256": "c7e9694ac408a79139d30a58014a7e973c15ab046d3c474304c57cb8434048ae"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-007",
+      "role": "reference",
+      "locator": "Supplied attachment dive_boots.png",
+      "revision": "0b2f09b20373c952aa1c1c8b7ae09955f8b80ea0d1d7703b8648dd3870f1bffa",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/dive_boots.png",
+        "sha256": "0b2f09b20373c952aa1c1c8b7ae09955f8b80ea0d1d7703b8648dd3870f1bffa"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-008",
+      "role": "repository_evidence",
+      "locator": "Read-only hardware, desktop and private connection checks",
+      "revision": "Read-only observation",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "mutable",
+      "recheck_after": "2026-09-13T01:46:21.578641+00:00",
+      "snapshot": {
+        "path": "sources/host-capabilities.md",
+        "sha256": "a4acc24eef1a4405a94d4b977bcb685137e5a1a0ce27cb168e60239528e36ab1"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-009",
+      "role": "reference",
+      "locator": "Supplied Photo 1.jpg",
+      "revision": "dd398100067ce9f92b4c3f17c89d1f13c1d695729128abbdeb6c9b37f60d1cc3",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/dive-armor-atlas.jpg",
+        "sha256": "dd398100067ce9f92b4c3f17c89d1f13c1d695729128abbdeb6c9b37f60d1cc3"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-101",
+      "role": "repository_evidence",
+      "locator": "Historical anchor a4d4e41 and CodeGraph coverage gap",
+      "revision": "40207d1b4cbe8db9963f32e43b79bdcfce58918a",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "brief.md",
+        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-102",
+      "role": "repository_evidence",
+      "locator": "Pinned current repository source at 40207d1",
+      "revision": "40207d1b4cbe8db9963f32e43b79bdcfce58918a",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "brief.md",
+        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      },
+      "repository_files": [
+        {
+          "path": "gradle.properties",
+          "sha256": "4e80b57815a112037d2ce88acb7be4fcaa69752a63fc4b93cc4276bb7c84dd91"
+        },
+        {
+          "path": "settings.gradle",
+          "sha256": "f76f87a5c0a0203508c9794b63f917e179a5d818b56de9a71ebf3fe768c6932a"
+        },
+        {
+          "path": "build.gradle",
+          "sha256": "71fcd9ca04c96389a97202347bf4230008a0a149c96a6c77da84a0cde187ebf2"
+        },
+        {
+          "path": "forge/build.gradle",
+          "sha256": "a4fd448de39e0b28fc90e4eb45902961ef03b226159f1c735b9c6df890bd3683"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/SmartWaterAnimal.java",
+          "sha256": "7404ced076953f0d1c21393d6458699c197a64cf2d3bfd9a0992cd42b480e6c2"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/BfsAquaticEntity.java",
+          "sha256": "f22b4d58a108aa8d55503e685d26ae6308ab8e2d694baedcc7b27bd32093b35f"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/AbstractSharkEntity.java",
+          "sha256": "bb6fe5dd4430773831a2d47ff5b6f1ed67bcecac749a5c786cb8ab7d081f5c21"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/SharkSwimmingMoveControl.java",
+          "sha256": "3e4d5832caeffe06a417dcb0d5cd16910298604eaaaf1f2a6b0a6eedc9cbfd06"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/PitchSwimmingMoveControl.java",
+          "sha256": "699c1d6761f0d09ad62448f8c05613b688ea00577fb222b5b81edba2e02f359c"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/PitchSwimmingNavigation.java",
+          "sha256": "d4b781f7841d7a123f3936c7d6f5eb0ebe15acf79879f356164f11247ed38d5e"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/AquaticMovement.java",
+          "sha256": "7a17dd847cf4063f6867e537e6832f889fbd2f088a70d1333b818fbaf632608f"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/AquaticRoute.java",
+          "sha256": "77635a945e49af0cdb6dec222c3dc3515bff9b0ab48da4dbcee037bbe5159fad"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/AquaticDepthGuidance.java",
+          "sha256": "7eb3134bc63d49ab62da5aeabadb7616274dcc19ed16e52d4843e293d147de25"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/SpeciesBehaviorEngine.java",
+          "sha256": "0bafa6d06ec39b02b77270bf96751eb1ec22632336674351f9400208af455e14"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/SpeciesBehaviorProfile.java",
+          "sha256": "500fa935bf44600def34ea2680139326929c97737e9713a99ce93d12cccf70ea"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/CommonStingrayEntity.java",
+          "sha256": "6fa47804b9b3066c553130d9a6b241b9e0d6144ed71e24970cbb2b54191c532d"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/CommonThresherSharkEntity.java",
+          "sha256": "1d18525f14cdd1b84f8c047f63a767dd6cfa4b1d203e081cf6e68b383d9ecffc"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/AtlanticCodEntity.java",
+          "sha256": "a9c6dec5aef151058d1acbe29fb670fb56a04528b22114290ce7b6638f176623"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/AtlanticSalmonEntity.java",
+          "sha256": "078d2682117b67957e63dfc92a032960d525e2da774f487bc147fa8b98792583"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/HarborSealEntity.java",
+          "sha256": "0217b6c87aa99397bfb598087c2338d5781f2a34eb0e9f18291d5944c926e7e5"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/init/ModBlocks.java",
+          "sha256": "07b7f36a6e63ae03303ad62730144bc474bdca8ce94418f9b2d90a6fdc35b0a8"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/init/ModItems.java",
+          "sha256": "0ca2579b60e43dcccbc98f875245e475b4acb28b23587ac80596d482034345d9"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/item/PrismarineArmorMaterial.java",
+          "sha256": "083f3dc38f05f60e5d575924add96e4af62ff8fe6a67134829898786efeb4582"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/BensFintasticSharksForge.java",
+          "sha256": "bbb3dbe09948ad48db93d524e037be2ff1b439018831eeb2ec86f7fee650c4f6"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/config/BfsConfig.java",
+          "sha256": "0b60d5349d8aa66cca3983af0ca6c382cd3422a23bbf2c87131b7dbaf3cfea84"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/command/BfsCommands.java",
+          "sha256": "aace134ef088ed8716ae50766a263c1425595e096028b63fc0932fde36f62b86"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/debug/BfsDebugCommands.java",
+          "sha256": "af081885c481d2f40be2237732fd9e42c81274cabaa1a5e7792d802864ae08f3"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/debug/BfsDebugManager.java",
+          "sha256": "2e5b80ebc3eed665f39ed8f0c7a0250a09ed07c7219fd0a130c8edd16bd8ff22"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/client/BfsClientDebugManager.java",
+          "sha256": "6868d64d1200fe4de097a008023bcfcec55cc75acfeedcd18dd50a90d87fa1ad"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/spawn/MobCapManager.java",
+          "sha256": "79e4fb24ee5270871f095ca7d6e4c77ac6cba8751e0166a02042ec0b6845b071"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/spawn/BfsSpawnPlacements.java",
+          "sha256": "8970309e50c6221ecef611712fc5faaf22acd000978d07298687edd42bf8b2d8"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/disturbance/WaterDisturbanceListeners.java",
+          "sha256": "d63f94723b44994f713634de1035c06ccfeb82d4802304b721e14238c3780eff"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/disturbance/WaterDisturbanceHandler.java",
+          "sha256": "37cddb6e020345b03613b87ac4633ca733cb76dd578c9f454fda902e987ce7a6"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/disturbance/WaterDisturbanceEvent.java",
+          "sha256": "b84bbd133ab0cf307a14677c5b3347afb331d873383c73b700d506ed26e9bdc4"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/disturbance/SharkAlertHandler.java",
+          "sha256": "0b896df987cc60a133a95d1f322e09fa5ba59440523e061a5948e6f8e257b137"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/client/renderer/CommonThresherRenderer.java",
+          "sha256": "4bf8931801283ce81610e2f4ea2835592de8b87c3e9be9868e6c00cd1a489c83"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/client/renderer/AquaticRenderTransforms.java",
+          "sha256": "d1a37ab475bf72c8af9610794f4478c60739474057ece4859ca20afbd7dd1a7c"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/client/renderer/layer/ConditionalAutoGlowingLayer.java",
+          "sha256": "5f44546562dc41d5a42efd1953180de3b0c4d6355b5ebf1095f8c3e64f47e309"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/item/PrismarineArmorItem.java",
+          "sha256": "a9e2316203332b3a0fe5eaece68c0c6ef120d211a091a67ab6db9d4e97e70f16"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/client/model/PrismarineArmorModel.java",
+          "sha256": "c1ef732c4001d407c278235e97b2e244a1090542a83b8c3654f73903b439f29c"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/client/renderer/PrismarineArmorRenderer.java",
+          "sha256": "cef0e09604329ba13b5c7f6630c7f758c80f2e9024fb0b9d4db7587402cc7033"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/worldgen/AlgaePatchFeature.java",
+          "sha256": "aaf074c91a2245d809a3f017f3de6f154c87e0e22e55d3f9e97e4d04afd96003"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/worldgen/ModFeatures.java",
+          "sha256": "90a0ede4a0e50825f2d244548cc1c4a70ad8bedb4016471a2c68098e171939cb"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/datagen/ModBlockstateProvider.java",
+          "sha256": "4b6a1c3bd30e1e5362551ba42eb9f427bfe8947284645e170e4628b56a1012b7"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/datagen/ModItemModelProvider.java",
+          "sha256": "5f5bfc099e31985c34218f6d0ed6c564ee5a50bf2bfa5dc7a5eb30ba64e49a45"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/ModDataPackProvider.java",
+          "sha256": "27a86f9c0812e9aa6353544b132ad2bbbde4217dc194b2983a09b3798fdfeae3"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/datagen/data/loot/ModBlockLoot.java",
+          "sha256": "eac36d998ee9ca5ba6c52420c7126be2320bfadf084d0a3779386fd70c63e6d9"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/gametest/BfsGameTests.java",
+          "sha256": "57e73d6a3892e92cbd989ad351b26c94196cad06550818c7725fec57fdadafd9"
+        },
+        {
+          "path": "forge/src/test/java/tfar/bensfintasticsharks/audit/ReleaseContractAuditTest.java",
+          "sha256": "e1c26c97f0c2cf97d7934bfaf5186168dc44643d2212453f490bd64f8bb4c981"
+        },
+        {
+          "path": "forge/src/test/java/tfar/bensfintasticsharks/audit/AquaticMovementTest.java",
+          "sha256": "25fc08a03988cb0bd566fb476eeb2a3f7d2d3e42d37e05615ab6b0de6bdda9e6"
+        },
+        {
+          "path": "forge/src/test/java/tfar/bensfintasticsharks/audit/AquaticRouteTest.java",
+          "sha256": "16b37a5cb5a1849fc6b26f701e72702c1af2eb97fa06a3db0267adc0a512c484"
+        },
+        {
+          "path": "forge/src/test/java/tfar/bensfintasticsharks/entity/SpeciesBehaviorProfileTest.java",
+          "sha256": "aaf25acce1118cbf89063c1a463fc38fa5eaa26a99299bd25b367aa1d1f22974"
+        },
+        {
+          "path": "common/src/main/resources/assets/bensfintasticsharks/textures/entity/common_thresher_shark/zippy.png",
+          "sha256": "cd4352898da93334fb3c313d293ada7f7cae1b7d99729e9b01ce7d10fba4767d"
+        },
+        {
+          "path": "common/src/main/resources/assets/bensfintasticsharks/textures/entity/common_thresher_shark/zippy_glowmask.png",
+          "sha256": "cb6035ce2dafe249c020c4e9fa4f2b847119b17470a0bdf8cf41f51af184ff8f"
+        },
+        {
+          "path": "common/src/main/resources/assets/bensfintasticsharks/textures/block/large_green_algae.png.mcmeta",
+          "sha256": "2afbc253cd7562646ab5a3cde7308a6a35d4de2a28ac000ada40c9c187ba45c5"
+        },
+        {
+          "path": "common/src/main/resources/assets/bensfintasticsharks/textures/block/large_red_algae.png.mcmeta",
+          "sha256": "9395723d5f768158779f8388c2b3cac35af648cb535bba0901d839529566f37b"
+        },
+        {
+          "path": "common/src/generated/resources/assets/bensfintasticsharks/models/block/algae_block.json",
+          "sha256": "9cffd8c3a776b3897674ad6b6ce8d2c6de59a2b060b5696b2548ab4cff93e99e"
+        },
+        {
+          "path": "common/src/generated/resources/data/bensfintasticsharks/worldgen/placed_feature/large_red_algae.json",
+          "sha256": "76399d8e98bc9546137c15e48be061e01df7487a49fee3c9fa0be615d53dc25c"
+        },
+        {
+          "path": "common/src/generated/resources/data/bensfintasticsharks/tags/worldgen/biome/algae_spawns.json",
+          "sha256": "80872f109e727c0e6a0ab8a7679fe0b7f23ab4efa8df9c7c6e22731c06eb4ced"
+        },
+        {
+          "path": "docs/test/debug-diagnostics.md",
+          "sha256": "373fe1e255b5a185570e44b07af4d1c21fdc89dc16ed79e6af661e54fae0eaf9"
+        },
+        {
+          "path": "docs/test/packaged-performance.md",
+          "sha256": "73598b7ab5cd9f89f200163a259810b5382850676583ff51acbb6e322dd7412c"
+        },
+        {
+          "path": "docs/verification/rc1-performance-20260911.md",
+          "sha256": "068a0135e707f1b97b1564ac05baed4e6fed9997b021f4ae9c465acccfdb1cad"
+        },
+        {
+          "path": "docs/verification/artifacts/performance-rc1/baseline-normal.json",
+          "sha256": "837f4fb7000a5674faf5699e14ea737c21a1843e8265d20dac23cc8bb89621a5"
+        },
+        {
+          "path": "docs/verification/artifacts/performance-rc1/candidate-normal-failed.json",
+          "sha256": "c83858602e3458512d32881fa23a482bd5fe671c79e79a7d7eb5cc410598047f"
+        },
+        {
+          "path": "docs/verification/artifacts/windows-startup/bfs-1.0-rc.1-source-manifest.txt",
+          "sha256": "2da4092a5f0af07beba65c1471be5e537c104dbbafd3f6b2d1e561b1f1cbaaa5"
+        },
+        {
+          "path": "docs/verification/artifacts/windows-startup/bfs-1.0-rc.1.jar.sha256",
+          "sha256": "0d343f9fa027bbf5038f210a572f0450443bc4c40f1f4c27c74992c6bd657324"
+        },
+        {
+          "path": "docs/verification/artifacts/windows-startup/bfs-1.0-rc.1.spdx.json",
+          "sha256": "e2d3b63bf1bb3eb189e3a3916045ca63152c65736314edfd6c9d3b87fbbf129b"
+        },
+        {
+          "path": "tools/bfs_debug_analyze.py",
+          "sha256": "9519948bbe3d9cfad3b4a42b0aa2e22f0c40e637348cd9e88a4ca442c24ecc63"
+        },
+        {
+          "path": "tools/test_bfs_debug_analyze.py",
+          "sha256": "1db97d335893c996b3efbd9900fd0b68988ff90405c58b8eafb221e71f8b8dfc"
+        },
+        {
+          "path": "tools/performance/ProbeAgent.java",
+          "sha256": "fe87db76813283180bea64344a6d6a3b3265a34063762b9a7c05d75c60eb4bdf"
+        },
+        {
+          "path": "tools/performance/TickProbe.java",
+          "sha256": "37f4425a749ae56d0187a3c2bad4b93dfe3ee2297a2daf066af96daa150206b6"
+        },
+        {
+          "path": "tools/performance/run_performance.py",
+          "sha256": "554810e85ee252c3de8bc6f5ee0289ce0bae8e632890d9460563605be3ea9087"
+        },
+        {
+          "path": "tools/performance/run_matrix.py",
+          "sha256": "a0e8adca931524ee8c383b4f23d18c7a0d262f2d7c71e0b589e5b6f5e5a0f54c"
+        },
+        {
+          "path": "tools/performance/analyze_performance.py",
+          "sha256": "8647d10e5fdb2203e6c418773df2d08749f07f8d3a99f9187827432095fef496"
+        },
+        {
+          "path": "tools/performance/test_analyze_performance.py",
+          "sha256": "1b89fba747ccc7539dea7fe11c36e45ba4852f9bda579cba6b725792a3a2b3aa"
+        }
+      ]
+    },
+    {
+      "id": "SRC-103",
+      "role": "audit_evidence",
+      "locator": "https://github.com/bdubsub/BensFintasticSharkMod/pull/29",
+      "revision": "40207d1b4cbe8db9963f32e43b79bdcfce58918a",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "mutable",
+      "recheck_after": "2026-09-13T01:46:21.578641+00:00",
+      "snapshot": {
+        "path": "brief.md",
+        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-104",
+      "role": "audit_evidence",
+      "locator": "https://github.com/bdubsub/BensFintasticSharkMod/issues/28",
+      "revision": "40207d1b4cbe8db9963f32e43b79bdcfce58918a",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "mutable",
+      "recheck_after": "2026-09-13T01:46:21.578641+00:00",
+      "snapshot": {
+        "path": "brief.md",
+        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-105",
+      "role": "repository_evidence",
+      "locator": "Pinned performance and provenance records at 40207d1",
+      "revision": "40207d1b4cbe8db9963f32e43b79bdcfce58918a",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "brief.md",
+        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      },
+      "repository_files": [
+        {
+          "path": "docs/test/packaged-performance.md",
+          "sha256": "73598b7ab5cd9f89f200163a259810b5382850676583ff51acbb6e322dd7412c"
+        },
+        {
+          "path": "docs/verification/rc1-performance-20260911.md",
+          "sha256": "068a0135e707f1b97b1564ac05baed4e6fed9997b021f4ae9c465acccfdb1cad"
+        },
+        {
+          "path": "docs/verification/artifacts/performance-rc1/baseline-normal.json",
+          "sha256": "837f4fb7000a5674faf5699e14ea737c21a1843e8265d20dac23cc8bb89621a5"
+        },
+        {
+          "path": "docs/verification/artifacts/performance-rc1/candidate-normal-failed.json",
+          "sha256": "c83858602e3458512d32881fa23a482bd5fe671c79e79a7d7eb5cc410598047f"
+        },
+        {
+          "path": "docs/verification/artifacts/windows-startup/bfs-1.0-rc.1-source-manifest.txt",
+          "sha256": "2da4092a5f0af07beba65c1471be5e537c104dbbafd3f6b2d1e561b1f1cbaaa5"
+        },
+        {
+          "path": "docs/verification/artifacts/windows-startup/bfs-1.0-rc.1.jar.sha256",
+          "sha256": "0d343f9fa027bbf5038f210a572f0450443bc4c40f1f4c27c74992c6bd657324"
+        },
+        {
+          "path": "docs/verification/artifacts/windows-startup/bfs-1.0-rc.1.spdx.json",
+          "sha256": "e2d3b63bf1bb3eb189e3a3916045ca63152c65736314edfd6c9d3b87fbbf129b"
+        },
+        {
+          "path": "tools/performance/ProbeAgent.java",
+          "sha256": "fe87db76813283180bea64344a6d6a3b3265a34063762b9a7c05d75c60eb4bdf"
+        },
+        {
+          "path": "tools/performance/TickProbe.java",
+          "sha256": "37f4425a749ae56d0187a3c2bad4b93dfe3ee2297a2daf066af96daa150206b6"
+        },
+        {
+          "path": "tools/performance/run_performance.py",
+          "sha256": "554810e85ee252c3de8bc6f5ee0289ce0bae8e632890d9460563605be3ea9087"
+        },
+        {
+          "path": "tools/performance/run_matrix.py",
+          "sha256": "a0e8adca931524ee8c383b4f23d18c7a0d262f2d7c71e0b589e5b6f5e5a0f54c"
+        },
+        {
+          "path": "tools/performance/analyze_performance.py",
+          "sha256": "8647d10e5fdb2203e6c418773df2d08749f07f8d3a99f9187827432095fef496"
+        },
+        {
+          "path": "tools/performance/test_analyze_performance.py",
+          "sha256": "1b89fba747ccc7539dea7fe11c36e45ba4852f9bda579cba6b725792a3a2b3aa"
+        }
+      ]
+    },
+    {
+      "id": "SRC-106",
+      "role": "repository_evidence",
+      "locator": "Pinned configuration, scale and spawning source at 40207d1",
+      "revision": "40207d1b4cbe8db9963f32e43b79bdcfce58918a",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "brief.md",
+        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      },
+      "repository_files": [
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/entity/BfsAquaticEntity.java",
+          "sha256": "f22b4d58a108aa8d55503e685d26ae6308ab8e2d694baedcc7b27bd32093b35f"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/BensFintasticSharksForge.java",
+          "sha256": "bbb3dbe09948ad48db93d524e037be2ff1b439018831eeb2ec86f7fee650c4f6"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/config/BfsConfig.java",
+          "sha256": "0b60d5349d8aa66cca3983af0ca6c382cd3422a23bbf2c87131b7dbaf3cfea84"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/spawn/MobCapManager.java",
+          "sha256": "79e4fb24ee5270871f095ca7d6e4c77ac6cba8751e0166a02042ec0b6845b071"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/spawn/BfsSpawnPlacements.java",
+          "sha256": "8970309e50c6221ecef611712fc5faaf22acd000978d07298687edd42bf8b2d8"
+        }
+      ]
+    },
+    {
+      "id": "SRC-107",
+      "role": "repository_evidence",
+      "locator": "Pinned authored assets and generated data at 40207d1",
+      "revision": "40207d1b4cbe8db9963f32e43b79bdcfce58918a",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "brief.md",
+        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      },
+      "repository_files": [
+        {
+          "path": "common/src/main/resources/assets/bensfintasticsharks/textures/entity/common_thresher_shark/zippy.png",
+          "sha256": "cd4352898da93334fb3c313d293ada7f7cae1b7d99729e9b01ce7d10fba4767d"
+        },
+        {
+          "path": "common/src/main/resources/assets/bensfintasticsharks/textures/entity/common_thresher_shark/zippy_glowmask.png",
+          "sha256": "cb6035ce2dafe249c020c4e9fa4f2b847119b17470a0bdf8cf41f51af184ff8f"
+        },
+        {
+          "path": "common/src/main/resources/assets/bensfintasticsharks/textures/block/large_green_algae.png.mcmeta",
+          "sha256": "2afbc253cd7562646ab5a3cde7308a6a35d4de2a28ac000ada40c9c187ba45c5"
+        },
+        {
+          "path": "common/src/main/resources/assets/bensfintasticsharks/textures/block/large_red_algae.png.mcmeta",
+          "sha256": "9395723d5f768158779f8388c2b3cac35af648cb535bba0901d839529566f37b"
+        },
+        {
+          "path": "common/src/generated/resources/assets/bensfintasticsharks/models/block/algae_block.json",
+          "sha256": "9cffd8c3a776b3897674ad6b6ce8d2c6de59a2b060b5696b2548ab4cff93e99e"
+        },
+        {
+          "path": "common/src/generated/resources/data/bensfintasticsharks/worldgen/placed_feature/large_red_algae.json",
+          "sha256": "76399d8e98bc9546137c15e48be061e01df7487a49fee3c9fa0be615d53dc25c"
+        },
+        {
+          "path": "common/src/generated/resources/data/bensfintasticsharks/tags/worldgen/biome/algae_spawns.json",
+          "sha256": "80872f109e727c0e6a0ab8a7679fe0b7f23ab4efa8df9c7c6e22731c06eb4ced"
+        }
+      ]
+    },
+    {
+      "id": "SRC-108",
+      "role": "reference",
+      "locator": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.2.0/forge-1.20.1-47.2.0-sources.jar",
+      "revision": "40207d1b4cbe8db9963f32e43b79bdcfce58918a",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "brief.md",
+        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-109",
+      "role": "reference",
+      "locator": "GeckoLib Forge 1.20.1 version4.4.7 exact sources",
+      "revision": "40207d1b4cbe8db9963f32e43b79bdcfce58918a",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "brief.md",
+        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-110",
+      "role": "repository_evidence",
+      "locator": "Pinned current diagnostic manager, parser and support guide",
+      "revision": "40207d1b4cbe8db9963f32e43b79bdcfce58918a",
+      "observed_at": "2026-09-12T01:46:21.578641+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "brief.md",
+        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      },
+      "repository_files": [
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/debug/BfsDebugCommands.java",
+          "sha256": "af081885c481d2f40be2237732fd9e42c81274cabaa1a5e7792d802864ae08f3"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/debug/BfsDebugManager.java",
+          "sha256": "2e5b80ebc3eed665f39ed8f0c7a0250a09ed07c7219fd0a130c8edd16bd8ff22"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/client/BfsClientDebugManager.java",
+          "sha256": "6868d64d1200fe4de097a008023bcfcec55cc75acfeedcd18dd50a90d87fa1ad"
+        },
+        {
+          "path": "docs/test/debug-diagnostics.md",
+          "sha256": "373fe1e255b5a185570e44b07af4d1c21fdc89dc16ed79e6af661e54fae0eaf9"
+        },
+        {
+          "path": "tools/bfs_debug_analyze.py",
+          "sha256": "9519948bbe3d9cfad3b4a42b0aa2e22f0c40e637348cd9e88a4ca442c24ecc63"
+        },
+        {
+          "path": "tools/test_bfs_debug_analyze.py",
+          "sha256": "1db97d335893c996b3efbd9900fd0b68988ff90405c58b8eafb221e71f8b8dfc"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "FIND-101",
+      "summary": "Start from approved current source, reconcile PR29 and issue28 without restoring deleted plans or treating rejection as a pass.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-001"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-102",
+      "summary": "Discoverable /bfs debug controls with species or *, typed bounds, atomic bulk edits, effective readback and reset, with manually recorded session tuning.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-002"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-103",
+      "summary": "`setspeed` independently controls horizontal and vertical base movement for every BFS species. Values are not prescribed balance defaults.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-003"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-104",
+      "summary": "`setsprint` independently multiplies the matching horizontal and vertical base values in declared active states. Prevent duplicate multiplication and hidden override.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-004"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-105",
+      "summary": "`setspawnsize` controls group quantity, with separate physical size controls and explicit natural versus administrative behavior.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-005"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-106",
+      "summary": "Useful comprehensive species controls for spawning, scale, health/damage where supported, hunting, sensing, cooldown, movement and recovery, with safe reload.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-006"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-107",
+      "summary": "Inspect and tune disturbance source, radius, sensitivity, rate and reaction eligibility per species where applicable.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-007"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-108",
+      "summary": "NBT marked follow stick selects and follows all mob families, including bosses and other mods, through temporary movement ownership without a species whitelist.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-008"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-109",
+      "summary": "Release selected followers and restore ordinary behavior on explicit stop and bounded lifecycle exits, without deleting unrelated behavior state.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-009"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-110",
+      "summary": "Sharks remain physically and visually safe at surface, seabed, walls and slopes during pursuit, pitch, turning and recovery, across supported scales and tuning limits.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-010"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-111",
+      "summary": "Real jumping/water entry and occupied moving boats produce bounded, observable shark alerts through real event paths.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-011"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-112",
+      "summary": "Great whites follow eligible boats from behind with body submerged and fin visible where safe, and recover when depth, target or route becomes invalid. No boat damage is implied.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-012"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-113",
+      "summary": "Restore Zippy's existing authored lightning markings and intended glow with correct daytime, darkness and resource reload behavior.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-013"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-114",
+      "summary": "Small algae attaches to supported side/top faces like glow lichen, with underwater placement, water preservation, support and loot behavior.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-014"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-115",
+      "summary": "Large green and red algae support vertical columns and manual stacking like kelp, correct growth/harvest/support transitions, and natural multi block generation.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-015"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-116",
+      "summary": "Increase bounded algae population and retain existing life animation, with natural red algae excluded from enclosed underwater caves.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-016"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-117",
+      "summary": "Four dive armor items preserve supplied item PNGs and use the supplied JPEG worn atlas with verified geometry and UV mapping, with no crafting recipes.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003",
+        "SRC-009"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-017"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-118",
+      "summary": "Complete suit underwater enables seabed walking and moonlike buoyant jumping, suppresses swim pose/ascent, and removes only water work penalties.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-018"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-119",
+      "summary": "Full suit supplies 6000 protected submerged ticks of oxygen, refills in real air, persists against swap/reconnect exploits, and retains movement while normal drowning begins when empty.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-019"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-120",
+      "summary": "Resolve measured performance regression by evidence guided work and complete ordinary/doubled installed Forge comparison at the retained threshold.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-020"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-121",
+      "summary": "Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final regression evidence.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-021"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-122",
+      "summary": "Extend existing diagnostics and support workflows for every new behavior, prove permissions, completeness, overhead and cleanup, and keep visual acceptance on the verified silent laptop.",
+      "classification": "PROPOSED",
+      "source_ids": [
+        "SRC-001",
+        "SRC-003"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-022"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-023",
+      "summary": "Supplied worn art is a 1280 by 1280 JPEG without alpha or geometry. Preserve its decoded appearance, validate UV mapping and worn rendering, and do not describe it as a lossless source or completed model.",
+      "classification": "OBSERVED",
+      "source_ids": [
+        "SRC-003",
+        "SRC-009"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-017"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    }
+  ]
+}
