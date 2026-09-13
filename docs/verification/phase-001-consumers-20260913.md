@@ -56,17 +56,18 @@ Ran 18 tests in 0.001s
 OK
 ```
 
-The required headless GameTest run passed all 88 required tests on the phase branch.
+The required headless GameTest run passed all 89 required tests on the phase branch.
 
 ```text
-./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-bfs2-p001-gametest-r52
-All 88 required tests passed :)
-BUILD SUCCESSFUL in 5m 30s
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-bfs2-p001-gametest-r53
+All 89 required tests passed :)
+BUILD SUCCESSFUL in 4m 7s
 ```
 
 That run covered the movement diagnostics, algae navigation, pitch settling and progress,
 curiosity pursuit and recovery, blocked route handling, combat latch and bite timing, lifecycle
-reload, spawn replacement, population bounds, fishing, armor, and the existing baseline fixtures.
+reload, spawn replacement, population bounds, fishing, armor, the all species movement adapter
+inventory fixture, and the existing baseline fixtures.
 The disposable GameTest runtime and logs were removed after review. No graphical client was
 launched.
 

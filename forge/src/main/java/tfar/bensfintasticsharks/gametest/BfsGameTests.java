@@ -70,6 +70,8 @@ import tfar.bensfintasticsharks.entity.AtlanticSalmonEntity;
 import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
 import tfar.bensfintasticsharks.entity.AquaticMovement;
+import tfar.bensfintasticsharks.entity.SpeciesMovementAdapterCatalog;
+import tfar.bensfintasticsharks.entity.SpeciesSettingsService;
 import tfar.bensfintasticsharks.entity.OceanicWhitetipSharkEntity;
 import tfar.bensfintasticsharks.entity.BlacktipReefSharkEntity;
 import tfar.bensfintasticsharks.entity.SandtigerSharkEntity;
@@ -3056,6 +3058,65 @@ public final class BfsGameTests {
                 spawnTag,
                 null
         );
+    }
+
+    @GameTest(template = "empty", batch = "bfs_movement_inventory", timeoutTicks = 40)
+    public static void allSpeciesMovementAdaptersLoad(GameTestHelper helper) {
+        prepareVerticalWaterVolume(helper);
+        List<EntityType<? extends Mob>> types = List.of(
+                ModEntityTypes.GREAT_WHITE_SHARK,
+                ModEntityTypes.GREAT_HAMMERHEAD_SHARK,
+                ModEntityTypes.COMMON_THRESHER_SHARK,
+                ModEntityTypes.SHORTFIN_MAKO_SHARK,
+                ModEntityTypes.TIGER_SHARK,
+                ModEntityTypes.OCEANIC_WHITETIP_SHARK,
+                ModEntityTypes.SANDTIGER_SHARK,
+                ModEntityTypes.BLACKTIP_REEF_SHARK,
+                ModEntityTypes.ORCA,
+                ModEntityTypes.BOTTLENOSE_DOLPHIN,
+                ModEntityTypes.COMMON_OCTOPUS,
+                ModEntityTypes.CARIBBEAN_REEF_OCTOPUS,
+                ModEntityTypes.NAUTILUS,
+                ModEntityTypes.GIANT_MORAY_EEL,
+                ModEntityTypes.GREEN_SEA_TURTLE,
+                ModEntityTypes.AMERICAN_LOBSTER,
+                ModEntityTypes.COMMON_STINGRAY,
+                ModEntityTypes.HARBOR_SEAL,
+                ModEntityTypes.BLACK_SEA_NETTLE_JELLYFISH,
+                ModEntityTypes.CANNONBALL_JELLYFISH,
+                ModEntityTypes.ATLANTIC_COD,
+                ModEntityTypes.ATLANTIC_SALMON);
+        List<Mob> mobs = new ArrayList<>();
+        for (int index = 0; index < types.size(); index++) {
+            Mob mob = helper.spawn(types.get(index), new BlockPos(2 + (index % 6) * 3,
+                    8, 2 + (index / 6) * 5));
+            mob.getBrain().removeAllBehaviors();
+            mob.goalSelector.removeAllGoals(goal -> true);
+            mob.targetSelector.removeAllGoals(goal -> true);
+            mob.setPersistenceRequired();
+            mobs.add(mob);
+        }
+        helper.runAfterDelay(10, () -> {
+            helper.assertTrue(mobs.size() == 22,
+                    "movement inventory fixture must spawn all 22 species, actual=" + mobs.size());
+            for (Mob mob : mobs) {
+                helper.assertTrue(mob.isAlive() && mob.isInWater(),
+                        "movement inventory species must remain alive in water, type=" + mob.getType());
+                SpeciesMovementAdapterCatalog.Adapter adapter = SpeciesMovementAdapterCatalog.forEntity(mob);
+                helper.assertTrue(adapter != null, "runtime movement adapter missing, type=" + mob.getType());
+                String registrySpecies = mob.getType().builtInRegistryHolder().key().location().getPath();
+                helper.assertTrue(adapter.species().equals(registrySpecies),
+                        "adapter species must match the registry id, adapter=" + adapter.species()
+                                + ", registry=" + registrySpecies);
+                helper.assertTrue(Double.isFinite(SpeciesSettingsService.valueFor(mob,
+                                SpeciesSettingsService.Field.HORIZONTAL_SPEED, 0.0D)),
+                        "horizontal setting must resolve for " + adapter.species());
+                helper.assertTrue(Double.isFinite(SpeciesSettingsService.valueFor(mob,
+                                SpeciesSettingsService.Field.VERTICAL_SPEED, 0.0D)),
+                        "vertical setting must resolve for " + adapter.species());
+            }
+            helper.succeed();
+        });
     }
 
     @GameTest(template = "empty", batch = "bfs_movement", timeoutTicks = 1700)
