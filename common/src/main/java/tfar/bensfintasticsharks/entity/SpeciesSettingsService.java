@@ -1,5 +1,9 @@
 package tfar.bensfintasticsharks.entity;
 
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.phys.Vec3;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -198,6 +202,45 @@ public final class SpeciesSettingsService {
         } finally {
             LOCK.readLock().unlock();
         }
+    }
+
+    /** Returns an effective field value or the supplied fallback for an unregistered entity. */
+    public static double valueFor(Entity entity, Field field, double fallback) {
+        if (entity == null || field == null) return fallback;
+        SpeciesBehaviorProfile.Profile profile = SpeciesBehaviorProfile.forEntity(entity);
+        String species = profile == null ? null : profile.id();
+        if (species == null) return fallback;
+        SpeciesSnapshot snapshot = resolve(species);
+        FieldValue value = snapshot == null ? null : snapshot.field(field);
+        return value == null ? fallback : value.value();
+    }
+
+    /** Pursuit and escape are the only states that activate sprint multipliers. */
+    public static boolean sprintActive(Entity entity) {
+        if (!(entity instanceof Mob mob)) return false;
+        if (mob.getTarget() != null && mob.getTarget().isAlive()) return true;
+        return entity instanceof SmartWaterAnimal<?> animal
+                && "escape".equals(animal.getBfsBehaviorAction());
+    }
+
+    /**
+     * Calculates the requested powered vector in blocks per tick from a normalized world intent.
+     * Collision, acceleration, route and external-force handling remain the caller's concern.
+     */
+    public static Vec3 requestedVelocity(Entity entity, Vec3 worldIntent,
+                                         double fallbackHorizontalBps, double fallbackVerticalBps) {
+        if (worldIntent == null || worldIntent.lengthSqr() <= 1.0e-10) return Vec3.ZERO;
+        Vec3 direction = worldIntent.normalize();
+        boolean sprint = sprintActive(entity);
+        double horizontal = valueFor(entity, Field.HORIZONTAL_SPEED, fallbackHorizontalBps);
+        double vertical = valueFor(entity, Field.VERTICAL_SPEED, fallbackVerticalBps);
+        if (sprint) {
+            horizontal *= valueFor(entity, Field.HORIZONTAL_SPRINT, 1.0D);
+            vertical *= valueFor(entity, Field.VERTICAL_SPRINT, 1.0D);
+        }
+        return new Vec3(direction.x * horizontal / 20.0D,
+                direction.y * vertical / 20.0D,
+                direction.z * horizontal / 20.0D);
     }
 
     public static MutationResult apply(long expectedRevision, String target,

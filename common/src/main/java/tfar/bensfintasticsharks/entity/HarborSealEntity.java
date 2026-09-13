@@ -63,6 +63,7 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> impleme
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(HarborSealEntity.class, EntityDataSerializers.INT);
+    private Vec3 bfsPoweredVelocity = Vec3.ZERO;
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 25).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 2);
@@ -96,10 +97,18 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> impleme
     @Override
     public void travel(Vec3 $$0) {
         if (this.isControlledByLocalInstance() && this.isInWater()) {
-            this.moveRelative(this.getSpeed(), $$0);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.65));
+            Vec3 previous = this.getDeltaMovement();
+            Vec3 external = previous.subtract(bfsPoweredVelocity);
+            Vec3 worldIntent = $$0.yRot((float) Math.toRadians(-this.getYRot()));
+            double fallbackHorizontal = this.getSpeed() * 20.0D;
+            Vec3 powered = SpeciesSettingsService.requestedVelocity(this, worldIntent,
+                    fallbackHorizontal, fallbackHorizontal);
+            Vec3 velocity = external.add(powered);
+            this.move(MoverType.SELF, velocity);
+            this.setDeltaMovement(velocity.scale(0.65D));
+            bfsPoweredVelocity = powered.scale(0.65D);
         } else {
+            bfsPoweredVelocity = Vec3.ZERO;
             super.travel($$0);
         }
 

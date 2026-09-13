@@ -43,6 +43,8 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
                     net.minecraft.network.syncher.EntityDataSerializers.FLOAT);
 
     private int fleeCheckCooldown;
+    /** Last vector supplied by the settings adapter, used to keep external impulses separate. */
+    private Vec3 bfsPoweredVelocity = Vec3.ZERO;
 
     protected BfsAquaticEntity(EntityType<T> type, Level level) {
         super(type, level);
@@ -163,12 +165,20 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
     @Override
     public void travel(@NotNull Vec3 movementInput) {
         if (this.isEffectiveAi() && this.isInWater()) {
-            // Scale moveRelative so MOVEMENT_SPEED attributes don't compound into mach-10
-            // swimming. Vanilla water mobs effectively run with friction-bounded terminal
-            // velocities around 0.3-0.5 b/t — we match that.
-            this.moveRelative(this.getSpeed() * swimSpeedMultiplier(), scaleVerticalSwimInput(movementInput));
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(this.wasTouchingWater ? 0.82 : 0.25));
+            // Apply one bounded powered vector so movement attributes cannot compound into
+            // runaway horizontal or vertical speed.
+            Vec3 previous = this.getDeltaMovement();
+            Vec3 external = previous.subtract(bfsPoweredVelocity);
+            Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
+            double fallbackHorizontal = this.getSpeed() * swimSpeedMultiplier() * 20.0D;
+            double fallbackVertical = fallbackHorizontal * verticalSwimSpeedMultiplier();
+            Vec3 powered = SpeciesSettingsService.requestedVelocity(this, worldIntent,
+                    fallbackHorizontal, fallbackVertical);
+            Vec3 velocity = external.add(powered);
+            this.move(MoverType.SELF, velocity);
+            double friction = this.wasTouchingWater ? 0.82D : 0.25D;
+            this.setDeltaMovement(velocity.scale(friction));
+            bfsPoweredVelocity = powered.scale(friction);
             // Hard cap on horizontal speed so bad pathing or stacked impulses can't break it.
             Vec3 dm = this.getDeltaMovement();
             double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
@@ -181,6 +191,7 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.002, 0.0));
             }
         } else {
+            bfsPoweredVelocity = Vec3.ZERO;
             super.travel(movementInput);
         }
     }

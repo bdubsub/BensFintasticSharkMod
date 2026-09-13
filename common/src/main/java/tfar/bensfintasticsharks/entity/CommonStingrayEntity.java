@@ -29,6 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
 import net.minecraft.world.level.pathfinder.PathFinder;
+import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
@@ -80,6 +81,7 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(CommonStingrayEntity.class, EntityDataSerializers.INT);
+    private Vec3 bfsPoweredVelocity = Vec3.ZERO;
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 2);
@@ -143,12 +145,20 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
     @Override
     public void travel(@org.jetbrains.annotations.NotNull net.minecraft.world.phys.Vec3 movementInput) {
         if (this.isEffectiveAi() && this.isInWater()) {
-            this.moveRelative(this.getSpeed() * 0.5f, movementInput);
-            this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.6));
+            Vec3 previous = this.getDeltaMovement();
+            Vec3 external = previous.subtract(bfsPoweredVelocity);
+            Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
+            double fallbackHorizontal = this.getSpeed() * 0.5D * 20.0D;
+            Vec3 powered = SpeciesSettingsService.requestedVelocity(this, worldIntent,
+                    fallbackHorizontal, fallbackHorizontal);
+            Vec3 velocity = external.add(powered);
+            this.move(net.minecraft.world.entity.MoverType.SELF, velocity);
+            this.setDeltaMovement(velocity.scale(0.6D));
+            bfsPoweredVelocity = powered.scale(0.6D);
             // Persistent sink toward the seafloor.
             this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
         } else {
+            bfsPoweredVelocity = Vec3.ZERO;
             super.travel(movementInput);
         }
     }

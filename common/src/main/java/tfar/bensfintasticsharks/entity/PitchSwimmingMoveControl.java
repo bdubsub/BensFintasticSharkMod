@@ -176,8 +176,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
             stalledTicks = 0;
         }
         routeState = route == null ? "path" : route.isApproaching() ? "clearance" : "approach";
-        float targetSpeed = (float) (speedModifier * mob.getAttributeValue(Attributes.MOVEMENT_SPEED))
-                * waterSpeedMultiplier;
+        float targetSpeed = (float) configuredHorizontalSpeedPerTick();
         mob.setSpeed(easeSpeed ? Mth.lerp(0.125F, mob.getSpeed(), targetSpeed) : targetSpeed);
         // Near a vertical target, tiny horizontal residuals are numerical noise. Turning toward
         // each changing residual makes the body sweep left and right while it is climbing or
@@ -364,11 +363,11 @@ public class PitchSwimmingMoveControl extends MoveControl {
         double speedCap = Math.min(horizontalCap / Math.max(1.0e-8, forward.horizontalDistance()), routeSpeedCap);
         if (Math.abs(forward.y) > 1.0e-8 && !opposingPitch) {
             speedCap = Math.min(speedCap,
-                    Math.abs(mob.getSpeed()) * verticalSpeedRatio / Math.abs(forward.y));
+                    configuredVerticalSpeedPerTick() / Math.abs(forward.y));
             if (meaningfulVerticalError) {
                 boolean correctingVerticalDirection = remainingVerticalDistance * forward.y < -1.0e-6;
                 if (correctingVerticalDirection) {
-                    double levelingCap = Math.abs(mob.getSpeed()) * verticalSpeedRatio
+                    double levelingCap = configuredVerticalSpeedPerTick()
                             * (route == null || route.isApproaching() ? 1.0 : 0.125);
                     speedCap = Math.min(speedCap, Math.max(0.01, levelingCap));
                 } else {
@@ -432,9 +431,30 @@ public class PitchSwimmingMoveControl extends MoveControl {
     }
 
     private Vec3 limitVerticalTravel(Vec3 powered) {
-        double verticalCeiling = Math.abs(mob.getSpeed()) * verticalSpeedRatio;
+        double verticalCeiling = configuredVerticalSpeedPerTick();
         if (Math.abs(powered.y) <= verticalCeiling) return powered;
         return new Vec3(powered.x, Math.copySign(verticalCeiling, powered.y), powered.z);
+    }
+
+    private double configuredHorizontalSpeedPerTick() {
+        double fallback = Math.abs(speedModifier * mob.getAttributeValue(Attributes.MOVEMENT_SPEED)
+                * waterSpeedMultiplier);
+        double value = SpeciesSettingsService.valueFor(mob, SpeciesSettingsService.Field.HORIZONTAL_SPEED,
+                fallback * 20.0D);
+        if (SpeciesSettingsService.sprintActive(mob)) {
+            value *= SpeciesSettingsService.valueFor(mob, SpeciesSettingsService.Field.HORIZONTAL_SPRINT, 1.0D);
+        }
+        return Math.max(0.0D, value / 20.0D);
+    }
+
+    private double configuredVerticalSpeedPerTick() {
+        double fallback = configuredHorizontalSpeedPerTick() * verticalSpeedRatio;
+        double value = SpeciesSettingsService.valueFor(mob, SpeciesSettingsService.Field.VERTICAL_SPEED,
+                fallback * 20.0D);
+        if (SpeciesSettingsService.sprintActive(mob)) {
+            value *= SpeciesSettingsService.valueFor(mob, SpeciesSettingsService.Field.VERTICAL_SPRINT, 1.0D);
+        }
+        return Math.max(0.0D, value / 20.0D);
     }
 
     private boolean isOpposingPitch(Vec3 forward) {
