@@ -43,8 +43,10 @@ The following commands passed on the phase branch.
 ```
 
 The unit suite covers the 22 species adapter inventory, atomic settings behavior, and the
-independent anisotropic movement equation. The complete Forge data generation task also passed
-without generated resource drift.
+independent anisotropic movement equation. The added independent oracle test exercises every
+adapter catalog entry across the three required base pairs, three signed normalized intents, and
+the sprint multiplier pairs. The complete Forge data generation task also passed without generated
+resource drift.
 
 The existing `bfs-debug-v2` parser self-test also passed.
 

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,6 +59,46 @@ class SpeciesSettingsServiceTest {
         assertEquals(0.08D, result.y, 1.0e-9);
         assertEquals(0.0D, result.z, 1.0e-9);
         assertEquals(Vec3.ZERO, SpeciesSettingsService.composeVelocity(Vec3.ZERO, 6.0D, 2.0D));
+    }
+
+    @Test
+    void independentOracleCoversEveryAdapterAndSprintPair() {
+        List<Vec3> intents = List.of(
+                new Vec3(3.0D, 4.0D, 0.0D),
+                new Vec3(-3.0D, 4.0D, 2.0D),
+                new Vec3(3.0D, -4.0D, -2.0D));
+        List<double[]> basePairs = List.of(
+                new double[] {2.0D, 6.0D},
+                new double[] {6.0D, 6.0D},
+                new double[] {6.0D, 2.0D});
+        for (String species : SpeciesSettingsService.speciesIds()) {
+            SpeciesMovementAdapterCatalog.Adapter adapter = SpeciesMovementAdapterCatalog.forSpecies(species);
+            assertTrue(adapter != null, "movement adapter missing for " + species);
+            assertTrue(!adapter.adapterId().isBlank(), "adapter id missing for " + species);
+            assertTrue(!adapter.writerId().isBlank(), "writer id missing for " + species);
+            assertTrue(!adapter.stateSource().isBlank(), "state source missing for " + species);
+            for (Vec3 intent : intents) {
+                double length = Math.sqrt(intent.lengthSqr());
+                double x = intent.x / length;
+                double y = intent.y / length;
+                double z = intent.z / length;
+                for (double[] pair : basePairs) {
+                    assertIndependentVector(intent, pair[0], pair[1], 1.0D, 1.0D, x, y, z);
+                    assertIndependentVector(intent, pair[0], pair[1], 1.2D, 1.0D, x, y, z);
+                    assertIndependentVector(intent, pair[0], pair[1], 1.2D, 1.5D, x, y, z);
+                }
+            }
+        }
+    }
+
+    private static void assertIndependentVector(Vec3 intent, double horizontal, double vertical,
+                                                double horizontalSprint, double verticalSprint,
+                                                double x, double y, double z) {
+        Vec3 actual = SpeciesSettingsService.composeVelocity(intent,
+                horizontal * horizontalSprint, vertical * verticalSprint);
+        assertEquals(x * horizontal * horizontalSprint / 20.0D, actual.x, 1.0e-9);
+        assertEquals(y * vertical * verticalSprint / 20.0D, actual.y, 1.0e-9);
+        assertEquals(z * horizontal * horizontalSprint / 20.0D, actual.z, 1.0e-9);
     }
 
     @Test
