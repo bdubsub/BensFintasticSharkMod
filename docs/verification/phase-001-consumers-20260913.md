@@ -2,10 +2,11 @@
 
 Date: 2026-09-13
 
-Status: local implementation and current headless verification complete on the phase branch. This
-record does not claim the silent laptop client, pull request, merge, default branch, or phase tag
-gates. The current movement oracle result is recorded in
-`phase-001-movement-oracle-20260913.md`.
+Status: local implementation and current headless verification complete on the phase branch. The
+matching silent laptop client joined the disposable dedicated server and its residual evidence is
+recorded in `phase-001-client-visual-20260913.md`. The full client envelope matrix, pull request,
+merge, default branch, and phase tag gates remain open. The current movement oracle result is
+recorded in `phase-001-movement-oracle-20260913.md`.
 
 ## Implemented consumers
 
@@ -91,6 +92,13 @@ BUILD SUCCESSFUL
 
 The focused disposable runtime and logs were removed after review.
 
+The matching laptop client joined the production Forge dedicated server with the phase candidate
+artifact. The client was silent before launch and its exact Java playback stream remained muted.
+Valid settings set, get, and reset commands returned the expected revision, units, source, and
+capability text. The visual record covers the open surface and shallow ocean presentation. The
+full targeted client envelope matrix remains open; details and hashes are recorded in
+`phase-001-client-visual-20260913.md`.
+
 A disposable dedicated Forge server smoke also passed on node 1. The exact runtime used
 `server-port=25641`, `online-mode=false`, and `eula=true`. The server reached the `Done` readiness
 marker, then stopped cleanly and saved all three dimensions. The runtime and its logs were removed
@@ -112,6 +120,6 @@ phase tag.
 
 ## Gates still open
 
-The independent movement oracle and complete headless GameTest gate now pass. The silent laptop
-visual gate for the scaled pitched body remains open. The private independent review, pull request
+The independent movement oracle and complete headless GameTest gate now pass. The residual laptop
+visual gate for the complete scaled pitched body matrix remains open. The private independent review, pull request
 checks, merge, default branch verification, and signed phase tag also remain open.

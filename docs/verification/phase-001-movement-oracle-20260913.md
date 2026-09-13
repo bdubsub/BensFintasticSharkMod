@@ -3,8 +3,10 @@
 Date: 2026-09-13
 
 Status: the phase branch passes the current headless movement and lifecycle gates. The
-silent laptop client, independent review, pull request, merge, default branch verification,
-and signed phase tag remain open.
+matching silent laptop client joined the disposable dedicated server and produced command and
+presentation evidence recorded in `phase-001-client-visual-20260913.md`. The full client envelope
+matrix, independent review, pull request, merge, default branch verification, and signed phase
+tag remain open.
 
 ## Oracle coverage
 
@@ -44,15 +46,18 @@ Ran 18 tests in 0.001s
 OK
 ```
 
-The disposable GameTest runtime, logs, and parser scratch paths were removed after review.
-No graphical client was launched. The required laptop visual check therefore remains unverified.
+The disposable GameTest runtime, logs, and parser scratch paths were removed after review. The
+matching laptop client was launched only after the headless gates passed. Its server join, muted
+owned audio stream, readable settings feedback, open surface rendering, and shallow ocean
+rendering are recorded in `phase-001-client-visual-20260913.md`. The full terrain and scale
+matrix remains unverified.
 
 The Forge archive also passed `unzip -tqq` and the phase candidate built as
 `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`.
 
 ```text
 sha256 4a0ce9f0acc41f037444252471eff1390cf89beadf4b435f99edb8b8a715f4ff
-sha512 984c3c90134bc5c3fe51c21f1ffb397bec12e583eef30faac9708a465dcc8dc8b4f10dbbb33066d05a01d1ea35313608674ccfc0a5c8888fd60687eebdf52ad1
+sha512 984c3c90134bc5c3fe51c21f1ffb397bec12e583eef30faac9708a465dcc8b4f10dbbb33066d05a01d1ea35313608674ccfc0a5c8888fd60687eebdf52ad1
 ```
 
 A disposable dedicated server smoke on node 1 reached the `Done` readiness marker in 16.092
