@@ -542,6 +542,15 @@ public final class BfsDebugManager {
                     waypoint.addProperty("z", steering.waypoint().z);
                     record.add("selectedWaypoint", waypoint);
                 }
+            } else if (entity instanceof tfar.bensfintasticsharks.entity.PoweredVelocitySource source) {
+                Vec3 powered = source.bfsPoweredVelocityForDiagnostics();
+                Vec3 external = entity.getDeltaMovement().subtract(powered);
+                record.addProperty("poweredVelocityX", powered.x);
+                record.addProperty("poweredVelocityY", powered.y);
+                record.addProperty("poweredVelocityZ", powered.z);
+                record.addProperty("externalVelocityX", external.x);
+                record.addProperty("externalVelocityY", external.y);
+                record.addProperty("externalVelocityZ", external.z);
             }
             record.addProperty("navigationDone", mob.getNavigation().isDone());
             record.addProperty("targetUuid", mob.getTarget() == null ? "none" : mob.getTarget().getUUID().toString());

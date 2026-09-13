@@ -65,6 +65,7 @@ public class CannonballJellyfishEntity extends BfsAquaticEntity<CannonballJellyf
 
         Vec3 intent = new Vec3(this.driftDirection.x, y, this.driftDirection.z);
         Vec3 configured = configuredWaterVelocity(intent, 0.5D, 1.0D);
+        setBfsPoweredVelocityForDiagnostics(configured);
         double driftX = configured.x;
         double driftZ = configured.z;
 

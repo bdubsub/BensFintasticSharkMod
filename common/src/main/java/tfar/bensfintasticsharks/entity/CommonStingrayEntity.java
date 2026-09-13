@@ -50,7 +50,7 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
-        implements BfsVariantHolder {
+        implements BfsVariantHolder, PoweredVelocitySource {
 
     @Override public int bfsVariantCount() { return Variant.values().length; }
     @Override public void setBfsVariantId(int id) {
@@ -83,6 +83,11 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(CommonStingrayEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DATA_BFS_SCALE = SynchedEntityData.defineId(CommonStingrayEntity.class, EntityDataSerializers.FLOAT);
     private Vec3 bfsPoweredVelocity = Vec3.ZERO;
+
+    @Override
+    public Vec3 bfsPoweredVelocityForDiagnostics() {
+        return bfsPoweredVelocity;
+    }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 2);

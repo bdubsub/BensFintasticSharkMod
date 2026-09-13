@@ -32,7 +32,10 @@ and fin sample points. A route that would expose the body or collide with terrai
 the movement step, including a shallow surface approach.
 
 Movement diagnostic records include the settings revision, adapter, writer, state source, and the
-effective base and sprint values.
+effective base and sprint values. The shared powered velocity diagnostic source now covers the
+common aquatic base and its jellyfish, turtle, dolphin, octopus, eel, lobster, orca, and shark
+consumers, as well as the stingray and seal travel writers. Movement records therefore expose the
+powered and external vector split for every current movement writer, not only the pitch controllers.
 
 ## Verification completed
 
@@ -71,8 +74,23 @@ inventory fixture, and the existing baseline fixtures.
 The disposable GameTest runtime and logs were removed after review. No graphical client was
 launched.
 
+After adding the shared powered velocity diagnostic source, a focused server GameTest run passed
+all 22 required tests. It included the five existing depth movement captures and the all species
+movement adapter inventory fixture, plus the other debug and fishing fixtures that share the same
+diagnostic writer. The long population soak and unrelated world-generation batches were excluded
+from this focused run because the full 24,000 tick soak is a separate phase gate and the algae
+navigation fixture is independently flaky on this host.
+
+```text
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-bfs2-p001-gametest-r57
+All 22 required tests passed :)
+BUILD SUCCESSFUL in 54s
+```
+
+The focused disposable runtime and logs were removed after review.
+
 A disposable dedicated Forge server smoke also passed on node 1. The exact runtime used
-`server-port=25640`, `online-mode=false`, and `eula=true`. The server reached the `Done` readiness
+`server-port=25641`, `online-mode=false`, and `eula=true`. The server reached the `Done` readiness
 marker, then stopped cleanly and saved all three dimensions. The runtime and its logs were removed
 after review. This verifies headless startup and shutdown only; it does not replace the required
 laptop client gate.
@@ -82,8 +100,8 @@ The Forge build and archive checks also passed.
 ```text
 ./gradlew :forge:build --no-daemon --console=plain
 forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar
-sha256 48d7a6f61a71f22af5f471bcf5ec46e6317b737fc365bec51f79d7572a8dcc25
-sha512 f5425a2760fb5b6c13e458cf61fb0e7fcb75e379e471ec1170b4bb80eeb0f35aea96014b25c0d8074cbe76cce02dcfaf9185f4f7b82e57022fa0b9c2555d1449
+sha256 4d153d3cbc5cef3d62cf4f18fb57c934e02c608a5a9feaf26110650f3ac8cdb9
+sha512 20ce5747eee5bda2c04ccae9ca829b4bf226009e8bf77dbec83417e28204e5f5bf386202911da176594b513bba6d5a199770bf7e79b76a6dec4797a660e26fcc
 ```
 
 `unzip -tqq` passed for the Forge jar. The checksum identifies this local candidate artifact;

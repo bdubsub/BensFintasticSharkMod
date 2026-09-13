@@ -44,7 +44,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.IntFunction;
 
-public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> implements BfsVariantHolder {
+public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity>
+        implements BfsVariantHolder, PoweredVelocitySource {
 
     @Override public int bfsVariantCount() { return Variant.values().length; }
     @Override public void setBfsVariantId(int id) {
@@ -65,6 +66,11 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> impleme
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(HarborSealEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DATA_BFS_SCALE = SynchedEntityData.defineId(HarborSealEntity.class, EntityDataSerializers.FLOAT);
     private Vec3 bfsPoweredVelocity = Vec3.ZERO;
+
+    @Override
+    public Vec3 bfsPoweredVelocityForDiagnostics() {
+        return bfsPoweredVelocity;
+    }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 25).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 2);

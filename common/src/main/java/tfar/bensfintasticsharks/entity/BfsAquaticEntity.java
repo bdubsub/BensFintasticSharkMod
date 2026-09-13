@@ -32,7 +32,8 @@ import java.util.List;
  * exploring, not glued to a 12-block bubble. Subclasses override
  * {@link #wanderRadiusXZ()} / {@link #wanderRadiusY()} for finer tuning.
  */
-public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends SmartWaterAnimal<T> {
+public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends SmartWaterAnimal<T>
+        implements PoweredVelocitySource {
 
     /** Platform-set jellyfish contact damage multiplier (Forge reads from config). */
     public static volatile float globalJellyfishDamageMult = 1.0f;
@@ -45,6 +46,15 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
     private int fleeCheckCooldown;
     /** Last vector supplied by the settings adapter, used to keep external impulses separate. */
     private Vec3 bfsPoweredVelocity = Vec3.ZERO;
+
+    @Override
+    public final Vec3 bfsPoweredVelocityForDiagnostics() {
+        return bfsPoweredVelocity;
+    }
+
+    protected final void setBfsPoweredVelocityForDiagnostics(Vec3 poweredVelocity) {
+        bfsPoweredVelocity = poweredVelocity == null ? Vec3.ZERO : poweredVelocity;
+    }
 
     protected BfsAquaticEntity(EntityType<T> type, Level level) {
         super(type, level);
