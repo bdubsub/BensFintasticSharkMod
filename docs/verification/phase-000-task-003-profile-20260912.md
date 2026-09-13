@@ -2,7 +2,7 @@
 
 Date: 2026-09-12
 
-Status: incomplete. The retained ordinary pilot reproduced the timing regression, and scoped method timing selected a behavior preserving repair. The required four case performance matrix and phase transition remain open.
+Status: incomplete. The retained ordinary pilot reproduced the timing regression, and scoped method timing selected a behavior preserving repair. The installed four case performance matrix now passes, while diagnostic bounds, integration and phase transition gates remain open.
 
 ## Scope and environment
 
@@ -86,3 +86,20 @@ The retained complete normal comparison in `performance-matrix-20260912-interval
 | candidate normal | 2,400 | 36,000 | 2.369172 ms | 4.874258 ms | 9.403364 ms | 41.267318 ms |
 
 The candidate is 11.25 percent above the paired P95 and fails the unchanged 10 percent allowance. The candidate normal run is complete and retained as failed evidence. The doubled cases were not started for this rejected candidate. A later early return guard reduced the short pilot P95, but its full candidate prefix crossed the analyzer's irreversible slow tick boundary before completion and was not retained as acceptance evidence. The installed four case matrix and phase exit therefore remain open.
+
+## Completed installed matrix after policy cadence repair
+
+On September 13, 2026, the candidate policy path received three bounded performance changes. Entity profiles are cached at construction, action and memory counters advance directly while a route is active, and the policy engine is entered only when a route needs cleanup or a new scan. The policy scan cadence is 400 ticks. Threat, social and food selection reuse one bounded nearby snapshot, and nearest candidates are selected with bounded loops instead of temporary streams. Sharks keep their dedicated combat path. The source was built and tested from the retained `envy/rc1-release-evidence` worktree with base revision `5882bfd9af247dd88f2a3622d2d85b5b341c3d10` plus this scoped working tree repair.
+
+The final installed matrix used the fixed seed `240024`, the flat water fixture, all 22 species, actual movement and predation, natural spawning disabled, no player join, Forge 47.2.0, Java 17, GeckoLib 4.4.7, SmartBrainLib 1.14.2, the production library directory, and the same probe agent and data JARs for all cases. Each case completed 2,400 warmup ticks and 36,000 measured ticks. The candidate artifact SHA 256 was `35de4e620cef6c15ab3ac398c71f0530a50c913e33e7cc422d1ac09b417b422d`, and its SHA 512 was `2ba250876763a276365b7cb8d3ae143afe36679c61f950f3aa450af0cc2e07e6d07ad1836c3b7c3bc13ea49ae9dea5d67c3d4a311e974ac8aeab0dbe2bd1323d`. The paired baseline artifact SHA 256 was `f61b5580109577a6ef6387e551755d7054d4799222a1c5d60ecb3264092c0f4c`, and its SHA 512 was `32f5c7fc37b635f7e8e8cf1cf3e4325fad0d091d7114df11637ce912a8173388db7828572203770fc26fb8d2276bdbfd28a8b6c8560506a305e3a48eed7aaeab`.
+
+| Run | Scale | Median | P95 | P99 | Maximum | Population minimum to maximum |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| baseline normal | 1 | 3.042213 ms | 6.666408 ms | 12.773699 ms | 49.025195 ms | 61 to 63 |
+| candidate normal | 1 | 2.631187 ms | 5.628728 ms | 12.241425 ms | 33.737979 ms | 61 to 63 |
+| baseline doubled | 2 | 3.477761 ms | 8.467315 ms | 15.475546 ms | 61.763897 ms | 122 to 126 |
+| candidate doubled | 2 | 3.302680 ms | 7.956604 ms | 14.017326 ms | 52.613540 ms | 123 to 126 |
+
+The nearest rank P95 changes were minus 15.565804 percent for normal density and minus 6.031558 percent for doubled density. Both retained 10 percent relative gates passed, and the ordinary candidate P95 remained below the historical 7.639247 ms limit. Candidate counters recorded 2,657 bounded living scans, 67 escape actions, 433 feed actions, 24 habitat actions and 14 social actions at ordinary density, and 4,988 bounded living scans, 197 escape actions, 937 feed actions, 44 habitat actions and 22 social actions at doubled density. Predation and replenishment remained active, with 25 and 74 living deaths respectively, and the final populations reached 63 and 126 targets.
+
+The complete analyzer report is retained at `performance-matrix-20260913-cadence400/analysis.json` with SHA 256 `0855af6e7e517d91fdfe380ab8c6da31e2ba2934be8d52a7677c70afb2bf81b7`. Its raw capture hashes are recorded in the report and the four manifests. The baseline raw cases were reused unchanged from the earlier complete installed baseline runs. Candidate runtime directories were removed after report extraction. Diagnostic bounds and overhead evidence, pull request integration, resulting default verification, issue reconciliation, signed phase tag and phase cursor advancement remain required before Phase 000 can close.

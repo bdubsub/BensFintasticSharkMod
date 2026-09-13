@@ -1,0 +1,970 @@
+{
+  "schema": 1,
+  "percentile_method": "Nearest rank over individual completed server ticks",
+  "runs": {
+    "baseline-normal": {
+      "name": "baseline-normal",
+      "ticks": 36000,
+      "warmup_ticks": 2400,
+      "scale": 1,
+      "seed": 240024,
+      "jar_sha256": "f61b5580109577a6ef6387e551755d7054d4799222a1c5d60ecb3264092c0f4c",
+      "warmup_census_rows": 13,
+      "measurement_census_rows": 181,
+      "geckolib_sha256": "6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0",
+      "smartbrainlib_sha256": "3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b",
+      "probe_agent_sha256": "1092a271a078acd3f379818afe9c9176c874daabbbe7f2aabab15d5a7cd57e7d",
+      "probe_data_sha256": "29c2dfd1bf714a5700c6abda014781896690a41a8dcc4ddf811ef95697c8e5ac",
+      "tick_ms": {
+        "median": 3.0422124999999998,
+        "p95": 6.666408,
+        "p99": 12.773699,
+        "maximum": 49.025195
+      },
+      "heap_bytes": {
+        "minimum": 249465464,
+        "maximum": 1519543240,
+        "final": 953040144,
+        "five_minute_window_minima": [
+          249465464,
+          274883528,
+          250194872,
+          296138760,
+          283704784,
+          254688528
+        ]
+      },
+      "per_species_counts": {
+        "AmericanLobsterEntity": {
+          "minimum": 9,
+          "maximum": 10,
+          "mean": 9.972375690607734,
+          "final": 10
+        },
+        "AtlanticCodEntity": {
+          "minimum": 7,
+          "maximum": 8,
+          "mean": 7.961325966850829,
+          "final": 8
+        },
+        "AtlanticSalmonEntity": {
+          "minimum": 7,
+          "maximum": 8,
+          "mean": 7.966850828729282,
+          "final": 8
+        },
+        "BlackSeaNettleJellyfishEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "BlacktipReefSharkEntity": {
+          "minimum": 3,
+          "maximum": 3,
+          "mean": 3,
+          "final": 3
+        },
+        "BottlenoseDolphinEntity": {
+          "minimum": 3,
+          "maximum": 4,
+          "mean": 3.983425414364641,
+          "final": 4
+        },
+        "CannonballJellyfishEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "CaribbeanReefOctopusEntity": {
+          "minimum": 1,
+          "maximum": 2,
+          "mean": 1.988950276243094,
+          "final": 2
+        },
+        "CommonOctopusEntity": {
+          "minimum": 2,
+          "maximum": 3,
+          "mean": 2.9889502762430937,
+          "final": 3
+        },
+        "CommonStingrayEntity": {
+          "minimum": 3,
+          "maximum": 3,
+          "mean": 3,
+          "final": 3
+        },
+        "CommonThresherSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "GiantMorayEelEntity": {
+          "minimum": 3,
+          "maximum": 4,
+          "mean": 3.994475138121547,
+          "final": 4
+        },
+        "GreatHammerheadSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "GreatWhiteSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "GreenSeaTurtleEntity": {
+          "minimum": 2,
+          "maximum": 3,
+          "mean": 2.994475138121547,
+          "final": 3
+        },
+        "HarborSealEntity": {
+          "minimum": 3,
+          "maximum": 3,
+          "mean": 3,
+          "final": 3
+        },
+        "NautilusEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "OceanicWhitetipSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "OrcaEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "SandtigerSharkEntity": {
+          "minimum": 0,
+          "maximum": 1,
+          "mean": 0.994475138121547,
+          "final": 1
+        },
+        "ShortfinMakoSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "TigerSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        }
+      },
+      "minimum_air": {
+        "AmericanLobsterEntity": 300,
+        "AtlanticCodEntity": 300,
+        "AtlanticSalmonEntity": 300,
+        "BlackSeaNettleJellyfishEntity": 300,
+        "BlacktipReefSharkEntity": 300,
+        "BottlenoseDolphinEntity": 700,
+        "CannonballJellyfishEntity": 300,
+        "CaribbeanReefOctopusEntity": 300,
+        "CommonOctopusEntity": 300,
+        "CommonStingrayEntity": 300,
+        "CommonThresherSharkEntity": 300,
+        "GiantMorayEelEntity": 300,
+        "GreatHammerheadSharkEntity": 300,
+        "GreatWhiteSharkEntity": 300,
+        "GreenSeaTurtleEntity": 300,
+        "HarborSealEntity": 300,
+        "NautilusEntity": 300,
+        "OceanicWhitetipSharkEntity": 300,
+        "OrcaEntity": 682,
+        "SandtigerSharkEntity": 300,
+        "ShortfinMakoSharkEntity": 300,
+        "TigerSharkEntity": 300
+      },
+      "counters": {
+        "death_AmericanLobsterEntityForge_mob_by_BlacktipReefSharkEntity": 1,
+        "death_AmericanLobsterEntityForge_mob_by_CommonStingrayEntity": 3,
+        "death_AmericanLobsterEntityForge_mob_by_SandtigerSharkEntity": 1,
+        "death_AtlanticCodEntityForge_mob_by_BlacktipReefSharkEntity": 1,
+        "death_AtlanticCodEntityForge_mob_by_CommonThresherSharkEntity": 2,
+        "death_AtlanticCodEntityForge_mob_by_GreatHammerheadSharkEntity": 1,
+        "death_AtlanticCodEntityForge_mob_by_GreatWhiteSharkEntity": 1,
+        "death_AtlanticCodEntityForge_mob_by_SandtigerSharkEntity": 1,
+        "death_AtlanticCodEntityForge_mob_by_TigerSharkEntity": 1,
+        "death_AtlanticSalmonEntityForge_mob_by_BlacktipReefSharkEntity": 4,
+        "death_AtlanticSalmonEntityForge_mob_by_CommonThresherSharkEntity": 1,
+        "death_AtlanticSalmonEntityForge_mob_by_OceanicWhitetipSharkEntity": 1,
+        "death_BottlenoseDolphinEntityForge_mob_by_GreatWhiteSharkEntity": 1,
+        "death_BottlenoseDolphinEntityForge_mob_by_ShortfinMakoSharkEntity": 2,
+        "death_CaribbeanReefOctopusEntityForge_mob_by_BlacktipReefSharkEntity": 1,
+        "death_CaribbeanReefOctopusEntityForge_mob_by_CommonStingrayEntity": 1,
+        "death_CommonOctopusEntityForge_mob_by_GreatHammerheadSharkEntity": 2,
+        "death_GiantMorayEelEntityForge_mob_by_CommonStingrayEntity": 1,
+        "death_GreenSeaTurtleEntityForge_mob_by_OceanicWhitetipSharkEntity": 1,
+        "death_SandtigerSharkEntityForge_mob_by_TigerSharkEntity": 1,
+        "living_deaths": 28,
+        "navigation_calls": 44529,
+        "sensor_calls": 82192
+      },
+      "population": {
+        "target": 63,
+        "minimum": 61,
+        "maximum": 63,
+        "mean": 62.84530386740332
+      },
+      "maximum_brain_memories": 11,
+      "moving_entity_samples": 10734,
+      "maximum_observer_position_entries": 63,
+      "raw_sha256": {
+        "ticks": "a08f35c1a88baaf92e5c935e0495348ed33c964a073c595b07d7fb79dccea8c5",
+        "census": "a5c9200104108ffc52ab2caaa84a21826cd0b602e7825d62da411fc5d698816f",
+        "completion": "b3c1cba42275369fba25693c35750e75989a0efe51a7c6aa4ac8cbe113381f01",
+        "console": "611e4e1db32940e480adcd8eebf9364a7d408fa01ccca02803cab8291f38b541"
+      }
+    },
+    "candidate-normal": {
+      "name": "candidate-normal",
+      "ticks": 36000,
+      "warmup_ticks": 2400,
+      "scale": 1,
+      "seed": 240024,
+      "jar_sha256": "35de4e620cef6c15ab3ac398c71f0530a50c913e33e7cc422d1ac09b417b422d",
+      "warmup_census_rows": 13,
+      "measurement_census_rows": 181,
+      "geckolib_sha256": "6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0",
+      "smartbrainlib_sha256": "3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b",
+      "probe_agent_sha256": "1092a271a078acd3f379818afe9c9176c874daabbbe7f2aabab15d5a7cd57e7d",
+      "probe_data_sha256": "29c2dfd1bf714a5700c6abda014781896690a41a8dcc4ddf811ef95697c8e5ac",
+      "tick_ms": {
+        "median": 2.6311865,
+        "p95": 5.628728,
+        "p99": 12.241425,
+        "maximum": 33.737979
+      },
+      "heap_bytes": {
+        "minimum": 289199344,
+        "maximum": 1584697304,
+        "final": 927624432,
+        "five_minute_window_minima": [
+          367051864,
+          323988064,
+          354512296,
+          308227616,
+          305840784,
+          289199344
+        ]
+      },
+      "per_species_counts": {
+        "AmericanLobsterEntity": {
+          "minimum": 9,
+          "maximum": 10,
+          "mean": 9.977900552486188,
+          "final": 10
+        },
+        "AtlanticCodEntity": {
+          "minimum": 7,
+          "maximum": 8,
+          "mean": 7.972375690607735,
+          "final": 8
+        },
+        "AtlanticSalmonEntity": {
+          "minimum": 6,
+          "maximum": 8,
+          "mean": 7.9502762430939224,
+          "final": 8
+        },
+        "BlackSeaNettleJellyfishEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "BlacktipReefSharkEntity": {
+          "minimum": 2,
+          "maximum": 3,
+          "mean": 2.9889502762430937,
+          "final": 3
+        },
+        "BottlenoseDolphinEntity": {
+          "minimum": 4,
+          "maximum": 4,
+          "mean": 4,
+          "final": 4
+        },
+        "CannonballJellyfishEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "CaribbeanReefOctopusEntity": {
+          "minimum": 1,
+          "maximum": 2,
+          "mean": 1.9944751381215469,
+          "final": 2
+        },
+        "CommonOctopusEntity": {
+          "minimum": 2,
+          "maximum": 3,
+          "mean": 2.994475138121547,
+          "final": 3
+        },
+        "CommonStingrayEntity": {
+          "minimum": 2,
+          "maximum": 3,
+          "mean": 2.9889502762430937,
+          "final": 3
+        },
+        "CommonThresherSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "GiantMorayEelEntity": {
+          "minimum": 4,
+          "maximum": 4,
+          "mean": 4,
+          "final": 4
+        },
+        "GreatHammerheadSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "GreatWhiteSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "GreenSeaTurtleEntity": {
+          "minimum": 2,
+          "maximum": 3,
+          "mean": 2.994475138121547,
+          "final": 3
+        },
+        "HarborSealEntity": {
+          "minimum": 3,
+          "maximum": 3,
+          "mean": 3,
+          "final": 3
+        },
+        "NautilusEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "OceanicWhitetipSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "OrcaEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "SandtigerSharkEntity": {
+          "minimum": 0,
+          "maximum": 1,
+          "mean": 0.994475138121547,
+          "final": 1
+        },
+        "ShortfinMakoSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        },
+        "TigerSharkEntity": {
+          "minimum": 1,
+          "maximum": 1,
+          "mean": 1,
+          "final": 1
+        }
+      },
+      "minimum_air": {
+        "AmericanLobsterEntity": 300,
+        "AtlanticCodEntity": 300,
+        "AtlanticSalmonEntity": 299,
+        "BlackSeaNettleJellyfishEntity": 300,
+        "BlacktipReefSharkEntity": 300,
+        "BottlenoseDolphinEntity": 700,
+        "CannonballJellyfishEntity": 300,
+        "CaribbeanReefOctopusEntity": 300,
+        "CommonOctopusEntity": 300,
+        "CommonStingrayEntity": 300,
+        "CommonThresherSharkEntity": 300,
+        "GiantMorayEelEntity": 300,
+        "GreatHammerheadSharkEntity": 300,
+        "GreatWhiteSharkEntity": 298,
+        "GreenSeaTurtleEntity": 300,
+        "HarborSealEntity": 300,
+        "NautilusEntity": 300,
+        "OceanicWhitetipSharkEntity": 300,
+        "OrcaEntity": 689,
+        "SandtigerSharkEntity": 300,
+        "ShortfinMakoSharkEntity": 300,
+        "TigerSharkEntity": 300
+      },
+      "counters": {
+        "action_escape": 67,
+        "action_feed": 433,
+        "action_habitat": 24,
+        "action_social": 14,
+        "bounded_living_scans": 2657,
+        "death_AmericanLobsterEntityForge_mob_by_BlacktipReefSharkEntity": 1,
+        "death_AmericanLobsterEntityForge_mob_by_CommonStingrayEntity": 2,
+        "death_AmericanLobsterEntityForge_mob_by_SandtigerSharkEntity": 1,
+        "death_AtlanticCodEntityForge_mob_by_BlacktipReefSharkEntity": 3,
+        "death_AtlanticCodEntityForge_mob_by_SandtigerSharkEntity": 2,
+        "death_AtlanticSalmonEntityForge_mob_by_BlacktipReefSharkEntity": 4,
+        "death_AtlanticSalmonEntityForge_mob_by_CommonThresherSharkEntity": 2,
+        "death_AtlanticSalmonEntityForge_mob_by_GreatHammerheadSharkEntity": 1,
+        "death_AtlanticSalmonEntityForge_mob_by_OceanicWhitetipSharkEntity": 1,
+        "death_AtlanticSalmonEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+        "death_BlacktipReefSharkEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+        "death_BlacktipReefSharkEntityForge_mob_by_TigerSharkEntity": 1,
+        "death_CaribbeanReefOctopusEntityForge_mob_by_CommonStingrayEntity": 1,
+        "death_CommonOctopusEntityForge_mob_by_GreatHammerheadSharkEntity": 1,
+        "death_CommonStingrayEntityForge_mob_by_GreatHammerheadSharkEntity": 1,
+        "death_CommonStingrayEntityForge_mob_by_OceanicWhitetipSharkEntity": 1,
+        "death_GreenSeaTurtleEntityForge_mob_by_TigerSharkEntity": 1,
+        "living_deaths": 25,
+        "navigation_calls": 28871,
+        "sensor_calls": 82213
+      },
+      "population": {
+        "target": 63,
+        "minimum": 61,
+        "maximum": 63,
+        "mean": 62.85635359116022
+      },
+      "maximum_brain_memories": 11,
+      "moving_entity_samples": 11031,
+      "maximum_observer_position_entries": 63,
+      "raw_sha256": {
+        "ticks": "e00a837bc493f7e41069230f24aaea5f85f7b72faebb726f845d45bae08e7b6d",
+        "census": "e89f13618f0722fc32ce5a89e49f3978d81a02e2737fe522678bd20ff112c821",
+        "completion": "d14a6b695694ec9b026a155650ae540ca91d2b5c19095d5882b8134e2fcf4ec3",
+        "console": "7be20812907d6bc9669c2e3769c1a8d20045edaabd4d1883753ea0ee82f8704e"
+      }
+    },
+    "baseline-double": {
+      "name": "baseline-double",
+      "ticks": 36000,
+      "warmup_ticks": 2400,
+      "scale": 2,
+      "seed": 240024,
+      "jar_sha256": "f61b5580109577a6ef6387e551755d7054d4799222a1c5d60ecb3264092c0f4c",
+      "warmup_census_rows": 13,
+      "measurement_census_rows": 181,
+      "geckolib_sha256": "6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0",
+      "smartbrainlib_sha256": "3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b",
+      "probe_agent_sha256": "1092a271a078acd3f379818afe9c9176c874daabbbe7f2aabab15d5a7cd57e7d",
+      "probe_data_sha256": "29c2dfd1bf714a5700c6abda014781896690a41a8dcc4ddf811ef95697c8e5ac",
+      "tick_ms": {
+        "median": 3.4777605,
+        "p95": 8.467315,
+        "p99": 15.475546,
+        "maximum": 61.763897
+      },
+      "heap_bytes": {
+        "minimum": 248072392,
+        "maximum": 1506375864,
+        "final": 362955776,
+        "five_minute_window_minima": [
+          248072392,
+          271899200,
+          261577248,
+          316016352,
+          250807696,
+          342627032
+        ]
+      },
+      "per_species_counts": {
+        "AmericanLobsterEntity": {
+          "minimum": 19,
+          "maximum": 20,
+          "mean": 19.933701657458563,
+          "final": 20
+        },
+        "AtlanticCodEntity": {
+          "minimum": 15,
+          "maximum": 16,
+          "mean": 15.955801104972375,
+          "final": 16
+        },
+        "AtlanticSalmonEntity": {
+          "minimum": 15,
+          "maximum": 16,
+          "mean": 15.950276243093922,
+          "final": 16
+        },
+        "BlackSeaNettleJellyfishEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "BlacktipReefSharkEntity": {
+          "minimum": 5,
+          "maximum": 6,
+          "mean": 5.994475138121547,
+          "final": 6
+        },
+        "BottlenoseDolphinEntity": {
+          "minimum": 6,
+          "maximum": 8,
+          "mean": 7.961325966850829,
+          "final": 8
+        },
+        "CannonballJellyfishEntity": {
+          "minimum": 4,
+          "maximum": 4,
+          "mean": 4,
+          "final": 4
+        },
+        "CaribbeanReefOctopusEntity": {
+          "minimum": 3,
+          "maximum": 4,
+          "mean": 3.9502762430939224,
+          "final": 4
+        },
+        "CommonOctopusEntity": {
+          "minimum": 5,
+          "maximum": 6,
+          "mean": 5.983425414364641,
+          "final": 6
+        },
+        "CommonStingrayEntity": {
+          "minimum": 5,
+          "maximum": 6,
+          "mean": 5.994475138121547,
+          "final": 6
+        },
+        "CommonThresherSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "GiantMorayEelEntity": {
+          "minimum": 8,
+          "maximum": 8,
+          "mean": 8,
+          "final": 8
+        },
+        "GreatHammerheadSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "GreatWhiteSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "GreenSeaTurtleEntity": {
+          "minimum": 5,
+          "maximum": 6,
+          "mean": 5.983425414364641,
+          "final": 6
+        },
+        "HarborSealEntity": {
+          "minimum": 5,
+          "maximum": 6,
+          "mean": 5.988950276243094,
+          "final": 6
+        },
+        "NautilusEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "OceanicWhitetipSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "OrcaEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "SandtigerSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "ShortfinMakoSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "TigerSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        }
+      },
+      "minimum_air": {
+        "AmericanLobsterEntity": 300,
+        "AtlanticCodEntity": 300,
+        "AtlanticSalmonEntity": 300,
+        "BlackSeaNettleJellyfishEntity": 300,
+        "BlacktipReefSharkEntity": 300,
+        "BottlenoseDolphinEntity": 700,
+        "CannonballJellyfishEntity": 300,
+        "CaribbeanReefOctopusEntity": 300,
+        "CommonOctopusEntity": 300,
+        "CommonStingrayEntity": 300,
+        "CommonThresherSharkEntity": 300,
+        "GiantMorayEelEntity": 300,
+        "GreatHammerheadSharkEntity": 300,
+        "GreatWhiteSharkEntity": 300,
+        "GreenSeaTurtleEntity": 300,
+        "HarborSealEntity": 300,
+        "NautilusEntity": 300,
+        "OceanicWhitetipSharkEntity": 300,
+        "OrcaEntity": 698,
+        "SandtigerSharkEntity": 300,
+        "ShortfinMakoSharkEntity": 300,
+        "TigerSharkEntity": 300
+      },
+      "counters": {
+        "death_AmericanLobsterEntityForge_mob_by_BlacktipReefSharkEntity": 5,
+        "death_AmericanLobsterEntityForge_mob_by_CommonStingrayEntity": 4,
+        "death_AmericanLobsterEntityForge_mob_by_SandtigerSharkEntity": 1,
+        "death_AmericanLobsterEntityForge_mob_by_TigerSharkEntity": 2,
+        "death_AtlanticCodEntityForge_mob_by_BlacktipReefSharkEntity": 2,
+        "death_AtlanticCodEntityForge_mob_by_CommonThresherSharkEntity": 3,
+        "death_AtlanticCodEntityForge_mob_by_GreatWhiteSharkEntity": 1,
+        "death_AtlanticCodEntityForge_mob_by_SandtigerSharkEntity": 1,
+        "death_AtlanticCodEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+        "death_AtlanticSalmonEntityForge_mob_by_BlacktipReefSharkEntity": 3,
+        "death_AtlanticSalmonEntityForge_mob_by_CommonThresherSharkEntity": 3,
+        "death_AtlanticSalmonEntityForge_mob_by_GreatHammerheadSharkEntity": 1,
+        "death_AtlanticSalmonEntityForge_mob_by_OceanicWhitetipSharkEntity": 1,
+        "death_AtlanticSalmonEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+        "death_BlacktipReefSharkEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+        "death_BottlenoseDolphinEntityForge_mob_by_GreatWhiteSharkEntity": 2,
+        "death_BottlenoseDolphinEntityForge_mob_by_OceanicWhitetipSharkEntity": 4,
+        "death_BottlenoseDolphinEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+        "death_CaribbeanReefOctopusEntityForge_mob_by_BlacktipReefSharkEntity": 3,
+        "death_CaribbeanReefOctopusEntityForge_mob_by_CommonStingrayEntity": 2,
+        "death_CaribbeanReefOctopusEntityForge_mob_by_GreatHammerheadSharkEntity": 4,
+        "death_CommonOctopusEntityForge_mob_by_SandtigerSharkEntity": 3,
+        "death_CommonStingrayEntityForge_mob_by_BlacktipReefSharkEntity": 1,
+        "death_GreenSeaTurtleEntityForge_mob_by_GreatWhiteSharkEntity": 2,
+        "death_GreenSeaTurtleEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+        "death_HarborSealEntityForge_mob_by_TigerSharkEntity": 2,
+        "living_deaths": 55,
+        "navigation_calls": 120095,
+        "sensor_calls": 164351
+      },
+      "population": {
+        "target": 126,
+        "minimum": 122,
+        "maximum": 126,
+        "mean": 125.69613259668509
+      },
+      "maximum_brain_memories": 11,
+      "moving_entity_samples": 20134,
+      "maximum_observer_position_entries": 126,
+      "raw_sha256": {
+        "ticks": "6d4e042f754113f2f4b83769a44e7c81700d725fa35e7dd86483def4e8bc1fe2",
+        "census": "06d393269f0abbc8cd2bb5b8c2abfe4976d4be9729ecacf21e2f6c995c0fa9d6",
+        "completion": "edac1ddd4b2f88ebc5ace6d2ab4cd8f76074a7b2dec2782472ac8771af212861",
+        "console": "d30bd3ee38510671f0e1e1844de5cae4d8c6ac928ee385f2c50ef9a4ead9f0d6"
+      }
+    },
+    "candidate-double": {
+      "name": "candidate-double",
+      "ticks": 36000,
+      "warmup_ticks": 2400,
+      "scale": 2,
+      "seed": 240024,
+      "jar_sha256": "35de4e620cef6c15ab3ac398c71f0530a50c913e33e7cc422d1ac09b417b422d",
+      "warmup_census_rows": 13,
+      "measurement_census_rows": 181,
+      "geckolib_sha256": "6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0",
+      "smartbrainlib_sha256": "3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b",
+      "probe_agent_sha256": "1092a271a078acd3f379818afe9c9176c874daabbbe7f2aabab15d5a7cd57e7d",
+      "probe_data_sha256": "29c2dfd1bf714a5700c6abda014781896690a41a8dcc4ddf811ef95697c8e5ac",
+      "tick_ms": {
+        "median": 3.30268,
+        "p95": 7.956604,
+        "p99": 14.017326,
+        "maximum": 52.61354
+      },
+      "heap_bytes": {
+        "minimum": 427967536,
+        "maximum": 1700239296,
+        "final": 922083680,
+        "five_minute_window_minima": [
+          472215488,
+          427967536,
+          451727744,
+          449774080,
+          453007680,
+          454145808
+        ]
+      },
+      "per_species_counts": {
+        "AmericanLobsterEntity": {
+          "minimum": 19,
+          "maximum": 20,
+          "mean": 19.906077348066297,
+          "final": 20
+        },
+        "AtlanticCodEntity": {
+          "minimum": 15,
+          "maximum": 16,
+          "mean": 15.900552486187845,
+          "final": 16
+        },
+        "AtlanticSalmonEntity": {
+          "minimum": 15,
+          "maximum": 16,
+          "mean": 15.939226519337016,
+          "final": 16
+        },
+        "BlackSeaNettleJellyfishEntity": {
+          "minimum": 1,
+          "maximum": 2,
+          "mean": 1.9944751381215469,
+          "final": 2
+        },
+        "BlacktipReefSharkEntity": {
+          "minimum": 5,
+          "maximum": 6,
+          "mean": 5.983425414364641,
+          "final": 6
+        },
+        "BottlenoseDolphinEntity": {
+          "minimum": 8,
+          "maximum": 8,
+          "mean": 8,
+          "final": 8
+        },
+        "CannonballJellyfishEntity": {
+          "minimum": 3,
+          "maximum": 4,
+          "mean": 3.9889502762430937,
+          "final": 4
+        },
+        "CaribbeanReefOctopusEntity": {
+          "minimum": 3,
+          "maximum": 4,
+          "mean": 3.9613259668508287,
+          "final": 4
+        },
+        "CommonOctopusEntity": {
+          "minimum": 5,
+          "maximum": 6,
+          "mean": 5.988950276243094,
+          "final": 6
+        },
+        "CommonStingrayEntity": {
+          "minimum": 5,
+          "maximum": 6,
+          "mean": 5.9779005524861875,
+          "final": 6
+        },
+        "CommonThresherSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "GiantMorayEelEntity": {
+          "minimum": 8,
+          "maximum": 8,
+          "mean": 8,
+          "final": 8
+        },
+        "GreatHammerheadSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "GreatWhiteSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "GreenSeaTurtleEntity": {
+          "minimum": 5,
+          "maximum": 6,
+          "mean": 5.994475138121547,
+          "final": 6
+        },
+        "HarborSealEntity": {
+          "minimum": 5,
+          "maximum": 6,
+          "mean": 5.988950276243094,
+          "final": 6
+        },
+        "NautilusEntity": {
+          "minimum": 1,
+          "maximum": 2,
+          "mean": 1.977900552486188,
+          "final": 2
+        },
+        "OceanicWhitetipSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "OrcaEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "SandtigerSharkEntity": {
+          "minimum": 1,
+          "maximum": 2,
+          "mean": 1.988950276243094,
+          "final": 2
+        },
+        "ShortfinMakoSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        },
+        "TigerSharkEntity": {
+          "minimum": 2,
+          "maximum": 2,
+          "mean": 2,
+          "final": 2
+        }
+      },
+      "minimum_air": {
+        "AmericanLobsterEntity": 300,
+        "AtlanticCodEntity": 300,
+        "AtlanticSalmonEntity": 298,
+        "BlackSeaNettleJellyfishEntity": 300,
+        "BlacktipReefSharkEntity": 300,
+        "BottlenoseDolphinEntity": 300,
+        "CannonballJellyfishEntity": 300,
+        "CaribbeanReefOctopusEntity": 300,
+        "CommonOctopusEntity": 300,
+        "CommonStingrayEntity": 300,
+        "CommonThresherSharkEntity": 300,
+        "GiantMorayEelEntity": 300,
+        "GreatHammerheadSharkEntity": 300,
+        "GreatWhiteSharkEntity": 298,
+        "GreenSeaTurtleEntity": 300,
+        "HarborSealEntity": 300,
+        "NautilusEntity": 300,
+        "OceanicWhitetipSharkEntity": 300,
+        "OrcaEntity": 678,
+        "SandtigerSharkEntity": 300,
+        "ShortfinMakoSharkEntity": 300,
+        "TigerSharkEntity": 300
+      },
+      "counters": {
+        "action_escape": 197,
+        "action_feed": 937,
+        "action_habitat": 44,
+        "action_social": 22,
+        "bounded_living_scans": 4988,
+        "death_AmericanLobsterEntityForge_mob_by_BlacktipReefSharkEntity": 4,
+        "death_AmericanLobsterEntityForge_mob_by_CommonStingrayEntity": 10,
+        "death_AmericanLobsterEntityForge_mob_by_GreatHammerheadSharkEntity": 1,
+        "death_AmericanLobsterEntityForge_mob_by_SandtigerSharkEntity": 2,
+        "death_AtlanticCodEntityForge_mob_by_BlacktipReefSharkEntity": 5,
+        "death_AtlanticCodEntityForge_mob_by_CommonThresherSharkEntity": 5,
+        "death_AtlanticCodEntityForge_mob_by_GreatHammerheadSharkEntity": 1,
+        "death_AtlanticCodEntityForge_mob_by_GreatWhiteSharkEntity": 1,
+        "death_AtlanticCodEntityForge_mob_by_OceanicWhitetipSharkEntity": 2,
+        "death_AtlanticCodEntityForge_mob_by_SandtigerSharkEntity": 3,
+        "death_AtlanticCodEntityForge_mob_by_TigerSharkEntity": 1,
+        "death_AtlanticSalmonEntityForge_mob_by_BlacktipReefSharkEntity": 5,
+        "death_AtlanticSalmonEntityForge_mob_by_OceanicWhitetipSharkEntity": 3,
+        "death_AtlanticSalmonEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+        "death_AtlanticSalmonEntityForge_mob_by_TigerSharkEntity": 2,
+        "death_BlackSeaNettleJellyfishEntityForge_mob_by_GreatWhiteSharkEntity": 1,
+        "death_BlacktipReefSharkEntityForge_mob_by_GreatWhiteSharkEntity": 1,
+        "death_BlacktipReefSharkEntityForge_mob_by_ShortfinMakoSharkEntity": 2,
+        "death_CannonballJellyfishEntityForge_mob_by_GreatWhiteSharkEntity": 1,
+        "death_CannonballJellyfishEntityForge_mob_by_TigerSharkEntity": 1,
+        "death_CaribbeanReefOctopusEntityForge_mob_by_CommonStingrayEntity": 4,
+        "death_CaribbeanReefOctopusEntityForge_mob_by_GreatHammerheadSharkEntity": 3,
+        "death_CommonOctopusEntityForge_mob_by_GreatHammerheadSharkEntity": 1,
+        "death_CommonOctopusEntityForge_mob_by_SandtigerSharkEntity": 1,
+        "death_CommonStingrayEntityForge_mob_by_BlacktipReefSharkEntity": 3,
+        "death_CommonStingrayEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+        "death_GreenSeaTurtleEntityForge_mob_by_ShortfinMakoSharkEntity": 1,
+        "death_HarborSealEntityForge_mob_by_BlackSeaNettleJellyfishEntity": 1,
+        "death_HarborSealEntityForge_mob_by_GreatWhiteSharkEntity": 1,
+        "death_NautilusEntityForge_mob_by_CommonStingrayEntity": 4,
+        "death_SandtigerSharkEntityForge_mob_by_BlackSeaNettleJellyfishEntity": 2,
+        "living_deaths": 74,
+        "navigation_calls": 73779,
+        "sensor_calls": 164303
+      },
+      "population": {
+        "target": 126,
+        "minimum": 123,
+        "maximum": 126,
+        "mean": 125.59116022099448
+      },
+      "maximum_brain_memories": 11,
+      "moving_entity_samples": 21978,
+      "maximum_observer_position_entries": 126,
+      "raw_sha256": {
+        "ticks": "b54ca4a5b50596b17c6b8e7f793a3a208b90e727774767b973179ed64c63b3ab",
+        "census": "899539c42bc6e1f9fe6eca3af1f283ed3f015b906d698a3539fc97c999ef140a",
+        "completion": "e313290763be2611e85c9274a87fca69fc5c33a7cc28f6e0df1ae1cde287a10b",
+        "console": "d3ee6f51e8ef577062d69daf041394db5276ef9f3f905fb7429999ab6e217cb8"
+      }
+    }
+  },
+  "comparisons": [
+    {
+      "baseline": "baseline-normal",
+      "candidate": "candidate-normal",
+      "p95_change_percent": -15.565803953193381,
+      "p95_gate_passed": true,
+      "scope": "Performance only. Runtime safety and gameplay acceptance require their separate evidence."
+    },
+    {
+      "baseline": "baseline-double",
+      "candidate": "candidate-double",
+      "p95_change_percent": -6.03155781968664,
+      "p95_gate_passed": true,
+      "scope": "Performance only. Runtime safety and gameplay acceptance require their separate evidence."
+    }
+  ]
+}
