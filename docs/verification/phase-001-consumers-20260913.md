@@ -68,6 +68,12 @@ reload, spawn replacement, population bounds, fishing, armor, and the existing b
 The disposable GameTest runtime and logs were removed after review. No graphical client was
 launched.
 
+A disposable dedicated Forge server smoke also passed on node 1. The exact runtime used
+`server-port=25640`, `online-mode=false`, and `eula=true`. The server reached the `Done` readiness
+marker, then stopped cleanly and saved all three dimensions. The runtime and its logs were removed
+after review. This verifies headless startup and shutdown only; it does not replace the required
+laptop client gate.
+
 The Forge build and archive checks also passed.
 
 ```text
