@@ -182,6 +182,20 @@ Every `/bfs` command needs op permission (level 2). Species names and disturbanc
 | `/bfs debug on [category] [ticks] [targets]` | Starts one bounded server diagnostic capture. Categories are all, movement, brain, combat, population, advancement, and algae. Bare `on` uses all for 1,200 ticks |
 | `/bfs debug status` | Reports the active or last server capture, including limits, output path, and any incomplete reason |
 | `/bfs debug off` | Stops the active server diagnostic capture. It is safe to repeat after the capture is already inactive. |
+| `/bfs debug settings help` | Shows the session only tuning fields, units, bounds, revision and specialized aliases |
+| `/bfs debug settings list` | Lists every typed tuning field and its inclusive bounds |
+| `/bfs debug settings get <entity|*>` | Reads effective values, source, revision and capability for one species or all 22 |
+| `/bfs debug settings set <entity|*> <field> <value> [revision]` | Applies one atomic session value with optional stale revision protection |
+| `/bfs debug settings reset [entity|*] [field] [revision]` | Clears selected session values, or all session values for the target |
+| `/bfs debug settings reload` | Validates a complete server baseline and preserves valid session overrides |
+| `/bfs debug setspeed <entity|*> <horizontal> <vertical> [revision]` | Sets independent horizontal and vertical base movement values |
+| `/bfs debug setsprint <entity|*> <horizontal> <vertical> [revision]` | Sets independent horizontal and vertical sprint multipliers |
+| `/bfs debug setspawnsize <entity|*> <minimum> <maximum> [revision]` | Sets natural group admission bounds without changing summon or spawn egg creation |
+| `/bfs debug setscale <entity|*> <minimum> <maximum> [revision]` | Sets the normalized scale envelope used by later lifecycle and clearance consumers |
+| `/bfs debug sethealth <entity|*> <multiplier> [revision]` | Sets the session health multiplier |
+| `/bfs debug setdamage <entity|*> <multiplier> [revision]` | Sets the session attack damage multiplier |
+| `/bfs debug setknockback <entity|*> <value> [revision]` | Sets the session knockback resistance value |
+| `/bfs debug setbehavior <entity|*> <detection> <disengage> <action_timeout> <memory_ticks> [revision]` | Sets the session sensing, disengage and behavior timing values |
 | `/bfs reload` | Re reads config values without restart |
 
 `/bfs cap set` is runtime only. Restart the server and your edits are gone. To make changes permanent, edit the config file.

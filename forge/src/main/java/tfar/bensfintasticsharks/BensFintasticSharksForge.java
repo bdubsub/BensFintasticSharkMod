@@ -146,6 +146,7 @@ public class BensFintasticSharksForge {
                 }
             }
         }
+        tfar.bensfintasticsharks.entity.SpeciesSettingsService.resetSession();
     }
 
     private void releaseGrabbedPlayer(net.minecraft.world.entity.player.Player player) {
@@ -238,6 +239,7 @@ public class BensFintasticSharksForge {
             tfar.bensfintasticsharks.spawn.MobCapManager.validateVanillaFishReplacementCategories();
             applyCategoryCapsFromConfig();
             syncSharkMultsFromConfig();
+            tfar.bensfintasticsharks.config.SpeciesSettingsConfigBridge.reload();
         });
     }
 
