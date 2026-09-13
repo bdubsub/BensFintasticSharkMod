@@ -104,11 +104,20 @@ public final class SpeciesBehaviorEngine {
             return;
         }
         int stagger = Math.floorMod(entity.getId(), SCAN_INTERVAL_TICKS);
-        entity.setBfsBehaviorScanCooldown(SCAN_INTERVAL_TICKS + stagger);
+        // A newly spawned actor can tick before the rest of a natural group has been inserted
+        // into the level. Give that first empty observation a short retry window, then return
+        // to the staggered long interval so ordinary worlds keep the bounded scan workload.
+        entity.setBfsBehaviorScanCooldown(entity.tickCount <= 20 ? 0 : SCAN_INTERVAL_TICKS + stagger);
         if (!entity.isInWaterOrBubble() && profile.family() != SpeciesBehaviorProfile.Family.TURTLE
                 && profile.family() != SpeciesBehaviorProfile.Family.MAMMAL) {
             clearOwnedRoute(entity);
             return;
+        }
+        // Social pod members own their bounded group route whenever no BFS action is active.
+        // The vanilla idle brain can restore a stale walk target after startup, which otherwise
+        // masks the social scan until the next long interval.
+        if (profile.social() && !entity.hasBfsBehaviorAction()) {
+            BrainUtils.clearMemory(entity.getBrain(), MemoryModuleType.WALK_TARGET);
         }
         if (hasAnyWalkTarget(entity)) return;
 

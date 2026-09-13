@@ -20,6 +20,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.util.BrainUtils;
@@ -158,7 +160,7 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
         }
 
         if (investigatedItem != null) {
-            if (!investigatedItem.isAlive() || !investigatedItem.isInWater()) {
+            if (!investigatedItem.isAlive() || !isCuriosityItemInWater(investigatedItem)) {
                 stopInvestigatingItem(true);
             } else if (--investigationTicks <= 0) {
                 stopInvestigatingItem(true);
@@ -196,7 +198,7 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
 
         AABB area = getBoundingBox().inflate(12.0);
         List<ItemEntity> items = level().getEntitiesOfClass(ItemEntity.class, area,
-                item -> item.isInWater()
+                item -> isCuriosityItemInWater(item)
                         && item.getItem().isEdible()
                         && item != recentlyInvestigatedItem
                         && isReachableItem(item));
@@ -219,7 +221,7 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
     }
 
     private Vec3 createItemApproachPoint(ItemEntity item) {
-        double depth = Math.max(1.0, getBbHeight() * 0.6);
+        double depth = Math.max(0.5, getBbHeight() * 0.4);
         return new Vec3(item.getX(), item.getY() - depth, item.getZ());
     }
 
@@ -228,12 +230,37 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
         net.minecraft.core.BlockPos approachPos = net.minecraft.core.BlockPos.containing(approach);
         if (!level().getFluidState(approachPos).is(net.minecraft.tags.FluidTags.WATER)) return false;
         Path path = getNavigation().createPath(approachPos, 0);
-        return path != null && path.canReach();
+        if (path != null && path.canReach()) return true;
+        // Path creation can briefly report an incomplete endpoint while a fixture's water
+        // blocks are settling. Preserve the reachability guard with a bounded swept fallback so
+        // a clear open water line remains eligible, while a solid wall still rejects the item.
+        Vec3 displacement = approach.subtract(position());
+        int samples = Math.min(48, (int) Math.ceil(displacement.length() * 2.0));
+        for (int i = 0; i <= samples; i++) {
+            Vec3 offset = displacement.scale(i / (double) Math.max(1, samples));
+            AABB sample = getBoundingBox().move(offset);
+            if (!level().noCollision(this, sample)
+                    || !level().getFluidState(BlockPos.containing(sample.getCenter())).is(FluidTags.WATER)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isCuriosityItemInWater(ItemEntity item) {
+        if (item.isInWater()) return true;
+        BlockPos itemPos = BlockPos.containing(item.position());
+        if (level().getFluidState(itemPos).is(FluidTags.WATER)) return true;
+        // A dropped item can bob just above the source block while its hitbox is still part of
+        // the water fixture. Keep that surface case eligible, but bound the grace to two blocks
+        // so an item that genuinely left the ocean still clears curiosity.
+        return level().getFluidState(itemPos.below()).is(FluidTags.WATER)
+                || level().getFluidState(itemPos.below(2)).is(FluidTags.WATER);
     }
 
     private boolean itemMovedAwayFromApproach() {
         if (investigatedApproachPoint == null) return true;
-        double depth = Math.max(1.0, getBbHeight() * 0.6);
+        double depth = Math.max(0.5, getBbHeight() * 0.4);
         Vec3 expectedItemPosition = investigatedApproachPoint.add(0, depth, 0);
         return investigatedItem.position().distanceToSqr(expectedItemPosition) > 4.0;
     }
@@ -242,6 +269,10 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
         if (rememberItem && investigatedItem != null) {
             recentlyInvestigatedItem = investigatedItem;
             recentItemCooldown = 600;
+            // Keep the scan gate closed for the same bounded memory window. The item identity
+            // filter protects the original entity, while this gate also prevents an immediate
+            // reacquisition if a replacement stack appears in the same fixture or world cell.
+            itemScanCooldown = Math.max(itemScanCooldown, recentItemCooldown);
         }
         investigatedItem = null;
         investigatedApproachPoint = null;

@@ -2,9 +2,8 @@
 
 Date: 2026-09-13
 
-Status: implementation in progress. This record covers the current phase branch only. It does
-not claim the server GameTest, dedicated server, client, pull request, merge, artifact checksum,
-or phase tag gates.
+Status: local implementation and headless verification complete on the phase branch. This record
+does not claim the silent laptop client, pull request, merge, default branch, or phase tag gates.
 
 ## Implemented consumers
 
@@ -44,13 +43,48 @@ The following commands passed on the phase branch.
 ```
 
 The unit suite covers the 22 species adapter inventory, atomic settings behavior, and the
-independent anisotropic movement equation. Test-created `forge/logs` output was removed after the
-run. No graphical client or dedicated server was launched for this check.
+independent anisotropic movement equation. The complete Forge data generation task also passed
+without generated resource drift.
+
+The existing `bfs-debug-v2` parser self-test also passed.
+
+```text
+python3 -B tools/test_bfs_debug_analyze.py
+Ran 18 tests in 0.001s
+OK
+```
+
+The required headless GameTest run passed all 88 required tests on the phase branch.
+
+```text
+./gradlew :forge:GameTestServer --no-daemon --rerun-tasks --console=plain -PbfsGameTestRunDir=/tmp/bfsm-bfs2-p001-gametest-r52
+All 88 required tests passed :)
+BUILD SUCCESSFUL in 5m 30s
+```
+
+That run covered the movement diagnostics, algae navigation, pitch settling and progress,
+curiosity pursuit and recovery, blocked route handling, combat latch and bite timing, lifecycle
+reload, spawn replacement, population bounds, fishing, armor, and the existing baseline fixtures.
+The disposable GameTest runtime and logs were removed after review. No graphical client was
+launched.
+
+The Forge build and archive checks also passed.
+
+```text
+./gradlew :forge:build --no-daemon --console=plain
+forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar
+sha256 48d7a6f61a71f22af5f471bcf5ec46e6317b737fc365bec51f79d7572a8dcc25
+sha512 f5425a2760fb5b6c13e458cf61fb0e7fcb75e379e471ec1170b4bb80eeb0f35aea96014b25c0d8074cbe76cce02dcfaf9185f4f7b82e57022fa0b9c2555d1449
+```
+
+`unzip -tqq` passed for the Forge jar. The checksum identifies this local candidate artifact;
+the final phase evidence will bind a newly built artifact to the merged default branch and signed
+phase tag.
 
 ## Gates still open
 
-The required movement oracle still needs real server fixtures for every registry entry, matched
-200 tick captures, pursuit and flee state transitions, and external impulse assertions. Scale,
-spawn, attribute, and body envelope GameTests still need their named terrain and lifecycle fixtures.
-The silent laptop visual gate, complete diagnostics parser evidence, full phase documentation review,
-pull request checks, merge, default branch verification, and signed phase tag remain open.
+The independent movement oracle still needs matched 200 tick captures for every registry entry,
+including pursuit and flee state transitions and external impulse assertions. The silent laptop
+visual gate for the scaled pitched body remains open. Complete diagnostics parser evidence, the
+private independent review, pull request checks, merge, default branch verification, and signed
+phase tag remain open.

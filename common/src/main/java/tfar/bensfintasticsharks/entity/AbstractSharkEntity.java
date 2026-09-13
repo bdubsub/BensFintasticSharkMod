@@ -76,6 +76,12 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     }
 
     @Override
+    public void setTarget(@Nullable LivingEntity target) {
+        super.setTarget(target);
+        if (target != null) scheduleBiteIfInRange(target);
+    }
+
+    @Override
     protected float verticalSwimSpeedMultiplier() {
         return (float) AquaticMovement.SHARK_VERTICAL_SPEED_RATIO;
     }
@@ -270,7 +276,10 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                         && victim.level() == level() && !victim.isPassenger()
                         && getPassengers().isEmpty()) {
                     double reach = biteRangeAgainst(victim);
-                    if (this.distanceToSqr(victim) <= reach * reach) {
+                    // Entity push and the victim's own interpolation can open the contact gap
+                    // during the short animation delay. Preserve the bite once it was scheduled
+                    // in contact range, with only a small server side tolerance for that push.
+                    if (this.distanceToSqr(victim) <= (reach + 1.0D) * (reach + 1.0D)) {
                         this.doHurtTarget(victim);
                         onBiteLanded(victim);
                     }
@@ -451,18 +460,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             // Checked EVERY tick (0.19): behind the old %10 gate a fast shark could
             // cross the whole bite disc between checks and never fire, which fed the
             // overshoot-orbit loop.
-            if (inBiteRange
-                    && biteCooldown <= 0
-                    && pendingBiteTarget == null
-                    // A latched passenger is already inside the active attack. Do not
-                    // schedule another bite while the grab or latch timer is running.
-                    && getPassengers().isEmpty()) {
-                this.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
-                onBiteAttack(tgt);
-                pendingBiteTarget = tgt;
-                pendingBiteTicks = biteImpactDelayTicks();
-                biteCooldown = params.biteCooldownTicks();
-            }
+            if (inBiteRange) scheduleBiteIfInRange(tgt);
         }
 
         // Beach avoidance: every 40 ticks, nudge sharks away from beach biomes
@@ -477,6 +475,18 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                         new WalkTarget(walk, 1.0f, 1));
             }
         }
+    }
+
+    private void scheduleBiteIfInRange(LivingEntity target) {
+        if ((!isInWater() && !target.isInWater()) || !target.isAlive() || biteCooldown > 0 || pendingBiteTarget != null
+                || !getPassengers().isEmpty()) return;
+        double reach = biteRangeAgainst(target);
+        if (distanceToSqr(target) > reach * reach) return;
+        swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+        onBiteAttack(target);
+        pendingBiteTarget = target;
+        pendingBiteTicks = biteImpactDelayTicks();
+        biteCooldown = params.biteCooldownTicks();
     }
 
     /**

@@ -32,18 +32,25 @@ public class PitchSwimmingMoveControl extends MoveControl {
     private long routeAttempt;
     private Vec3 selectedWaypoint;
     private float targetPitch;
+    private boolean directVerticalTarget;
     private Vec3 blockedGoal;
     private int retryAfterTick;
     private AquaticDepthGuidance.Step depthGuidance;
     private boolean settling;
     private boolean committedHeading;
     private float committedYaw;
+    private boolean headingCorrectionUsed;
+    private boolean waitingForHeading;
+    private boolean longDirectVerticalRoute;
+    private int headingHoldTicks;
     private double remainingVerticalDistance;
     private boolean routeStartedWithOpposingPitch;
+    private boolean suppressSettlingTranslation;
+    private boolean routeHandoff;
 
     @Override
     public boolean hasWanted() {
-        return super.hasWanted() || settling;
+        return super.hasWanted() || settling || headingHoldTicks > 0;
     }
 
     @Override
@@ -78,13 +85,16 @@ public class PitchSwimmingMoveControl extends MoveControl {
                 requestedGoal == null ? 0 : mob.position().distanceTo(requestedGoal), stalledTicks,
                 poweredCarry, mob.getDeltaMovement().subtract(poweredCarry), verticalSpeedRatio,
                 verticalReferenceSpeed, verticalReferenceSpeed * verticalSpeedRatio, settling,
-                pitchRate, routeSpeedCap, depthGuidance == null ? 0 : depthGuidance.curvature());
+                pitchRate, routeSpeedCap, depthGuidance == null ? 0 : depthGuidance.curvature(),
+                longDirectVerticalRoute, waitingForHeading, mob.getYRot(), committedYaw);
     }
 
     public record Snapshot(long attempt, String state, Vec3 destination, Vec3 waypoint, float desiredPitch,
                            double remainingDistance, int stalledTicks, Vec3 poweredVelocity, Vec3 externalVelocity,
                            double verticalSpeedRatio, double verticalReferenceSpeed, double verticalSpeedCeiling,
-                           boolean settling, float pitchRate, double routeSpeedCap, double depthCurvature) {}
+                           boolean settling, float pitchRate, double routeSpeedCap, double depthCurvature,
+                           boolean longDirectVerticalRoute, boolean waitingForHeading,
+                           float currentYaw, float desiredYaw) {}
 
     @Override
     public void tick() {
@@ -93,6 +103,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
             stopInputs("idle");
             return;
         }
+        if (headingHoldTicks > 0 && operation != Operation.MOVE_TO) headingHoldTicks--;
         if (operation != Operation.MOVE_TO) {
             prepareSettling();
             return;
@@ -125,7 +136,12 @@ public class PitchSwimmingMoveControl extends MoveControl {
             return;
         }
         if (requestedGoal == null || requestedGoal.distanceToSqr(goal) > 1.0e-6) {
+            routeHandoff = requestedGoal != null && "arrived".equals(routeState);
             requestedGoal = goal;
+            suppressSettlingTranslation = false;
+            longDirectVerticalRoute = goal.subtract(mob.position()).horizontalDistance()
+                    <= Math.max(0.25D, mob.getBbWidth() * 0.2D)
+                    && Math.abs(goal.y - mob.getY()) > 4.0D;
             routeAttempt++;
             navigationOwned = path != null;
             routeStartedWithOpposingPitch = isOpposingPitch(
@@ -133,13 +149,15 @@ public class PitchSwimmingMoveControl extends MoveControl {
             route = createRoute(goal);
             if (route == null && path == null && !clearSegment(mob.position(), goal)) {
                 blockedGoal = goal;
-                retryAfterTick = mob.tickCount + 100;
+                retryAfterTick = mob.tickCount + 400;
                 stopInputs("blocked");
                 return;
             }
             progressWaypoint = null;
             stalledTicks = 0;
             committedHeading = false;
+            headingCorrectionUsed = false;
+            waitingForHeading = true;
         }
         if (route != null && route.arrived(mob.position())) {
             stopInputs("arrived");
@@ -157,6 +175,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
         Vec3 delta = target.subtract(mob.position());
         remainingVerticalDistance = delta.y;
         double distance = delta.length();
+        directVerticalTarget = delta.horizontalDistance() <= Math.max(0.25D, mob.getBbWidth() * 0.2D)
+                && Math.abs(delta.y) > 0.35D;
         if (progressWaypoint == null || progressWaypoint.distanceToSqr(target) > 1.0e-6) {
             progressWaypoint = target;
             bestWaypointDistance = distance;
@@ -170,8 +190,11 @@ public class PitchSwimmingMoveControl extends MoveControl {
         // the next server tick observes the arrival radius. Release the old heading as
         // soon as that crossing is detected so the swimmer makes one corrective turn
         // back to the endpoint instead of continuing a full horizontal orbit.
-        if (bestWaypointDistance < 2.0 && distance > bestWaypointDistance + 0.15) {
+        boolean overshotWaypoint = route != null && route.isApproaching() && !headingCorrectionUsed
+                && bestWaypointDistance < 2.0 && distance > bestWaypointDistance + 0.15;
+        if (overshotWaypoint) {
             committedHeading = false;
+            headingCorrectionUsed = true;
             bestWaypointDistance = distance;
             stalledTicks = 0;
         }
@@ -183,20 +206,28 @@ public class PitchSwimmingMoveControl extends MoveControl {
         // descending. Preserve the established bearing until a body-sized horizontal offset is
         // available for a meaningful turn.
         double horizontalHeadingThreshold = Math.max(0.1, mob.getBbWidth() * 0.5);
-        float bearingYaw = delta.horizontalDistance() > horizontalHeadingThreshold
-                ? (float) Math.toDegrees(Math.atan2(delta.z, delta.x)) - 90 : mob.getYRot();
-        if (!committedHeading || (approachingBeforeTarget && !approachingAfterTarget)) {
+        boolean finalApproach = distance < 1.5D;
+        float bearingYaw = directVerticalTarget ? mob.getYRot()
+                : delta.horizontalDistance() > horizontalHeadingThreshold
+                ? (float) Math.toDegrees(Math.atan2(delta.z, delta.x)) - 90
+                : overshotWaypoint && !finalApproach ? mob.getYRot() + 180.0F : mob.getYRot();
+        boolean enteringDestinationLeg = approachingBeforeTarget && !approachingAfterTarget;
+        if (enteringDestinationLeg) {
+            headingCorrectionUsed = false;
+            waitingForHeading = true;
+        }
+        if (!committedHeading || enteringDestinationLeg) {
             committedYaw = bearingYaw;
             committedHeading = true;
         }
         float desiredYaw = committedHeading ? committedYaw : mob.getYRot();
-        boolean stillTurning = Math.abs(Mth.wrapDegrees(desiredYaw - mob.getYRot()))
-                > AquaticMovement.MAX_YAW_STEP_DEGREES_PER_TICK;
         mob.setYRot(rotlerp(mob.getYRot(), desiredYaw, AquaticMovement.MAX_YAW_STEP_DEGREES_PER_TICK));
         mob.yBodyRot = mob.getYRot();
         mob.yHeadRot = mob.getYRot();
 
-        float desiredPitch = Mth.clamp((float) -Math.toDegrees(Math.atan2(delta.y, delta.horizontalDistance())),
+        float desiredPitch = directVerticalTarget
+                ? delta.y > 0.0D ? -90.0F : 90.0F
+                : Mth.clamp((float) -Math.toDegrees(Math.atan2(delta.y, delta.horizontalDistance())),
                 -upwardLimit, downwardLimit);
         targetPitch = desiredPitch;
         depthGuidance = AquaticDepthGuidance.approach(delta.horizontalDistance(), delta.y, mob.getXRot());
@@ -205,7 +236,10 @@ public class PitchSwimmingMoveControl extends MoveControl {
         double headingThrottle = Math.max(0.05, Math.cos(yawError));
         mob.setXxa(0);
         mob.setYya(0);
-        mob.setZza((float) headingThrottle);
+        double yawErrorDegrees = Math.abs(Mth.wrapDegrees(desiredYaw - mob.getYRot()));
+        boolean holdForHeading = yawErrorDegrees > 90.0D
+                || (routeHandoff && mob.getTarget() == null && yawErrorDegrees > 30.0D);
+        mob.setZza(holdForHeading ? 0 : (float) headingThrottle);
         // Curvature is an angular steering demand, not a reason to stop the animal. The old
         // speed limit divided the pitch step by the whole cubic curve curvature, which reduced
         // a steep but valid route to a nearly stationary nose-up pose. Keep the existing curve
@@ -217,22 +251,38 @@ public class PitchSwimmingMoveControl extends MoveControl {
                 && (route == null || route.isApproaching() || !navigationOwned);
         // Keep scalar propulsion at cruise speed while an already pitched body reorients. The
         // established vertical floor remains in force for ordinary routes and final approach.
-        double forwardTravelFloor = Math.abs(mob.getSpeed())
-                * (opposingPitch ? 1.0 : verticalSpeedRatio);
+        double forwardTravelFloor = Math.min(Math.abs(mob.getSpeed())
+                * (opposingPitch ? 1.0D : verticalSpeedRatio), configuredVerticalSpeedPerTick());
         routeSpeedCap = Math.min(distance * 0.1,
                 Math.max(depthGuidance.speedLimit(), forwardTravelFloor));
         routeSpeedCap *= Math.max(0.25, headingThrottle);
+        // Once the body is inside the final body sized approach, preserve the
+        // configured travel class instead of letting the turn throttle reduce it
+        // below the speed needed to finish the endpoint.
+        if (distance < 1.5 && delta.horizontalDistance() > horizontalHeadingThreshold) {
+            routeSpeedCap = Math.max(routeSpeedCap, Math.min(distance * 0.1, forwardTravelFloor));
+        }
+        if (holdForHeading) routeSpeedCap = 0;
+        if (longDirectVerticalRoute) {
+            // Turn toward a true vertical destination before translating. Allowing the
+            // horizontal component of the level pose to run for the full pitch transition
+            // carries small fish out of bounded test volumes and makes a vertical climb look
+            // like a sideways orbit.
+            routeSpeedCap = Math.min(routeSpeedCap, 0.005D);
+        }
+        waitingForHeading = false;
+        boolean blockedStep = route != null && routeSpeedCap > 1.0e-6
+                && !clearSegment(mob.position(), mob.position().add(routeForward.scale(
+                Math.min(routeSpeedCap, 0.1D))));
 
         if (distance < bestWaypointDistance - 1.0e-4) {
             bestWaypointDistance = distance;
             stalledTicks = 0;
-        } else if (stillTurning) {
-            // Heading alignment is an intentional part of a finite route. Do not classify the
-            // low forward projection during that turn as a stalled depth approach.
-            stalledTicks = 0;
-        } else if (++stalledTicks >= 80) {
+        } else {
+            stalledTicks += blockedStep ? 4 : 1;
+            if (stalledTicks < 80) return;
             blockedGoal = requestedGoal;
-            retryAfterTick = mob.tickCount + 100;
+            retryAfterTick = mob.tickCount + 400;
             mob.getNavigation().stop();
             mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
             route = null;
@@ -258,7 +308,15 @@ public class PitchSwimmingMoveControl extends MoveControl {
             }
             return null;
         }
-        return clearSegment(mob.position(), goal) ? new AquaticRoute(goal, radius, null) : null;
+        // Keep a finite endpoint even when the conservative preview rejects the whole segment.
+        // The travel step performs the same swept collision check for each actual movement
+        // vector, while the route object prevents path navigation from abandoning a clearable
+        // endpoint and accumulating a second horizontal orbit.
+        double horizontal = goal.subtract(mob.position()).horizontalDistance();
+        boolean directVertical = horizontal <= Math.max(0.25D, mob.getBbWidth() * 0.2D)
+                && Math.abs(goal.y - mob.getY()) > 0.35D;
+        if (!directVertical && !clearSegment(mob.position(), goal)) return null;
+        return new AquaticRoute(goal, radius, null);
     }
 
     private boolean clearSegment(Vec3 from, Vec3 to) {
@@ -278,8 +336,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
     /** Conservative scaled body and dorsal fin envelope used by both routing and recovery. */
     private AABB bodyEnvelope(Vec3 position) {
         AABB local = mob.getBoundingBox().move(position.subtract(mob.position())).deflate(0.01D);
-        double horizontalMargin = Math.max(0.12D, mob.getBbWidth() * 0.35D);
-        double verticalMargin = Math.max(0.10D, mob.getBbHeight() * 0.30D);
+        double horizontalMargin = Math.max(0.04D, mob.getBbWidth() * 0.08D);
+        double verticalMargin = Math.max(0.04D, mob.getBbHeight() * 0.08D);
         return local.inflate(horizontalMargin, verticalMargin, horizontalMargin);
     }
 
@@ -308,9 +366,14 @@ public class PitchSwimmingMoveControl extends MoveControl {
         mob.setXxa(0);
         mob.setYya(0);
         mob.setZza(0);
+        Vec3 observed = mob.getDeltaMovement();
+        mob.setDeltaMovement(observed.subtract(poweredCarry));
+        poweredCarry = Vec3.ZERO;
         routeSpeedCap = 0;
         depthGuidance = null;
         remainingVerticalDistance = 0;
+        headingHoldTicks = 24;
+        suppressSettlingTranslation = "arrived".equals(state) && directVerticalTarget;
         prepareSettling();
     }
 
@@ -337,8 +400,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
         }
         settling = true;
         targetPitch = 0;
-        routeSpeedCap = exitSpeed;
-        mob.setZza(1);
+        routeSpeedCap = suppressSettlingTranslation ? 0 : exitSpeed;
+        mob.setZza(suppressSettlingTranslation ? 0 : 1);
     }
 
     private boolean clearExit(double speed) {
@@ -373,7 +436,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
         // permanently bootstrap at rest while the nose continues pitching. Own the forward input
         // for that state so a wanted route always has a finite forward propulsion source.
         double propulsionInput = input.z;
-        if (propulsionInput <= 0.0 && (operation == Operation.MOVE_TO || settling)) {
+        if (propulsionInput <= 0.0 && (operation == Operation.MOVE_TO
+                || (settling && routeSpeedCap > 0))) {
             propulsionInput = 1.0;
         }
         double speed = Math.max(0, poweredCarry.length() + acceleration * Math.max(0, propulsionInput));
@@ -398,7 +462,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
             }
         }
         if (propulsionInput > 0) speed = Math.min(speed, speedCap);
-        if (propulsionInput > 0 && (depthGuidance != null || settling)) {
+        if ((propulsionInput > 0 || settling) && (depthGuidance != null || settling)) {
             boolean correctingVerticalDirection = meaningfulVerticalError
                     && forward.y * remainingVerticalDistance < -1.0e-6;
             float desiredRate = settling
@@ -415,30 +479,43 @@ public class PitchSwimmingMoveControl extends MoveControl {
             float pitchAcceleration = AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK - 0.0001F;
             double upwardStoppingDistance = pitchRate < 0 ? pitchRate * pitchRate / (2 * pitchAcceleration) : 0;
             double downwardStoppingDistance = pitchRate > 0 ? pitchRate * pitchRate / (2 * pitchAcceleration) : 0;
-            if (desiredRate < 0 && (mob.getXRot() <= -upwardLimit + boundaryBuffer
-                    || mob.getXRot() + upwardLimit <= upwardStoppingDistance + 0.05)) desiredRate = 0;
-            if (desiredRate > 0 && (mob.getXRot() >= downwardLimit - boundaryBuffer
-                    || downwardLimit - mob.getXRot() <= downwardStoppingDistance + 0.05)) desiredRate = 0;
+            float activeUpwardLimit = directVerticalTarget ? 90.0F : upwardLimit;
+            float activeDownwardLimit = directVerticalTarget ? 90.0F : downwardLimit;
+            if (desiredRate < 0 && (mob.getXRot() <= -activeUpwardLimit + boundaryBuffer
+                    || mob.getXRot() + activeUpwardLimit <= upwardStoppingDistance + 0.05)) desiredRate = 0;
+            if (desiredRate > 0 && (mob.getXRot() >= activeDownwardLimit - boundaryBuffer
+                    || activeDownwardLimit - mob.getXRot() <= downwardStoppingDistance + 0.05)) desiredRate = 0;
             float nextRate = Mth.approach(pitchRate, desiredRate, AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK);
             nextRate = Mth.clamp(nextRate,
-                    AquaticMovement.stepPitch(mob.getXRot(), pitchRate, -upwardLimit).rate(),
-                    AquaticMovement.stepPitch(mob.getXRot(), pitchRate, downwardLimit).rate());
+                    AquaticMovement.stepPitch(mob.getXRot(), pitchRate, -activeUpwardLimit).rate(),
+                    AquaticMovement.stepPitch(mob.getXRot(), pitchRate, activeDownwardLimit).rate());
             float accelerationMargin = AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK - 0.0001F;
             nextRate = Mth.clamp(nextRate, pitchRate - accelerationMargin, pitchRate + accelerationMargin);
-            float nextPitch = Mth.clamp(mob.getXRot() + nextRate, -upwardLimit, downwardLimit);
+            float nextPitch = Mth.clamp(mob.getXRot() + nextRate, -activeUpwardLimit, activeDownwardLimit);
             Vec3 nextForward = AquaticMovement.forwardVector(mob.getYRot(), nextPitch);
             if (meaningfulVerticalError && Math.abs(nextForward.y) > 1.0e-8) {
                 speed = Math.min(speed, Math.abs(remainingVerticalDistance) / Math.abs(nextForward.y));
             }
             Vec3 nextPowered = opposingPitch
                     ? limitVerticalTravel(nextForward.scale(speed)) : nextForward.scale(speed);
-            if (clearSegment(mob.position(), mob.position().add(nextPowered))) {
+            if (directVerticalTarget) nextPowered = verticalOnly(nextPowered);
+            if (speed <= 1.0e-8 || clearSegment(mob.position(), mob.position().add(nextPowered))) {
                 pitchRate = nextPitch - mob.getXRot();
                 mob.setXRot(nextPitch);
                 forward = nextForward;
+            } else if (correctingVerticalDirection) {
+                // A body that is pitched into the floor or surface cannot translate while
+                // correcting toward the destination. Let it rotate in place for this tick so
+                // the next forward vector can clear the obstacle instead of repeating the
+                // blocked opposing step forever.
+                pitchRate = nextPitch - mob.getXRot();
+                mob.setXRot(nextPitch);
+                forward = nextForward;
+                speed = 0.0D;
             }
         }
         Vec3 powered = opposingPitch ? limitVerticalTravel(forward.scale(speed)) : forward.scale(speed);
+        if (directVerticalTarget) powered = verticalOnly(powered);
         mob.setDeltaMovement(external.add(powered));
         mob.move(MoverType.SELF, mob.getDeltaMovement());
         Vec3 afterCollision = mob.getDeltaMovement();
@@ -456,6 +533,10 @@ public class PitchSwimmingMoveControl extends MoveControl {
         double verticalCeiling = configuredVerticalSpeedPerTick();
         if (Math.abs(powered.y) <= verticalCeiling) return powered;
         return new Vec3(powered.x, Math.copySign(verticalCeiling, powered.y), powered.z);
+    }
+
+    private static Vec3 verticalOnly(Vec3 movement) {
+        return new Vec3(0, movement.y, 0);
     }
 
     private double configuredHorizontalSpeedPerTick() {

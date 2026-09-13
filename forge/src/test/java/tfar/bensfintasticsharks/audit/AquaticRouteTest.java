@@ -16,11 +16,11 @@ class AquaticRouteTest {
     }
 
     @Test
-    void steepAscentHasOneClearanceLegThenTheOriginalDestination() {
-        Vec3 goal = new Vec3(0, 4, 0);
+    void steepDiagonalAscentHasOneClearanceLegThenTheOriginalDestination() {
+        Vec3 goal = new Vec3(0, 4, 2);
         Vec3 clearance = AquaticRoute.clearancePoint(Vec3.ZERO, goal, 0, 45, 1);
         assertNotNull(clearance);
-        assertTrue(clearance.z >= 5);
+        assertEquals(-3, clearance.z, 1.0e-9);
         assertEquals(0, clearance.y);
         AquaticRoute route = new AquaticRoute(goal, 0.5, clearance);
         assertEquals(clearance, route.target(Vec3.ZERO));
@@ -36,8 +36,13 @@ class AquaticRouteTest {
     }
 
     @Test
-    void bodyClearanceDoesNotEraseSmallButSteepDepthChanges() {
-        assertNotNull(AquaticRoute.clearancePoint(Vec3.ZERO, new Vec3(0, -3, 0), 0, 60, 5));
+    void directVerticalTravelUsesTheFiniteDestination() {
+        assertNull(AquaticRoute.clearancePoint(Vec3.ZERO, new Vec3(0, -3, 0), 0, 60, 5));
+    }
+
+    @Test
+    void bodyClearanceDoesNotEraseSmallButSteepDiagonalChanges() {
+        assertNotNull(AquaticRoute.clearancePoint(Vec3.ZERO, new Vec3(1, -3, 0), 0, 60, 0.25));
         assertNull(AquaticRoute.clearancePoint(Vec3.ZERO, new Vec3(4, 0.5, 0), 0, 45, 5));
     }
 }
