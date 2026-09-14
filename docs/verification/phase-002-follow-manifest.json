@@ -260,5 +260,25 @@
     "result": "unverified_no_owner_click_before_bounded_timeout",
     "audioState": "owned_client_stream_muted_read_back",
     "cleanup": "complete_disposable_paths_absent_personal_instance_preserved"
+  },
+  "externalMovementRetry20260914": {
+    "sourceCommit": "b146dd10312366e3db1118328fcb5aff4ec49ab9",
+    "artifactSha256": "69d76f0409dcd361f7618674348352c9b96e3a02ef117c79e9a217705eb1ab7a",
+    "serverEndpoint": "100.76.164.109:25901",
+    "serverJava": "17.0.19",
+    "clientJava": "17.0.15",
+    "clientRenderer": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "audioNode": "110",
+    "audioState": "owned_java_stream_muted_read_back",
+    "target": "alexsmobs:grizzly_bear",
+    "result": "production_startup_passed_owner_respawn_and_right_click_unverified",
+    "observations": [
+      "production_server_loaded_current_candidate_and_pinned_external_dependencies",
+      "persistent_grizzly_fixture_prepared_on_stone_lane",
+      "first_setup_player_died_before_interaction",
+      "second_setup_remained_on_death_screen_without_owner_respawn_or_click",
+      "no_follow_claim_or_movement_evidence_accepted"
+    ],
+    "cleanup": "complete_server_client_audio_runtime_instance_and_screenshots_removed_and_verified"
   }
 }
