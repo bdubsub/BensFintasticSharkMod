@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
@@ -91,10 +92,32 @@ public final class BfsFollowManager {
         tag.putInt(MARKER_VERSION_KEY, MARKER_VERSION);
         tag.putString(ISSUE_ID_KEY, issueId.toString());
         tag.putString(OWNER_KEY, ownerId.toString());
-        if (!recipient.getInventory().add(marker)) {
-            recipient.drop(marker, false);
-        }
+        equipMarker(recipient, marker);
         return new IssueResult(issueId, replacedLease);
+    }
+
+    private static void equipMarker(ServerPlayer recipient, ItemStack marker) {
+        ItemStack mainHand = recipient.getMainHandItem();
+        if (mainHand.isEmpty() || mainHand.is(ModItems.FOLLOW_STICK)) {
+            recipient.setItemInHand(InteractionHand.MAIN_HAND, marker);
+            return;
+        }
+        for (int slot = 0; slot < 9; slot++) {
+            if (recipient.getInventory().getItem(slot).isEmpty()) {
+                recipient.getInventory().setItem(slot, marker);
+                recipient.getInventory().selected = slot;
+                return;
+            }
+        }
+        if (recipient.getOffhandItem().is(ModItems.FOLLOW_STICK)) {
+            recipient.setItemInHand(InteractionHand.OFF_HAND, marker);
+            return;
+        }
+        ItemStack displaced = mainHand.copy();
+        recipient.setItemInHand(InteractionHand.MAIN_HAND, marker);
+        if (!recipient.getInventory().add(displaced)) {
+            recipient.drop(displaced, false);
+        }
     }
 
     public static Status status(ServerPlayer owner) {

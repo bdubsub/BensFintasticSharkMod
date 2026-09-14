@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -30,6 +31,31 @@ import tfar.bensfintasticsharks.init.ModItems;
 public final class BfsFollowGameTests {
 
     private BfsFollowGameTests() {
+    }
+
+    @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 20)
+    public static void issuingFollowStickSelectsFreshMarker(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-issue", new BlockPos(2, 2, 2));
+        BfsFollowManager.issue(owner);
+        helper.assertTrue(owner.getMainHandItem().is(ModItems.FOLLOW_STICK),
+                "issuing the follow command must select the fresh marker in the main hand");
+        helper.assertTrue(owner.getMainHandItem().hasTag(),
+                "the selected follow marker must retain its authorization tag");
+        owner.remove(Entity.RemovalReason.DISCARDED);
+        helper.succeed();
+    }
+
+    @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 20)
+    public static void issuingFollowStickPreservesHeldItem(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-issue-held", new BlockPos(2, 2, 2));
+        owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DIAMOND));
+        BfsFollowManager.issue(owner);
+        helper.assertTrue(owner.getMainHandItem().is(ModItems.FOLLOW_STICK),
+                "the fresh marker must become the selected item when the main hand was occupied");
+        helper.assertTrue(owner.getInventory().items.stream().anyMatch(stack -> stack.is(Items.DIAMOND)),
+                "issuing the follow command must preserve the previously held item");
+        owner.remove(Entity.RemovalReason.DISCARDED);
+        helper.succeed();
     }
 
     @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 40)
@@ -86,6 +112,29 @@ public final class BfsFollowGameTests {
                 target.remove(Entity.RemovalReason.DISCARDED);
                 helper.succeed();
             });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 100)
+    public static void followCowNavigatesToOwner(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-cow", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.COW, new BlockPos(9, 2, 2));
+        double initialDistance = owner.distanceTo(target);
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "a normal cow must accept the generic follow lease");
+        helper.runAfterDelay(60, () -> {
+            helper.assertTrue(target.isAlive(), "the cow follow target must remain alive");
+            helper.assertTrue(owner.distanceTo(target) < initialDistance - 1.0D,
+                    "the cow must navigate toward the owner, initial " + initialDistance
+                            + ", final " + owner.distanceTo(target));
+            BfsFollowManager.stop(owner, "cow_navigation_fixture");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
         });
     }
 
