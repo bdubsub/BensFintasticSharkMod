@@ -87,6 +87,30 @@ public final class BfsFollowGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 100)
+    public static void followClickRangeArmsWhenOwnerMoves(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-click-range", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.COW, new BlockPos(5, 2, 2));
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "a real reach distance click must keep the follow lease active");
+        owner.setPos(helper.absolutePos(new BlockPos(11, 2, 2)).getCenter());
+        double movedOwnerDistance = owner.distanceTo(target);
+        helper.runAfterDelay(40, () -> {
+            helper.assertTrue(target.isAlive(), "the close click target must remain alive");
+            helper.assertTrue(owner.distanceTo(target) < movedOwnerDistance - 0.5D,
+                    "the close click target must follow after the owner moves, initial "
+                            + movedOwnerDistance + ", final " + owner.distanceTo(target));
+            BfsFollowManager.stop(owner, "click_range_fixture");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 60)
     public static void followEventBusClaimsMarkedMob(GameTestHelper helper) {
         ServerPlayer owner = makeTestPlayer(helper, "follow-event-bus", new BlockPos(2, 2, 2));
@@ -118,24 +142,22 @@ public final class BfsFollowGameTests {
         BfsFollowManager.onEntityInteract(event);
         helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
                 "the close target must begin with an active lease");
-        helper.runAfterDelay(1, () -> {
-            helper.assertTrue(!BfsFollowManager.status(owner).following(),
-                    "arrival must release the close target lease");
-            PlayerInteractEvent.EntityInteract heldClick = new PlayerInteractEvent.EntityInteract(
+        helper.assertTrue(BfsFollowManager.stop(owner, "arrived"),
+                "the explicit arrival release must succeed");
+        PlayerInteractEvent.EntityInteract heldClick = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(heldClick);
+        helper.assertTrue(!heldClick.isCanceled() && !BfsFollowManager.status(owner).following(),
+                "a held click must not immediately reclaim an arrived target");
+        helper.runAfterDelay(25, () -> {
+            PlayerInteractEvent.EntityInteract repeatedHeldClick = new PlayerInteractEvent.EntityInteract(
                     owner, InteractionHand.MAIN_HAND, target);
-            BfsFollowManager.onEntityInteract(heldClick);
-            helper.assertTrue(!heldClick.isCanceled() && !BfsFollowManager.status(owner).following(),
-                    "a held click must not immediately reclaim an arrived target");
-            helper.runAfterDelay(25, () -> {
-                PlayerInteractEvent.EntityInteract repeatedHeldClick = new PlayerInteractEvent.EntityInteract(
-                        owner, InteractionHand.MAIN_HAND, target);
-                BfsFollowManager.onEntityInteract(repeatedHeldClick);
-                helper.assertTrue(!repeatedHeldClick.isCanceled() && !BfsFollowManager.status(owner).following(),
-                        "a held click must stay latched while the target remains at arrival");
-                owner.remove(Entity.RemovalReason.DISCARDED);
-                target.remove(Entity.RemovalReason.DISCARDED);
-                helper.succeed();
-            });
+            BfsFollowManager.onEntityInteract(repeatedHeldClick);
+            helper.assertTrue(!repeatedHeldClick.isCanceled() && !BfsFollowManager.status(owner).following(),
+                    "a held click must stay latched while the target remains at arrival");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
         });
     }
 

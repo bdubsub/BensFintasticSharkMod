@@ -365,7 +365,14 @@ public final class BfsFollowManager {
                 release(lease, level, "timeout", mob);
                 continue;
             }
-            if (distance <= ARRIVAL_DISTANCE) {
+            // A real entity click can only be made from close range. Keep that initial
+            // acquisition alive until the owner walks away, otherwise every live click
+            // would satisfy the arrival radius and release before the first route update.
+            if (!lease.arrivalArmed) {
+                if (distance > ARRIVAL_RESELECT_DISTANCE) {
+                    lease.arrivalArmed = true;
+                }
+            } else if (distance <= ARRIVAL_DISTANCE) {
                 release(lease, level, "arrived", mob);
                 continue;
             }
@@ -587,6 +594,7 @@ public final class BfsFollowManager {
         private long lastRoute = Long.MIN_VALUE;
         private double lastDistance = Double.MAX_VALUE;
         private int blocked;
+        private boolean arrivalArmed;
 
         private Lease(UUID ownerId, UUID targetId, String targetType, String adapter, long started) {
             this.ownerId = ownerId;
