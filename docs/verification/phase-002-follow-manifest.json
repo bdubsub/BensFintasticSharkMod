@@ -14,10 +14,10 @@
   ],
   "status": "open",
   "candidate": {
-    "sourceCommit": "c5875bba822e507177b3429f2dcb675279a6f107",
-    "artifactSha256": "c2103661dd43797ce19a521e8c69157c349a3766a3c4b262ee50d84a162ab642",
-    "artifactSha512": "f0dc7a7dd4154969d695d77fe426fa780e7976ac59de3e6a9029ecb93a2261c4f1d47cbf584d730e91aa7e5daee2b0000ad8cb685b15286aeaaa99e5dbeee0ea",
-    "listenerFix": "receives_canceled_entity_interaction_callbacks_at_lowest_priority_and_captures_aquatic_entity_destinations"
+    "sourceCommit": "48ec206d932d457c4aae07df6cf6e5a1198e87a4",
+    "artifactSha256": "807b715c0dc5d5961789f8e206871cbf5bea478ac201441f42a82d10bd23c797",
+    "artifactSha512": "0a9fe5d73316191ba2ddfef370ceabe2e53630c12225536aa10f1130384cfb9bf6e30b29ad55b425c0943b6b6551d4d45843ef1f5e275a818d387c4e39c45365",
+    "listenerFix": "receives_canceled_entity_interaction_callbacks_captures_aquatic_entity_destinations_and_keeps_initial_close_range_claim_armed"
   },
   "productionBinaryComparison": {
     "previousLaptopArtifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
@@ -31,11 +31,11 @@
     "result": "production_classes_and_resources_byte_identical_previous_laptop_gate_remains_unverified"
   },
   "headlessVerification": {
-    "sourceCommit": "c5875bba822e507177b3429f2dcb675279a6f107",
-    "artifactSha256": "c2103661dd43797ce19a521e8c69157c349a3766a3c4b262ee50d84a162ab642",
-    "artifactSha512": "f0dc7a7dd4154969d695d77fe426fa780e7976ac59de3e6a9029ecb93a2261c4f1d47cbf584d730e91aa7e5daee2b0000ad8cb685b15286aeaaa99e5dbeee0ea",
+    "sourceCommit": "48ec206d932d457c4aae07df6cf6e5a1198e87a4",
+    "artifactSha256": "807b715c0dc5d5961789f8e206871cbf5bea478ac201441f42a82d10bd23c797",
+    "artifactSha512": "0a9fe5d73316191ba2ddfef370ceabe2e53630c12225536aa10f1130384cfb9bf6e30b29ad55b425c0943b6b6551d4d45843ef1f5e275a818d387c4e39c45365",
     "compileAndUnitTests": "passed",
-    "focusedFollowGameTests": "passed_twenty_one_required_tests",
+    "focusedFollowGameTests": "passed_twenty_two_required_tests",
     "packagedJarIntegrity": "passed_unzip_test",
     "parserTests": "passed_twenty_tests",
     "diffCheck": "passed",
@@ -315,6 +315,18 @@
     "fix": "override_entity_moveTo_capture_exact_destination_and_clear_owned_destination_on_stop",
     "gameTests": "passed_twenty_one_required_bfsfollow_tests",
     "runDirectory": "/tmp/bfsm-p002-release-fix-20260914e",
+    "cleanup": "runtime_removed_and_verified_absent",
+    "laptopGate": "unverified_remote_right_button_event_delivery"
+  },
+  "closeClickArrivalFix20260914": {
+    "sourceCommit": "48ec206d932d457c4aae07df6cf6e5a1198e87a4",
+    "artifactSha256": "807b715c0dc5d5961789f8e206871cbf5bea478ac201441f42a82d10bd23c797",
+    "artifactSha512": "0a9fe5d73316191ba2ddfef370ceabe2e53630c12225536aa10f1130384cfb9bf6e30b29ad55b425c0943b6b6551d4d45843ef1f5e275a818d387c4e39c45365",
+    "rootCause": "four_block_arrival_release_overlapped_real_entity_click_reach",
+    "fix": "keep_initial_close_range_lease_unarmed_until_owner_exceeds_four_point_five_blocks_then_release_at_four_blocks",
+    "gameTests": "passed_twenty_two_required_bfsfollow_tests",
+    "test": "followClickRangeArmsWhenOwnerMoves",
+    "runDirectory": "/tmp/bfsm-p002-click-range-20260914c",
     "cleanup": "runtime_removed_and_verified_absent",
     "laptopGate": "unverified_remote_right_button_event_delivery"
   }
