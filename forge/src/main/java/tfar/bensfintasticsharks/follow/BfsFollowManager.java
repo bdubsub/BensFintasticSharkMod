@@ -7,6 +7,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.EntityTracker;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
@@ -18,6 +22,7 @@ import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import tfar.bensfintasticsharks.debug.BfsDebugManager;
 import tfar.bensfintasticsharks.init.ModItems;
+import net.tslat.smartbrainlib.api.SmartBrainOwner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -157,7 +162,7 @@ public final class BfsFollowManager {
             Lease targetLease = BY_TARGET.get(target.getUUID());
             if (targetLease != null) {
                 BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
-                        "target_already_claimed", "navigation", targetLease.age(tick), targetLease.blocked, owner.distanceTo(target));
+                        "target_already_claimed", targetLease.adapter, targetLease.age(tick), targetLease.blocked, owner.distanceTo(target));
                 return ClaimResult.rejected("target_already_claimed");
             }
             release(ownerLease, owner.serverLevel(), "reselected", findMob(owner.serverLevel().getServer(), ownerLease.targetId));
@@ -165,7 +170,7 @@ public final class BfsFollowManager {
         Lease targetLease = BY_TARGET.get(target.getUUID());
         if (targetLease != null) {
             BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
-                    "target_already_claimed", "navigation", targetLease.age(tick), targetLease.blocked, owner.distanceTo(target));
+                    "target_already_claimed", targetLease.adapter, targetLease.age(tick), targetLease.blocked, owner.distanceTo(target));
             return ClaimResult.rejected("target_already_claimed");
         }
         if (BY_OWNER.size() >= MAX_LEASES) {
@@ -173,13 +178,15 @@ public final class BfsFollowManager {
                     "lease_limit", "navigation", 0, 0, owner.distanceTo(target));
             return ClaimResult.rejected("lease_limit");
         }
-        Lease lease = new Lease(owner.getUUID(), target.getUUID(), target.getType().builtInRegistryHolder().key().location().toString(), tick);
+        String adapter = mob instanceof SmartBrainOwner<?> ? "smartbrain_walk_target" : "mob_navigation";
+        Lease lease = new Lease(owner.getUUID(), target.getUUID(),
+                target.getType().builtInRegistryHolder().key().location().toString(), adapter, tick);
         BY_OWNER.put(lease.ownerId, lease);
         BY_TARGET.put(lease.targetId, lease);
         BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.claim", owner, target,
-                "claimed", "navigation", 0, 0, owner.distanceTo(target));
+                "claimed", lease.adapter, 0, 0, owner.distanceTo(target));
         BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.adapter", owner, target,
-                "mob_navigation", "navigation", 0, 0, owner.distanceTo(target));
+                lease.adapter, lease.adapter, 0, 0, owner.distanceTo(target));
         route(lease, owner, mob, tick);
         return ClaimResult.success();
     }
@@ -294,7 +301,7 @@ public final class BfsFollowManager {
             lease.lastDistance = distance;
             if (lease.blocked == 1 || lease.blocked == BLOCKED_TICKS) {
                 BfsDebugManager.recordFollowEvent(level, "follow.block", owner, mob,
-                        "no_route_progress", "navigation", lease.age(tick), lease.blocked, distance);
+                        "no_route_progress", lease.adapter, lease.age(tick), lease.blocked, distance);
             }
             if (lease.blocked >= BLOCKED_TICKS) {
                 release(lease, level, "blocked", mob);
@@ -304,16 +311,45 @@ public final class BfsFollowManager {
                 route(lease, owner, mob, tick);
             }
             BfsDebugManager.recordFollowEvent(level, "follow.progress", owner, mob,
-                    "tracking", "navigation", lease.age(tick), lease.blocked, distance);
+                    "tracking", lease.adapter, lease.age(tick), lease.blocked, distance);
         }
     }
 
     private static void route(Lease lease, ServerPlayer owner, Mob mob, long tick) {
         lease.lastRoute = tick;
-        boolean started = mob.getNavigation().moveTo(owner, 1.0D);
+        boolean started;
+        if (lease.adapter.equals("smartbrain_walk_target")) {
+            if (lease.previousWalkTarget == null) {
+                lease.previousWalkTarget = mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null);
+            }
+            mob.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(owner, 1.0F, 1));
+            started = true;
+        } else {
+            started = mob.getNavigation().moveTo(owner, 1.0D);
+        }
         BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.intent", owner, mob,
-                started ? "navigation_accepted" : "navigation_rejected", "navigation", lease.age(tick), lease.blocked,
+                started ? "navigation_accepted" : "navigation_rejected", lease.adapter, lease.age(tick), lease.blocked,
                 owner.distanceTo(mob));
+    }
+
+    private static void restoreController(Lease lease, Mob mob) {
+        if (lease.adapter.equals("smartbrain_walk_target")) {
+            Brain<?> brain = mob.getBrain();
+            WalkTarget current = brain.getMemory(MemoryModuleType.WALK_TARGET).orElse(null);
+            if (ownsWalkTarget(current, lease.ownerId)) {
+                if (lease.previousWalkTarget == null) {
+                    brain.eraseMemory(MemoryModuleType.WALK_TARGET);
+                } else {
+                    brain.setMemory(MemoryModuleType.WALK_TARGET, lease.previousWalkTarget);
+                }
+            }
+        }
+        mob.getNavigation().stop();
+    }
+
+    private static boolean ownsWalkTarget(WalkTarget walkTarget, UUID ownerId) {
+        return walkTarget != null && walkTarget.getTarget() instanceof EntityTracker tracker
+                && tracker.getEntity().getUUID().equals(ownerId);
     }
 
     private static Mob findMob(MinecraftServer server, UUID targetId) {
@@ -354,16 +390,16 @@ public final class BfsFollowManager {
         if (BY_OWNER.remove(lease.ownerId, lease)) {
             BY_TARGET.remove(lease.targetId, lease);
             if (mob != null) {
-                mob.getNavigation().stop();
+                restoreController(lease, mob);
             }
             if (level != null) {
                 ServerPlayer owner = findPlayer(level.getServer(), lease.ownerId);
                 long age = lease.age(level.getGameTime());
                 double distance = owner == null || mob == null ? 0.0D : owner.distanceTo(mob);
                 BfsDebugManager.recordFollowEvent(level, "follow.release", owner, mob, reason,
-                        "navigation", age, lease.blocked, distance);
+                        lease.adapter, age, lease.blocked, distance);
                 BfsDebugManager.recordFollowEvent(level, "follow.restore", owner, mob,
-                        "ordinary_controller_resume", "navigation", age, lease.blocked, distance);
+                        "ordinary_controller_resume", lease.adapter, age, lease.blocked, distance);
             }
         }
     }
@@ -453,15 +489,18 @@ public final class BfsFollowManager {
         private final UUID ownerId;
         private final UUID targetId;
         private final String targetType;
+        private final String adapter;
         private final long started;
+        private WalkTarget previousWalkTarget;
         private long lastRoute = Long.MIN_VALUE;
         private double lastDistance = Double.MAX_VALUE;
         private int blocked;
 
-        private Lease(UUID ownerId, UUID targetId, String targetType, long started) {
+        private Lease(UUID ownerId, UUID targetId, String targetType, String adapter, long started) {
             this.ownerId = ownerId;
             this.targetId = targetId;
             this.targetType = targetType;
+            this.adapter = adapter;
             this.started = started;
         }
 

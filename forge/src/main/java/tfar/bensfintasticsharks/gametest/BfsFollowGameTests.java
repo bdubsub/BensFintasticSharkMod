@@ -12,6 +12,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.behavior.EntityTracker;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -118,7 +121,15 @@ public final class BfsFollowGameTests {
             BfsFollowManager.onEntityInteract(event);
             helper.assertTrue(event.isCanceled(), "generic Mob lease must accept " + target.getType());
             helper.assertTrue(BfsFollowManager.status(owner).following(), "lease must be active for " + target.getType());
+            if (target == targets[5]) {
+                helper.assertTrue(ownsWalkTarget(target, owner),
+                        "SmartBrainLib target memory must be owned by the follow lease");
+            }
             helper.assertTrue(BfsFollowManager.stop(owner, "family_fixture"), "family lease must stop for " + target.getType());
+            if (target == targets[5]) {
+                helper.assertTrue(!ownsWalkTarget(target, owner),
+                        "SmartBrainLib target memory must be restored after release");
+            }
         }
         owner.remove(Entity.RemovalReason.DISCARDED);
         for (Mob target : targets) {
@@ -136,6 +147,12 @@ public final class BfsFollowGameTests {
                 .findFirst().orElseThrow();
         player.setItemInHand(InteractionHand.MAIN_HAND, marker);
         return marker;
+    }
+
+    private static boolean ownsWalkTarget(Mob mob, ServerPlayer owner) {
+        WalkTarget walkTarget = mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null);
+        return walkTarget != null && walkTarget.getTarget() instanceof EntityTracker tracker
+                && tracker.getEntity().getUUID().equals(owner.getUUID());
     }
 
     private static ServerPlayer makeTestPlayer(GameTestHelper helper, String name, BlockPos localPosition) {

@@ -1,14 +1,28 @@
 {
   "schema": 1,
   "phaseId": "BFS2-PHASE-002",
-  "requirementIds": ["BFS2-REQ-008", "BFS2-REQ-009"],
-  "taskIds": ["P002-TASK-001", "P002-TASK-002", "P002-TASK-003", "P002-TASK-004"],
+  "requirementIds": [
+    "BFS2-REQ-008",
+    "BFS2-REQ-009"
+  ],
+  "taskIds": [
+    "P002-TASK-001",
+    "P002-TASK-002",
+    "P002-TASK-003",
+    "P002-TASK-004"
+  ],
   "status": "open",
   "adapter": {
-    "capabilityId": "generic_mob_navigation",
-    "ownershipHook": "Mob.getNavigation().moveTo",
-    "safeMotionWriter": "navigation",
-    "result": "exercised_for_representative_families"
+    "capabilityId": "registry_mob_controller",
+    "ownershipHooks": {
+      "ordinary": "Mob.getNavigation().moveTo",
+      "smartbrainlib": "Brain WALK_TARGET via SmartBrainOwner"
+    },
+    "safeMotionWriters": [
+      "mob_navigation",
+      "smartbrain_walk_target"
+    ],
+    "result": "ordinary_and_smartbrain_claim_release_exercised"
   },
   "activeRegistryFamilies": [
     "bensfintasticsharks:great_white_shark",
@@ -40,27 +54,39 @@
     "minecraft:phantom": "passed",
     "minecraft:frog": "passed",
     "minecraft:villager": "passed",
-    "bensfintasticsharks:harbor_seal": "passed",
+    "bensfintasticsharks:harbor_seal": "passed_smartbrain_claim_release",
     "minecraft:ender_dragon_part": "passed_parent_resolution",
     "minecraft:wither": "passed"
   },
   "smartBrainLib": {
-    "result": "unverified",
-    "reason": "controller specific ordinary restoration evidence remains open"
+    "result": "adapter_claim_release_exercised",
+    "fixture": "bensfintasticsharks:harbor_seal",
+    "ownershipHook": "Brain WALK_TARGET through SmartBrainLib MoveToWalkTarget",
+    "restorationWithinFortyTicks": "unverified"
   },
   "independentFixture": {
     "result": "unverified",
-    "reason": "independent non BFS controller fixture remains open"
+    "reason": "separate synthetic non BFS Forge fixture remains open"
   },
   "thirdPartyArtifact": {
-    "result": "unverified",
-    "artifactUrl": null,
-    "version": null,
+    "result": "pinned_and_production_startup_verified_follow_interaction_open",
+    "artifactUrl": "https://mediafilez.forgecdn.net/files/5698/791/alexsmobs-1.22.9.jar",
+    "sourceUrl": "https://www.curseforge.com/minecraft/mc-mods/alexs-mobs/files/5698791",
+    "version": "1.22.9",
     "forgeTarget": "47.2.0",
-    "sha256": null,
-    "sha512": null,
-    "license": null,
-    "securityInspection": null,
-    "reason": "owner approved artifact preflight has not been completed"
+    "sha256": "16bc5bcc19db9029c24f951346ec71098e6f5b0afef96e61894a2e9407aad37c",
+    "sha512": "b50280057926d750f9ffbf6a8df36deb37529356895f6bf59f25d272ecf69afccec65ec1a5c3a8bfad24f9475c15b93c5ec4666447b1fce26a90c41445bbfb04",
+    "license": "GNU Lesser General Public License version 3",
+    "securityInspection": "archive integrity passed, static strings reviewed, no executable download or process launch hook observed",
+    "entityId": "alexsmobs:grizzly_bear",
+    "controllerPath": "EntityGrizzlyBear extends TamableAnimal, GoalSelector, custom MoveControl and normal PathNavigation",
+    "dependency": {
+      "modId": "citadel",
+      "version": "2.6.0",
+      "sha256": "549596de295d90a84ee70625076087a9724dabca1de0567ef6ef03435aab7d5d",
+      "sha512": "8edb2264317e547230960109aaadae36ce0db9abb27748d47033c64c7f4958a970172ae382552c5e3c41a4885e95437328a6eba53226fd64c4ce0b4f0ec22b4f"
+    },
+    "productionStartup": "passed",
+    "followGameTest": "unverified"
   }
 }
