@@ -175,6 +175,11 @@ public final class BfsFollowManager {
     }
 
     private static ClaimResult claim(ServerPlayer owner, Entity target, ItemStack marker) {
+        if (!hasPermission(owner)) {
+            BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
+                    "permission_denied", "none", 0, 0, target == null ? 0.0D : owner.distanceTo(target));
+            return ClaimResult.rejected("permission_denied");
+        }
         if (!validMarker(owner, marker)) {
             return ClaimResult.rejected("marker_unavailable");
         }
@@ -249,11 +254,6 @@ public final class BfsFollowManager {
     }
 
     private static boolean validMarker(ServerPlayer owner, ItemStack marker) {
-        if (!hasPermission(owner)) {
-            BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, null,
-                    "permission_denied", "none", 0, 0, 0.0D);
-            return false;
-        }
         if (!marker.is(ModItems.FOLLOW_STICK) || !marker.hasTag()) {
             BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, null,
                     "invalid_stick", "none", 0, 0, 0.0D);
