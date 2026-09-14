@@ -156,7 +156,11 @@ public final class BfsFollowManager {
         Lease ownerLease = BY_OWNER.get(owner.getUUID());
         if (ownerLease != null) {
             if (ownerLease.targetId.equals(target.getUUID())) {
-                release(ownerLease, owner.serverLevel(), "reselected", mob);
+                // Repeated right click events are emitted while the marker is held. Keep
+                // the existing lease instead of treating the repeat as a toggle.
+                BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reselect", owner, mob,
+                        "already_claimed", ownerLease.adapter, ownerLease.age(tick), ownerLease.blocked,
+                        owner.distanceTo(target));
                 return ClaimResult.success();
             }
             Lease targetLease = BY_TARGET.get(target.getUUID());

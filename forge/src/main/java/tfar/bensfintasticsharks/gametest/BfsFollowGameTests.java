@@ -31,7 +31,7 @@ public final class BfsFollowGameTests {
     }
 
     @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 40)
-    public static void followStickClaimsAndReleasesMob(GameTestHelper helper) {
+    public static void followStickClaimsAndKeepsMob(GameTestHelper helper) {
         ServerPlayer owner = makeTestPlayer(helper, "follow-owner", new BlockPos(2, 2, 2));
         Mob target = helper.spawn(EntityType.ZOMBIE, new BlockPos(7, 2, 2));
         ItemStack marker = issueAndHold(owner);
@@ -44,14 +44,9 @@ public final class BfsFollowGameTests {
             PlayerInteractEvent.EntityInteract reselect = new PlayerInteractEvent.EntityInteract(
                     owner, InteractionHand.MAIN_HAND, target);
             BfsFollowManager.onEntityInteract(reselect);
-            helper.assertTrue(reselect.isCanceled(), "same target selection must release the active lease");
-            helper.assertTrue(!BfsFollowManager.status(owner).following(), "reselection must clear the lease");
+            helper.assertTrue(reselect.isCanceled(), "repeated target selection must remain consumed");
+            helper.assertTrue(BfsFollowManager.status(owner).following(), "repeated target selection must keep the lease");
             helper.runAfterDelay(1, () -> {
-                PlayerInteractEvent.EntityInteract reacquire = new PlayerInteractEvent.EntityInteract(
-                        owner, InteractionHand.MAIN_HAND, target);
-                BfsFollowManager.onEntityInteract(reacquire);
-                helper.assertTrue(reacquire.isCanceled(), "the issued marker must remain reusable");
-                helper.assertTrue(BfsFollowManager.status(owner).following(), "reacquisition must create a lease");
                 helper.assertTrue(BfsFollowManager.stop(owner, "test_stop"), "test stop must release the lease");
                 helper.assertTrue(!BfsFollowManager.status(owner).following(), "released lease must be absent");
                 owner.remove(Entity.RemovalReason.DISCARDED);
