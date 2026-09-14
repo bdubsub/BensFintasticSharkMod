@@ -90,7 +90,7 @@
     "followGameTest": "unverified_client_timed_out_before_interaction"
   },
   "repeatInteractionFix": {
-    "sourceCommit": "f4ea59d1b5842f9ec441bcf61d1b5e0e6f3ff145",
+    "sourceCommit": "5435ba8f494a6604002cffb741fd689b1e50b485",
     "result": "repeated_same_target_callbacks_are_idempotent_and_keep_the_lease",
     "headlessFixture": "passed",
     "laptopGate": "unverified_client_timeout"
