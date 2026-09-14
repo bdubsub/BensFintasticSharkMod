@@ -105,6 +105,20 @@
     "sourceCommit": "15d0be0",
     "result": "receives_canceled_entity_interaction_callbacks_for_vanilla_and_third_party_mobs",
     "headlessFixture": "passed",
-    "laptopGate": "unverified_no_claim_recorded_during_fixture_reset"
+    "laptopGate": "unverified_no_claim_recorded_after_fixture_target_death_and_manual_input"
+  },
+  "latestLiveAttempt": {
+    "sourceCommit": "15d0be0",
+    "artifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
+    "serverEndpoint": "100.76.164.109:25864",
+    "result": "joined_server_no_claim_recorded",
+    "observations": [
+      "client_and_server_used_matching_bfs_alexsmobs_and_citadel_artifacts",
+      "exact_java_audio_stream_was_muted",
+      "persistent_zombie_died_from_vanilla_daytime_burning_before_interaction",
+      "later_zombie_attack_left_the_player_on_the_vanilla_death_screen",
+      "follow_manager_did_not_remove_an_entity"
+    ],
+    "cleanup": "server_client_and_disposable_runtime_removed_instance_launch_settings_restored"
   }
 }
