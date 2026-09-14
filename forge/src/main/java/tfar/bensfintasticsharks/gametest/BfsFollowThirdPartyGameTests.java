@@ -15,6 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.follow.BfsFollowManager;
@@ -29,8 +30,13 @@ public final class BfsFollowThirdPartyGameTests {
     private BfsFollowThirdPartyGameTests() {
     }
 
-    @GameTest(template = "empty", batch = "follow_third_party", timeoutTicks = 80)
+    @GameTest(template = "empty", batch = "follow_third_party", timeoutTicks = 120)
     public static void pinnedAlexsMobsGrizzlyUsesGenericLease(GameTestHelper helper) {
+        for (int x = 0; x <= 12; x++) {
+            for (int z = 0; z <= 4; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE.defaultBlockState());
+            }
+        }
         EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getOptional(
                 new ResourceLocation("alexsmobs", "grizzly_bear")).orElseThrow(
                 () -> new AssertionError("the pinned alex's mobs artifact did not register grizzly_bear"));
@@ -41,19 +47,26 @@ public final class BfsFollowThirdPartyGameTests {
         helper.getLevel().addFreshEntity(target);
 
         ServerPlayer owner = makeTestPlayer(helper, "follow-alexs-mobs", new BlockPos(2, 2, 2));
+        double initialDistance = owner.distanceTo(target);
         issueAndHold(owner);
         PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
                 owner, InteractionHand.MAIN_HAND, target);
         BfsFollowManager.onEntityInteract(event);
         helper.assertTrue(event.isCanceled(), "the pinned external mob must accept the generic lease");
         helper.assertTrue(BfsFollowManager.status(owner).following(), "the external lease must be active");
-        helper.assertTrue(BfsFollowManager.stop(owner, "third_party_fixture"),
-                "the external lease must release cleanly");
-        helper.assertTrue(!BfsFollowManager.status(owner).following(),
-                "the external lease must be absent after release");
-        owner.remove(Entity.RemovalReason.DISCARDED);
-        target.remove(Entity.RemovalReason.DISCARDED);
-        helper.succeed();
+        helper.runAfterDelay(60, () -> {
+            helper.assertTrue(target.isAlive(), "the external follow target must remain alive");
+            helper.assertTrue(owner.distanceTo(target) < initialDistance - 0.5D,
+                    "the external mob must navigate toward the owner, initial " + initialDistance
+                            + ", final " + owner.distanceTo(target));
+            helper.assertTrue(BfsFollowManager.stop(owner, "third_party_fixture"),
+                    "the external lease must release cleanly");
+            helper.assertTrue(!BfsFollowManager.status(owner).following(),
+                    "the external lease must be absent after release");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
     }
 
     private static void issueAndHold(ServerPlayer player) {
