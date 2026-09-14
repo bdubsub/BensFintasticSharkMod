@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.follow.BfsFollowManager;
@@ -182,6 +183,29 @@ public final class BfsFollowGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "follow_independent_fixture", timeoutTicks = 40)
+    public static void independentlyControlledNonBfsMobUsesGenericLease(GameTestHelper helper) {
+        IndependentFixtureMob target = new IndependentFixtureMob(helper.getLevel());
+        target.setNoGravity(true);
+        target.moveTo(helper.absolutePos(new BlockPos(8, 2, 2)).getCenter());
+        helper.getLevel().addFreshEntity(target);
+        ServerPlayer owner = makeTestPlayer(helper, "follow-independent", new BlockPos(2, 2, 2));
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled(), "the non BFS fixture must accept the generic lease");
+        helper.assertTrue(BfsFollowManager.status(owner).following(),
+                "the independent fixture lease must be active");
+        helper.assertTrue(BfsFollowManager.stop(owner, "independent_fixture"),
+                "the independent fixture lease must release cleanly");
+        helper.assertTrue(!BfsFollowManager.status(owner).following(),
+                "the independent fixture lease must be absent after release");
+        owner.remove(Entity.RemovalReason.DISCARDED);
+        target.remove(Entity.RemovalReason.DISCARDED);
+        helper.succeed();
+    }
+
     private static ItemStack issueAndHold(ServerPlayer player) {
         BfsFollowManager.issue(player);
         String issueId = player.getPersistentData().getString("BfsFollowIssueId");
@@ -197,6 +221,16 @@ public final class BfsFollowGameTests {
         WalkTarget walkTarget = mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null);
         return walkTarget != null && walkTarget.getTarget() instanceof EntityTracker tracker
                 && tracker.getEntity().getUUID().equals(owner.getUUID());
+    }
+
+    private static final class IndependentFixtureMob extends Mob {
+        private IndependentFixtureMob(Level level) {
+            super(EntityType.COW, level);
+        }
+
+        @Override
+        protected void registerGoals() {
+        }
     }
 
     private static ServerPlayer makeTestPlayer(GameTestHelper helper, String name, BlockPos localPosition) {

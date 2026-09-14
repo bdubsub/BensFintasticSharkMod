@@ -86,8 +86,18 @@
     "cleanup": "runtime_removed_and_verified_absent"
   },
   "independentFixture": {
-    "result": "unverified",
-    "reason": "separate synthetic non BFS Forge fixture remains open"
+    "result": "passed",
+    "test": "independentlyControlledNonBfsMobUsesGenericLease",
+    "fixtureClass": "tfar.bensfintasticsharks.gametest.BfsFollowGameTests$IndependentFixtureMob",
+    "registeredType": "minecraft:cow",
+    "controllerPath": "test_only_Mob_subclass_with_independent_goal_registration_and_generic_navigation",
+    "assertions": [
+      "non_bfs_fixture_claimed",
+      "generic_navigation_adapter_selected",
+      "lease_released_cleanly"
+    ],
+    "runDirectory": "/tmp/bfs2-phase-002-independent-zcUIS6",
+    "cleanup": "runtime_removed_and_verified_absent"
   },
   "thirdPartyArtifact": {
     "result": "pinned_and_production_startup_verified_follow_interaction_unverified_client_timeout",
