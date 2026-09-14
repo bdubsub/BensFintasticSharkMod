@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -106,6 +107,9 @@ public final class BfsFollowManager {
             if (recipient.getInventory().getItem(slot).isEmpty()) {
                 recipient.getInventory().setItem(slot, marker);
                 recipient.getInventory().selected = slot;
+                recipient.getInventory().setChanged();
+                recipient.containerMenu.broadcastChanges();
+                recipient.connection.send(new ClientboundSetCarriedItemPacket(slot));
                 return;
             }
         }
