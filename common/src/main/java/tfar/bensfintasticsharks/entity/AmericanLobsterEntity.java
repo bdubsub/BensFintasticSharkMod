@@ -119,21 +119,24 @@ public class AmericanLobsterEntity extends BfsAquaticEntity<AmericanLobsterEntit
 
     @Override
     public void travel(@NotNull Vec3 movementInput) {
-        if (this.isEffectiveAi() && this.isInWater()) {
-            this.moveRelative(this.getSpeed() * swimSpeedMultiplier(), movementInput);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.85));
+        movementInput = MovementIntentOverrides.resolve(this, movementInput);
+        if (MovementIntentOverrides.active(this) || (this.isEffectiveAi() && this.isInWater())) {
+            Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
+            applyConfiguredWaterTravel(worldIntent, this.getSpeed() * swimSpeedMultiplier() * 20.0D,
+                    this.getSpeed() * swimSpeedMultiplier() * 20.0D, 0.85D);
             Vec3 dm = this.getDeltaMovement();
             double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
             float cap = maxHorizontalSpeed();
-            if (horiz > cap) {
+            if (horiz > cap && !MovementIntentOverrides.active(this)) {
                 double s = cap / horiz;
                 this.setDeltaMovement(dm.x * s, dm.y, dm.z * s);
             }
             // Suggestion 1: persistent sink so the lobster settles on the sea floor instead of
             // floating (matches the bottom-dwelling Common Stingray's -0.04 bias). -0.005 was too
             // weak to counter the buoyant yya the move control generates toward wander targets.
-            this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
+            if (!MovementIntentOverrides.active(this)) {
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
+            }
         } else {
             super.travel(movementInput);
         }
@@ -143,6 +146,10 @@ public class AmericanLobsterEntity extends BfsAquaticEntity<AmericanLobsterEntit
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) {
+            this.entityData.set(DATA_RESTING, false);
+            return;
+        }
         if (snipCooldown > 0) snipCooldown--;
         if (restTicks > 0) {
             restTicks--;

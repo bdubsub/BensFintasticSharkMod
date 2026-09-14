@@ -146,6 +146,7 @@ public class BensFintasticSharksForge {
                 }
             }
         }
+        tfar.bensfintasticsharks.entity.SpeciesSettingsService.resetSession();
     }
 
     private void releaseGrabbedPlayer(net.minecraft.world.entity.player.Player player) {
@@ -166,49 +167,42 @@ public class BensFintasticSharksForge {
         if (!(event.getEntity() instanceof net.minecraft.world.entity.LivingEntity le)) return;
         var id = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(le.getType());
         if (id == null || !BensFintasticSharks.MOD_ID.equals(id.getNamespace())) return;
-        String speciesPath = id.getPath();
-        var cfg = tfar.bensfintasticsharks.config.BfsConfig.COMMON;
-        boolean isShark = le.getType().is(ModTags.EntityTypes.SHARKS);
+        applySpeciesAttributes(le);
+    }
 
-        // Per-species HP. Folds in the global shark_hp_mult for sharks so users can scale
-        // every shark with one knob.
-        var hpCfg = cfg.speciesHpMult.get(speciesPath);
-        if (hpCfg != null) {
-            double mult = hpCfg.get();
-            if (isShark) mult *= cfg.sharkHpMult.get();
-            if (Math.abs(mult - 1.0) > 1e-6) {
-                var hp = le.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
-                if (hp != null) {
-                    double newMax = hp.getBaseValue() * mult;
-                    hp.setBaseValue(newMax);
-                    le.setHealth((float) newMax);
-                }
-            }
+    private void applySpeciesAttributes(net.minecraft.world.entity.LivingEntity entity) {
+        var data = entity.getPersistentData();
+        var health = entity.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+        if (health != null) {
+            double base = data.contains("BfsBaseMaxHealth")
+                    ? data.getDouble("BfsBaseMaxHealth") : health.getBaseValue();
+            data.putDouble("BfsBaseMaxHealth", base);
+            double previousMax = health.getValue();
+            double fraction = previousMax <= 0 ? 1.0 : entity.getHealth() / previousMax;
+            double multiplier = tfar.bensfintasticsharks.entity.SpeciesSettingsService.valueFor(entity,
+                    tfar.bensfintasticsharks.entity.SpeciesSettingsService.Field.HEALTH_MULTIPLIER, 1.0D);
+            health.setBaseValue(base * multiplier);
+            entity.setHealth((float) Math.max(0.0D, Math.min(health.getValue(), health.getValue() * fraction)));
         }
 
-        // Per-species damage. Same shark-rollup.
-        var dmgCfg = cfg.speciesDamageMult.get(speciesPath);
-        if (dmgCfg != null) {
-            double mult = dmgCfg.get();
-            if (isShark) mult *= cfg.sharkDamageMult.get();
-            if (Math.abs(mult - 1.0) > 1e-6) {
-                var dmg = le.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
-                if (dmg != null) dmg.setBaseValue(dmg.getBaseValue() * mult);
-            }
+        var damage = entity.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+        if (damage != null) {
+            double base = data.contains("BfsBaseAttackDamage")
+                    ? data.getDouble("BfsBaseAttackDamage") : damage.getBaseValue();
+            data.putDouble("BfsBaseAttackDamage", base);
+            double multiplier = tfar.bensfintasticsharks.entity.SpeciesSettingsService.valueFor(entity,
+                    tfar.bensfintasticsharks.entity.SpeciesSettingsService.Field.DAMAGE_MULTIPLIER, 1.0D);
+            damage.setBaseValue(base * multiplier);
         }
 
-        // Per-species knockback resistance. -1 sentinel = leave default attribute alone,
-        // except for orca where the legacy single-value config still applies.
-        var kbCfg = cfg.speciesKnockbackResistance.get(speciesPath);
-        if (kbCfg != null) {
-            double v = kbCfg.get();
-            if (v >= 0) {
-                var kb = le.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE);
-                if (kb != null) kb.setBaseValue(v);
-            } else if (le.getType() == ModEntityTypes.ORCA) {
-                var kb = le.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE);
-                if (kb != null) kb.setBaseValue(cfg.orcaKnockbackResistance.get());
-            }
+        var knockback = entity.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE);
+        if (knockback != null) {
+            double base = data.contains("BfsBaseKnockbackResistance")
+                    ? data.getDouble("BfsBaseKnockbackResistance") : knockback.getBaseValue();
+            data.putDouble("BfsBaseKnockbackResistance", base);
+            double configured = tfar.bensfintasticsharks.entity.SpeciesSettingsService.valueFor(entity,
+                    tfar.bensfintasticsharks.entity.SpeciesSettingsService.Field.KNOCKBACK_RESISTANCE, base);
+            knockback.setBaseValue(Math.max(0.0D, Math.min(1.0D, configured)));
         }
     }
 
@@ -238,6 +232,7 @@ public class BensFintasticSharksForge {
             tfar.bensfintasticsharks.spawn.MobCapManager.validateVanillaFishReplacementCategories();
             applyCategoryCapsFromConfig();
             syncSharkMultsFromConfig();
+            tfar.bensfintasticsharks.config.SpeciesSettingsConfigBridge.reload();
         });
     }
 

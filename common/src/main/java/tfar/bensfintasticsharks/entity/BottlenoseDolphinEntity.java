@@ -113,6 +113,7 @@ public class BottlenoseDolphinEntity extends BfsAquaticEntity<BottlenoseDolphinE
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) return;
         if (level() instanceof ServerLevel sl) {
             tickAirAndSurface(sl);
             tickRandomBreach(sl);

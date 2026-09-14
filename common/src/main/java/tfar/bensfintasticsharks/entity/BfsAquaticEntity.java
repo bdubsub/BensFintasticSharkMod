@@ -32,7 +32,8 @@ import java.util.List;
  * exploring, not glued to a 12-block bubble. Subclasses override
  * {@link #wanderRadiusXZ()} / {@link #wanderRadiusY()} for finer tuning.
  */
-public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends SmartWaterAnimal<T> {
+public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends SmartWaterAnimal<T>
+        implements PoweredVelocitySource {
 
     /** Platform-set jellyfish contact damage multiplier (Forge reads from config). */
     public static volatile float globalJellyfishDamageMult = 1.0f;
@@ -43,6 +44,17 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
                     net.minecraft.network.syncher.EntityDataSerializers.FLOAT);
 
     private int fleeCheckCooldown;
+    /** Last vector supplied by the settings adapter, used to keep external impulses separate. */
+    private Vec3 bfsPoweredVelocity = Vec3.ZERO;
+
+    @Override
+    public final Vec3 bfsPoweredVelocityForDiagnostics() {
+        return bfsPoweredVelocity;
+    }
+
+    protected final void setBfsPoweredVelocityForDiagnostics(Vec3 poweredVelocity) {
+        bfsPoweredVelocity = poweredVelocity == null ? Vec3.ZERO : poweredVelocity;
+    }
 
     protected BfsAquaticEntity(EntityType<T> type, Level level) {
         super(type, level);
@@ -63,6 +75,7 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) return;
         if (!fleesFromApex()) return;
         if (fleeCheckCooldown-- > 0) return;
         fleeCheckCooldown = 20;
@@ -162,27 +175,54 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
 
     @Override
     public void travel(@NotNull Vec3 movementInput) {
-        if (this.isEffectiveAi() && this.isInWater()) {
-            // Scale moveRelative so MOVEMENT_SPEED attributes don't compound into mach-10
-            // swimming. Vanilla water mobs effectively run with friction-bounded terminal
-            // velocities around 0.3-0.5 b/t — we match that.
-            this.moveRelative(this.getSpeed() * swimSpeedMultiplier(), scaleVerticalSwimInput(movementInput));
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(this.wasTouchingWater ? 0.82 : 0.25));
-            // Hard cap on horizontal speed so bad pathing or stacked impulses can't break it.
+        movementInput = MovementIntentOverrides.resolve(this, movementInput);
+        if (MovementIntentOverrides.active(this) || (this.isEffectiveAi() && this.isInWater())) {
+            // Apply one bounded powered vector so movement attributes cannot compound into
+            // runaway horizontal or vertical speed.
+            Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
+            double fallbackHorizontal = this.getSpeed() * swimSpeedMultiplier() * 20.0D;
+            double fallbackVertical = fallbackHorizontal * verticalSwimSpeedMultiplier();
+            applyConfiguredWaterTravel(worldIntent, fallbackHorizontal, fallbackVertical,
+                    this.wasTouchingWater ? 0.82D : 0.25D);
             Vec3 dm = this.getDeltaMovement();
+            // Hard cap on horizontal speed so bad pathing or stacked impulses can't break it.
             double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
             float cap = maxHorizontalSpeed();
-            if (horiz > cap) {
+            if (horiz > cap && !MovementIntentOverrides.active(this)) {
                 double s = cap / horiz;
                 this.setDeltaMovement(dm.x * s, dm.y, dm.z * s);
             }
-            if (this.getTarget() == null && !usesPitchDrivenVerticalMovement()) {
+            if (this.getTarget() == null && !usesPitchDrivenVerticalMovement()
+                    && !MovementIntentOverrides.active(this)) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.002, 0.0));
             }
         } else {
+            bfsPoweredVelocity = Vec3.ZERO;
             super.travel(movementInput);
         }
+    }
+
+    /** Applies one settings powered vector while preserving impulses from other systems. */
+    protected final void applyConfiguredWaterTravel(Vec3 worldIntent, double fallbackHorizontalBps,
+                                                    double fallbackVerticalBps, double friction) {
+        Vec3 previous = this.getDeltaMovement();
+        Vec3 external = previous.subtract(bfsPoweredVelocity);
+        Vec3 powered = configuredWaterVelocity(worldIntent, fallbackHorizontalBps, fallbackVerticalBps);
+        Vec3 velocity = external.add(powered);
+        this.move(MoverType.SELF, velocity);
+        this.setDeltaMovement(velocity.scale(friction));
+        bfsPoweredVelocity = powered.scale(friction);
+    }
+
+    protected final Vec3 configuredWaterVelocity(Vec3 worldIntent, double fallbackHorizontalBps,
+                                                double fallbackVerticalBps) {
+        return SpeciesSettingsService.requestedVelocity(this, worldIntent,
+                fallbackHorizontalBps, fallbackVerticalBps);
+    }
+
+    /** Clears the last owned travel vector for the server side movement fixture. */
+    public void resetFixtureMovementState() {
+        bfsPoweredVelocity = Vec3.ZERO;
     }
 
     @Override
@@ -252,8 +292,12 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
             @NotNull net.minecraft.world.entity.MobSpawnType reason,
             @org.jetbrains.annotations.Nullable net.minecraft.world.entity.SpawnGroupData data,
             @org.jetbrains.annotations.Nullable net.minecraft.nbt.CompoundTag tag) {
-        float min = bfsScaleMin();
-        float max = bfsScaleMax();
+        float min = (float) SpeciesSettingsService.valueFor(this,
+                SpeciesSettingsService.Field.SCALE_MIN, bfsScaleMin());
+        float max = (float) SpeciesSettingsService.valueFor(this,
+                SpeciesSettingsService.Field.SCALE_MAX, bfsScaleMax());
+        min = Math.max(0.25F, Math.min(2.0F, min));
+        max = Math.max(min, Math.min(2.0F, max));
         if (max > min) {
             float r = getRandom().nextFloat();
             setBfsScale(min + r * (max - min));

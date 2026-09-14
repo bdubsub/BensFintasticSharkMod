@@ -55,20 +55,22 @@ public final class SpeciesBehaviorEngine {
         SpeciesBehaviorProfile.Profile profile = SpeciesBehaviorProfile.forEntity(fish);
         if (profile == null || fish.tickCount % SCAN_INTERVAL_TICKS != Math.floorMod(fish.getId(), SCAN_INTERVAL_TICKS)) return;
 
-        List<LivingEntity> threats = boundedLiving(fish, fish.getBoundingBox().inflate(profile.scanRadius()),
+        int scanRadius = SpeciesSettingsService.intValue(fish, SpeciesSettingsService.Field.SCAN_RADIUS,
+                profile.scanRadius());
+        List<LivingEntity> threats = boundedLiving(fish, fish.getBoundingBox().inflate(scanRadius),
                 other -> other != fish && other.isAlive() && other.getType().is(APEX_PREDATOR)
                         && !(other instanceof Player player && (player.isCreative() || player.isSpectator())));
         LivingEntity threat = threats.stream().min(Comparator.comparingDouble(fish::distanceToSqr)).orElse(null);
         if (threat != null) {
             Vec3 away = fish.position().subtract(threat.position());
             if (away.lengthSqr() < 1.0e-4) away = new Vec3(1, 0, 0);
-            away = away.normalize().scale(Math.min(8.0, profile.scanRadius()));
+            away = away.normalize().scale(Math.min(8.0, scanRadius));
             Vec3 target = fish.position().add(away);
             fish.getNavigation().moveTo(target.x, target.y, target.z, 1.25D);
             return;
         }
         if (!profile.social() || !fish.getNavigation().isDone()) return;
-        List<LivingEntity> school = boundedLiving(fish, fish.getBoundingBox().inflate(profile.scanRadius()),
+        List<LivingEntity> school = boundedLiving(fish, fish.getBoundingBox().inflate(scanRadius),
                 other -> other != fish && other.getType() == fish.getType() && other.isAlive())
                 .stream().limit(MAX_NEIGHBORS).toList();
         if (!school.isEmpty()) {
@@ -102,36 +104,51 @@ public final class SpeciesBehaviorEngine {
             return;
         }
         int stagger = Math.floorMod(entity.getId(), SCAN_INTERVAL_TICKS);
-        entity.setBfsBehaviorScanCooldown(SCAN_INTERVAL_TICKS + stagger);
+        // A newly spawned actor can tick before the rest of a natural group has been inserted
+        // into the level. Give that first empty observation a short retry window, then return
+        // to the staggered long interval so ordinary worlds keep the bounded scan workload.
+        entity.setBfsBehaviorScanCooldown(entity.tickCount <= 20 ? 0 : SCAN_INTERVAL_TICKS + stagger);
         if (!entity.isInWaterOrBubble() && profile.family() != SpeciesBehaviorProfile.Family.TURTLE
                 && profile.family() != SpeciesBehaviorProfile.Family.MAMMAL) {
             clearOwnedRoute(entity);
             return;
         }
+        // Social pod members own their bounded group route whenever no BFS action is active.
+        // The vanilla idle brain can restore a stale walk target after startup, which otherwise
+        // masks the social scan until the next long interval.
+        if (profile.social() && !entity.hasBfsBehaviorAction()) {
+            BrainUtils.clearMemory(entity.getBrain(), MemoryModuleType.WALK_TARGET);
+        }
         if (hasAnyWalkTarget(entity)) return;
 
-        List<LivingEntity> nearby = nearby(entity, profile.scanRadius());
+        int scanRadius = SpeciesSettingsService.intValue(entity, SpeciesSettingsService.Field.SCAN_RADIUS,
+                profile.scanRadius());
+        int actionTimeout = SpeciesSettingsService.intValue(entity, SpeciesSettingsService.Field.ACTION_TIMEOUT,
+                profile.actionTimeoutTicks());
+        int memoryTicks = SpeciesSettingsService.intValue(entity, SpeciesSettingsService.Field.MEMORY_TICKS,
+                profile.memoryTicks());
+        List<LivingEntity> nearby = nearby(entity, scanRadius);
         LivingEntity threat = findThreat(entity, profile, nearby);
         if (threat != null && profile.threatResponse() != SpeciesBehaviorProfile.ThreatResponse.NONE
                 && !hasAnyWalkTarget(entity)) {
-            Vec3 escape = findEscape(entity, threat, profile.scanRadius());
-            if (escape != null && claimRoute(entity, "escape", profile.actionTimeoutTicks(), escape,
-                    1.35f, threat, profile.memoryTicks())) return;
+            Vec3 escape = findEscape(entity, threat, scanRadius);
+            if (escape != null && claimRoute(entity, "escape", actionTimeout, escape,
+                    1.35f, threat, memoryTicks)) return;
         }
 
         if (profile.needsSurface() && entity.getAirSupply() < 120) {
             Vec3 surface = findSurface(entity);
-            if (surface != null && claimRoute(entity, "breathe", profile.actionTimeoutTicks(), surface,
+            if (surface != null && claimRoute(entity, "breathe", actionTimeout, surface,
                     1.0f, null, 0)) return;
         }
 
-        if (profile.social() && claimSocialRoute(entity, profile, nearby)) return;
+        if (profile.social() && claimSocialRoute(entity, profile, nearby, actionTimeout, memoryTicks)) return;
 
         if (profile.foodMode() != SpeciesBehaviorProfile.FoodMode.PASSIVE
                 && profile.foodMode() != SpeciesBehaviorProfile.FoodMode.PLANKTON) {
             TargetRoute food = findFood(entity, profile, nearby);
-            if (food != null && claimRoute(entity, "feed", profile.actionTimeoutTicks(), food.position(),
-                    0.9f, food.target(), profile.memoryTicks())) return;
+            if (food != null && claimRoute(entity, "feed", actionTimeout, food.position(),
+                    0.9f, food.target(), memoryTicks)) return;
         }
 
         if (profile.habitat() == SpeciesBehaviorProfile.Habitat.SEAFLOOR
@@ -139,13 +156,13 @@ public final class SpeciesBehaviorEngine {
                 || profile.locomotion() == SpeciesBehaviorProfile.Locomotion.BOTTOM_GLIDE
                 || profile.locomotion() == SpeciesBehaviorProfile.Locomotion.BOTTOM_GRAZE)) {
             Vec3 floor = findFloorRoute(entity);
-            if (floor != null) claimRoute(entity, "habitat", profile.actionTimeoutTicks(), floor,
+            if (floor != null) claimRoute(entity, "habitat", actionTimeout, floor,
                     0.65f, null, 0);
         }
     }
 
     private static boolean claimSocialRoute(SmartWaterAnimal<?> entity, SpeciesBehaviorProfile.Profile profile,
-                                            List<LivingEntity> nearby) {
+                                            List<LivingEntity> nearby, int actionTimeout, int memoryTicks) {
         if (hasAnyWalkTarget(entity)) return false;
         LivingEntity firstNeighbor = null;
         Vec3 center = Vec3.ZERO;
@@ -163,8 +180,8 @@ public final class SpeciesBehaviorEngine {
             separation = entity.position().subtract(firstNeighbor.position());
         }
         Vec3 target = center.add(separation.normalize().scale(2.5));
-        return claimRoute(entity, "social", profile.actionTimeoutTicks(), target, 0.85f,
-                firstNeighbor, profile.memoryTicks());
+        return claimRoute(entity, "social", actionTimeout, target, 0.85f,
+                firstNeighbor, memoryTicks);
     }
 
     @Nullable

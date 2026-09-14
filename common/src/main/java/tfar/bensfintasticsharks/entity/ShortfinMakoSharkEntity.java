@@ -264,7 +264,7 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
         if (this.tickCount % 10 == 0)
             this.refreshDimensions();
 
-        if (isEffectiveAi() && this.isInWater()) {
+        if (MovementIntentOverrides.active(this) || (isEffectiveAi() && this.isInWater())) {
             // 0.19 — shared swim step: adds the chase-acceleration burst, in-range brake and
             // backslide damping that this bespoke override was missing.
             swimInWater(movementInput, 0.65, 0.005, false);

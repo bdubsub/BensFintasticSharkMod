@@ -5,6 +5,8 @@ import net.minecraft.world.phys.Vec3;
 /** A finite approach with a separate clearance leg for steep destinations. */
 public final class AquaticRoute {
 
+    private static final double MIN_CLEARANCE_DEPTH = 1.0D;
+
     private final Vec3 destination;
     private final double arrivalRadius;
     private Vec3 approach;
@@ -19,20 +21,16 @@ public final class AquaticRoute {
                                       float pitchLimit, double clearance) {
         Vec3 delta = destination.subtract(position);
         double horizontal = delta.horizontalDistance();
-        double minimumRun = 1.5 * Math.abs(delta.y)
+        if (horizontal <= clearance) return null;
+        // The entry leg only needs to keep the body inside its pitch envelope. A
+        // one point five safety multiplier made ordinary seven block depth legs
+        // extend behind the swimmer, which forced a needless reverse arc and
+        // could turn a clear route into a horizontal orbit.
+        double minimumRun = Math.abs(delta.y)
                 / Math.tan(Math.toRadians(Math.min(90, Math.abs(pitchLimit))));
-        if (Math.abs(delta.y) <= 0.35 || horizontal >= Math.max(0.35, minimumRun)) return null;
+        if (Math.abs(delta.y) <= MIN_CLEARANCE_DEPTH
+                || horizontal >= Math.max(0.35, minimumRun)) return null;
         double required = minimumRun + clearance;
-        if (horizontal <= clearance) {
-            // A truly vertical target has no destination bearing. Take one bounded
-            // forward clearance leg in the current heading, then turn once toward
-            // the target. Choosing the leg from the current position keeps it in
-            // the swimmer's existing water volume instead of driving backward into
-            // a wall and falling back to an unbounded straight run.
-            Vec3 bearing = AquaticMovement.forwardVector(yaw, 0);
-            Vec3 leg = position.add(bearing.scale(required));
-            return new Vec3(leg.x, position.y, leg.z);
-        }
         Vec3 bearing = new Vec3(delta.x / horizontal, 0, delta.z / horizontal);
         return new Vec3(destination.x - bearing.x * required, position.y,
                 destination.z - bearing.z * required);
@@ -43,15 +41,12 @@ public final class AquaticRoute {
                                               float pitchLimit, double clearance) {
         Vec3 delta = destination.subtract(position);
         double horizontal = delta.horizontalDistance();
+        if (horizontal <= clearance) return null;
         double minimumRun = 1.5 * Math.abs(delta.y)
                 / Math.tan(Math.toRadians(Math.min(90, Math.abs(pitchLimit))));
-        if (Math.abs(delta.y) <= 0.35 || horizontal >= Math.max(0.35, minimumRun)) return null;
+        if (Math.abs(delta.y) <= MIN_CLEARANCE_DEPTH
+                || horizontal >= Math.max(0.35, minimumRun)) return null;
         double required = minimumRun + clearance;
-        if (horizontal <= clearance) {
-            Vec3 bearing = AquaticMovement.forwardVector(yaw, 0);
-            Vec3 leg = position.subtract(bearing.scale(required));
-            return new Vec3(leg.x, position.y, leg.z);
-        }
         Vec3 bearing = new Vec3(delta.x / horizontal, 0, delta.z / horizontal);
         return new Vec3(destination.x + bearing.x * required, position.y,
                 destination.z + bearing.z * required);

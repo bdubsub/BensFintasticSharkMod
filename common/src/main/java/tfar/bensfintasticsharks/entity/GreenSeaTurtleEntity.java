@@ -85,18 +85,19 @@ public class GreenSeaTurtleEntity extends BfsAquaticEntity<GreenSeaTurtleEntity>
 
     @Override
     public void travel(@NotNull Vec3 movementInput) {
+        movementInput = MovementIntentOverrides.resolve(this, movementInput);
         if (this.isControlledByLocalInstance() && this.isInWater()) {
             // Slower than the previous tuning — turtles are leisurely swimmers, not torpedoes.
             // moveRelative scaled by 0.35x of base speed; friction at 0.82 so velocity bleeds
             // off naturally instead of accumulating into a runaway sprint.
-            this.moveRelative(this.getSpeed() * 0.35f, movementInput);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.82));
+            Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
+            applyConfiguredWaterTravel(worldIntent, this.getSpeed() * 0.35D * 20.0D,
+                    this.getSpeed() * 0.35D * 20.0D, 0.82D);
             // Hard horizontal cap so stacked impulses can't break the slowdown.
             Vec3 dm = this.getDeltaMovement();
             double horiz = Math.sqrt(dm.x * dm.x + dm.z * dm.z);
             double cap = 0.18;
-            if (horiz > cap) {
+            if (horiz > cap && !MovementIntentOverrides.active(this)) {
                 double scl = cap / horiz;
                 this.setDeltaMovement(dm.x * scl, dm.y, dm.z * scl);
             }
@@ -176,6 +177,7 @@ public class GreenSeaTurtleEntity extends BfsAquaticEntity<GreenSeaTurtleEntity>
     public void aiStep() {
         super.aiStep();
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) return;
         if (basksTicks > 0) {
             basksTicks--;
             setDeltaMovement(getDeltaMovement().scale(0.5));

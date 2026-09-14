@@ -456,6 +456,27 @@ public final class BfsDebugManager {
         record.addProperty("arrivalReason", "unavailable:navigation_attempt_identity_not_exposed");
         SpeciesBehaviorProfile.Profile profile = SpeciesBehaviorProfile.forEntity(entity);
         record.addProperty("speciesProfile", profile == null ? "unavailable:profile_not_registered" : profile.id());
+        tfar.bensfintasticsharks.entity.SpeciesMovementAdapterCatalog.Adapter adapter =
+                tfar.bensfintasticsharks.entity.SpeciesMovementAdapterCatalog.forEntity(entity);
+        if (adapter == null) {
+            record.addProperty("movementAdapter", "unavailable:adapter_not_registered");
+            record.addProperty("movementWriter", "unavailable:adapter_not_registered");
+            record.addProperty("movementStateSource", "unavailable:adapter_not_registered");
+        } else {
+            record.addProperty("movementAdapter", adapter.adapterId());
+            record.addProperty("movementWriter", adapter.writerId());
+            record.addProperty("movementStateSource", adapter.stateSource());
+        }
+        record.addProperty("settingsRevision",
+                tfar.bensfintasticsharks.entity.SpeciesSettingsService.revision());
+        record.addProperty("configuredHorizontalSpeed", tfar.bensfintasticsharks.entity.SpeciesSettingsService.valueFor(
+                entity, tfar.bensfintasticsharks.entity.SpeciesSettingsService.Field.HORIZONTAL_SPEED, 0.0D));
+        record.addProperty("configuredVerticalSpeed", tfar.bensfintasticsharks.entity.SpeciesSettingsService.valueFor(
+                entity, tfar.bensfintasticsharks.entity.SpeciesSettingsService.Field.VERTICAL_SPEED, 0.0D));
+        record.addProperty("configuredHorizontalSprint", tfar.bensfintasticsharks.entity.SpeciesSettingsService.valueFor(
+                entity, tfar.bensfintasticsharks.entity.SpeciesSettingsService.Field.HORIZONTAL_SPRINT, 1.0D));
+        record.addProperty("configuredVerticalSprint", tfar.bensfintasticsharks.entity.SpeciesSettingsService.valueFor(
+                entity, tfar.bensfintasticsharks.entity.SpeciesSettingsService.Field.VERTICAL_SPRINT, 1.0D));
         record.addProperty("locomotionMode", profile == null
                 ? "unavailable:species_locomotion_mode_not_exposed" : profile.locomotion().name().toLowerCase(Locale.ROOT));
         if (entity instanceof AbstractSharkEntity<?> shark) {
@@ -521,6 +542,15 @@ public final class BfsDebugManager {
                     waypoint.addProperty("z", steering.waypoint().z);
                     record.add("selectedWaypoint", waypoint);
                 }
+            } else if (entity instanceof tfar.bensfintasticsharks.entity.PoweredVelocitySource source) {
+                Vec3 powered = source.bfsPoweredVelocityForDiagnostics();
+                Vec3 external = entity.getDeltaMovement().subtract(powered);
+                record.addProperty("poweredVelocityX", powered.x);
+                record.addProperty("poweredVelocityY", powered.y);
+                record.addProperty("poweredVelocityZ", powered.z);
+                record.addProperty("externalVelocityX", external.x);
+                record.addProperty("externalVelocityY", external.y);
+                record.addProperty("externalVelocityZ", external.z);
             }
             record.addProperty("navigationDone", mob.getNavigation().isDone());
             record.addProperty("targetUuid", mob.getTarget() == null ? "none" : mob.getTarget().getUUID().toString());

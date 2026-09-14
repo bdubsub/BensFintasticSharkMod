@@ -128,7 +128,7 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
     @Override public float bfsScaleMax() { return 1.05f; }
 
     public void grabMob(LivingEntity target) {
-        if (target != this.getTarget() || target.isPassenger() || !this.isInWaterOrBubble()) return;
+        if (target == null || !target.isAlive() || target.isPassenger()) return;
         if (!target.startRiding(this, true)) return;
         this.setTarget(null);
         setSharkState(SharkState.IDLE);
@@ -141,6 +141,7 @@ public class OceanicWhitetipSharkEntity extends AbstractSharkEntity<OceanicWhite
 
     @Override
     protected void onSharkTick() {
+        if (MovementIntentOverrides.active(this)) return;
         if (postGrabCooldown > 0) {
             postGrabCooldown--;
             setTarget(null);

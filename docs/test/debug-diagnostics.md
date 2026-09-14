@@ -19,6 +19,39 @@ The Gradle `:forge:Server` development task is a startup smoke test. It may not 
 
 `/bfs debug off` is idempotent. Repeating it after a completed or manually stopped session reports that the capture is already inactive without returning a command failure.
 
+## Session species tuning
+
+The same permission level two debug node also owns the session only tuning service. Values are
+held in one immutable server snapshot and disappear on restart. Every accepted transaction
+increments the revision once. A wildcard transaction validates every target before publishing,
+so one unsupported or out of range value rejects the complete change.
+
+```text
+/bfs debug settings help
+/bfs debug settings list
+/bfs debug settings get <entity|*>
+/bfs debug settings set <entity|*> <field> <value> [revision]
+/bfs debug settings reset [entity|*] [field] [revision]
+/bfs debug settings reload
+/bfs debug setspeed <entity|*> <horizontal> <vertical> [revision]
+/bfs debug setsprint <entity|*> <horizontal_multiplier> <vertical_multiplier> [revision]
+/bfs debug setspawnsize <entity|*> <minimum> <maximum> [revision]
+/bfs debug setscale <entity|*> <minimum> <maximum> [revision]
+/bfs debug sethealth <entity|*> <multiplier> [revision]
+/bfs debug setdamage <entity|*> <multiplier> [revision]
+/bfs debug setknockback <entity|*> <value> [revision]
+/bfs debug setbehavior <entity|*> <detection> <disengage> <action_timeout> <memory_ticks> [revision]
+```
+
+`settings list` reports each field's unit and inclusive bounds. `settings get` reports the
+effective value, its source, the revision, and the capability result for every field. Use the
+read revision as the optional final argument when coordinating multiple operators. A stale
+revision, invalid value, unknown species, or invalid minimum and maximum pair leaves the prior
+snapshot unchanged. `settings reset` clears session overrides only. `settings reload` validates a
+complete server baseline and preserves valid session overrides; an invalid baseline is rejected
+as one transaction. The specialized aliases delegate to the same service and do not write TOML or
+create a persistent profile.
+
 `/bfs debug on` captures the `all` category for 1,200 server ticks. Without an explicit target selector, it selects only loaded BFS living entities within 128 blocks of the command source. The selected list is capped at 32 entities. The header records the eligible, selected, and excluded counts, so an empty selection cannot be used as proof of an entity behavior check.
 
 Each server owns at most one session. A second `on` command reports the existing session without resetting its limits. A session ends at its requested tick duration, its wall time deadline, an explicit `off`, a source dimension loss, or server shutdown. The wall deadline is twice the requested tick duration at 20 ticks per second plus 30 seconds. Queue overflow, oversized records, write failure, source loss, and server shutdown mark the capture incomplete.
@@ -127,6 +160,10 @@ Movement records also expose `speciesProfile`, `locomotionMode`, `behaviorAction
 `scalarPropulsionSpeed`, `verticalTravelClass`, `verticalSpeedRatio`,
 `verticalReferenceSpeed`, and `verticalSpeedCeiling` when the selected entity has a
 registered species policy.
+They also expose `settingsRevision`, `movementAdapter`, `movementWriter`,
+`movementStateSource`, `configuredHorizontalSpeed`, `configuredVerticalSpeed`,
+`configuredHorizontalSprint`, and `configuredVerticalSprint`. These fields bind the sample to the
+same session snapshot used by the powered movement owner.
 Shark actions use the authoritative shark state. SmartBrain aquatic animals use the
 bounded policy action. These fields are observations, not acceptance thresholds by
 themselves.

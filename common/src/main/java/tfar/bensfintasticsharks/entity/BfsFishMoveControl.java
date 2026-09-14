@@ -24,7 +24,8 @@ public final class BfsFishMoveControl extends PitchSwimmingMoveControl {
 
     static void travel(AbstractFish fish, Vec3 movementInput) {
         if (fish.getMoveControl() instanceof BfsFishMoveControl control) {
-            control.travel(0.01, 0.9, Math.abs(fish.getSpeed()), 0, movementInput);
+            control.travel(0.01, 0.9, Math.abs(fish.getSpeed()), 0,
+                    MovementIntentOverrides.resolve(fish, movementInput));
         }
     }
 }

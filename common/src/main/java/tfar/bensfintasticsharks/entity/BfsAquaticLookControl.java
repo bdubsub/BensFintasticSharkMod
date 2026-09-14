@@ -15,6 +15,12 @@ final class BfsAquaticLookControl extends SmoothSwimmingLookControl {
 
     @Override
     public void tick() {
+        if (MovementIntentOverrides.active(mob)) {
+            float movementYaw = mob.getYRot();
+            mob.yBodyRot = movementYaw;
+            mob.yHeadRot = movementYaw;
+            return;
+        }
         float movementPitch = mob.getXRot();
         super.tick();
         mob.setXRot(movementPitch);

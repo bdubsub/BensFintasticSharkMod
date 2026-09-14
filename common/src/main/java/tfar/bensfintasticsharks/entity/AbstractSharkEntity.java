@@ -76,6 +76,12 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     }
 
     @Override
+    public void setTarget(@Nullable LivingEntity target) {
+        super.setTarget(target);
+        if (target != null) scheduleBiteIfInRange(target);
+    }
+
+    @Override
     protected float verticalSwimSpeedMultiplier() {
         return (float) AquaticMovement.SHARK_VERTICAL_SPEED_RATIO;
     }
@@ -111,9 +117,18 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     protected float disengageTimeoutMult() { return globalDisengageTimeoutMult; }
 
     /** Effective detection radius after config scaling. */
-    public float effectiveDetectionRadius() { return params.detectionRadius() * detectionRadiusMult(); }
-    public float effectiveDisengageDistance() { return params.disengageDistance() * disengageDistanceMult(); }
-    public int effectiveDisengageTimeoutTicks() { return (int)(params.disengageTimeoutTicks() * disengageTimeoutMult()); }
+    public float effectiveDetectionRadius() {
+        return (float) SpeciesSettingsService.valueFor(this, SpeciesSettingsService.Field.DETECTION_RADIUS,
+                params.detectionRadius() * detectionRadiusMult());
+    }
+    public float effectiveDisengageDistance() {
+        return (float) SpeciesSettingsService.valueFor(this, SpeciesSettingsService.Field.DISENGAGE_DISTANCE,
+                params.disengageDistance() * disengageDistanceMult());
+    }
+    public int effectiveDisengageTimeoutTicks() {
+        return SpeciesSettingsService.intValue(this, SpeciesSettingsService.Field.ACTION_TIMEOUT,
+                (int) (params.disengageTimeoutTicks() * disengageTimeoutMult()));
+    }
 
     @Override
     protected void defineSynchedData() {
@@ -261,7 +276,10 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                         && victim.level() == level() && !victim.isPassenger()
                         && getPassengers().isEmpty()) {
                     double reach = biteRangeAgainst(victim);
-                    if (this.distanceToSqr(victim) <= reach * reach) {
+                    // Entity push and the victim's own interpolation can open the contact gap
+                    // during the short animation delay. Preserve the bite once it was scheduled
+                    // in contact range, with only a small server side tolerance for that push.
+                    if (this.distanceToSqr(victim) <= (reach + 1.0D) * (reach + 1.0D)) {
                         this.doHurtTarget(victim);
                         onBiteLanded(victim);
                     }
@@ -372,6 +390,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     /** Hook for species-specific tick behaviors (item investigation, hovering, etc). */
     protected void onSharkTick() {
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) return;
 
         // Sustained flight from a larger shark (Ben 0.19). While fleeing the shark neither
         // hunts nor chases — it just keeps re-pathing away every half-second until the timer
@@ -442,18 +461,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             // Checked EVERY tick (0.19): behind the old %10 gate a fast shark could
             // cross the whole bite disc between checks and never fire, which fed the
             // overshoot-orbit loop.
-            if (inBiteRange
-                    && biteCooldown <= 0
-                    && pendingBiteTarget == null
-                    // A latched passenger is already inside the active attack. Do not
-                    // schedule another bite while the grab or latch timer is running.
-                    && getPassengers().isEmpty()) {
-                this.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
-                onBiteAttack(tgt);
-                pendingBiteTarget = tgt;
-                pendingBiteTicks = biteImpactDelayTicks();
-                biteCooldown = params.biteCooldownTicks();
-            }
+            if (inBiteRange) scheduleBiteIfInRange(tgt);
         }
 
         // Beach avoidance: every 40 ticks, nudge sharks away from beach biomes
@@ -468,6 +476,18 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
                         new WalkTarget(walk, 1.0f, 1));
             }
         }
+    }
+
+    private void scheduleBiteIfInRange(LivingEntity target) {
+        if ((!isInWater() && !target.isInWater()) || !target.isAlive() || biteCooldown > 0 || pendingBiteTarget != null
+                || !getPassengers().isEmpty()) return;
+        double reach = biteRangeAgainst(target);
+        if (distanceToSqr(target) > reach * reach) return;
+        swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+        onBiteAttack(target);
+        pendingBiteTarget = target;
+        pendingBiteTicks = biteImpactDelayTicks();
+        biteCooldown = params.biteCooldownTicks();
     }
 
     /**
@@ -846,6 +866,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
      *        raw {@link #getSpeed()} with their own lower friction.
      */
     protected void swimInWater(Vec3 movementInput, double waterFriction, double idleSink, boolean useSwimMultiplier) {
+        movementInput = MovementIntentOverrides.resolve(this, movementInput);
         LivingEntity tgt = this.getTarget();
         // While a victim is grabbed (grabber species) the prey is already caught — don't brake
         // or burst, just cruise so the grab/thrash keeps the exact feel it had before 0.19.
@@ -921,7 +942,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
 
     @Override
     public void travel(@NotNull Vec3 movementInput) {
-        if (this.isEffectiveAi() && this.isInWater()) {
+        if (MovementIntentOverrides.active(this) || (this.isEffectiveAi() && this.isInWater())) {
             // Braking, chase burst, cap, chase floor and backslide damping all live in the
             // shared helper so this path and the four bespoke species overrides can't drift
             // apart. Braking (inside bite range) zeroes input and applies heavy friction so

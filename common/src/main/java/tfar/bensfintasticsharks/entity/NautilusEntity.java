@@ -115,6 +115,10 @@ public class NautilusEntity extends BfsAquaticEntity<NautilusEntity> implements 
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (MovementIntentOverrides.active(this)) {
+            this.entityData.set(DATA_RESTING, false);
+            return;
+        }
         if (restTicks > 0) {
             restTicks--;
             // Slow movement to a glide — don't hard-stop it.

@@ -29,6 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
 import net.minecraft.world.level.pathfinder.PathFinder;
+import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
@@ -49,7 +50,7 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
-        implements BfsVariantHolder {
+        implements BfsVariantHolder, PoweredVelocitySource {
 
     @Override public int bfsVariantCount() { return Variant.values().length; }
     @Override public void setBfsVariantId(int id) {
@@ -80,6 +81,19 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(CommonStingrayEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> DATA_BFS_SCALE = SynchedEntityData.defineId(CommonStingrayEntity.class, EntityDataSerializers.FLOAT);
+    private Vec3 bfsPoweredVelocity = Vec3.ZERO;
+
+    @Override
+    public Vec3 bfsPoweredVelocityForDiagnostics() {
+        return bfsPoweredVelocity;
+    }
+
+    @Override
+    public void resetFixtureMovementState() {
+        super.resetFixtureMovementState();
+        bfsPoweredVelocity = Vec3.ZERO;
+    }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 2);
@@ -88,19 +102,25 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_VARIANT, 0);
+        this.entityData.define(DATA_BFS_SCALE, 1.0F);
     }
 
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
         RandomSource randomsource = pLevel.getRandom();
         this.setVariant(Variant.getSpawnVariant(randomsource));
+        setBfsScale(BfsScaleUtil.roll(this, getRandom(), 1.0F, 1.0F));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
     }
+
+    public float getBfsScale() { return entityData.get(DATA_BFS_SCALE); }
+    public void setBfsScale(float value) { entityData.set(DATA_BFS_SCALE, Math.max(0.25F, Math.min(2.0F, value))); }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         setVariant(Variant.byId(tag.getInt("Variant")));
+        if (tag.contains("BfsScale")) setBfsScale(tag.getFloat("BfsScale"));
     }
 
 
@@ -108,6 +128,12 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("Variant", getVariant().getId());
+        tag.putFloat("BfsScale", getBfsScale());
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        return BfsScaleUtil.scale(super.getDimensions(pose), getBfsScale());
     }
 
     @Override
@@ -142,13 +168,24 @@ public class CommonStingrayEntity extends SmartWaterAnimal<CommonStingrayEntity>
      */
     @Override
     public void travel(@org.jetbrains.annotations.NotNull net.minecraft.world.phys.Vec3 movementInput) {
-        if (this.isEffectiveAi() && this.isInWater()) {
-            this.moveRelative(this.getSpeed() * 0.5f, movementInput);
-            this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.6));
+        movementInput = MovementIntentOverrides.resolve(this, movementInput);
+        if (MovementIntentOverrides.active(this) || (this.isEffectiveAi() && this.isInWater())) {
+            Vec3 previous = this.getDeltaMovement();
+            Vec3 external = previous.subtract(bfsPoweredVelocity);
+            Vec3 worldIntent = movementInput.yRot((float) Math.toRadians(-this.getYRot()));
+            double fallbackHorizontal = this.getSpeed() * 0.5D * 20.0D;
+            Vec3 powered = SpeciesSettingsService.requestedVelocity(this, worldIntent,
+                    fallbackHorizontal, fallbackHorizontal);
+            Vec3 velocity = external.add(powered);
+            this.move(net.minecraft.world.entity.MoverType.SELF, velocity);
+            this.setDeltaMovement(velocity.scale(0.6D));
+            bfsPoweredVelocity = powered.scale(0.6D);
             // Persistent sink toward the seafloor.
-            this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
+            if (!MovementIntentOverrides.active(this)) {
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
+            }
         } else {
+            bfsPoweredVelocity = Vec3.ZERO;
             super.travel(movementInput);
         }
     }

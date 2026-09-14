@@ -43,6 +43,10 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
         return pitchControl == null ? null : pitchControl.snapshot();
     }
 
+    public void resetFixtureState() {
+        if (pitchControl != null) pitchControl.resetFixtureState();
+    }
+
     public void travel(double acceleration, double friction, double horizontalCap, double speedFloor,
                         Vec3 input) {
         pitchControl.travel(acceleration, friction, horizontalCap, speedFloor, input);
@@ -50,6 +54,9 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
 
     @Override
     public void tick() {
+        if (MovementIntentOverrides.active(mob)) {
+            return;
+        }
         if (pitchControl != null) {
             pitchControl.tick();
             return;

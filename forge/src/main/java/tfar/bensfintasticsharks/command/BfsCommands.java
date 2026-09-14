@@ -105,6 +105,7 @@ public class BfsCommands {
         line(src, "/bfs disturbance <type>", "fire a test light/heavy/blood disturbance at your position");
         line(src, "/bfs reload", "reload config without restarting the server");
         line(src, "/bfs debug on", "start a bounded server diagnostic capture");
+        line(src, "/bfs debug settings help", "inspect session-only species tuning and revision controls");
         return 1;
     }
 
@@ -266,8 +267,13 @@ public class BfsCommands {
             net.minecraftforge.fml.ModLoadingContext.get();
             // Re-read by accessing each cap value
             tfar.bensfintasticsharks.config.BfsConfig.COMMON.apexPredatorCap.get();
-            ctx.getSource().sendSuccess(() -> Component.literal("BFS config refreshed. Edits to mob caps in config take effect immediately.")
-                    .withStyle(ChatFormatting.GREEN), true);
+            var settings = tfar.bensfintasticsharks.config.SpeciesSettingsConfigBridge.reload();
+            if (!settings.applied()) {
+                ctx.getSource().sendFailure(Component.literal("BFS config reload rejected. " + settings.reason()));
+                return 0;
+            }
+            ctx.getSource().sendSuccess(() -> Component.literal("BFS config refreshed. Session settings baseline reloaded at revision "
+                    + settings.revision() + ".").withStyle(ChatFormatting.GREEN), true);
         } catch (Exception e) {
             ctx.getSource().sendFailure(Component.literal("Reload failed: " + e.getMessage()));
             return 0;

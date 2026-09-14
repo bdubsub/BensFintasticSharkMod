@@ -1,22 +1,39 @@
 package tfar.bensfintasticsharks.debug;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import tfar.bensfintasticsharks.config.SpeciesSettingsConfigBridge;
+import tfar.bensfintasticsharks.entity.SpeciesSettingsService;
+import tfar.bensfintasticsharks.spawn.MobCapManager;
 
+import java.util.EnumMap;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /** Server command node for bounded debug sessions. */
 public final class BfsDebugCommands {
+
+    private static final com.mojang.brigadier.suggestion.SuggestionProvider<CommandSourceStack> SPECIES_SUGGESTIONS =
+            (context, builder) -> SharedSuggestionProvider.suggest(
+                    java.util.stream.Stream.concat(java.util.stream.Stream.of("*"), MobCapManager.getSpeciesPaths().stream()), builder);
+    private static final com.mojang.brigadier.suggestion.SuggestionProvider<CommandSourceStack> FIELD_SUGGESTIONS =
+            (context, builder) -> SharedSuggestionProvider.suggest(
+                    SpeciesSettingsService.fields().stream().map(SpeciesSettingsService.Field::id), builder);
 
     private BfsDebugCommands() {
     }
@@ -38,7 +55,315 @@ public final class BfsDebugCommands {
         return Commands.literal("debug")
                 .then(on)
                 .then(Commands.literal("off").executes(BfsDebugCommands::stop))
-                .then(Commands.literal("status").executes(BfsDebugCommands::status));
+                .then(Commands.literal("status").executes(BfsDebugCommands::status))
+                .then(settingsNode())
+                .then(speedNode())
+                .then(sprintNode())
+                .then(spawnSizeNode())
+                .then(scaleNode())
+                .then(attributeNode("sethealth", SpeciesSettingsService.Field.HEALTH_MULTIPLIER))
+                .then(attributeNode("setdamage", SpeciesSettingsService.Field.DAMAGE_MULTIPLIER))
+                .then(attributeNode("setknockback", SpeciesSettingsService.Field.KNOCKBACK_RESISTANCE))
+                .then(behaviorNode());
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> settingsNode() {
+        return Commands.literal("settings")
+                .then(Commands.literal("help").executes(BfsDebugCommands::settingsHelp))
+                .then(Commands.literal("list").executes(BfsDebugCommands::settingsList))
+                .then(Commands.literal("get")
+                        .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                                .executes(context -> settingsGet(context,
+                                        StringArgumentType.getString(context, "entity")))))
+                .then(Commands.literal("set")
+                        .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                                .then(Commands.argument("field", StringArgumentType.word()).suggests(FIELD_SUGGESTIONS)
+                                        .then(Commands.argument("value", DoubleArgumentType.doubleArg())
+                                                .executes(context -> settingsSet(context, currentRevision()))
+                                                .then(Commands.argument("revision", LongArgumentType.longArg())
+                                                        .executes(context -> settingsSet(context,
+                                                                LongArgumentType.getLong(context, "revision"))))))))
+                .then(Commands.literal("reset")
+                        .executes(context -> settingsReset(context, "*", Set.of(), currentRevision()))
+                        .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                                .executes(context -> settingsReset(context,
+                                        StringArgumentType.getString(context, "entity"), Set.of(), currentRevision()))
+                                .then(Commands.argument("field", StringArgumentType.word()).suggests(FIELD_SUGGESTIONS)
+                                        .executes(context -> settingsReset(context,
+                                                StringArgumentType.getString(context, "entity"),
+                                                parseFieldSet(StringArgumentType.getString(context, "field")), currentRevision()))
+                                        .then(Commands.argument("revision", LongArgumentType.longArg())
+                                                .executes(context -> settingsReset(context,
+                                                        StringArgumentType.getString(context, "entity"),
+                                                        parseFieldSet(StringArgumentType.getString(context, "field")),
+                                                        LongArgumentType.getLong(context, "revision"))))))
+                        .then(Commands.argument("revision", LongArgumentType.longArg())
+                                .executes(context -> settingsReset(context, "*", Set.of(),
+                                        LongArgumentType.getLong(context, "revision")))))
+                .then(Commands.literal("reload").executes(BfsDebugCommands::settingsReload));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> speedNode() {
+        return Commands.literal("setspeed")
+                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("horizontal", DoubleArgumentType.doubleArg(0.0D, 20.0D))
+                                .then(Commands.argument("vertical", DoubleArgumentType.doubleArg(0.0D, 20.0D))
+                                        .executes(context -> setSpeed(context, currentRevision()))
+                                        .then(Commands.argument("revision", LongArgumentType.longArg())
+                                                .executes(context -> setSpeed(context,
+                                                        LongArgumentType.getLong(context, "revision")))))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> sprintNode() {
+        return Commands.literal("setsprint")
+                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("horizontal", DoubleArgumentType.doubleArg(0.0D, 4.0D))
+                                .then(Commands.argument("vertical", DoubleArgumentType.doubleArg(0.0D, 4.0D))
+                                        .executes(context -> setSprint(context, currentRevision()))
+                                        .then(Commands.argument("revision", LongArgumentType.longArg())
+                                                .executes(context -> setSprint(context,
+                                                        LongArgumentType.getLong(context, "revision")))))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> spawnSizeNode() {
+        return Commands.literal("setspawnsize")
+                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("minimum", IntegerArgumentType.integer(1, 32))
+                                .then(Commands.argument("maximum", IntegerArgumentType.integer(1, 32))
+                                        .executes(context -> setSpawnSize(context, currentRevision()))
+                                        .then(Commands.argument("revision", LongArgumentType.longArg())
+                                                .executes(context -> setSpawnSize(context,
+                                                        LongArgumentType.getLong(context, "revision")))))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> scaleNode() {
+        return Commands.literal("setscale")
+                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("minimum", DoubleArgumentType.doubleArg(0.25D, 2.0D))
+                                .then(Commands.argument("maximum", DoubleArgumentType.doubleArg(0.25D, 2.0D))
+                                        .executes(context -> setScale(context, currentRevision()))
+                                        .then(Commands.argument("revision", LongArgumentType.longArg())
+                                                .executes(context -> setScale(context,
+                                                        LongArgumentType.getLong(context, "revision")))))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> attributeNode(String name,
+                                                                              SpeciesSettingsService.Field field) {
+        double minimum = field.minimum();
+        double maximum = field.maximum();
+        return Commands.literal(name)
+                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("value", DoubleArgumentType.doubleArg(minimum, maximum))
+                                .executes(context -> setSingle(context, field, currentRevision()))
+                                .then(Commands.argument("revision", LongArgumentType.longArg())
+                                        .executes(context -> setSingle(context, field,
+                                                LongArgumentType.getLong(context, "revision"))))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> behaviorNode() {
+        return Commands.literal("setbehavior")
+                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("detection", DoubleArgumentType.doubleArg(0.0D, 256.0D))
+                                .then(Commands.argument("disengage", DoubleArgumentType.doubleArg(0.0D, 512.0D))
+                                        .then(Commands.argument("action_timeout", IntegerArgumentType.integer(1, 20_000))
+                                                .then(Commands.argument("memory_ticks", IntegerArgumentType.integer(0, 20_000))
+                                                        .executes(context -> setBehavior(context, currentRevision()))
+                                                        .then(Commands.argument("revision", LongArgumentType.longArg())
+                                                                .executes(context -> setBehavior(context,
+                                                                        LongArgumentType.getLong(context, "revision")))))))));
+    }
+
+    private static long currentRevision() {
+        return SpeciesSettingsService.revision();
+    }
+
+    private static int settingsHelp(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        source.sendSuccess(() -> Component.literal("BFS session settings")
+                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
+        source.sendSuccess(() -> Component.literal("  /bfs debug settings list")
+                .append(Component.literal("  show fields, units and bounds").withStyle(ChatFormatting.GRAY)), false);
+        source.sendSuccess(() -> Component.literal("  /bfs debug settings get <entity|*>")
+                .append(Component.literal("  show values, source, revision and capability").withStyle(ChatFormatting.GRAY)), false);
+        source.sendSuccess(() -> Component.literal("  /bfs debug settings set <entity|*> <field> <value> [revision]")
+                .append(Component.literal("  apply one atomic patch").withStyle(ChatFormatting.GRAY)), false);
+        source.sendSuccess(() -> Component.literal("  /bfs debug settings reset [entity|*] [field] [revision]")
+                .append(Component.literal("  clear session values").withStyle(ChatFormatting.GRAY)), false);
+        source.sendSuccess(() -> Component.literal("  /bfs debug settings reload")
+                .append(Component.literal("  validate and replace the server baseline").withStyle(ChatFormatting.GRAY)), false);
+        source.sendSuccess(() -> Component.literal("Specialized aliases include setspeed, setsprint, setspawnsize, setscale, sethealth, setdamage, setknockback and setbehavior.")
+                .withStyle(ChatFormatting.GRAY), false);
+        return 1;
+    }
+
+    private static int settingsList(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        source.sendSuccess(() -> Component.literal("BFS settings fields")
+                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
+        for (SpeciesSettingsService.Field field : SpeciesSettingsService.fields()) {
+            source.sendSuccess(() -> Component.literal("  " + field.id() + ": ")
+                    .withStyle(ChatFormatting.GREEN)
+                    .append(Component.literal(field.unit() + ", " + field.minimum() + " to "
+                            + field.maximum()).withStyle(ChatFormatting.WHITE)), false);
+        }
+        source.sendSuccess(() -> Component.literal("  Revision: " + SpeciesSettingsService.revision())
+                .withStyle(ChatFormatting.GRAY), false);
+        return 1;
+    }
+
+    private static int settingsGet(CommandContext<CommandSourceStack> context, String target) {
+        CommandSourceStack source = context.getSource();
+        SpeciesSettingsService.Snapshot snapshot = SpeciesSettingsService.snapshot();
+        if ("*".equals(target)) {
+            for (SpeciesSettingsService.SpeciesSnapshot species : snapshot.species().values()) {
+                sendSpecies(source, species);
+            }
+            return snapshot.species().size();
+        }
+        SpeciesSettingsService.SpeciesSnapshot species = snapshot.species().get(target);
+        if (species == null) {
+            source.sendFailure(Component.literal("Unknown BFS species: " + target));
+            return 0;
+        }
+        sendSpecies(source, species);
+        return 1;
+    }
+
+    private static void sendSpecies(CommandSourceStack source,
+                                    SpeciesSettingsService.SpeciesSnapshot species) {
+        source.sendSuccess(() -> Component.literal(species.species() + " settings, revision " + species.revision())
+                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
+        for (SpeciesSettingsService.FieldValue value : species.fields().values()) {
+            SpeciesSettingsService.CapabilityResult capability = value.capability();
+            ChatFormatting color = capability.capability() == SpeciesSettingsService.Capability.SUPPORTED
+                    ? ChatFormatting.WHITE : ChatFormatting.YELLOW;
+            source.sendSuccess(() -> Component.literal("  " + value.field().id() + ": ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(formatValue(value.value()) + " " + value.field().unit()
+                            + " [" + value.source() + "]").withStyle(color))
+                    .append(Component.literal(" " + capability.capability().id() + ", " + capability.reason())
+                            .withStyle(ChatFormatting.DARK_GRAY)), false);
+        }
+    }
+
+    private static int settingsSet(CommandContext<CommandSourceStack> context, long expectedRevision) {
+        String fieldName = StringArgumentType.getString(context, "field");
+        SpeciesSettingsService.Field field = SpeciesSettingsService.Field.parse(fieldName);
+        if (field == null) {
+            context.getSource().sendFailure(Component.literal("Unknown settings field: " + fieldName));
+            return 0;
+        }
+        Map<SpeciesSettingsService.Field, Double> patch = new EnumMap<>(SpeciesSettingsService.Field.class);
+        patch.put(field, DoubleArgumentType.getDouble(context, "value"));
+        return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
+                StringArgumentType.getString(context, "entity"), patch));
+    }
+
+    private static int settingsReset(CommandContext<CommandSourceStack> context, String target,
+                                     Set<SpeciesSettingsService.Field> fields, long expectedRevision) {
+        if (fields == null) {
+            context.getSource().sendFailure(Component.literal("Unknown settings field. Use /bfs debug settings list."));
+            return 0;
+        }
+        return report(context.getSource(), SpeciesSettingsService.reset(expectedRevision, target, fields));
+    }
+
+    private static int settingsReload(CommandContext<CommandSourceStack> context) {
+        SpeciesSettingsService.ReloadResult result = SpeciesSettingsConfigBridge.reload();
+        CommandSourceStack source = context.getSource();
+        if (!result.applied()) {
+            source.sendFailure(Component.literal("BFS settings reload rejected. " + result.reason()));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal("BFS settings baseline reloaded. Session overrides remain active. Revision "
+                + result.revision() + ".").withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    private static int setSpeed(CommandContext<CommandSourceStack> context, long expectedRevision) {
+        Map<SpeciesSettingsService.Field, Double> patch = new EnumMap<>(SpeciesSettingsService.Field.class);
+        patch.put(SpeciesSettingsService.Field.HORIZONTAL_SPEED,
+                DoubleArgumentType.getDouble(context, "horizontal"));
+        patch.put(SpeciesSettingsService.Field.VERTICAL_SPEED,
+                DoubleArgumentType.getDouble(context, "vertical"));
+        return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
+                StringArgumentType.getString(context, "entity"), patch));
+    }
+
+    private static int setSprint(CommandContext<CommandSourceStack> context, long expectedRevision) {
+        Map<SpeciesSettingsService.Field, Double> patch = new EnumMap<>(SpeciesSettingsService.Field.class);
+        patch.put(SpeciesSettingsService.Field.HORIZONTAL_SPRINT,
+                DoubleArgumentType.getDouble(context, "horizontal"));
+        patch.put(SpeciesSettingsService.Field.VERTICAL_SPRINT,
+                DoubleArgumentType.getDouble(context, "vertical"));
+        return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
+                StringArgumentType.getString(context, "entity"), patch));
+    }
+
+    private static int setSpawnSize(CommandContext<CommandSourceStack> context, long expectedRevision) {
+        Map<SpeciesSettingsService.Field, Double> patch = new EnumMap<>(SpeciesSettingsService.Field.class);
+        patch.put(SpeciesSettingsService.Field.SPAWN_GROUP_MIN,
+                (double) IntegerArgumentType.getInteger(context, "minimum"));
+        patch.put(SpeciesSettingsService.Field.SPAWN_GROUP_MAX,
+                (double) IntegerArgumentType.getInteger(context, "maximum"));
+        return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
+                StringArgumentType.getString(context, "entity"), patch));
+    }
+
+    private static int setScale(CommandContext<CommandSourceStack> context, long expectedRevision) {
+        Map<SpeciesSettingsService.Field, Double> patch = new EnumMap<>(SpeciesSettingsService.Field.class);
+        patch.put(SpeciesSettingsService.Field.SCALE_MIN,
+                DoubleArgumentType.getDouble(context, "minimum"));
+        patch.put(SpeciesSettingsService.Field.SCALE_MAX,
+                DoubleArgumentType.getDouble(context, "maximum"));
+        return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
+                StringArgumentType.getString(context, "entity"), patch));
+    }
+
+    private static int setSingle(CommandContext<CommandSourceStack> context,
+                                 SpeciesSettingsService.Field field, long expectedRevision) {
+        Map<SpeciesSettingsService.Field, Double> patch = new EnumMap<>(SpeciesSettingsService.Field.class);
+        patch.put(field, DoubleArgumentType.getDouble(context, "value"));
+        return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
+                StringArgumentType.getString(context, "entity"), patch));
+    }
+
+    private static int setBehavior(CommandContext<CommandSourceStack> context, long expectedRevision) {
+        Map<SpeciesSettingsService.Field, Double> patch = new EnumMap<>(SpeciesSettingsService.Field.class);
+        patch.put(SpeciesSettingsService.Field.DETECTION_RADIUS,
+                DoubleArgumentType.getDouble(context, "detection"));
+        patch.put(SpeciesSettingsService.Field.DISENGAGE_DISTANCE,
+                DoubleArgumentType.getDouble(context, "disengage"));
+        patch.put(SpeciesSettingsService.Field.ACTION_TIMEOUT,
+                (double) IntegerArgumentType.getInteger(context, "action_timeout"));
+        patch.put(SpeciesSettingsService.Field.MEMORY_TICKS,
+                (double) IntegerArgumentType.getInteger(context, "memory_ticks"));
+        return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
+                StringArgumentType.getString(context, "entity"), patch));
+    }
+
+    private static int report(CommandSourceStack source, SpeciesSettingsService.MutationResult result) {
+        if (!result.applied()) {
+            source.sendFailure(Component.literal("BFS settings change rejected. " + result.reason()
+                    + ". Revision remains " + result.revision() + "."));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal("BFS settings applied. ")
+                .withStyle(ChatFormatting.GREEN)
+                .append(Component.literal(result.targets().size() + " species, " + result.fields().size()
+                        + " fields. Revision " + result.revision() + ".").withStyle(ChatFormatting.WHITE)), true);
+        return result.targets().size();
+    }
+
+    private static Set<SpeciesSettingsService.Field> parseFieldSet(String value) {
+        if (value == null || value.equalsIgnoreCase("all")) return Set.of();
+        SpeciesSettingsService.Field field = SpeciesSettingsService.Field.parse(value);
+        return field == null ? null : EnumSet.of(field);
+    }
+
+    private static String formatValue(double value) {
+        if (value == Math.rint(value)) return Long.toString((long) value);
+        return String.format(java.util.Locale.ROOT, "%.3f", value);
     }
 
     private static int start(CommandContext<CommandSourceStack> context, String category, int ticks,

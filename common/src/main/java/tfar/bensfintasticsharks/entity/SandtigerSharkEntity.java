@@ -102,6 +102,7 @@ public class SandtigerSharkEntity extends AbstractSharkEntity<SandtigerSharkEnti
     @Override
     protected void onSharkTick() {
         super.onSharkTick();
+        if (MovementIntentOverrides.active(this)) return;
         if (level().isClientSide) return;
         // 0.20 — while fleeing a bigger shark, drop the hover (it pins the shark in place with
         // a fixed upward velocity) and skip the item/curious logic so the flee actually runs.

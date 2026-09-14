@@ -107,6 +107,7 @@ public class CaribbeanReefOctopusEntity extends BfsAquaticEntity<CaribbeanReefOc
     @Override
     public void tick() {
         super.tick();
+        if (MovementIntentOverrides.active(this)) return;
         updateBodyPitch();
         OctopusCamouflage.tick(this);
         if (level().isClientSide) return;

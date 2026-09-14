@@ -44,7 +44,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.IntFunction;
 
-public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> implements BfsVariantHolder {
+public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity>
+        implements BfsVariantHolder, PoweredVelocitySource {
 
     @Override public int bfsVariantCount() { return Variant.values().length; }
     @Override public void setBfsVariantId(int id) {
@@ -63,6 +64,19 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> impleme
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(HarborSealEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> DATA_BFS_SCALE = SynchedEntityData.defineId(HarborSealEntity.class, EntityDataSerializers.FLOAT);
+    private Vec3 bfsPoweredVelocity = Vec3.ZERO;
+
+    @Override
+    public Vec3 bfsPoweredVelocityForDiagnostics() {
+        return bfsPoweredVelocity;
+    }
+
+    @Override
+    public void resetFixtureMovementState() {
+        super.resetFixtureMovementState();
+        bfsPoweredVelocity = Vec3.ZERO;
+    }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 25).add(Attributes.MOVEMENT_SPEED, 1.2F).add(Attributes.ATTACK_DAMAGE, 2);
@@ -71,19 +85,25 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> impleme
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_VARIANT, 0);
+        this.entityData.define(DATA_BFS_SCALE, 1.0F);
     }
 
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
         RandomSource randomsource = pLevel.getRandom();
         this.setVariant(Variant.getSpawnVariant(randomsource,pLevel.getBiome(blockPosition())));
+        setBfsScale(BfsScaleUtil.roll(this, getRandom(), 1.0F, 1.0F));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
     }
+
+    public float getBfsScale() { return entityData.get(DATA_BFS_SCALE); }
+    public void setBfsScale(float value) { entityData.set(DATA_BFS_SCALE, Math.max(0.25F, Math.min(2.0F, value))); }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         setVariant(Variant.byId(tag.getInt("Variant")));
+        if (tag.contains("BfsScale")) setBfsScale(tag.getFloat("BfsScale"));
     }
 
 
@@ -91,15 +111,31 @@ public class HarborSealEntity extends SmartWaterAnimal<HarborSealEntity> impleme
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("Variant", getVariant().getId());
+        tag.putFloat("BfsScale", getBfsScale());
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        return BfsScaleUtil.scale(super.getDimensions(pose), getBfsScale());
     }
 
     @Override
     public void travel(Vec3 $$0) {
-        if (this.isControlledByLocalInstance() && this.isInWater()) {
-            this.moveRelative(this.getSpeed(), $$0);
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.65));
+        $$0 = MovementIntentOverrides.resolve(this, $$0);
+        if (MovementIntentOverrides.active(this)
+                || (this.isControlledByLocalInstance() && this.isInWater())) {
+            Vec3 previous = this.getDeltaMovement();
+            Vec3 external = previous.subtract(bfsPoweredVelocity);
+            Vec3 worldIntent = $$0.yRot((float) Math.toRadians(-this.getYRot()));
+            double fallbackHorizontal = this.getSpeed() * 20.0D;
+            Vec3 powered = SpeciesSettingsService.requestedVelocity(this, worldIntent,
+                    fallbackHorizontal, fallbackHorizontal);
+            Vec3 velocity = external.add(powered);
+            this.move(MoverType.SELF, velocity);
+            this.setDeltaMovement(velocity.scale(0.65D));
+            bfsPoweredVelocity = powered.scale(0.65D);
         } else {
+            bfsPoweredVelocity = Vec3.ZERO;
             super.travel($$0);
         }
 
