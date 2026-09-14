@@ -224,7 +224,7 @@
       "bound_capture_recorded_source_commit_artifact_hash_configuration_datapack_and_java_runtime",
       "server_restart_reloaded_both_persistent_targets"
     ],
-    "cleanup": "pending_final_phase_evidence_consumer_disposable_runtime_and_client_are_still_owned_by_this_audit"
+    "cleanup": "complete_disposable_runtime_client_and_audio_resources_removed_and_verified"
   },
   "movingObstacleGameTest": {
     "fixture": "minecraft:zombie",
