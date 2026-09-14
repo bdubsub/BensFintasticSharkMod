@@ -49,15 +49,15 @@ OK
 The disposable GameTest runtime, logs, and parser scratch paths were removed after review. The
 matching laptop client was launched only after the headless gates passed. Its server join, muted
 owned audio stream, readable settings feedback, open surface rendering, and shallow ocean
-rendering are recorded in `phase-001-client-visual-20260913.md`. The full terrain and scale
-matrix remains unverified.
+rendering are recorded in `phase-001-client-visual-20260913.md`. The current capture matrix covers all named terrain fixtures at the default scale and the open
+surface at scales 0.25, 1, and 2. Terrain fixtures at scales 0.25 and 2 remain unverified.
 
 The Forge archive also passed `unzip -tqq` and the phase candidate built as
 `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`.
 
 ```text
-sha256 4a0ce9f0acc41f037444252471eff1390cf89beadf4b435f99edb8b8a715f4ff
-sha512 984c3c90134bc5c3fe51c21f1ffb397bec12e583eef30faac9708a465dcc8b4f10dbbb33066d05a01d1ea35313608674ccfc0a5c8888fd60687eebdf52ad1
+sha256 95939fb61125aa74dea45668d2d0c311c65afbc2ae8a761cd78bcb703d69d633
+sha512 fe25fc08aefdbcb4bfd1b26bc106d9e2e4f6ea68c67b616057cefd6df67e0a3b0c54be4215bbd79f67470572502afd8dbce6545b05655489ff68bd11dc26de14
 ```
 
 A disposable dedicated server smoke on node 1 reached the `Done` readiness marker in 16.092
@@ -69,4 +69,4 @@ startup evidence only and does not replace the laptop client gate.
 
 The code and headless evidence are ready for the phase review, but phase 001 is not closed.
 The independent review, pull request checks and merge into `1.20.1`, resulting default branch
-verification, signed phase tag, and silent laptop visual acceptance must still be completed.
+verification, signed phase tag, and the remaining client matrix must still be completed.

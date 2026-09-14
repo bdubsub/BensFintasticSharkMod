@@ -75,8 +75,9 @@ That run covered the movement diagnostics, algae navigation, pitch settling and 
 curiosity pursuit and recovery, blocked route handling, combat latch and bite timing, lifecycle
 reload, spawn replacement, population bounds, fishing, armor, the all species movement adapter
 inventory fixture, and the existing baseline fixtures.
-The disposable GameTest runtime and logs were removed after review. No graphical client was
-launched.
+The disposable GameTest runtime and logs were removed after review. The matching production Forge
+laptop client joined the disposable server, remained muted, and completed the current capture matrix
+recorded in `phase-001-client-visual-20260913.md`.
 
 After adding the shared powered velocity diagnostic source, the focused server GameTest run passed
 the movement oracle and writer coverage fixtures for all 22 species. The oracle includes the
