@@ -40,9 +40,9 @@ public final class BfsFollowManager {
     public static final int ROUTE_INTERVAL_TICKS = 10;
     public static final int LEASE_DURATION_TICKS = 2_400;
     public static final int BLOCKED_TICKS = 200;
-    public static final int ARRIVAL_COOLDOWN_TICKS = 20;
     public static final double MAX_RANGE = 64.0D;
     public static final double ARRIVAL_DISTANCE = 4.0D;
+    private static final double ARRIVAL_RESELECT_DISTANCE = ARRIVAL_DISTANCE + 0.5D;
 
     private static final String MARKER_VERSION_KEY = "bfs_follow_marker_version";
     private static final String ISSUE_ID_KEY = "bfs_follow_issue_id";
@@ -52,7 +52,7 @@ public final class BfsFollowManager {
     private static final Map<UUID, Issuance> ISSUED = new HashMap<>();
     private static final Map<UUID, Lease> BY_OWNER = new HashMap<>();
     private static final Map<UUID, Lease> BY_TARGET = new HashMap<>();
-    private static final Map<FollowKey, Long> ARRIVAL_COOLDOWNS = new HashMap<>();
+    private static final Set<FollowKey> ARRIVAL_LATCHES = new HashSet<>();
     private static final Set<String> INTERACTIONS = new HashSet<>();
     private static long interactionTick = Long.MIN_VALUE;
 
@@ -82,7 +82,7 @@ public final class BfsFollowManager {
             release(existing, recipient.serverLevel(), "marker_reissued",
                     findMob(recipient.serverLevel().getServer(), existing.targetId));
         }
-        ARRIVAL_COOLDOWNS.keySet().removeIf(key -> key.ownerId().equals(ownerId));
+        ARRIVAL_LATCHES.removeIf(key -> key.ownerId().equals(ownerId));
         UUID issueId = UUID.randomUUID();
         ISSUED.put(ownerId, new Issuance(issueId));
         recipient.getPersistentData().putString(PERSISTENT_ISSUE_KEY, issueId.toString());
@@ -179,14 +179,13 @@ public final class BfsFollowManager {
             }
             release(ownerLease, owner.serverLevel(), "reselected", findMob(owner.serverLevel().getServer(), ownerLease.targetId));
         }
-        Long cooldownUntil = ARRIVAL_COOLDOWNS.get(followKey);
-        if (cooldownUntil != null) {
-            if (tick < cooldownUntil) {
+        if (ARRIVAL_LATCHES.contains(followKey)) {
+            if (owner.distanceTo(target) <= ARRIVAL_RESELECT_DISTANCE) {
                 BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
-                        "arrival_cooldown", "none", 0, 0, owner.distanceTo(target));
+                        "arrival_latched", "none", 0, 0, owner.distanceTo(target));
                 return ClaimResult.rejected("arrival_cooldown");
             }
-            ARRIVAL_COOLDOWNS.remove(followKey);
+            ARRIVAL_LATCHES.remove(followKey);
         }
         Lease targetLease = BY_TARGET.get(target.getUUID());
         if (targetLease != null) {
@@ -411,10 +410,10 @@ public final class BfsFollowManager {
         if (BY_OWNER.remove(lease.ownerId, lease)) {
             BY_TARGET.remove(lease.targetId, lease);
             FollowKey followKey = new FollowKey(lease.ownerId, lease.targetId);
-            if ("arrived".equals(reason) && level != null) {
-                ARRIVAL_COOLDOWNS.put(followKey, level.getGameTime() + ARRIVAL_COOLDOWN_TICKS);
+            if ("arrived".equals(reason)) {
+                ARRIVAL_LATCHES.add(followKey);
             } else {
-                ARRIVAL_COOLDOWNS.remove(followKey);
+                ARRIVAL_LATCHES.remove(followKey);
             }
             if (mob != null) {
                 restoreController(lease, mob);
@@ -491,7 +490,7 @@ public final class BfsFollowManager {
         BY_TARGET.clear();
         ISSUED.clear();
         INTERACTIONS.clear();
-        ARRIVAL_COOLDOWNS.clear();
+        ARRIVAL_LATCHES.clear();
     }
 
     public record IssueResult(UUID issueId, boolean replacedLease) {

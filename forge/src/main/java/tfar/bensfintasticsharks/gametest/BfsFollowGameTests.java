@@ -76,9 +76,16 @@ public final class BfsFollowGameTests {
             BfsFollowManager.onEntityInteract(heldClick);
             helper.assertTrue(!heldClick.isCanceled() && !BfsFollowManager.status(owner).following(),
                     "a held click must not immediately reclaim an arrived target");
-            owner.remove(Entity.RemovalReason.DISCARDED);
-            target.remove(Entity.RemovalReason.DISCARDED);
-            helper.succeed();
+            helper.runAfterDelay(25, () -> {
+                PlayerInteractEvent.EntityInteract repeatedHeldClick = new PlayerInteractEvent.EntityInteract(
+                        owner, InteractionHand.MAIN_HAND, target);
+                BfsFollowManager.onEntityInteract(repeatedHeldClick);
+                helper.assertTrue(!repeatedHeldClick.isCanceled() && !BfsFollowManager.status(owner).following(),
+                        "a held click must stay latched while the target remains at arrival");
+                owner.remove(Entity.RemovalReason.DISCARDED);
+                target.remove(Entity.RemovalReason.DISCARDED);
+                helper.succeed();
+            });
         });
     }
 
