@@ -69,7 +69,7 @@
     "reason": "separate synthetic non BFS Forge fixture remains open"
   },
   "thirdPartyArtifact": {
-    "result": "pinned_and_production_startup_verified_follow_interaction_open",
+    "result": "pinned_and_production_startup_verified_follow_interaction_unverified_client_timeout",
     "artifactUrl": "https://mediafilez.forgecdn.net/files/5698/791/alexsmobs-1.22.9.jar",
     "sourceUrl": "https://www.curseforge.com/minecraft/mc-mods/alexs-mobs/files/5698791",
     "version": "1.22.9",
@@ -87,6 +87,12 @@
       "sha512": "8edb2264317e547230960109aaadae36ce0db9abb27748d47033c64c7f4958a970172ae382552c5e3c41a4885e95437328a6eba53226fd64c4ce0b4f0ec22b4f"
     },
     "productionStartup": "passed",
-    "followGameTest": "unverified"
+    "followGameTest": "unverified_client_timed_out_before_interaction"
+  },
+  "repeatInteractionFix": {
+    "sourceCommit": "f4ea59d1b5842f9ec441bcf61d1b5e0e6f3ff145",
+    "result": "repeated_same_target_callbacks_are_idempotent_and_keep_the_lease",
+    "headlessFixture": "passed",
+    "laptopGate": "unverified_client_timeout"
   }
 }
