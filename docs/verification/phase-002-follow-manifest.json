@@ -70,6 +70,13 @@
     "ownershipHook": "Brain WALK_TARGET through SmartBrainLib MoveToWalkTarget",
     "restorationWithinFortyTicks": "unverified"
   },
+  "lifecycleGameTest": {
+    "fixture": "minecraft:zombie",
+    "test": "followLeaseReleasesWhenTargetDies",
+    "result": "passed_next_server_tick",
+    "runDirectory": "/tmp/bfs2-phase-002-follow-lifecycle-YdFGXS",
+    "cleanup": "runtime_removed_and_verified_absent"
+  },
   "independentFixture": {
     "result": "unverified",
     "reason": "separate synthetic non BFS Forge fixture remains open"

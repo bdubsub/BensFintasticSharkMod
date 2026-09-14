@@ -95,6 +95,28 @@ public final class BfsFollowGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = "empty", batch = "follow_lifecycle", timeoutTicks = 80)
+    public static void followLeaseReleasesWhenTargetDies(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-death", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.ZOMBIE, new BlockPos(7, 2, 2));
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled(), "a valid marker must claim the target before its death");
+        helper.assertTrue(BfsFollowManager.status(owner).following(), "the target death fixture must begin with a lease");
+
+        target.hurt(helper.getLevel().damageSources().generic(), Float.MAX_VALUE);
+        helper.runAfterDelay(1, () -> {
+            helper.assertTrue(!target.isAlive(), "the lifecycle fixture must actually kill the target");
+            helper.assertTrue(!BfsFollowManager.status(owner).following(),
+                    "target death must release the follow lease on the next server tick");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", batch = "follow_controller_families", timeoutTicks = 80)
     public static void representativeMobFamiliesUseTheGenericLease(GameTestHelper helper) {
         ServerPlayer owner = makeTestPlayer(helper, "follow-families", new BlockPos(2, 8, 2));
