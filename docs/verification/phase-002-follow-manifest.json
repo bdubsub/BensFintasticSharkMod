@@ -68,7 +68,15 @@
     "result": "adapter_claim_release_exercised",
     "fixture": "bensfintasticsharks:harbor_seal",
     "ownershipHook": "Brain WALK_TARGET through SmartBrainLib MoveToWalkTarget",
-    "restorationWithinFortyTicks": "unverified"
+    "restorationWithinFortyTicks": "passed",
+    "restorationTest": "smartBrainLeaseRestoresWithinFortyTicks",
+    "restorationAssertions": [
+      "lease_remains_released_after_forty_ticks",
+      "owner_walk_target_not_retained",
+      "target_health_and_entity_remain_unchanged"
+    ],
+    "runDirectory": "/tmp/bfs2-phase-002-restoration-YLrbRN",
+    "cleanup": "runtime_removed_and_verified_absent"
   },
   "lifecycleGameTest": {
     "fixture": "minecraft:zombie",

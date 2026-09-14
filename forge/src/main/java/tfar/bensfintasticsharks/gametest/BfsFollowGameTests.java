@@ -155,6 +155,33 @@ public final class BfsFollowGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = "empty", batch = "follow_restoration", timeoutTicks = 80)
+    public static void smartBrainLeaseRestoresWithinFortyTicks(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-restore", new BlockPos(2, 8, 2));
+        Mob target = helper.spawn(ModEntityTypes.HARBOR_SEAL, new BlockPos(8, 8, 8));
+        target.setNoGravity(true);
+        float healthBefore = target.getHealth();
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled(), "the SmartBrainLib target must be claimed before restoration");
+        helper.assertTrue(ownsWalkTarget(target, owner), "the follow lease must own the SmartBrainLib walk target");
+        helper.assertTrue(BfsFollowManager.stop(owner, "restoration_fixture"),
+                "explicit stop must release the SmartBrainLib lease");
+        helper.runAfterDelay(40, () -> {
+            helper.assertTrue(!BfsFollowManager.status(owner).following(),
+                    "the SmartBrainLib lease must remain released after forty ticks");
+            helper.assertTrue(!ownsWalkTarget(target, owner),
+                    "ordinary SmartBrainLib scheduling must not retain the follow owner target");
+            helper.assertTrue(target.isAlive() && target.getHealth() == healthBefore,
+                    "restoration must preserve the target health and entity");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
     private static ItemStack issueAndHold(ServerPlayer player) {
         BfsFollowManager.issue(player);
         String issueId = player.getPersistentData().getString("BfsFollowIssueId");
