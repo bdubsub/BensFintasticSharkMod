@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.gametest.GameTestHolder;
@@ -54,6 +55,50 @@ public final class BfsFollowGameTests {
                 target.remove(Entity.RemovalReason.DISCARDED);
                 helper.succeed();
             });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 140)
+    public static void followLeaseNavigatesAroundMovingObstacle(GameTestHelper helper) {
+        for (int x = 0; x <= 20; x++) {
+            for (int z = 0; z <= 8; z++) {
+                helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE.defaultBlockState());
+            }
+        }
+        for (int y = 1; y <= 2; y++) {
+            for (int z = 1; z <= 3; z++) {
+                helper.setBlock(new BlockPos(5, y, z), Blocks.STONE.defaultBlockState());
+            }
+        }
+        ServerPlayer owner = makeTestPlayer(helper, "follow-navigation", new BlockPos(2, 1, 2));
+        Mob target = helper.spawn(EntityType.ZOMBIE, new BlockPos(9, 1, 2));
+        target.setNoAi(false);
+        double initialDistance = owner.distanceTo(target);
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "the obstacle fixture must begin with an active lease");
+        helper.runAfterDelay(20, () -> {
+            owner.setPos(helper.absolutePos(new BlockPos(2, 1, 4)).getCenter());
+            helper.runAfterDelay(20, () -> {
+                owner.setPos(helper.absolutePos(new BlockPos(9, 1, 4)).getCenter());
+                helper.runAfterDelay(20, () -> {
+                    owner.setPos(helper.absolutePos(new BlockPos(9, 1, 2)).getCenter());
+                });
+            });
+        });
+        helper.runAfterDelay(100, () -> {
+            double finalDistance = owner.distanceTo(target);
+            helper.assertTrue(finalDistance < initialDistance - 1.0D,
+                    "the generic navigation adapter must reduce distance around the obstacle, initial "
+                            + initialDistance + ", final " + finalDistance);
+            helper.assertTrue(target.isAlive(), "the moving obstacle target must remain alive");
+            BfsFollowManager.stop(owner, "navigation_fixture");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
         });
     }
 
