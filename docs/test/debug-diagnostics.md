@@ -12,7 +12,7 @@ The Gradle `:forge:Server` development task is a startup smoke test. It may not 
 
 ```text
 /bfs debug on
-/bfs debug on <all|movement|brain|combat|population|advancement|algae> <20-36000> [targets]
+/bfs debug on <all|movement|brain|combat|population|advancement|algae|follow> <20-36000> [targets]
 /bfs debug status
 /bfs debug off
 ```
@@ -57,6 +57,23 @@ create a persistent profile.
 Each server owns at most one session. A second `on` command reports the existing session without resetting its limits. A session ends at its requested tick duration, its wall time deadline, an explicit `off`, a source dimension loss, or server shutdown. The wall deadline is twice the requested tick duration at 20 ticks per second plus 30 seconds. Queue overflow, oversized records, write failure, source loss, and server shutdown mark the capture incomplete.
 
 The active status line and terminal record expose the p95 nanoseconds spent in the bounded server capture path and the number of sampled server ticks. The sample is collected only while a session is enabled and never allocates or scans when capture is disabled. Compare this value with the same seeded fixture with capture off, and reject the diagnostic gate when the added p95 exceeds 5 percent or 0.25 milliseconds, whichever allowance is larger.
+
+## Follow debug leases
+
+The follow tool is a server only permission level two harness. Issue a reusable marker to the command sender or another online player, then right click a living mob with it.
+
+```text
+/bfs debug followme [recipient]
+/bfs debug followme status [recipient]
+/bfs debug followme stop [recipient]
+/bfs debug on follow 400
+```
+
+The marker carries a versioned namespaced issue id and owner id. The server accepts it only when the current session issued that marker to the same owner. Restart, logout, death, respawn, and dimension changes clear issuance or leases. The marker is never consumed, and a new issue does not silently transfer an existing lease.
+
+The harness supports every `Mob` family without a BFS or vanilla namespace whitelist, including bosses and external mod controllers. Players and nonmob entities are rejected. One owner can hold one lease, one mob can have one owner, and the server caps active leases at 32. A lease updates normal mob navigation every 10 ticks, accepts a four block arrival radius, rejects targets beyond 64 blocks, expires after 2,400 ticks, and releases after 200 blocked ticks. It never teleports the mob or writes velocity directly. Explicit stop and lifecycle callbacks stop only the navigation intent owned by the lease so ordinary goals can resume.
+
+Follow captures use the existing `bfs-debug-v2` writer and the `follow` category. Events are `follow.claim`, `follow.adapter`, `follow.intent`, `follow.progress`, `follow.block`, `follow.reject`, `follow.release`, and `follow.restore`. Owners and targets are session pseudonyms, entity types and reason codes; raw player UUIDs, entity UUIDs, marker NBT and issue tokens are omitted.
 
 When a selected entity leaves the level, its `target_lifecycle` record includes its runtime ID, whether it was removed, and the engine removal reason when the engine exposes one. A missing entity without a loaded object records explicit `unavailable:` values instead. Use that lifecycle evidence before treating a missing target as an animation or navigation failure. The server GameTest fixture `serverDebugCaptureRecordsRemovedTargetLifecycle` exercises the discarded path and requires the complete terminal record.
 

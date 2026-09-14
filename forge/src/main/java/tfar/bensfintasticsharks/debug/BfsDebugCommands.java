@@ -13,8 +13,10 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
 import tfar.bensfintasticsharks.config.SpeciesSettingsConfigBridge;
 import tfar.bensfintasticsharks.entity.SpeciesSettingsService;
+import tfar.bensfintasticsharks.follow.BfsFollowManager;
 import tfar.bensfintasticsharks.spawn.MobCapManager;
 
 import java.util.EnumMap;
@@ -56,6 +58,7 @@ public final class BfsDebugCommands {
                 .then(on)
                 .then(Commands.literal("off").executes(BfsDebugCommands::stop))
                 .then(Commands.literal("status").executes(BfsDebugCommands::status))
+                .then(followNode())
                 .then(settingsNode())
                 .then(speedNode())
                 .then(sprintNode())
@@ -65,6 +68,49 @@ public final class BfsDebugCommands {
                 .then(attributeNode("setdamage", SpeciesSettingsService.Field.DAMAGE_MULTIPLIER))
                 .then(attributeNode("setknockback", SpeciesSettingsService.Field.KNOCKBACK_RESISTANCE))
                 .then(behaviorNode());
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> followNode() {
+        return Commands.literal("followme")
+                .executes(context -> issueFollow(context, context.getSource().getPlayerOrException()))
+                .then(Commands.argument("recipient", EntityArgument.player())
+                        .executes(context -> issueFollow(context, EntityArgument.getPlayer(context, "recipient"))))
+                .then(Commands.literal("status")
+                        .executes(context -> followStatus(context, context.getSource().getPlayerOrException()))
+                        .then(Commands.argument("recipient", EntityArgument.player())
+                                .executes(context -> followStatus(context, EntityArgument.getPlayer(context, "recipient")))))
+                .then(Commands.literal("stop")
+                        .executes(context -> stopFollow(context, context.getSource().getPlayerOrException()))
+                        .then(Commands.argument("recipient", EntityArgument.player())
+                                .executes(context -> stopFollow(context, EntityArgument.getPlayer(context, "recipient")))));
+    }
+
+    private static int issueFollow(CommandContext<CommandSourceStack> context, ServerPlayer recipient) {
+        BfsFollowManager.IssueResult result = BfsFollowManager.issue(recipient);
+        context.getSource().sendSuccess(() -> Component.literal("Follow debug stick issued to "
+                + recipient.getGameProfile().getName() + ". Right click any living mob to claim a temporary follow lease.")
+                .withStyle(ChatFormatting.GREEN), true);
+        return result.replacedLease() ? 2 : 1;
+    }
+
+    private static int followStatus(CommandContext<CommandSourceStack> context, ServerPlayer recipient) {
+        BfsFollowManager.Status status = BfsFollowManager.status(recipient);
+        String target = status.targetType() == null ? "none" : status.targetType();
+        context.getSource().sendSuccess(() -> Component.literal("Follow debug for "
+                + recipient.getGameProfile().getName() + ": issued=" + status.issued()
+                + ", following=" + status.following() + ", target=" + target
+                + ", age=" + status.age() + " ticks, active leases=" + status.activeLeases())
+                .withStyle(status.following() ? ChatFormatting.GREEN : ChatFormatting.GRAY), false);
+        return status.following() ? 1 : 0;
+    }
+
+    private static int stopFollow(CommandContext<CommandSourceStack> context, ServerPlayer recipient) {
+        boolean stopped = BfsFollowManager.stop(recipient, "command_stop");
+        context.getSource().sendSuccess(() -> Component.literal(stopped
+                ? "Follow lease released for " + recipient.getGameProfile().getName() + "."
+                : "No follow lease is active for " + recipient.getGameProfile().getName() + ".")
+                .withStyle(stopped ? ChatFormatting.GREEN : ChatFormatting.GRAY), false);
+        return stopped ? 1 : 0;
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> settingsNode() {

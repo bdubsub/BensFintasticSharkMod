@@ -41,6 +41,7 @@ public class ModLangProvider extends LanguageProvider {
         // next datagen run ("Nautilus"/"Sandtiger Shark" regressions). Overrides below.
         exclude_items.add(tfar.bensfintasticsharks.init.ModItems.NAUTILUS_SPAWN_EGG);
         exclude_items.add(tfar.bensfintasticsharks.init.ModItems.SANDTIGER_SHARK_SPAWN_EGG);
+        exclude_items.add(tfar.bensfintasticsharks.init.ModItems.FOLLOW_STICK);
         BensFintasticSharks.getKnownItems().toList().stream().filter(item -> !exclude_items.contains(item)).<Supplier<? extends Item>>map(item -> () -> item).forEach(this::addDefaultItem);
         BensFintasticSharks.getKnownBlocks().<Supplier<? extends Block>>map(block -> () -> block).forEach(this::addDefaultBlock);
 
@@ -163,6 +164,7 @@ public class ModLangProvider extends LanguageProvider {
         // 0.18 — Megalodon Tooth gag subtext (split so the tooltip doesn't run long).
         add("item.bensfintasticsharks.megalodon_tooth.flavor", "100% authentic Otodus megalodon");
         add("item.bensfintasticsharks.megalodon_tooth.flavor2", "specimen tooth!...Probably.");
+        add("item.bensfintasticsharks.follow_stick", "Follow Debug Stick");
 
         // Conservation effect
         add("effect.bensfintasticsharks.respect_the_ocean", "Respect the Ocean");

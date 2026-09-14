@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -119,7 +120,7 @@ public final class BfsDebugManager {
         }
         DebugCategory parsedCategory = DebugCategory.parse(category);
         if (parsedCategory == null) {
-            return StartResult.failure("Unknown debug category. Use all, movement, brain, combat, population, advancement, or algae.");
+            return StartResult.failure("Unknown debug category. Use all, movement, brain, combat, population, advancement, algae, or follow.");
         }
         if (durationTicks < MIN_DURATION_TICKS || durationTicks > MAX_DURATION_TICKS) {
             return StartResult.failure("Debug duration must be between " + MIN_DURATION_TICKS + " and " + MAX_DURATION_TICKS + " ticks.");
@@ -231,6 +232,34 @@ public final class BfsDebugManager {
         }
         JsonObject record = baseRecord(active, "fishing", tick);
         details.entrySet().forEach(entry -> record.add(entry.getKey(), entry.getValue()));
+        enqueue(active, record);
+    }
+
+    public static void recordFollowEvent(ServerLevel level, String event, ServerPlayer owner, Entity target,
+                                         String reason, String adapter, long age, int blocked, double distance) {
+        recordFollowEvent(level, event, owner == null ? null : owner.getUUID(), target,
+                reason, adapter, age, blocked, distance);
+    }
+
+    public static void recordFollowEvent(ServerLevel level, String event, UUID ownerId, Entity target,
+                                         String reason, String adapter, long age, int blocked, double distance) {
+        Session active = session;
+        if (active == null || !active.category.capturesFollow() || level == null
+                || level.isClientSide
+                || !level.dimension().equals(active.dimension)
+                || target != null && !active.tracks(target.getUUID())) {
+            return;
+        }
+        JsonObject record = baseRecord(active, event, level.getGameTime());
+        record.addProperty("owner", ownerId == null ? "owner_unavailable" : playerPseudonym(active, ownerId));
+        record.addProperty("target", target == null ? "entity_unavailable" : "entity_" + UUID.nameUUIDFromBytes(
+                (active.id + ":target:" + target.getUUID()).getBytes(StandardCharsets.UTF_8)));
+        record.addProperty("targetType", target == null ? "unavailable" : entityId(target));
+        record.addProperty("reason", reason);
+        record.addProperty("adapter", adapter);
+        record.addProperty("leaseAge", age);
+        record.addProperty("blockedTicks", blocked);
+        record.addProperty("distance", distance);
         enqueue(active, record);
     }
 
@@ -996,7 +1025,8 @@ public final class BfsDebugManager {
         COMBAT("combat"),
         POPULATION("population"),
         ADVANCEMENT("advancement"),
-        ALGAE("algae");
+        ALGAE("algae"),
+        FOLLOW("follow");
 
         private final String id;
 
@@ -1036,6 +1066,10 @@ public final class BfsDebugManager {
 
         private boolean capturesAlgae() {
             return this == ALL || this == ALGAE;
+        }
+
+        private boolean capturesFollow() {
+            return this == ALL || this == FOLLOW;
         }
     }
 

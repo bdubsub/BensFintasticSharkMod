@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "phaseId": "BFS2-PHASE-002",
+  "requirementIds": ["BFS2-REQ-008", "BFS2-REQ-009"],
+  "taskIds": ["P002-TASK-001", "P002-TASK-002", "P002-TASK-003", "P002-TASK-004"],
+  "status": "open",
+  "adapter": {
+    "capabilityId": "generic_mob_navigation",
+    "ownershipHook": "Mob.getNavigation().moveTo",
+    "safeMotionWriter": "navigation",
+    "result": "exercised_for_representative_families"
+  },
+  "activeRegistryFamilies": [
+    "bensfintasticsharks:great_white_shark",
+    "bensfintasticsharks:great_hammerhead_shark",
+    "bensfintasticsharks:common_thresher_shark",
+    "bensfintasticsharks:harbor_seal",
+    "bensfintasticsharks:common_stingray",
+    "bensfintasticsharks:shortfin_mako_shark",
+    "bensfintasticsharks:tiger_shark",
+    "bensfintasticsharks:oceanic_whitetip_shark",
+    "bensfintasticsharks:sandtiger_shark",
+    "bensfintasticsharks:blacktip_reef_shark",
+    "bensfintasticsharks:bottlenose_dolphin",
+    "bensfintasticsharks:orca",
+    "bensfintasticsharks:common_octopus",
+    "bensfintasticsharks:caribbean_reef_octopus",
+    "bensfintasticsharks:nautilus",
+    "bensfintasticsharks:giant_moray_eel",
+    "bensfintasticsharks:green_sea_turtle",
+    "bensfintasticsharks:american_lobster",
+    "bensfintasticsharks:black_sea_nettle_jellyfish",
+    "bensfintasticsharks:cannonball_jellyfish",
+    "bensfintasticsharks:atlantic_cod",
+    "bensfintasticsharks:atlantic_salmon"
+  ],
+  "namedFixtures": {
+    "minecraft:zombie": "passed",
+    "minecraft:salmon": "passed",
+    "minecraft:phantom": "passed",
+    "minecraft:frog": "passed",
+    "minecraft:villager": "passed",
+    "bensfintasticsharks:harbor_seal": "passed",
+    "minecraft:ender_dragon_part": "passed_parent_resolution",
+    "minecraft:wither": "passed"
+  },
+  "smartBrainLib": {
+    "result": "unverified",
+    "reason": "controller specific ordinary restoration evidence remains open"
+  },
+  "independentFixture": {
+    "result": "unverified",
+    "reason": "independent non BFS controller fixture remains open"
+  },
+  "thirdPartyArtifact": {
+    "result": "unverified",
+    "artifactUrl": null,
+    "version": null,
+    "forgeTarget": "47.2.0",
+    "sha256": null,
+    "sha512": null,
+    "license": null,
+    "securityInspection": null,
+    "reason": "owner approved artifact preflight has not been completed"
+  }
+}

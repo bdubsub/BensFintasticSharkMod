@@ -75,6 +75,8 @@
 * [Phase 001 movement and lifecycle consumer evidence](verification/phase-001-consumers-20260913.md)
 * [Phase 001 movement oracle evidence](verification/phase-001-movement-oracle-20260913.md)
 * [Phase 001 client visual evidence](verification/phase-001-client-visual-20260913.md)
+* [Phase 002 follow lease verification](verification/phase-002-follow-20260913.md)
+* [Phase 002 follow compatibility manifest](verification/phase-002-follow-manifest.json)
 * [Packaged server performance verification](test/packaged-performance.md)
 * [Release candidate installation and rollback](test/release-rollback.md)
 * [Depth route regressions and acceptance boundaries](test/depth-route-regressions.md)

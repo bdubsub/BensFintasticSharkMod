@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -27,6 +28,17 @@ FIRST_SAMPLE_DERIVED_FIELDS = {
     "yawDeltaDegrees",
     "pitchDeltaDegrees",
 }
+FOLLOW_EVENTS = {
+    "follow.claim",
+    "follow.adapter",
+    "follow.intent",
+    "follow.progress",
+    "follow.block",
+    "follow.release",
+    "follow.restore",
+    "follow.reject",
+}
+UUID_PATTERN = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b")
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -160,6 +172,10 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
     checks = apply_manifest_checks(header, metrics, manifest, errors)
     if "fishing" in manifest:
         metrics["fishing"] = validate_fishing(records, manifest["fishing"], errors)
+    follow_records = [row for row in records if isinstance(row.get("event"), str)
+                      and row.get("event", "").startswith("follow.")]
+    if follow_records or "follow" in manifest:
+        metrics["follow"] = validate_follow(follow_records, manifest.get("follow", {}), errors)
     verdict = "invalid" if errors else "incomplete" if warnings else "complete"
     coverage = {
         "movementEntityCount": len(movement_history),
@@ -168,6 +184,48 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
         "hasTerminalRecord": len(end_records) == 1,
     }
     return result(verdict, errors, warnings, metrics, records, manifest, dict(events), checks, coverage)
+
+
+def validate_follow(records: list[dict[str, Any]], contract: Any, errors: list[str]) -> dict[str, Any]:
+    """Validate bounded follow events and reject raw server identity leakage."""
+    if not isinstance(contract, dict):
+        errors.append("follow manifest must be an object")
+        contract = {}
+    counts: defaultdict[str, int] = defaultdict(int)
+    for index, row in enumerate(records, start=1):
+        event = row.get("event")
+        if event not in FOLLOW_EVENTS:
+            errors.append(f"follow record {index} has an unknown event")
+        else:
+            counts[event] += 1
+        for field, prefixes in (("owner", ("player_", "owner_unavailable")),
+                                ("target", ("entity_", "entity_unavailable"))):
+            value = row.get(field)
+            if isinstance(value, str) and UUID_PATTERN.search(value):
+                errors.append(f"follow record {index} leaks a raw {field} uuid")
+            elif not isinstance(value, str) or not value.startswith(prefixes):
+                errors.append(f"follow record {index} has no pseudonymous {field}")
+        target_type = row.get("targetType")
+        if not isinstance(target_type, str) or not target_type:
+            errors.append(f"follow record {index} has no targetType")
+        for field in ("reason", "adapter"):
+            if not isinstance(row.get(field), str) or not row[field]:
+                errors.append(f"follow record {index} has no {field}")
+        for field in ("leaseAge", "blockedTicks"):
+            value = row.get(field)
+            if type(value) is not int or value < 0:
+                errors.append(f"follow record {index} has no nonnegative {field}")
+        distance = row.get("distance")
+        if not isinstance(distance, (int, float)) or not math.isfinite(distance) or distance < 0.0:
+            errors.append(f"follow record {index} has no finite nonnegative distance")
+    minimum_claims = contract.get("minimumClaims", 0)
+    if type(minimum_claims) is not int or minimum_claims < 0:
+        errors.append("follow minimumClaims must be a nonnegative integer")
+    elif counts["follow.claim"] < minimum_claims:
+        errors.append(f"follow observed {counts['follow.claim']} claims, requires {minimum_claims}")
+    if contract.get("requireRestore") is True and counts["follow.restore"] == 0:
+        errors.append("follow capture has no restore event")
+    return {"eventCounts": dict(counts), "recordCount": len(records)}
 
 
 def validate_fishing(records: list[dict[str, Any]], contract: Any, errors: list[str]) -> dict[str, Any]:
@@ -551,6 +609,10 @@ def write_result(output: Path, analysis: dict[str, Any], scenario: str, requirem
     if fishing is not None:
         coverage_lines.append(f"Fishing attempts: {fishing['attemptCount']}")
         coverage_lines.extend(f"Fishing {outcome}: {count}" for outcome, count in sorted(fishing["outcomes"].items()))
+    follow = analysis["metrics"].get("follow")
+    if follow is not None:
+        coverage_lines.append(f"Follow records: {follow['recordCount']}")
+        coverage_lines.extend(f"Follow {event}: {count}" for event, count in sorted(follow["eventCounts"].items()))
     extrema_lines = []
     for entity_id, metrics in sorted(analysis["metrics"].get("entities", {}).items()):
         extrema_lines.append(

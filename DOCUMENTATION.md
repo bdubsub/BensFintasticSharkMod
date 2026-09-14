@@ -179,7 +179,7 @@ Every `/bfs` command needs op permission (level 2). Species names and disturbanc
 | `/bfs cap reset <species>` | Clears that species runtime override |
 | `/bfs cap reset` | Clears every runtime override |
 | `/bfs disturbance <type>` | Fires a test light, heavy, or blood disturbance at your position. Reports how many sharks are in range to react |
-| `/bfs debug on [category] [ticks] [targets]` | Starts one bounded server diagnostic capture. Categories are all, movement, brain, combat, population, advancement, and algae. Bare `on` uses all for 1,200 ticks |
+| `/bfs debug on [category] [ticks] [targets]` | Starts one bounded server diagnostic capture. Categories are all, movement, brain, combat, population, advancement, algae, and follow. Bare `on` uses all for 1,200 ticks |
 | `/bfs debug status` | Reports the active or last server capture, including limits, output path, and any incomplete reason |
 | `/bfs debug off` | Stops the active server diagnostic capture. It is safe to repeat after the capture is already inactive. |
 | `/bfs debug settings help` | Shows the session only tuning fields, units, bounds, revision and specialized aliases |
@@ -196,6 +196,9 @@ Every `/bfs` command needs op permission (level 2). Species names and disturbanc
 | `/bfs debug setdamage <entity|*> <multiplier> [revision]` | Sets the session attack damage multiplier |
 | `/bfs debug setknockback <entity|*> <value> [revision]` | Sets the session knockback resistance value |
 | `/bfs debug setbehavior <entity|*> <detection> <disengage> <action_timeout> <memory_ticks> [revision]` | Sets the session sensing, disengage and behavior timing values |
+| `/bfs debug followme [recipient]` | Issues a server marked reusable follow debug stick to the command sender or selected player |
+| `/bfs debug followme status [recipient]` | Reports the selected player's issued marker and active follow lease |
+| `/bfs debug followme stop [recipient]` | Releases the selected player's follow lease and returns its mob to ordinary navigation |
 | `/bfs reload` | Re reads config values without restart |
 
 `/bfs cap set` is runtime only. Restart the server and your edits are gone. To make changes permanent, edit the config file.
