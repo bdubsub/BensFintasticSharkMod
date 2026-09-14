@@ -366,5 +366,23 @@
       "forge_47.2.0",
       "game_test_server_shutdown_cleanly"
     ]
+  },
+  "currentFocusedFollowPermissionBoundaryGameTest20260914": {
+    "sourceCommit": "ac33f5deb56b91e45feaf9b7101068b012edcffd",
+    "artifactSha256": "2b6a078c1015da7631c648df599e4a035a86ab323666ab115d6060b174c707b9",
+    "artifactSha512": "9e82f37a4214cb546bcf118babdfb70ec56b8dadd2796fad32f5ba9b0c0a398eefcde5190bc2508533bdcc2b547742710b867c25f4b081df6306e6c810164058",
+    "runDirectory": "/tmp/bfsm-p002-follow-20260914i",
+    "namespaces": [
+      "bfsfollow"
+    ],
+    "result": "all_twenty_three_required_tests_passed",
+    "newRegression": "unprivilegedIssuedMarkerCannotClaimMob",
+    "permissionBoundary": "issued_marker_requires_operator_permission_for_claim_and_active_lease",
+    "cleanup": "run_directory_removed_and_verified_absent",
+    "observations": [
+      "server_java_17.0.19",
+      "forge_47.2.0",
+      "game_test_server_shutdown_cleanly"
+    ]
   }
 }
