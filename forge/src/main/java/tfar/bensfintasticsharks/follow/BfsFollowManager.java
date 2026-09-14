@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -56,6 +57,7 @@ public final class BfsFollowManager {
     private static final Map<UUID, Lease> BY_TARGET = new HashMap<>();
     private static final Set<FollowKey> ARRIVAL_LATCHES = new HashSet<>();
     private static final Set<String> INTERACTIONS = new HashSet<>();
+    private static final Map<UUID, Long> REJECTION_FEEDBACK = new HashMap<>();
     private static long interactionTick = Long.MIN_VALUE;
 
     private BfsFollowManager() {
@@ -146,6 +148,9 @@ public final class BfsFollowManager {
         }
         Entity target = resolveTarget(event.getTarget());
         ClaimResult result = claim(owner, target, event.getItemStack());
+        if (!result.accepted()) {
+            sendRejectionFeedback(owner, result.reason());
+        }
         if (result.accepted()) {
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
@@ -158,6 +163,9 @@ public final class BfsFollowManager {
         }
         Entity target = resolveTarget(event.getTarget());
         ClaimResult result = claim(owner, target, event.getItemStack());
+        if (!result.accepted()) {
+            sendRejectionFeedback(owner, result.reason());
+        }
         if (result.accepted()) {
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
@@ -275,6 +283,25 @@ public final class BfsFollowManager {
 
     private static boolean hasPermission(ServerPlayer player) {
         return player.serverLevel().getServer().getPlayerList().isOp(player.getGameProfile());
+    }
+
+    private static void sendRejectionFeedback(ServerPlayer owner, String reason) {
+        long tick = owner.serverLevel().getGameTime();
+        Long previousTick = REJECTION_FEEDBACK.put(owner.getUUID(), tick);
+        if (previousTick != null && previousTick == tick) {
+            return;
+        }
+        String message = switch (reason) {
+            case "permission_denied" -> "Follow debug stick requires operator permission.";
+            case "invalid_stick", "stale_marker" -> "This follow debug stick is invalid. Issue a fresh one with /bfs debug followme.";
+            case "unsupported_target" -> "That entity cannot be followed by the debug stick.";
+            case "target_out_of_range" -> "The target is too far away for the follow debug stick.";
+            case "target_already_claimed" -> "That entity is already claimed by another follow lease.";
+            case "lease_limit" -> "The follow debug lease limit is reached.";
+            case "arrival_cooldown" -> "That entity just arrived. Move farther away before selecting it again.";
+            default -> "The follow debug stick could not claim that entity.";
+        };
+        owner.sendSystemMessage(Component.literal(message));
     }
 
     private static boolean hasValidHeldMarker(ServerPlayer owner) {
@@ -483,6 +510,7 @@ public final class BfsFollowManager {
         if (event.getEntity() instanceof ServerPlayer player) {
             releaseForOwner(player.getUUID(), "owner_logged_out", player.serverLevel());
             ISSUED.remove(player.getUUID());
+            REJECTION_FEEDBACK.remove(player.getUUID());
         }
     }
 
@@ -521,6 +549,7 @@ public final class BfsFollowManager {
         BY_TARGET.clear();
         ISSUED.clear();
         INTERACTIONS.clear();
+        REJECTION_FEEDBACK.clear();
         ARRIVAL_LATCHES.clear();
     }
 
