@@ -149,6 +149,38 @@ public final class BfsFollowGameTests {
     }
 
     @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 120)
+    public static void followSlimeNavigatesToOwner(GameTestHelper helper) {
+        for (int x = 0; x <= 12; x++) {
+            for (int z = 0; z <= 4; z++) {
+                helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE.defaultBlockState());
+            }
+            for (int y = 1; y <= 2; y++) {
+                helper.setBlock(new BlockPos(x, y, 0), Blocks.STONE.defaultBlockState());
+                helper.setBlock(new BlockPos(x, y, 4), Blocks.STONE.defaultBlockState());
+            }
+        }
+        ServerPlayer owner = makeTestPlayer(helper, "follow-slime", new BlockPos(2, 1, 2));
+        Mob target = helper.spawn(EntityType.SLIME, new BlockPos(9, 1, 2));
+        double initialDistance = owner.distanceTo(target);
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "a slime must accept the generic follow lease");
+        helper.runAfterDelay(90, () -> {
+            helper.assertTrue(target.isAlive(), "the slime follow target must remain alive");
+            helper.assertTrue(owner.distanceTo(target) < initialDistance - 0.5D,
+                    "a slime must navigate toward the owner, initial " + initialDistance
+                            + ", final " + owner.distanceTo(target));
+            BfsFollowManager.stop(owner, "slime_navigation_fixture");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 120)
     public static void followSmartBrainAnimalNavigatesToOwner(GameTestHelper helper) {
         for (int x = 0; x <= 12; x++) {
             for (int y = 1; y <= 5; y++) {

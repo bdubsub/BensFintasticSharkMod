@@ -35,7 +35,7 @@
     "artifactSha256": "6c8dacdd691a95668aebe26a4562234d6c2c9f8aec4a3eca33307da51c1e1f2a",
     "artifactSha512": "ef6b72ee566c2bf562863f6492a287629e27686c4bbedf833ff983936731f02c7a7070fe63a9d5948ffa13374ba8beb14144c3553bc4f9f69efb7b6a1fe3bcee",
     "compileAndUnitTests": "passed",
-    "focusedFollowGameTests": "passed_eighteen_required_tests",
+    "focusedFollowGameTests": "passed_nineteen_required_tests",
     "packagedJarIntegrity": "passed_unzip_test",
     "parserTests": "passed_twenty_tests",
     "diffCheck": "passed",
@@ -239,6 +239,13 @@
     "runDirectory": "/tmp/bfs2-phase-002-nav-7KklvQ",
     "cleanup": "runtime_removed_and_verified_absent",
     "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d"
+  },
+  "slimeRegression": {
+    "fixture": "minecraft:slime",
+    "test": "followSlimeNavigatesToOwner",
+    "result": "passed_reduced_distance_with_generic_navigation_adapter",
+    "runDirectory": "/tmp/bfsm-p002-slime-20260914",
+    "cleanup": "runtime_removed_and_verified_absent"
   },
   "ownerClickRetry20260914": {
     "sourceCommit": "aa053bb485bc760e48a295ad6bd85432519620d",
