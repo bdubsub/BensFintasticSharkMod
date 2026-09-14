@@ -13,7 +13,7 @@
   ],
   "status": "open",
   "candidate": {
-    "sourceCommit": "15d0be0",
+    "sourceCommit": "ce47a89",
     "artifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
     "artifactSha512": "6076d520a17a695580e74ca831308180a3ffb2ab50802545831119684f50cdf55af2faa7c2b067b7b6c4601a7b0a8ad2f99f793074b7e91b362df6b507ca2264",
     "listenerFix": "receives_canceled_entity_interaction_callbacks_at_lowest_priority"
@@ -105,9 +105,9 @@
     "sourceCommit": "15d0be0",
     "result": "receives_canceled_entity_interaction_callbacks_for_vanilla_and_third_party_mobs",
     "headlessFixture": "passed",
-    "laptopGate": "unverified_no_claim_recorded_after_fixture_target_death_and_manual_input"
+    "laptopGate": "partial_real_click_claim_observed_normal_moving_route_unverified"
   },
-  "latestLiveAttempt": {
+  "previousLiveAttempt": {
     "sourceCommit": "15d0be0",
     "artifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
     "serverEndpoint": "100.76.164.109:25864",
@@ -120,5 +120,27 @@
       "follow_manager_did_not_remove_an_entity"
     ],
     "cleanup": "server_client_and_disposable_runtime_removed_instance_launch_settings_restored"
+  },
+  "latestLiveAttempt": {
+    "sourceCommit": "ce47a89",
+    "artifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
+    "serverEndpoint": "100.76.164.109:25865",
+    "clientWindowPid": 866329,
+    "audioNode": 151,
+    "audioState": "muted_verified_before_assertion",
+    "captureIds": [
+      "c62ebbe0-2c07-4d87-a83a-db10b4d2ed73",
+      "abe3cd11-88e3-406d-91ce-9e977208313a"
+    ],
+    "result": "real_click_claim_and_owner_movement_observed_normal_follow_route_unverified",
+    "observations": [
+      "client_joined_disposable_click3_world",
+      "persistent_invulnerable_cow_remained_alive",
+      "real_right_click_recorded_follow_claim_adapter_and_intent",
+      "owner_moved_to_0_5_100_minus_5_972_while_one_lease_was_active",
+      "target_release_reasons_were_arrived_and_blocked_only",
+      "no_follow_manager_entity_removal_observed"
+    ],
+    "cleanup": "server_client_captures_screenshots_and_copied_prism_instance_removed_unrelated_client_preserved"
   }
 }
