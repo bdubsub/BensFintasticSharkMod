@@ -329,5 +329,26 @@
     "runDirectory": "/tmp/bfsm-p002-click-range-20260914c",
     "cleanup": "runtime_removed_and_verified_absent",
     "laptopGate": "unverified_remote_right_button_event_delivery"
+  },
+  "ownerClickRetry20260914CurrentCandidate": {
+    "sourceCommit": "b34a6e86a3482c75b053ac373a85f59b4017c282",
+    "artifactSha256": "807b715c0dc5d5961789f8e206871cbf5bea478ac201441f42a82d10bd23c797",
+    "artifactSha512": "0a9fe5d73316191ba2ddfef370ceabe2e53630c12225536aa10f1130384cfb9bf6e30b29ad55b425c0943b6b6551d4d45843ef1f5e275a818d387c4e39c45365",
+    "serverEndpoint": "100.76.164.109:25931",
+    "world": "bfs2-phase-002-owner-click-20260914e2",
+    "captureId": "299b5425-0b40-411b-8d04-579bd72d1235",
+    "serverJava": "17.0.19",
+    "clientJava": "17.0.15",
+    "clientRenderer": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "result": "unverified_no_owner_click_before_bounded_timeout",
+    "observations": [
+      "production_server_reached_done_and_client_joined_exact_private_endpoint",
+      "fresh_operator_marker_was_issued_and_selected_with_current_owner_identifier",
+      "stationary_invulnerable_cow_was_centered_in_the_crosshair_with_normal_ai_disabled_for_click_setup",
+      "follow_capture_expired_with_one_header_and_one_terminal_record_and_no_claim",
+      "no_client_input_was_synthesized"
+    ],
+    "audioState": "owned_java_stream_was_muted_before_observation",
+    "cleanup": "complete_server_client_audio_runtime_instance_and_screenshots_removed_and_verified"
   }
 }
