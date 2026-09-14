@@ -40,6 +40,7 @@ public final class BfsFollowManager {
     public static final int ROUTE_INTERVAL_TICKS = 10;
     public static final int LEASE_DURATION_TICKS = 2_400;
     public static final int BLOCKED_TICKS = 200;
+    public static final int ARRIVAL_COOLDOWN_TICKS = 20;
     public static final double MAX_RANGE = 64.0D;
     public static final double ARRIVAL_DISTANCE = 4.0D;
 
@@ -51,6 +52,7 @@ public final class BfsFollowManager {
     private static final Map<UUID, Issuance> ISSUED = new HashMap<>();
     private static final Map<UUID, Lease> BY_OWNER = new HashMap<>();
     private static final Map<UUID, Lease> BY_TARGET = new HashMap<>();
+    private static final Map<FollowKey, Long> ARRIVAL_COOLDOWNS = new HashMap<>();
     private static final Set<String> INTERACTIONS = new HashSet<>();
     private static long interactionTick = Long.MIN_VALUE;
 
@@ -80,6 +82,7 @@ public final class BfsFollowManager {
             release(existing, recipient.serverLevel(), "marker_reissued",
                     findMob(recipient.serverLevel().getServer(), existing.targetId));
         }
+        ARRIVAL_COOLDOWNS.keySet().removeIf(key -> key.ownerId().equals(ownerId));
         UUID issueId = UUID.randomUUID();
         ISSUED.put(ownerId, new Issuance(issueId));
         recipient.getPersistentData().putString(PERSISTENT_ISSUE_KEY, issueId.toString());
@@ -149,6 +152,7 @@ public final class BfsFollowManager {
             return ClaimResult.rejected("target_out_of_range");
         }
         long tick = owner.serverLevel().getGameTime();
+        FollowKey followKey = new FollowKey(owner.getUUID(), target.getUUID());
         String interaction = owner.getUUID() + ":" + target.getUUID() + ":" + tick;
         if (tick != interactionTick) {
             interactionTick = tick;
@@ -174,6 +178,15 @@ public final class BfsFollowManager {
                 return ClaimResult.rejected("target_already_claimed");
             }
             release(ownerLease, owner.serverLevel(), "reselected", findMob(owner.serverLevel().getServer(), ownerLease.targetId));
+        }
+        Long cooldownUntil = ARRIVAL_COOLDOWNS.get(followKey);
+        if (cooldownUntil != null) {
+            if (tick < cooldownUntil) {
+                BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
+                        "arrival_cooldown", "none", 0, 0, owner.distanceTo(target));
+                return ClaimResult.rejected("arrival_cooldown");
+            }
+            ARRIVAL_COOLDOWNS.remove(followKey);
         }
         Lease targetLease = BY_TARGET.get(target.getUUID());
         if (targetLease != null) {
@@ -397,6 +410,12 @@ public final class BfsFollowManager {
     private static void release(Lease lease, ServerLevel level, String reason, Mob mob) {
         if (BY_OWNER.remove(lease.ownerId, lease)) {
             BY_TARGET.remove(lease.targetId, lease);
+            FollowKey followKey = new FollowKey(lease.ownerId, lease.targetId);
+            if ("arrived".equals(reason) && level != null) {
+                ARRIVAL_COOLDOWNS.put(followKey, level.getGameTime() + ARRIVAL_COOLDOWN_TICKS);
+            } else {
+                ARRIVAL_COOLDOWNS.remove(followKey);
+            }
             if (mob != null) {
                 restoreController(lease, mob);
             }
@@ -472,6 +491,7 @@ public final class BfsFollowManager {
         BY_TARGET.clear();
         ISSUED.clear();
         INTERACTIONS.clear();
+        ARRIVAL_COOLDOWNS.clear();
     }
 
     public record IssueResult(UUID issueId, boolean replacedLease) {
@@ -491,6 +511,9 @@ public final class BfsFollowManager {
     }
 
     private record Issuance(UUID issueId) {
+    }
+
+    private record FollowKey(UUID ownerId, UUID targetId) {
     }
 
     private static final class Lease {

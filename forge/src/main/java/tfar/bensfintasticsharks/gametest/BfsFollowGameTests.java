@@ -58,6 +58,30 @@ public final class BfsFollowGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 40)
+    public static void heldClickDoesNotReclaimAfterArrival(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-arrival", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.ZOMBIE, new BlockPos(4, 2, 2));
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "the close target must begin with an active lease");
+        helper.runAfterDelay(1, () -> {
+            helper.assertTrue(!BfsFollowManager.status(owner).following(),
+                    "arrival must release the close target lease");
+            PlayerInteractEvent.EntityInteract heldClick = new PlayerInteractEvent.EntityInteract(
+                    owner, InteractionHand.MAIN_HAND, target);
+            BfsFollowManager.onEntityInteract(heldClick);
+            helper.assertTrue(!heldClick.isCanceled() && !BfsFollowManager.status(owner).following(),
+                    "a held click must not immediately reclaim an arrived target");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 140)
     public static void followLeaseNavigatesAroundMovingObstacle(GameTestHelper helper) {
         for (int x = 0; x <= 20; x++) {
