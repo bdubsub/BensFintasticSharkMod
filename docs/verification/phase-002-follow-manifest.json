@@ -13,9 +13,9 @@
   ],
   "status": "open",
   "candidate": {
-    "sourceCommit": "ce47a89",
-    "artifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
-    "artifactSha512": "6076d520a17a695580e74ca831308180a3ffb2ab50802545831119684f50cdf55af2faa7c2b067b7b6c4601a7b0a8ad2f99f793074b7e91b362df6b507ca2264",
+    "sourceCommit": "4665023",
+    "artifactSha256": "878d309be81778e09e82bc63f436dd4580ee7a50e82dfd13f896e58e8f58a8fd",
+    "artifactSha512": "4807abb49b12c92133df35037d6c4eea7007966d39ac8e669deea775d46909d43b18516f823d3b11f8e078a5ba776fca6ff805853030015e986791507ffe860d",
     "listenerFix": "receives_canceled_entity_interaction_callbacks_at_lowest_priority"
   },
   "adapter": {
