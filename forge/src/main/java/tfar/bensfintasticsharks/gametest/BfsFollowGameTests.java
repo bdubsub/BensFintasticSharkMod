@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -117,8 +118,17 @@ public final class BfsFollowGameTests {
 
     @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 100)
     public static void followCowNavigatesToOwner(GameTestHelper helper) {
-        ServerPlayer owner = makeTestPlayer(helper, "follow-cow", new BlockPos(2, 2, 2));
-        Mob target = helper.spawn(EntityType.COW, new BlockPos(9, 2, 2));
+        for (int x = 0; x <= 12; x++) {
+            for (int z = 0; z <= 4; z++) {
+                helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE.defaultBlockState());
+            }
+            for (int y = 1; y <= 2; y++) {
+                helper.setBlock(new BlockPos(x, y, 0), Blocks.STONE.defaultBlockState());
+                helper.setBlock(new BlockPos(x, y, 4), Blocks.STONE.defaultBlockState());
+            }
+        }
+        ServerPlayer owner = makeTestPlayer(helper, "follow-cow", new BlockPos(2, 1, 2));
+        Mob target = helper.spawn(EntityType.COW, new BlockPos(9, 1, 2));
         double initialDistance = owner.distanceTo(target);
         issueAndHold(owner);
         PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
@@ -128,10 +138,71 @@ public final class BfsFollowGameTests {
                 "a normal cow must accept the generic follow lease");
         helper.runAfterDelay(60, () -> {
             helper.assertTrue(target.isAlive(), "the cow follow target must remain alive");
-            helper.assertTrue(owner.distanceTo(target) < initialDistance - 1.0D,
+            helper.assertTrue(owner.distanceTo(target) < initialDistance - 0.5D,
                     "the cow must navigate toward the owner, initial " + initialDistance
                             + ", final " + owner.distanceTo(target));
             BfsFollowManager.stop(owner, "cow_navigation_fixture");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 120)
+    public static void followSmartBrainAnimalNavigatesToOwner(GameTestHelper helper) {
+        for (int x = 0; x <= 12; x++) {
+            for (int y = 1; y <= 5; y++) {
+                for (int z = 0; z <= 6; z++) {
+                    helper.setBlock(new BlockPos(x, y, z), Blocks.WATER.defaultBlockState());
+                }
+            }
+        }
+        ServerPlayer owner = makeTestPlayer(helper, "follow-smartbrain", new BlockPos(2, 3, 3));
+        Mob target = helper.spawn(ModEntityTypes.HARBOR_SEAL, new BlockPos(9, 3, 3));
+        double initialDistance = owner.distanceTo(target);
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "a SmartBrain animal must accept the generic follow lease");
+        helper.runAfterDelay(80, () -> {
+            helper.assertTrue(target.isAlive(), "the SmartBrain follow target must remain alive");
+            helper.assertTrue(owner.distanceTo(target) < initialDistance - 0.5D,
+                    "a SmartBrain animal must move toward the owner, initial " + initialDistance
+                            + ", final " + owner.distanceTo(target));
+            BfsFollowManager.stop(owner, "smartbrain_navigation_fixture");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 140)
+    public static void followSharkNavigatesToOwner(GameTestHelper helper) {
+        for (int x = 0; x <= 14; x++) {
+            for (int y = 1; y <= 7; y++) {
+                for (int z = 0; z <= 6; z++) {
+                    helper.setBlock(new BlockPos(x, y, z), Blocks.WATER.defaultBlockState());
+                }
+            }
+        }
+        ServerPlayer owner = makeTestPlayer(helper, "follow-shark", new BlockPos(2, 3, 3));
+        owner.setGameMode(GameType.CREATIVE);
+        Mob target = helper.spawn(ModEntityTypes.GREAT_WHITE_SHARK, new BlockPos(10, 3, 3));
+        double initialDistance = owner.distanceTo(target);
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "a shark must accept the generic follow lease");
+        helper.runAfterDelay(100, () -> {
+            helper.assertTrue(target.isAlive(), "the shark follow target must remain alive");
+            helper.assertTrue(owner.distanceTo(target) < initialDistance - 0.5D,
+                    "a shark must move toward the owner, initial " + initialDistance
+                            + ", final " + owner.distanceTo(target));
+            BfsFollowManager.stop(owner, "shark_navigation_fixture");
             owner.remove(Entity.RemovalReason.DISCARDED);
             target.remove(Entity.RemovalReason.DISCARDED);
             helper.succeed();

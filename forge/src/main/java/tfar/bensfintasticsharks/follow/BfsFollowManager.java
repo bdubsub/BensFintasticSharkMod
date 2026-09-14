@@ -366,7 +366,11 @@ public final class BfsFollowManager {
                 lease.previousWalkTarget = mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null);
             }
             mob.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(owner, 1.0F, 1));
-            started = true;
+            // SmartBrainLib normally turns WALK_TARGET into a navigation request, but an
+            // active idle activity can replace that request during the same tick. Submit the
+            // navigation request directly as well so custom aquatic move controls receive the
+            // owner destination immediately and keep moving instead of only looking at it.
+            started = mob.getNavigation().moveTo(owner, 1.0D);
         } else {
             started = mob.getNavigation().moveTo(owner, 1.0D);
         }
