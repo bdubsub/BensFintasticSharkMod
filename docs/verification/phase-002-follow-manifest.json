@@ -9,18 +9,19 @@
     "P002-TASK-001",
     "P002-TASK-002",
     "P002-TASK-003",
-    "P002-TASK-004"
+    "P002-TASK-004",
+    "P002-TASK-005"
   ],
   "status": "open",
   "candidate": {
-    "sourceCommit": "d825dd576b8640029be9c498310f0beb69c6e40e",
-    "artifactSha256": "cc34f25f551dc0adf4f1bf9d02d9e54a5154c11ed1422409275fb2317d1c68b8",
-    "artifactSha512": "626c61a60e8eb9354ebb8203bc23b7fe7fd4f7ef7e6f4a81feb2b5fc8ee69a274f4ed25f02352a99916ba8c89f8a0f2e07df20e431ae0ad9d61a5f8625e3dda0",
+    "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d",
+    "artifactSha256": "d0725a88e2ac7789d62d08279f1482550dbfacd941f032bd6f30e05970f7a366",
+    "artifactSha512": "8395c049693c3478f497834fa77f6096f51b80c4b1c44dc0a5c4c23606ef979fe5918c47839ab7fa1c1bca4038f9e0738078e15202c8c913f8c44882b805f0e1",
     "listenerFix": "receives_canceled_entity_interaction_callbacks_at_lowest_priority"
   },
   "productionBinaryComparison": {
     "previousLaptopArtifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
-    "currentCandidateArtifactSha256": "cc34f25f551dc0adf4f1bf9d02d9e54a5154c11ed1422409275fb2317d1c68b8",
+    "currentCandidateArtifactSha256": "d0725a88e2ac7789d62d08279f1482550dbfacd941f032bd6f30e05970f7a366",
     "excludedPaths": [
       "META-INF/MANIFEST.MF",
       "tfar/bensfintasticsharks/gametest/"
@@ -134,12 +135,11 @@
       "follow_diagnostic_redaction"
     ],
     "residualRisk": [
-      "third_party_follow_interaction_unverified",
-      "real_process_restart_invalidation_unverified"
+      "real_process_restart_marker_click_invalidation_requires_final_laptop_input_capture"
     ]
   },
   "thirdPartyArtifact": {
-    "result": "pinned_and_production_startup_verified_follow_interaction_unverified_client_timeout",
+    "result": "pinned_production_startup_and_current_candidate_laptop_follow_claim_verified",
     "artifactUrl": "https://mediafilez.forgecdn.net/files/5698/791/alexsmobs-1.22.9.jar",
     "sourceUrl": "https://www.curseforge.com/minecraft/mc-mods/alexs-mobs/files/5698791",
     "version": "1.22.9",
@@ -157,24 +157,24 @@
       "sha512": "8edb2264317e547230960109aaadae36ce0db9abb27748d47033c64c7f4958a970172ae382552c5e3c41a4885e95437328a6eba53226fd64c4ce0b4f0ec22b4f"
     },
     "productionStartup": "passed",
-    "followGameTest": "unverified_client_timed_out_before_interaction",
-    "fixtureRetentionObservation": "summoned_alex_mobs_animals_disappeared_before_any_lease_while_persistent_villager_remained_follow_manager_removal_path_not_observed",
+    "followGameTest": "not_used_external_runtime_laptop_capture_verified",
+    "fixtureRetentionObservation": "cow_and_alexs_mobs_grizzly_bear_remained_persistent_after_arrival_release_and_repeated_held_clicks",
     "productionRuntime": {
-      "serverEndpoint": "100.76.164.109:25867",
-      "result": "loaded_and_stopped_cleanly",
+      "serverEndpoint": "100.76.164.109:25869",
+      "result": "loaded_bound_artifact_and_restarted_cleanly",
       "cleanup": "temporary_world_client_and_runtime_removed"
     }
   },
   "repeatInteractionFix": {
-    "sourceCommit": "5435ba8f494a6604002cffb741fd689b1e50b485",
-    "result": "repeated_same_target_callbacks_are_idempotent_and_keep_the_lease",
-    "headlessFixture": "passed",
+    "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d",
+    "result": "arrival_latch_prevents_repeated_held_click_reclaims_after_release",
+    "headlessFixture": "passed_all_thirteen_follow_gametests",
     "laptopGate": "unverified_client_timeout"
   },
   "interactionListenerFix": {
-    "sourceCommit": "15d0be0",
-    "result": "receives_canceled_entity_interaction_callbacks_for_vanilla_and_third_party_mobs",
-    "headlessFixture": "passed",
+    "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d",
+    "result": "receives_canceled_entity_interaction_callbacks_and_latches_arrived_targets",
+    "headlessFixture": "passed_all_thirteen_follow_gametests",
     "laptopGate": "partial_real_click_claim_observed_normal_moving_route_unverified"
   },
   "previousLiveAttempt": {
@@ -192,26 +192,28 @@
     "cleanup": "server_client_and_disposable_runtime_removed_instance_launch_settings_restored"
   },
   "latestLiveAttempt": {
-    "sourceCommit": "ce47a89",
-    "artifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
-    "serverEndpoint": "100.76.164.109:25865",
-    "clientWindowPid": 866329,
-    "audioNode": 151,
-    "audioState": "muted_verified_before_assertion",
+    "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d",
+    "artifactSha256": "d0725a88e2ac7789d62d08279f1482550dbfacd941f032bd6f30e05970f7a366",
+    "serverEndpoint": "100.76.164.109:25869",
+    "clientWindowPid": 2292097,
+    "audioNode": "no_new_stream_client_audio_disabled_personal_node_154_muted",
+    "audioState": "personal_stream_154_mute_verified_disposable_client_created_no_playback_stream",
     "captureIds": [
-      "c62ebbe0-2c07-4d87-a83a-db10b4d2ed73",
-      "abe3cd11-88e3-406d-91ce-9e977208313a"
+      "898dc3b4-4e7c-4217-891b-39dcb4f598cb",
+      "437810f1-8aa6-4171-a412-27059ad471cb",
+      "3f90e704-9ffc-4545-a052-9bc9dbcf307c"
     ],
-    "result": "real_click_claim_and_owner_movement_observed_normal_follow_route_unverified",
+    "result": "current_candidate_cow_and_grizzly_bear_claim_arrival_restore_and_held_click_latch_observed_bound_runtime_startup_verified",
     "observations": [
-      "client_joined_disposable_click3_world",
-      "persistent_invulnerable_cow_remained_alive",
-      "real_right_click_recorded_follow_claim_adapter_and_intent",
-      "owner_moved_to_0_5_100_minus_5_972_while_one_lease_was_active",
-      "target_release_reasons_were_arrived_and_blocked_only",
-      "no_follow_manager_entity_removal_observed"
+      "client_joined_disposable_thirdparty_world",
+      "cow_remained_at_0_5_41_0_3_5_after_arrival_release",
+      "grizzly_bear_remained_at_0_5_41_0_6_5_after_arrival_release",
+      "each_target_emitted_one_claim_one_adapter_one_intent_one_arrival_release_and_one_restore",
+      "repeated_held_clicks_emitted_arrival_latched_rejects_without_new_claims",
+      "bound_capture_recorded_source_commit_artifact_hash_configuration_datapack_and_java_runtime",
+      "server_restart_reloaded_both_persistent_targets"
     ],
-    "cleanup": "server_client_captures_screenshots_and_copied_prism_instance_removed_unrelated_client_preserved"
+    "cleanup": "pending_final_phase_evidence_consumer_disposable_runtime_and_client_are_still_owned_by_this_audit"
   },
   "movingObstacleGameTest": {
     "fixture": "minecraft:zombie",
@@ -225,6 +227,6 @@
     ],
     "runDirectory": "/tmp/bfs2-phase-002-nav-7KklvQ",
     "cleanup": "runtime_removed_and_verified_absent",
-    "sourceCommit": "d825dd576b8640029be9c498310f0beb69c6e40e"
+    "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d"
   }
 }
