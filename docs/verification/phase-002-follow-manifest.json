@@ -110,6 +110,24 @@
     "runDirectory": "/tmp/bfs2-phase-002-independent-zcUIS6",
     "cleanup": "runtime_removed_and_verified_absent"
   },
+  "privateSecurityReview": {
+    "sourceCommit": "91c854c",
+    "result": "no_confirmed_exploitable_finding",
+    "scope": [
+      "permission_level_two_command_entry",
+      "server_side_marker_validation_and_replay",
+      "duplicate_callback_deduplication",
+      "owner_and_target_arbitration",
+      "bounded_range_duration_and_blocked_limits",
+      "lifecycle_release_and_token_scoped_restoration",
+      "follow_diagnostic_redaction"
+    ],
+    "residualRisk": [
+      "third_party_follow_interaction_unverified",
+      "normal_moving_obstacle_route_unverified",
+      "real_process_restart_invalidation_unverified"
+    ]
+  },
   "thirdPartyArtifact": {
     "result": "pinned_and_production_startup_verified_follow_interaction_unverified_client_timeout",
     "artifactUrl": "https://mediafilez.forgecdn.net/files/5698/791/alexsmobs-1.22.9.jar",
