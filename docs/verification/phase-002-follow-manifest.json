@@ -100,7 +100,13 @@
       "sha512": "8edb2264317e547230960109aaadae36ce0db9abb27748d47033c64c7f4958a970172ae382552c5e3c41a4885e95437328a6eba53226fd64c4ce0b4f0ec22b4f"
     },
     "productionStartup": "passed",
-    "followGameTest": "unverified_client_timed_out_before_interaction"
+    "followGameTest": "unverified_client_timed_out_before_interaction",
+    "fixtureRetentionObservation": "summoned_alex_mobs_animals_disappeared_before_any_lease_while_persistent_villager_remained_follow_manager_removal_path_not_observed",
+    "productionRuntime": {
+      "serverEndpoint": "100.76.164.109:25867",
+      "result": "loaded_and_stopped_cleanly",
+      "cleanup": "temporary_world_client_and_runtime_removed"
+    }
   },
   "repeatInteractionFix": {
     "sourceCommit": "5435ba8f494a6604002cffb741fd689b1e50b485",
