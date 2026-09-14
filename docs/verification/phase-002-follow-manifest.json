@@ -14,10 +14,11 @@
   ],
   "status": "open",
   "candidate": {
-    "sourceCommit": "48ec206d932d457c4aae07df6cf6e5a1198e87a4",
-    "artifactSha256": "807b715c0dc5d5961789f8e206871cbf5bea478ac201441f42a82d10bd23c797",
-    "artifactSha512": "0a9fe5d73316191ba2ddfef370ceabe2e53630c12225536aa10f1130384cfb9bf6e30b29ad55b425c0943b6b6551d4d45843ef1f5e275a818d387c4e39c45365",
-    "listenerFix": "receives_canceled_entity_interaction_callbacks_captures_aquatic_entity_destinations_and_keeps_initial_close_range_claim_armed"
+    "sourceCommit": "d9c5c705f8b0e3fb02b754d4e13034334230cd29",
+    "artifactSha256": "b0d3dafcb8e7a65d4078d5717c6066d80b7749f8f3addcb1e97e05e1b6e38c98",
+    "artifactSha512": "5b606e0d562363c5065040110864a89f067c24a329bd85f9b5193493e21eefad9d8c1fedea42241af3cc28b8e18a63408bcefaa84455acf3bf8ce13e1de41424",
+    "listenerFix": "receives_canceled_entity_interaction_callbacks_captures_aquatic_entity_destinations_and_keeps_initial_close_range_claim_armed",
+    "permissionFeedbackFix": "permission_denied_claims_are_reported_as_explicit_operator_feedback"
   },
   "productionBinaryComparison": {
     "previousLaptopArtifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
@@ -31,11 +32,11 @@
     "result": "production_classes_and_resources_byte_identical_previous_laptop_gate_remains_unverified"
   },
   "headlessVerification": {
-    "sourceCommit": "48ec206d932d457c4aae07df6cf6e5a1198e87a4",
-    "artifactSha256": "807b715c0dc5d5961789f8e206871cbf5bea478ac201441f42a82d10bd23c797",
-    "artifactSha512": "0a9fe5d73316191ba2ddfef370ceabe2e53630c12225536aa10f1130384cfb9bf6e30b29ad55b425c0943b6b6551d4d45843ef1f5e275a818d387c4e39c45365",
+    "sourceCommit": "d9c5c705f8b0e3fb02b754d4e13034334230cd29",
+    "artifactSha256": "b0d3dafcb8e7a65d4078d5717c6066d80b7749f8f3addcb1e97e05e1b6e38c98",
+    "artifactSha512": "5b606e0d562363c5065040110864a89f067c24a329bd85f9b5193493e21eefad9d8c1fedea42241af3cc28b8e18a63408bcefaa84455acf3bf8ce13e1de41424",
     "compileAndUnitTests": "passed",
-    "focusedFollowGameTests": "passed_twenty_two_required_tests",
+    "focusedFollowGameTests": "passed_twenty_three_required_tests",
     "packagedJarIntegrity": "passed_unzip_test",
     "parserTests": "passed_twenty_tests",
     "diffCheck": "passed",
@@ -384,5 +385,18 @@
       "forge_47.2.0",
       "game_test_server_shutdown_cleanly"
     ]
+  },
+  "permissionFeedbackFix20260914": {
+    "sourceCommit": "d9c5c705f8b0e3fb02b754d4e13034334230cd29",
+    "artifactSha256": "b0d3dafcb8e7a65d4078d5717c6066d80b7749f8f3addcb1e97e05e1b6e38c98",
+    "artifactSha512": "5b606e0d562363c5065040110864a89f067c24a329bd85f9b5193493e21eefad9d8c1fedea42241af3cc28b8e18a63408bcefaa84455acf3bf8ce13e1de41424",
+    "result": "permission_denied_follow_clicks_return_explicit_operator_feedback",
+    "permissionBoundary": "unchanged_level_two_requirement",
+    "focusedFollowGameTests": "all_twenty_three_required_tests_passed",
+    "compileAndUnitTests": "passed",
+    "forgeBuild": "passed",
+    "jarIntegrity": "passed_unzip_test",
+    "runDirectory": "/tmp/bfsm-p002-follow-20260915a",
+    "cleanup": "run_directory_removed_and_verified_absent"
   }
 }
