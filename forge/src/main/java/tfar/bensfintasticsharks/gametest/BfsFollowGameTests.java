@@ -25,6 +25,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.follow.BfsFollowManager;
+import tfar.bensfintasticsharks.entity.PitchSwimmingNavigation;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 import tfar.bensfintasticsharks.init.ModItems;
 
@@ -257,6 +258,42 @@ public final class BfsFollowGameTests {
                     "a shark must move toward the owner, initial " + initialDistance
                             + ", final " + owner.distanceTo(target));
             BfsFollowManager.stop(owner, "shark_navigation_fixture");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "follow_restoration", timeoutTicks = 60)
+    public static void followSharkReleaseClearsAquaticDestination(GameTestHelper helper) {
+        for (int x = 0; x <= 14; x++) {
+            for (int y = 1; y <= 7; y++) {
+                for (int z = 0; z <= 6; z++) {
+                    helper.setBlock(new BlockPos(x, y, z), Blocks.WATER.defaultBlockState());
+                }
+            }
+        }
+        ServerPlayer owner = makeTestPlayer(helper, "follow-shark-release", new BlockPos(2, 3, 3));
+        owner.setGameMode(GameType.CREATIVE);
+        Mob target = helper.spawn(ModEntityTypes.GREAT_WHITE_SHARK, new BlockPos(10, 3, 3));
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "the shark must be claimed before testing controller release");
+        String navigationClass = target.getNavigation().getClass().getName();
+        boolean capturedDestination = target.getNavigation() instanceof PitchSwimmingNavigation navigation
+                && navigation.requestedDestination() != null;
+        helper.assertTrue(capturedDestination,
+                "the aquatic navigation must capture the follow destination, navigation="
+                        + navigationClass + ", following=" + BfsFollowManager.status(owner).following());
+        helper.assertTrue(BfsFollowManager.stop(owner, "shark_release_fixture"),
+                "the shark follow lease must release explicitly");
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(target.getNavigation() instanceof PitchSwimmingNavigation navigation
+                            && navigation.requestedDestination() == null,
+                    "releasing a shark lease must clear the captured aquatic destination");
             owner.remove(Entity.RemovalReason.DISCARDED);
             target.remove(Entity.RemovalReason.DISCARDED);
             helper.succeed();
