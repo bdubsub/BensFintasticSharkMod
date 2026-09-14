@@ -14,9 +14,9 @@
   ],
   "status": "open",
   "candidate": {
-    "sourceCommit": "011d63694aacd16a2a2267efb641c78d7dd43d5e",
-    "artifactSha256": "6c8dacdd691a95668aebe26a4562234d6c2c9f8aec4a3eca33307da51c1e1f2a",
-    "artifactSha512": "ef6b72ee566c2bf562863f6492a287629e27686c4bbedf833ff983936731f02c7a7070fe63a9d5948ffa13374ba8beb14144c3553bc4f9f69efb7b6a1fe3bcee",
+    "sourceCommit": "94922089e41aa2d5d21ec64c0a6e0d6c56824d19",
+    "artifactSha256": "6168dd347be687b63ad0b76546df4e19d8e97c77f410f6fcde184793ae4d30db",
+    "artifactSha512": "133145acc95ae38bea9b2747cd761d072f03024e0c15ec616db6fd0e4673e9ced01ab681322112cf710db5b2d185505350237e4442d1b3432e610a4fe2bcd055",
     "listenerFix": "receives_canceled_entity_interaction_callbacks_at_lowest_priority"
   },
   "productionBinaryComparison": {
@@ -31,9 +31,9 @@
     "result": "production_classes_and_resources_byte_identical_previous_laptop_gate_remains_unverified"
   },
   "headlessVerification": {
-    "sourceCommit": "011d63694aacd16a2a2267efb641c78d7dd43d5e",
-    "artifactSha256": "6c8dacdd691a95668aebe26a4562234d6c2c9f8aec4a3eca33307da51c1e1f2a",
-    "artifactSha512": "ef6b72ee566c2bf562863f6492a287629e27686c4bbedf833ff983936731f02c7a7070fe63a9d5948ffa13374ba8beb14144c3553bc4f9f69efb7b6a1fe3bcee",
+    "sourceCommit": "94922089e41aa2d5d21ec64c0a6e0d6c56824d19",
+    "artifactSha256": "6168dd347be687b63ad0b76546df4e19d8e97c77f410f6fcde184793ae4d30db",
+    "artifactSha512": "133145acc95ae38bea9b2747cd761d072f03024e0c15ec616db6fd0e4673e9ced01ab681322112cf710db5b2d185505350237e4442d1b3432e610a4fe2bcd055",
     "compileAndUnitTests": "passed",
     "focusedFollowGameTests": "passed_nineteen_required_tests",
     "packagedJarIntegrity": "passed_unzip_test",
@@ -245,7 +245,8 @@
     "test": "followSlimeNavigatesToOwner",
     "result": "passed_reduced_distance_with_generic_navigation_adapter",
     "runDirectory": "/tmp/bfsm-p002-slime-20260914",
-    "cleanup": "runtime_removed_and_verified_absent"
+    "cleanup": "runtime_removed_and_verified_absent",
+    "sourceCommit": "94922089e41aa2d5d21ec64c0a6e0d6c56824d19"
   },
   "ownerClickRetry20260914": {
     "sourceCommit": "aa053bb485bc760e48a295ad6bd85432519620d",
