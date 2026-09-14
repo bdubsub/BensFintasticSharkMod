@@ -20,6 +20,13 @@ sha256 95939fb61125aa74dea45668d2d0c311c65afbc2ae8a761cd78bcb703d69d633
 sha512 fe25fc08aefdbcb4bfd1b26bc106d9e2e4f6ea68c67b616057cefd6df67e0a3b0c54be4215bbd79f67470572502afd8dbce6545b05655489ff68bd11dc26de14
 ```
 
+After the client captures, the final Forge testing artifact was rebuilt from source revision
+`6fdcca3` with `./gradlew :forge:build --no-daemon --console=plain`. It passed `unzip -tqq` and
+has SHA 256 `d3cccca1d7f7ec0bb79992c9c1d63c966bbb75983bfc19d358952a6cbc53f721` and SHA 512
+`ba8bd9dcc0bdc15aa62f1c9a98d52b11c428c3e92635c22cfdec3f4c4d40f22874c7a6589a5349afb3c95c6d2ecce31ac04cb49ab723429a478959c28bed1200`. The client capture rows remain
+bound to the earlier captured artifact hash above; the source and behavior were unchanged and the
+packaging task produced a different archive timestamp hash.
+
 The server ran on node 1 from the isolated phase worktree runtime
 `.test-runs/bfs2-p001-visual-matrix-20260913`, using installed production Forge 47.2.0 and Java
 17, port `25643`, world `bfs2_p001_visual_matrix_20260913`, `eula=true`, and
