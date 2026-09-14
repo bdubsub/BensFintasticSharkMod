@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.gametest.GameTestHolder;
 import tfar.bensfintasticsharks.follow.BfsFollowManager;
@@ -82,6 +83,27 @@ public final class BfsFollowGameTests {
                 target.remove(Entity.RemovalReason.DISCARDED);
                 helper.succeed();
             });
+        });
+    }
+
+    @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 60)
+    public static void followEventBusClaimsMarkedMob(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-event-bus", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.ZOMBIE, new BlockPos(9, 2, 2));
+        double initialDistance = owner.distanceTo(target);
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        MinecraftForge.EVENT_BUS.post(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "the registered Forge interaction handler must claim a marked mob");
+        helper.runAfterDelay(20, () -> {
+            helper.assertTrue(owner.distanceTo(target) < initialDistance,
+                    "the event bus claim must produce movement toward the owner");
+            BfsFollowManager.stop(owner, "event_bus_fixture");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
         });
     }
 

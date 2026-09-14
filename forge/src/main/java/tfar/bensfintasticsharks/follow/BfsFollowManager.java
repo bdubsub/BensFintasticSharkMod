@@ -24,6 +24,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import tfar.bensfintasticsharks.debug.BfsDebugManager;
 import tfar.bensfintasticsharks.init.ModItems;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
@@ -74,8 +75,7 @@ public final class BfsFollowManager {
         // Entity interaction can be canceled by the target's normal mob handler or by
         // another loaded mod after the packet reaches the server. Receive the canceled
         // callback so the debug marker remains usable for every living mob family.
-        bus.addListener(EventPriority.LOWEST, true, BfsFollowManager::onEntityInteract);
-        bus.addListener(EventPriority.LOWEST, true, BfsFollowManager::onEntityInteractSpecific);
+        bus.register(BfsFollowManager.class);
     }
 
     public static IssueResult issue(ServerPlayer recipient) {
@@ -142,6 +142,7 @@ public final class BfsFollowManager {
         return true;
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         if (event.getLevel().isClientSide || !(event.getEntity() instanceof ServerPlayer owner)) {
             return;
@@ -157,6 +158,7 @@ public final class BfsFollowManager {
         }
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public static void onEntityInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) {
         if (event.getLevel().isClientSide || !(event.getEntity() instanceof ServerPlayer owner)) {
             return;
