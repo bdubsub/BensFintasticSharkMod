@@ -61,6 +61,22 @@ public final class BfsFollowGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 20)
+    public static void unprivilegedIssuedMarkerCannotClaimMob(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-unprivileged", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.COW, new BlockPos(5, 2, 2));
+        issueAndHold(owner);
+        helper.getLevel().getServer().getPlayerList().deop(owner.getGameProfile());
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(!event.isCanceled() && !BfsFollowManager.status(owner).following(),
+                "an issued follow marker must not claim a mob after operator permission is lost");
+        owner.remove(Entity.RemovalReason.DISCARDED);
+        target.remove(Entity.RemovalReason.DISCARDED);
+        helper.succeed();
+    }
+
     @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 40)
     public static void followStickClaimsAndKeepsMob(GameTestHelper helper) {
         ServerPlayer owner = makeTestPlayer(helper, "follow-owner", new BlockPos(2, 2, 2));
