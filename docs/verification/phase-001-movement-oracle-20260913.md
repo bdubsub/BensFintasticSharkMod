@@ -4,9 +4,9 @@ Date: 2026-09-13
 
 Status: the phase branch passes the current headless movement and lifecycle gates. The
 matching silent laptop client joined the disposable dedicated server and produced command and
-presentation evidence recorded in `phase-001-client-visual-20260913.md`. The full client envelope
-matrix, independent review, pull request, merge, default branch verification, and signed phase
-tag remain open.
+presentation evidence recorded in `phase-001-client-visual-20260913.md`. The complete client
+envelope matrix is now recorded at scales 0.25, 1, and 2. Independent review, pull request,
+merge, default branch verification, and signed phase tag remain open.
 
 ## Oracle coverage
 
@@ -48,9 +48,8 @@ OK
 
 The disposable GameTest runtime, logs, and parser scratch paths were removed after review. The
 matching laptop client was launched only after the headless gates passed. Its server join, muted
-owned audio stream, readable settings feedback, open surface rendering, and shallow ocean
-rendering are recorded in `phase-001-client-visual-20260913.md`. The current capture matrix covers all named terrain fixtures at the default scale and the open
-surface at scales 0.25, 1, and 2. Terrain fixtures at scales 0.25 and 2 remain unverified.
+owned audio stream, readable settings feedback, and complete named terrain fixture matrix at
+scales 0.25, 1, and 2 are recorded in `phase-001-client-visual-20260913.md`.
 
 The Forge archive also passed `unzip -tqq` and the phase candidate built as
 `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`.
@@ -67,6 +66,6 @@ startup evidence only and does not replace the laptop client gate.
 
 ## Remaining phase gates
 
-The code and headless evidence are ready for the phase review, but phase 001 is not closed.
-The independent review, pull request checks and merge into `1.20.1`, resulting default branch
-verification, signed phase tag, and the remaining client matrix must still be completed.
+The code, headless evidence, and client evidence are ready for the phase review, but phase 001 is
+not closed. The independent review, pull request checks and merge into `1.20.1`, resulting default
+branch verification, and signed phase tag must still be completed.
