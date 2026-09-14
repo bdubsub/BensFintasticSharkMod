@@ -14,9 +14,9 @@
   ],
   "status": "open",
   "candidate": {
-    "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d",
-    "artifactSha256": "d0725a88e2ac7789d62d08279f1482550dbfacd941f032bd6f30e05970f7a366",
-    "artifactSha512": "8395c049693c3478f497834fa77f6096f51b80c4b1c44dc0a5c4c23606ef979fe5918c47839ab7fa1c1bca4038f9e0738078e15202c8c913f8c44882b805f0e1",
+    "sourceCommit": "011d63694aacd16a2a2267efb641c78d7dd43d5e",
+    "artifactSha256": "6c8dacdd691a95668aebe26a4562234d6c2c9f8aec4a3eca33307da51c1e1f2a",
+    "artifactSha512": "ef6b72ee566c2bf562863f6492a287629e27686c4bbedf833ff983936731f02c7a7070fe63a9d5948ffa13374ba8beb14144c3553bc4f9f69efb7b6a1fe3bcee",
     "listenerFix": "receives_canceled_entity_interaction_callbacks_at_lowest_priority"
   },
   "productionBinaryComparison": {
@@ -31,11 +31,11 @@
     "result": "production_classes_and_resources_byte_identical_previous_laptop_gate_remains_unverified"
   },
   "headlessVerification": {
-    "sourceCommit": "7ac993e",
-    "artifactSha256": "038aa4c1d7a32bafcb138f24b94c402ddd596cd3f54cce737ccbee172ee0a845",
-    "artifactSha512": "044c0cc5c58dde4eda0e678e77e26f72e835e6437799d5e7b3598f40941bd30e7e15074227580f1d364adda2909d3e1da146bcc923be94299b6c504f4ba2bf19",
+    "sourceCommit": "011d63694aacd16a2a2267efb641c78d7dd43d5e",
+    "artifactSha256": "6c8dacdd691a95668aebe26a4562234d6c2c9f8aec4a3eca33307da51c1e1f2a",
+    "artifactSha512": "ef6b72ee566c2bf562863f6492a287629e27686c4bbedf833ff983936731f02c7a7070fe63a9d5948ffa13374ba8beb14144c3553bc4f9f69efb7b6a1fe3bcee",
     "compileAndUnitTests": "passed",
-    "focusedFollowGameTests": "passed_thirteen_required_tests",
+    "focusedFollowGameTests": "passed_eighteen_required_tests",
     "packagedJarIntegrity": "passed_unzip_test",
     "parserTests": "passed_twenty_tests",
     "diffCheck": "passed",
