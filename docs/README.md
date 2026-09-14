@@ -34,6 +34,8 @@
 * [Phase 002 packaged server verification](verification/phase-002-task-008-packaged-current-20260910.md)
 * [Phase 002 client visual approval](verification/phase-002-task-008-client-visual-approval-20260910.md)
 * [Phase 002 task 011 species policy evidence](verification/phase-002-task-011-species-policy-20260909.md)
+* [Phase 002 follow evidence](verification/phase-002-follow-20260913.md)
+* [Phase 002 follow manifest](verification/phase-002-follow-manifest.json)
 * [Phase 003 baseline evidence](verification/phase-003/phase-003-evidence.md)
 * [Phase 003 baseline manifest](verification/phase-003/phase-003-manifest.json)
 * [Phase 003 task 002 icon pipeline](verification/phase-003/phase-003-task-002-icons.md)
