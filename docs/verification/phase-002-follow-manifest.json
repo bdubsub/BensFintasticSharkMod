@@ -239,5 +239,16 @@
     "runDirectory": "/tmp/bfs2-phase-002-nav-7KklvQ",
     "cleanup": "runtime_removed_and_verified_absent",
     "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d"
+  },
+  "ownerClickRetry20260914": {
+    "sourceCommit": "aa053bb485bc760e48a295ad6bd85432519620d",
+    "artifactSha256": "038aa4c1d7a32bafcb138f24b94c402ddd596cd3f54cce737ccbee172ee0a845",
+    "serverEndpoint": "100.76.164.109:25871",
+    "world": "bfs2-phase-002-owner-click-20260914b",
+    "target": "minecraft:cow",
+    "captureId": "c610fcaf-b436-41c4-8777-237be1bb22b9",
+    "result": "unverified_no_owner_click_before_bounded_timeout",
+    "audioState": "owned_client_stream_muted_read_back",
+    "cleanup": "complete_disposable_paths_absent_personal_instance_preserved"
   }
 }
