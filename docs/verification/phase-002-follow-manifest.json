@@ -14,9 +14,9 @@
   ],
   "status": "open",
   "candidate": {
-    "sourceCommit": "94922089e41aa2d5d21ec64c0a6e0d6c56824d19",
-    "artifactSha256": "6168dd347be687b63ad0b76546df4e19d8e97c77f410f6fcde184793ae4d30db",
-    "artifactSha512": "133145acc95ae38bea9b2747cd761d072f03024e0c15ec616db6fd0e4673e9ced01ab681322112cf710db5b2d185505350237e4442d1b3432e610a4fe2bcd055",
+    "sourceCommit": "b146dd10312366e3db1118328fcb5aff4ec49ab9",
+    "artifactSha256": "69d76f0409dcd361f7618674348352c9b96e3a02ef117c79e9a217705eb1ab7a",
+    "artifactSha512": "baf9f17d1542c87839d1a017e1cdb8eb951db5ba9d9b0fdc2eb5aa4c1a24422f9d8fb49dc51d67e0cbe7e0e17954681d972dde1d5268c6f1cfc8f82e0f9e24f1",
     "listenerFix": "receives_canceled_entity_interaction_callbacks_at_lowest_priority"
   },
   "productionBinaryComparison": {
@@ -31,9 +31,9 @@
     "result": "production_classes_and_resources_byte_identical_previous_laptop_gate_remains_unverified"
   },
   "headlessVerification": {
-    "sourceCommit": "94922089e41aa2d5d21ec64c0a6e0d6c56824d19",
-    "artifactSha256": "6168dd347be687b63ad0b76546df4e19d8e97c77f410f6fcde184793ae4d30db",
-    "artifactSha512": "133145acc95ae38bea9b2747cd761d072f03024e0c15ec616db6fd0e4673e9ced01ab681322112cf710db5b2d185505350237e4442d1b3432e610a4fe2bcd055",
+    "sourceCommit": "b146dd10312366e3db1118328fcb5aff4ec49ab9",
+    "artifactSha256": "69d76f0409dcd361f7618674348352c9b96e3a02ef117c79e9a217705eb1ab7a",
+    "artifactSha512": "baf9f17d1542c87839d1a017e1cdb8eb951db5ba9d9b0fdc2eb5aa4c1a24422f9d8fb49dc51d67e0cbe7e0e17954681d972dde1d5268c6f1cfc8f82e0f9e24f1",
     "compileAndUnitTests": "passed",
     "focusedFollowGameTests": "passed_nineteen_required_tests",
     "packagedJarIntegrity": "passed_unzip_test",
@@ -169,6 +169,8 @@
     },
     "productionStartup": "passed",
     "followGameTest": "not_used_external_runtime_laptop_capture_verified",
+    "movementRegressionFixture": "source_added_requires_pinned_external_runtime_execution",
+    "movementAssertion": "target_distance_reduces_by_more_than_0_5_after_60_ticks",
     "fixtureRetentionObservation": "cow_and_alexs_mobs_grizzly_bear_remained_persistent_after_arrival_release_and_repeated_held_clicks",
     "productionRuntime": {
       "serverEndpoint": "100.76.164.109:25869",
