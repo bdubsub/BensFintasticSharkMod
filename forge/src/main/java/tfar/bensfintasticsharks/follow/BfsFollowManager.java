@@ -20,6 +20,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.EventPriority;
 import tfar.bensfintasticsharks.debug.BfsDebugManager;
 import tfar.bensfintasticsharks.init.ModItems;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
@@ -64,8 +65,11 @@ public final class BfsFollowManager {
         bus.addListener(BfsFollowManager::onPlayerLoggedOut);
         bus.addListener(BfsFollowManager::onPlayerChangedDimension);
         bus.addListener(BfsFollowManager::onPlayerRespawn);
-        bus.addListener(BfsFollowManager::onEntityInteract);
-        bus.addListener(BfsFollowManager::onEntityInteractSpecific);
+        // Entity interaction can be canceled by the target's normal mob handler or by
+        // another loaded mod after the packet reaches the server. Receive the canceled
+        // callback so the debug marker remains usable for every living mob family.
+        bus.addListener(EventPriority.LOWEST, true, BfsFollowManager::onEntityInteract);
+        bus.addListener(EventPriority.LOWEST, true, BfsFollowManager::onEntityInteractSpecific);
     }
 
     public static IssueResult issue(ServerPlayer recipient) {
