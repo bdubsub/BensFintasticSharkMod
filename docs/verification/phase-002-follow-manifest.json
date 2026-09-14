@@ -18,6 +18,17 @@
     "artifactSha512": "a3a2d961295ecaaa6d6a69de52251716a941b9cd9059bdd86dfb8ebdc6c80730ced994ae8e999334252e3b42b381ec2be1b79f30f61251e61ddeacaaedf17d35",
     "listenerFix": "receives_canceled_entity_interaction_callbacks_at_lowest_priority"
   },
+  "productionBinaryComparison": {
+    "previousLaptopArtifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
+    "currentCandidateArtifactSha256": "b69f4b344e9413deb0195857dd5d8e46ed028958c98eac0b72c83925a7b249e4",
+    "excludedPaths": [
+      "META-INF/MANIFEST.MF",
+      "tfar/bensfintasticsharks/gametest/"
+    ],
+    "productionTreeDigestSha256": "b63633b032d814f9ec90840973799c83abc5fdc4a52bbf3c7a1fde7628e382a3",
+    "fileCount": 834,
+    "result": "production_classes_and_resources_byte_identical_previous_laptop_gate_remains_unverified"
+  },
   "adapter": {
     "capabilityId": "registry_mob_controller",
     "ownershipHooks": {
