@@ -13,14 +13,14 @@
   ],
   "status": "open",
   "candidate": {
-    "sourceCommit": "0879ee6",
-    "artifactSha256": "b69f4b344e9413deb0195857dd5d8e46ed028958c98eac0b72c83925a7b249e4",
-    "artifactSha512": "a3a2d961295ecaaa6d6a69de52251716a941b9cd9059bdd86dfb8ebdc6c80730ced994ae8e999334252e3b42b381ec2be1b79f30f61251e61ddeacaaedf17d35",
+    "sourceCommit": "d825dd576b8640029be9c498310f0beb69c6e40e",
+    "artifactSha256": "cc34f25f551dc0adf4f1bf9d02d9e54a5154c11ed1422409275fb2317d1c68b8",
+    "artifactSha512": "626c61a60e8eb9354ebb8203bc23b7fe7fd4f7ef7e6f4a81feb2b5fc8ee69a274f4ed25f02352a99916ba8c89f8a0f2e07df20e431ae0ad9d61a5f8625e3dda0",
     "listenerFix": "receives_canceled_entity_interaction_callbacks_at_lowest_priority"
   },
   "productionBinaryComparison": {
     "previousLaptopArtifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
-    "currentCandidateArtifactSha256": "b69f4b344e9413deb0195857dd5d8e46ed028958c98eac0b72c83925a7b249e4",
+    "currentCandidateArtifactSha256": "cc34f25f551dc0adf4f1bf9d02d9e54a5154c11ed1422409275fb2317d1c68b8",
     "excludedPaths": [
       "META-INF/MANIFEST.MF",
       "tfar/bensfintasticsharks/gametest/"
@@ -135,7 +135,6 @@
     ],
     "residualRisk": [
       "third_party_follow_interaction_unverified",
-      "normal_moving_obstacle_route_unverified",
       "real_process_restart_invalidation_unverified"
     ]
   },
@@ -213,5 +212,19 @@
       "no_follow_manager_entity_removal_observed"
     ],
     "cleanup": "server_client_captures_screenshots_and_copied_prism_instance_removed_unrelated_client_preserved"
+  },
+  "movingObstacleGameTest": {
+    "fixture": "minecraft:zombie",
+    "test": "followLeaseNavigatesAroundMovingObstacle",
+    "result": "passed_all_twelve_follow_tests",
+    "route": "solid_floor_with_two_block_wall_and_owner_positions_around_wall",
+    "assertions": [
+      "reduced_owner_distance",
+      "target_remained_alive",
+      "lease_stopped_cleanly"
+    ],
+    "runDirectory": "/tmp/bfs2-phase-002-nav-7KklvQ",
+    "cleanup": "runtime_removed_and_verified_absent",
+    "sourceCommit": "d825dd576b8640029be9c498310f0beb69c6e40e"
   }
 }
