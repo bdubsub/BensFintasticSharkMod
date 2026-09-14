@@ -118,6 +118,88 @@ public final class BfsFollowGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "follow_security_lifecycle", timeoutTicks = 40)
+    public static void followLeaseReleasesWhenMarkerIsLost(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-marker-loss", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.ZOMBIE, new BlockPos(7, 2, 2));
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "marker loss fixture must begin with an active lease");
+        owner.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        helper.runAfterDelay(1, () -> {
+            helper.assertTrue(!BfsFollowManager.status(owner).following(),
+                    "removing the issued marker must release the lease on the next server tick");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "follow_security_lifecycle", timeoutTicks = 40)
+    public static void followLeaseReleasesWhenPermissionIsLost(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-permission-loss", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.ZOMBIE, new BlockPos(7, 2, 2));
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "permission loss fixture must begin with an active lease");
+        helper.getLevel().getServer().getPlayerList().getOps().remove(owner.getGameProfile());
+        helper.getLevel().getServer().getPlayerList().sendPlayerPermissionLevel(owner);
+        helper.runAfterDelay(1, () -> {
+            helper.assertTrue(!BfsFollowManager.status(owner).following(),
+                    "permission loss must release the lease on the next server tick");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "follow_security_lifecycle", timeoutTicks = 40)
+    public static void followLeaseReleasesWhenOwnerLeavesRange(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-range", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.ZOMBIE, new BlockPos(7, 2, 2));
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "range fixture must begin with an active lease");
+        owner.setPos(helper.absolutePos(new BlockPos(80, 2, 2)).getCenter());
+        helper.runAfterDelay(1, () -> {
+            helper.assertTrue(!BfsFollowManager.status(owner).following(),
+                    "moving beyond the sixty four block range must release the lease");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "follow_security_lifecycle", timeoutTicks = 240)
+    public static void followLeaseReleasesAfterBlockedRoute(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-blocked", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.ZOMBIE, new BlockPos(18, 2, 2));
+        target.setNoGravity(true);
+        target.setNoAi(true);
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
+                "blocked route fixture must begin with an active lease");
+        helper.runAfterDelay(BfsFollowManager.BLOCKED_TICKS + 2, () -> {
+            helper.assertTrue(!BfsFollowManager.status(owner).following(),
+                    "a route with no progress must release after two hundred blocked ticks");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            target.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", batch = "follow_controller_families", timeoutTicks = 80)
     public static void representativeMobFamiliesUseTheGenericLease(GameTestHelper helper) {
         ServerPlayer owner = makeTestPlayer(helper, "follow-families", new BlockPos(2, 8, 2));
