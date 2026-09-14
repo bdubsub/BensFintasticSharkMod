@@ -350,5 +350,21 @@
     ],
     "audioState": "owned_java_stream_was_muted_before_observation",
     "cleanup": "complete_server_client_audio_runtime_instance_and_screenshots_removed_and_verified"
+  },
+  "currentFocusedFollowGameTest20260914": {
+    "sourceCommit": "b34a6e86a3482c75b053ac373a85f59b4017c282",
+    "artifactSha256": "807b715c0dc5d5961789f8e206871cbf5bea478ac201441f42a82d10bd23c797",
+    "artifactSha512": "0a9fe5d73316191ba2ddfef370ceabe2e53630c12225536aa10f1130384cfb9bf6e30b29ad55b425c0943b6b6551d4d45843ef1f5e275a818d387c4e39c45365",
+    "runDirectory": "/tmp/bfsm-p002-follow-20260914g",
+    "namespaces": [
+      "bfsfollow"
+    ],
+    "result": "all_twenty_two_required_tests_passed",
+    "cleanup": "run_directory_removed_and_verified_absent",
+    "observations": [
+      "server_java_17.0.19",
+      "forge_47.2.0",
+      "game_test_server_shutdown_cleanly"
+    ]
   }
 }
