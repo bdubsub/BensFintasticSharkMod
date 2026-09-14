@@ -13,9 +13,9 @@
   ],
   "status": "open",
   "candidate": {
-    "sourceCommit": "f5f6b40",
-    "artifactSha256": "5adeee4ea95f42466a4628a3b509ed1bc81845992e143d1fda63e57eeec7e75f",
-    "artifactSha512": "4d8c3f91bad95015a187f0960aa2f5e5455564e25bfc63a25e827fd0e5363202986d3a35e969725b6f0af2dab625c113262bb647bca018573c13b8f0e3853bdb",
+    "sourceCommit": "0879ee6",
+    "artifactSha256": "b69f4b344e9413deb0195857dd5d8e46ed028958c98eac0b72c83925a7b249e4",
+    "artifactSha512": "a3a2d961295ecaaa6d6a69de52251716a941b9cd9059bdd86dfb8ebdc6c80730ced994ae8e999334252e3b42b381ec2be1b79f30f61251e61ddeacaaedf17d35",
     "listenerFix": "receives_canceled_entity_interaction_callbacks_at_lowest_priority"
   },
   "adapter": {
@@ -83,6 +83,17 @@
     "test": "followLeaseReleasesWhenTargetDies",
     "result": "passed_next_server_tick",
     "runDirectory": "/tmp/bfs2-phase-002-follow-lifecycle-YdFGXS",
+    "cleanup": "runtime_removed_and_verified_absent"
+  },
+  "securityLifecycleGameTests": {
+    "tests": [
+      "followLeaseReleasesWhenMarkerIsLost",
+      "followLeaseReleasesWhenPermissionIsLost",
+      "followLeaseReleasesWhenOwnerLeavesRange",
+      "followLeaseReleasesAfterBlockedRoute"
+    ],
+    "result": "passed_next_server_tick_and_two_hundred_blocked_ticks",
+    "runDirectory": "/tmp/bfs2-phase-002-security-aCi9m2hh",
     "cleanup": "runtime_removed_and_verified_absent"
   },
   "independentFixture": {
