@@ -43,7 +43,41 @@ public final class SpeciesSettingsService {
         DISENGAGE_DISTANCE("disengage_distance", "blocks", 0.0D, 512.0D),
         ACTION_TIMEOUT("action_timeout", "ticks", 1.0D, 20_000.0D),
         MEMORY_TICKS("memory_ticks", "ticks", 0.0D, 20_000.0D),
-        SCAN_RADIUS("scan_radius", "blocks", 1.0D, 256.0D);
+        SCAN_RADIUS("scan_radius", "blocks", 1.0D, 256.0D),
+        DISTURBANCE_ENABLED("disturbance_enabled", "boolean", 0.0D, 1.0D),
+        DISTURBANCE_REACTION("disturbance_reaction", "reaction", 0.0D, 2.0D),
+        DISTURBANCE_RADIUS("disturbance_radius", "blocks", 0.0D, 256.0D),
+        DISTURBANCE_SENSITIVITY("disturbance_sensitivity", "multiplier", 0.0D, 3.0D),
+        DISTURBANCE_INTERVAL_TICKS("disturbance_interval_ticks", "ticks", 1.0D, 20_000.0D),
+        DISTURBANCE_ALERT_TICKS("disturbance_alert_ticks", "ticks", 1.0D, 20_000.0D),
+        DISTURBANCE_BOAT_MOVEMENT_THRESHOLD("disturbance_boat_movement_threshold", "blocks_per_tick", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_SWIM_SPRINT_ENABLED("disturbance_source_swim_sprint_enabled", "boolean", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_SWIM_SPRINT_STRENGTH("disturbance_source_swim_sprint_strength", "normalized", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_SWIM_SPRINT_INTERVAL_TICKS("disturbance_source_swim_sprint_interval_ticks", "ticks", 1.0D, 20_000.0D),
+        DISTURBANCE_SOURCE_ATTACK_ENABLED("disturbance_source_attack_enabled", "boolean", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_ATTACK_STRENGTH("disturbance_source_attack_strength", "normalized", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_ATTACK_INTERVAL_TICKS("disturbance_source_attack_interval_ticks", "ticks", 1.0D, 20_000.0D),
+        DISTURBANCE_SOURCE_DAMAGE_ENABLED("disturbance_source_damage_enabled", "boolean", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_DAMAGE_STRENGTH("disturbance_source_damage_strength", "normalized", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_DAMAGE_INTERVAL_TICKS("disturbance_source_damage_interval_ticks", "ticks", 1.0D, 20_000.0D),
+        DISTURBANCE_SOURCE_BLOCK_BREAK_ENABLED("disturbance_source_block_break_enabled", "boolean", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_BLOCK_BREAK_STRENGTH("disturbance_source_block_break_strength", "normalized", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_BLOCK_BREAK_INTERVAL_TICKS("disturbance_source_block_break_interval_ticks", "ticks", 1.0D, 20_000.0D),
+        DISTURBANCE_SOURCE_FALL_ENABLED("disturbance_source_fall_enabled", "boolean", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_FALL_STRENGTH("disturbance_source_fall_strength", "normalized", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_FALL_INTERVAL_TICKS("disturbance_source_fall_interval_ticks", "ticks", 1.0D, 20_000.0D),
+        DISTURBANCE_SOURCE_PROJECTILE_ENABLED("disturbance_source_projectile_enabled", "boolean", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_PROJECTILE_STRENGTH("disturbance_source_projectile_strength", "normalized", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_PROJECTILE_INTERVAL_TICKS("disturbance_source_projectile_interval_ticks", "ticks", 1.0D, 20_000.0D),
+        DISTURBANCE_SOURCE_WATER_ENTRY_ENABLED("disturbance_source_water_entry_enabled", "boolean", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_WATER_ENTRY_STRENGTH("disturbance_source_water_entry_strength", "normalized", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_WATER_ENTRY_INTERVAL_TICKS("disturbance_source_water_entry_interval_ticks", "ticks", 1.0D, 20_000.0D),
+        DISTURBANCE_SOURCE_WATER_JUMP_ENABLED("disturbance_source_water_jump_enabled", "boolean", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_WATER_JUMP_STRENGTH("disturbance_source_water_jump_strength", "normalized", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_WATER_JUMP_INTERVAL_TICKS("disturbance_source_water_jump_interval_ticks", "ticks", 1.0D, 20_000.0D),
+        DISTURBANCE_SOURCE_OCCUPIED_BOAT_ENABLED("disturbance_source_occupied_boat_enabled", "boolean", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_OCCUPIED_BOAT_STRENGTH("disturbance_source_occupied_boat_strength", "normalized", 0.0D, 1.0D),
+        DISTURBANCE_SOURCE_OCCUPIED_BOAT_INTERVAL_TICKS("disturbance_source_occupied_boat_interval_ticks", "ticks", 1.0D, 20_000.0D);
 
         private final String id;
         private final String unit;
@@ -74,7 +108,8 @@ public final class SpeciesSettingsService {
         }
 
         public boolean accepts(double value) {
-            return Double.isFinite(value) && value >= minimum && value <= maximum;
+            return Double.isFinite(value) && value >= minimum && value <= maximum
+                    && (!"boolean".equals(unit) && !"reaction".equals(unit) || value == Math.rint(value));
         }
 
         public static Field parse(String value) {
@@ -179,6 +214,12 @@ public final class SpeciesSettingsService {
 
     public static List<Field> fields() {
         return List.of(Field.values());
+    }
+
+    public static Field disturbanceField(String sourceKind, String property) {
+        if (sourceKind == null || property == null) return null;
+        return Field.parse("disturbance_source_" + sourceKind.trim().toLowerCase(Locale.ROOT)
+                + "_" + property.trim().toLowerCase(Locale.ROOT));
     }
 
     public static long revision() {
@@ -384,6 +425,13 @@ public final class SpeciesSettingsService {
         }
         for (String species : targets) {
             Map<Field, Double> values = effectiveValues(current, species);
+            for (Field field : patch.keySet()) {
+                CapabilityResult capability = capability(species, field);
+                if (capability.capability() != Capability.SUPPORTED) {
+                    return species + ": " + field.id() + " is " + capability.capability().id()
+                            + " because " + capability.reason();
+                }
+            }
             values.putAll(patch);
             String pairError = validatePairs(values);
             if (pairError != null) return species + ": " + pairError;
@@ -443,9 +491,11 @@ public final class SpeciesSettingsService {
     }
 
     private static CapabilityResult capability(String species, Field field) {
-        // Mandatory movement, spawn and lifecycle fields are available for all current BFS
-        // registry entries. Consumers may later refine a field to not_applicable with a concrete
-        // reason without changing the transaction contract.
+        if (field.id().startsWith("disturbance_")
+                && SpeciesBehaviorProfile.forId(species).family() != SpeciesBehaviorProfile.Family.SHARK) {
+            return new CapabilityResult(Capability.NOT_APPLICABLE,
+                    "disturbance reaction policy is currently shark-only");
+        }
         return new CapabilityResult(Capability.SUPPORTED, "owned by the BFS species settings adapter");
     }
 
@@ -510,9 +560,36 @@ public final class SpeciesSettingsService {
             values.put(Field.ACTION_TIMEOUT, (double) profile.actionTimeoutTicks());
             values.put(Field.MEMORY_TICKS, (double) profile.memoryTicks());
             values.put(Field.SCAN_RADIUS, (double) profile.scanRadius());
+            values.put(Field.DISTURBANCE_ENABLED, 1.0D);
+            values.put(Field.DISTURBANCE_REACTION, 1.0D);
+            values.put(Field.DISTURBANCE_RADIUS, 24.0D);
+            values.put(Field.DISTURBANCE_SENSITIVITY, 1.0D);
+            values.put(Field.DISTURBANCE_INTERVAL_TICKS, 20.0D);
+            values.put(Field.DISTURBANCE_ALERT_TICKS, 100.0D);
+            values.put(Field.DISTURBANCE_BOAT_MOVEMENT_THRESHOLD, 0.02D);
+            putDisturbanceDefaults(values);
             baseline.put(species, values);
         }
         return baseline;
+    }
+
+    private static void putDisturbanceDefaults(EnumMap<Field, Double> values) {
+        putSourceDefaults(values, "swim_sprint", 1.0D, 0.5D, 5.0D);
+        putSourceDefaults(values, "attack", 1.0D, 1.0D, 10.0D);
+        putSourceDefaults(values, "damage", 1.0D, 1.0D, 5.0D);
+        putSourceDefaults(values, "block_break", 1.0D, 0.75D, 10.0D);
+        putSourceDefaults(values, "fall", 1.0D, 1.0D, 10.0D);
+        putSourceDefaults(values, "projectile", 1.0D, 0.5D, 5.0D);
+        putSourceDefaults(values, "water_entry", 1.0D, 0.5D, 20.0D);
+        putSourceDefaults(values, "water_jump", 1.0D, 0.5D, 20.0D);
+        putSourceDefaults(values, "occupied_boat", 1.0D, 0.5D, 10.0D);
+    }
+
+    private static void putSourceDefaults(EnumMap<Field, Double> values, String kind,
+                                          double enabled, double strength, double interval) {
+        values.put(disturbanceField(kind, "enabled"), enabled);
+        values.put(disturbanceField(kind, "strength"), strength);
+        values.put(disturbanceField(kind, "interval_ticks"), interval);
     }
 
     private static double[] defaultScaleRange(String species) {

@@ -2,6 +2,7 @@
 
 * [Project overview and setup](../README.md)
 * [Follow groups and feedback verification](verification/follow-groups-20260915.md)
+* [Held follow group verification](verification/follow-held-group-20260915.md)
 * [Debug and content plan validation](verification/bfs2-plan-validation.md)
 * [Phase 000 task 001 intake](verification/phase-000-task-001-intake-20260912.md)
 * [Phase 000 task 002 diagnostic verification](verification/phase-000-task-002-diagnostics-20260912.md)
@@ -39,6 +40,9 @@
 * [Phase 002 follow manifest](verification/phase-002-follow-manifest.json)
 * [Phase 003 baseline evidence](verification/phase-003/phase-003-evidence.md)
 * [Phase 003 baseline manifest](verification/phase-003/phase-003-manifest.json)
+* [BFS2 Phase 003 task 002 disturbance settings evidence](verification/bfs2-phase-003-task-002.md)
+* [BFS2 Phase 003 task 003 boat interest evidence](verification/bfs2-phase-003-task-003.md)
+* [BFS2 Phase 003 task 004 runtime gate evidence](verification/bfs2-phase-003-task-004.md)
 * [Phase 003 task 002 icon pipeline](verification/phase-003/phase-003-task-002-icons.md)
 * [Phase 003 task 003 advancement graph](verification/phase-003/phase-003-task-003-graph.md)
 * [Phase 003 task 004 advancement copy](verification/phase-003/phase-003-task-004-copy.md)

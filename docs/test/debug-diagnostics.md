@@ -12,7 +12,7 @@ The Gradle `:forge:Server` development task is a startup smoke test. It may not 
 
 ```text
 /bfs debug on
-/bfs debug on <all|movement|brain|combat|population|advancement|algae|follow> <20-36000> [targets]
+/bfs debug on <all|movement|brain|combat|population|advancement|algae|follow|disturbance|boat> <20-36000> [targets]
 /bfs debug status
 /bfs debug off
 ```
@@ -52,6 +52,21 @@ complete server baseline and preserves valid session overrides; an invalid basel
 as one transaction. The specialized aliases delegate to the same service and do not write TOML or
 create a persistent profile.
 
+The disturbance catalog uses the same session snapshot and revision. The global fields are
+`disturbance_enabled`, `disturbance_reaction`, `disturbance_radius`,
+`disturbance_sensitivity`, `disturbance_interval_ticks`, `disturbance_alert_ticks`, and
+`disturbance_boat_movement_threshold`. Per source fields use
+`disturbance_source_<kind>_enabled`, `disturbance_source_<kind>_strength`, and
+`disturbance_source_<kind>_interval_ticks`, where `<kind>` is `swim_sprint`, `attack`, `damage`,
+`block_break`, `fall`, `projectile`, `water_entry`, `water_jump`, or `occupied_boat`.
+The global `disturbance_interval_ticks` is the minimum interval and a source interval cannot
+shorten it. Boolean fields use `0` or `1`. Reaction `0` ignores, `1` alerts, and `2` investigates. The
+defaults are radius `24`, sensitivity `1`, alert lifetime `100` ticks, water entry and jump
+strength `0.5` with `20` tick intervals, occupied boat strength `0.5` with a `10` tick interval,
+and a `0.02` blocks per tick boat movement threshold. Effective decisions record the snapshot
+revision, species, radius, sensitivity, source strength and interval, effective threshold value,
+and one named reason. A non shark species reports an explicit not applicable capability.
+
 `/bfs debug on` captures the `all` category for 1,200 server ticks. Without an explicit target selector, it selects only loaded BFS living entities within 128 blocks of the command source. The selected list is capped at 32 entities. The header records the eligible, selected, and excluded counts, so an empty selection cannot be used as proof of an entity behavior check.
 
 Each server owns at most one session. A second `on` command reports the existing session without resetting its limits. A session ends at its requested tick duration, its wall time deadline, an explicit `off`, a source dimension loss, or server shutdown. The wall deadline is twice the requested tick duration at 20 ticks per second plus 30 seconds. Queue overflow, oversized records, write failure, source loss, and server shutdown mark the capture incomplete.
@@ -60,7 +75,7 @@ The active status line and terminal record expose the p95 nanoseconds spent in t
 
 ## Follow debug leases
 
-The follow tool uses server authority and permission level two. Issue a reusable marker to the command sender or another online player. Click each living mob to add it to the group. Release the use button before clicking again; a fresh click on a selected mob releases only that member.
+The follow tool uses server authority and permission level two. Issue a reusable marker to the command sender or another online player. Click each living mob to add it to the group. A held press is deduplicated per target, so you can add another mob without releasing the button. Release the use button before clicking a selected mob again; a fresh click on that mob releases only it.
 
 ```text
 /bfs debug followme [recipient]
@@ -93,6 +108,38 @@ The bounded failure paths have deterministic checks in `BfsDebugCaptureFailureTe
 Server captures are written under the server game directory at `logs/bfs-debug/bfs-debug-<timestamp>-<session>.jsonl`. The writer runs outside the logical server tick. It accepts at most 8,192 queued records, limits each record to 16 KiB, limits a session to 32 MiB, and retains no more than 256 MiB of server capture files. Capture files have a `bfs-debug-v2` JSONL header, samples or event records, and exactly one terminal record when they finish cleanly. Every record includes a monotonic sequence, UTC timestamp, and elapsed monotonic time so a trace can be rejected when ordering is corrupted.
 
 The server header identifies the mod, Minecraft, Forge, Java, GeckoLib, and SmartBrainLib versions. It also records GeckoLib's registered `geckolib:main` protocol version, the source revision or an explicit unavailable reason, artifact and configuration bindings, host role, side, tick rate, and units. `dedicated_server`, `integrated_server`, and `gametest_server` are distinct host roles. A GameTest run is server side evidence, but its `gametest_server` label must not be presented as a dedicated server or laptop client acceptance result.
+
+## Disturbance and boat source capture
+
+Use the `disturbance` category for typed swim, attack, damage, block break, fall, projectile, water entry and water jump events. Use the `boat` category for occupied moving boat events. Both categories require the same permission level two command and use the selected target and bounded capture limits described above.
+
+```text
+/bfs debug on disturbance 200 @e[tag=bfs2_probe,limit=8]
+/bfs debug on boat 200 @e[tag=bfs2_probe,limit=8]
+/bfs debug status
+/bfs debug off
+```
+
+The water producers use real server transitions. Place a tagged living actor just outside a shallow water boundary, move it into water, then make it leave upward without a three block fall. For a boat producer, seat a dry rider in a boat and move the boat at least `0.02` blocks per tick. An occupied boat event is throttled to one accepted event per ten server ticks. Empty, stationary, subthreshold and removed boats produce no accepted event.
+
+Great White boat interest uses the accepted occupied boat event as a low priority `boat_track`
+intent. The waypoint is behind the measured horizontal travel direction by the boat half width,
+the shark half width, and two blocks. The predicted approach is capped at twenty server ticks.
+The server rejects a turn beyond seventy five degrees, a blocked or non water body envelope, a
+stationary boat held for more than one hundred ticks, a missing rider, a dimension change, or a
+higher priority safety, follow, or combat owner. A valid follow lease always wins and remains
+individually releasable. The shark body route remains underwater and does not use fin exposure to
+place the body. Boat interest refreshes every ten ticks and never writes entity
+position, velocity, navigation, animation, player, or boat state directly.
+
+Decision records use `boat_track`, `higher_priority_intent`, `unsafe_route`, `turn_exceeds_bound`,
+`stationary_expired`, `boat_unavailable`, and `boat_tie_break` where applicable. The boat source
+record also retains the finite measured horizontal movement vector, so a capture can distinguish
+the boat's actual travel from a static source position.
+
+Source records retain a typed `sourceKind`, normalized `strength`, dimension, world tick, finite block position, pseudonymous source identity and nullable boat and rider identities. Decision records add the bounded eligible candidate count, source key count, boat correlation, threshold result and named outcome or rejection reason. Duplicate callbacks create a `disturbance.throttle` or `boat.throttle` record with `duplicate` and never create a second accepted source record. Source state is keyed by dimension, source identity and source kind, expires after a bounded interval, and is removed on entity or level unload. The listener retains no more than 4,096 source keys per level and the handler inspects no more than 64 eligible sharks for one event.
+
+Run `python3 -B tools/bfs_debug_analyze.py --help` before analysis, then validate the returned JSONL path with a phase manifest that requests `disturbance` or `boat` minimum events. The analyzer rejects raw UUIDs, unknown source kinds, nonfinite positions, out of range strength, missing correlation fields, invalid candidate or source key counts and incomplete terminal records. Keep only the sanitized parser result and the minimum source and decision excerpts after the bounded test.
 
 ## Movement route capture
 
