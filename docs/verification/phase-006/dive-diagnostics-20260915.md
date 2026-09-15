@@ -1,6 +1,6 @@
 # Phase 006 dive diagnostics evidence
 
-This packet records the bounded dive diagnostic and schema lifecycle work present on source commit `806ec1cca23b8c4a2d29132d9e53fb52c3c246fc`.
+This packet records the bounded dive diagnostic and schema lifecycle work present on source commit `0825114ec8c08b35f06acc1dbe9b395bf7606123`.
 
 ## Candidate identity
 
@@ -8,8 +8,8 @@ The Forge artifact was built from that commit with the checked in Gradle wrapper
 
 ```text
 artifact: forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar
-sha256: 56d4d9e5e7c8e593fab2cecc424a292a4703c14a683a7b5cfc634ebfbecc7913
-sha512: a01f96770c16a359fe69efb6b87982fb86dfd6d1ee86600f7bc4afce33a31797acedb5b71e0354b71b6f5ac4a427935a47201bba4f443ecb4aa83a834981e166
+sha256: fee46e18c90e3137af9ff2ccaeaf657e10c05fde948a6ef5f1c8a7f6554f8ca9
+sha512: 63f9b5a59e109d295c53b392c1897bc4d558bca8901aac637e8ceae42833369da8fd73b4a85a8e433fe93193295d3011789a31d29e55820a721c9b7499140a93
 ```
 
 The package contains the four dive item models, the supplied armor textures, the compatible geometry, the server diagnostics classes, and no dive recipe. Existing recipe resources remain unchanged.
@@ -22,7 +22,7 @@ The targeted command and schema fixture passed:
 ./gradlew :forge:GameTestServer --no-daemon --rerun-tasks -PbfsGameTestNamespaces=bfsdive -PbfsGameTestRunDir=forge/run/bfs2-p006-dive-gametest-20260915-schema-passed
 ```
 
-Three required tests passed. They cover full suit eligibility and landlike travel, the 6000 tick reserve and 20 tick per tick real air refill, and missing, established corrupt, and newer schema state. The existing `bfs_debug_dive` fixture also reached its capture assertions during the complete server run and verified pseudonymous player records, movement and oxygen fields, and a clean terminal footer.
+Four required tests passed. They cover full suit eligibility and landlike travel, the 6000 tick reserve and 20 tick per tick real air refill, missing, established corrupt, and newer schema state, and matched water and air break speed. The existing `bfs_debug_dive` fixture also reached its capture assertions during the complete server run and verified pseudonymous player records, movement and oxygen fields, and a clean terminal footer.
 
 The complete 95 test run passed all required tests, including `bfs_debug_dive`, with the capture schema and `oxygenSchema` fields intact.
 
