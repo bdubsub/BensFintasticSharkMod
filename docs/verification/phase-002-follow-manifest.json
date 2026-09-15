@@ -552,6 +552,23 @@
     ],
     "cleanup": "exact_disposable_runtime_client_stream_and_screenshots_removed_and_verified_absent"
   },
+  "restartMarkerClientAttempt20260915": {
+    "sourceCommit": "c5fc98172dfa8d2d4e062e9c23a10c6effee9c4f",
+    "artifactSha256": "b74d864d23fc5cc34213e8ea2bfd1ccdfe900e3481f5b7911b88cb1c32603a65",
+    "serverEndpoint": "100.76.164.109:25952",
+    "world": "bfs-p002-restart-gate-d",
+    "serverJava": "17.0.19",
+    "markerPersistence": "selected_marker_owner_and_issue_data_present_after_graceful_server_restart_and_client_reconnect",
+    "inputRoutes": [
+      "focused_xwayland_xtest",
+      "centered_pointer_xtest",
+      "evdev_uinput_button"
+    ],
+    "result": "unverified_no_post_restart_entity_interaction_callback",
+    "followStatus": "zero_selected_members_after_all_attempts",
+    "gate": "restart_marker_invalidation_remains_open",
+    "cleanup": "exact_server_client_runtime_stream_and_screenshots_removed_and_verified_absent"
+  },
   "finalBuildBinding20260915": {
     "sourceCommit": "db3a589",
     "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
