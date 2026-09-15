@@ -523,10 +523,10 @@
     "cleanup": "runtime_removed_and_verified_absent"
   },
   "finalBuildBinding20260915": {
-    "sourceCommit": "bc1be6b",
+    "sourceCommit": "db3a589",
     "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
-    "artifactSha256": "c13637fa370ce47003a36d55335e0d1a08aa3520c7a26031316112fe56494aa0",
-    "artifactSha512": "d3447013e2936013f9bef03927180f4bbcb7da6ec03072cbb56c62aff5d7cc51422c6c2c00eb4d0c0056b26413cce7580b56ca364549ac0e7268f5171b8dfc63",
+    "artifactSha256": "b74d864d23fc5cc34213e8ea2bfd1ccdfe900e3481f5b7911b88cb1c32603a65",
+    "artifactSha512": "129a0a75d492f11a010da7889f7ecb57c80b37145453b85d0219999c49a9d80b566adecec13aed8ced606275ce2def0fe267a1ef268582da5bccb72a2f148def",
     "checks": [
       "forge_compile_java",
       "forge_compile_test_java",
