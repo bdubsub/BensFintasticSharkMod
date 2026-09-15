@@ -947,6 +947,8 @@ public final class BfsFollowGameTests {
             int x = 5 + (i % 18);
             int z = 5 + (i / 18);
             Mob mob = helper.spawn(EntityType.COW, new BlockPos(x, 1, z));
+            mob.setInvulnerable(true);
+            mob.setSilent(true);
             members.add(mob);
             owner.stopUsingItem();
             interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, mob));
@@ -960,7 +962,7 @@ public final class BfsFollowGameTests {
             helper.assertTrue(stats.evaluations() >= 321,
                     "the fair queue must service every member, observed " + stats.evaluations());
             helper.assertTrue(BfsFollowManager.selectedCount(owner) == 321,
-                    "deferring route work must never evict a member");
+                    "deferring route work must never evict a member, status " + BfsFollowManager.status(owner));
             BfsFollowManager.stop(owner, "scheduler_fixture");
             owner.remove(Entity.RemovalReason.DISCARDED);
             members.forEach(mob -> mob.remove(Entity.RemovalReason.DISCARDED));
