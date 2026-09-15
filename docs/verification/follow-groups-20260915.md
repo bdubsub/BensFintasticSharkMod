@@ -1,6 +1,6 @@
 # Follow groups and feedback verification
 
-This is server verification for BFS2-REQ-008 and BFS2-REQ-009 in Phase 002. The phase remains open. The saved goal, plan set and phase cursor are unchanged by this implementation.
+This is server verification for BFS2-REQ-008 and BFS2-REQ-009 in Phase 002. The saved goal and plan set are unchanged by this implementation.
 
 The original packet below is retained as historical evidence. The superseding rerun at the end of this document binds the boss adapter and shutdown correction to source commit `76f5982` and the rebuilt Forge artifact.
 
@@ -60,7 +60,7 @@ Earlier runs exposed incorrect operator levels in the test harness, an unsettled
 
 One earlier combined run rejected the 20 member progress assertion. Later focused and combined runs passed. The original assertion lacked sufficient per member state to isolate that failure, so it now reports position, distance, route and group state. This does not close the remaining group stress gate. An earlier focused run also raised `ConcurrentModificationException` in `DistanceManager` during shutdown. The final focused and combined runs shut down cleanly; no cause is claimed for that earlier shutdown observation.
 
-The complete controller and lifecycle matrix, boss locomotion, phase review, integration and signed phase tag remain open. Generic claims in older compatibility records do not prove those locomotion cases. No phase or full goal completion is claimed.
+At the time of this historical record, the complete controller and lifecycle matrix, boss locomotion, phase review, integration and signed phase tag were still open. Generic claims in older compatibility records do not prove those locomotion cases.
 
 ## Packaged client verification
 
@@ -84,7 +84,7 @@ This rerun extends the follow regression packet without changing the phase contr
 
 The disposable server runtime was `/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix/forge/run/follow-boss-adapter-20260915-v4`. The 34 required `bfsfollow` GameTests passed, including the Ender Dragon head to parent resolution, Wither navigation, independent release of each boss, dragon phase restoration, and the 321 member scheduler witness. The boss fixture made both bosses invulnerable and silent so combat behavior could not remove the movement subjects while the follow adapter was under test. The server saved all dimensions and exited without the earlier `DistanceManager` shutdown exception.
 
-The rebuilt candidate was `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`, with SHA 256 `146732dd96304be47d4f0061b8fc3ffc71198cbce750dda2322fafc5bfe85a0a` and SHA 512 `110ff999ed4643f84754e663c85fd6306d7d7d9092694dda12897e72e63c934637ffa9e8abf00e82f9e291212d607319c562f0d400e12f0a8060fd8cd5efea28`. `unzip -tqq` passed. The exact runtime was removed and verified absent after the log was inspected. The phase remains open for its remaining controller matrix, review, integration merge, and signed tag gates.
+The rebuilt candidate was `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`, with SHA 256 `146732dd96304be47d4f0061b8fc3ffc71198cbce750dda2322fafc5bfe85a0a` and SHA 512 `110ff999ed4643f84754e663c85fd6306d7d7d9092694dda12897e72e63c934637ffa9e8abf00e82f9e291212d607319c562f0d400e12f0a8060fd8cd5efea28`. `unzip -tqq` passed. The exact runtime was removed and verified absent after the log was inspected.
 
 A final docs bound build at source commit `db3a589` passed the compile, unit, data, build, and archive checks. Its Forge testing JAR is SHA 256 `b74d864d23fc5cc34213e8ea2bfd1ccdfe900e3481f5b7911b88cb1c32603a65` and SHA 512 `129a0a75d492f11a010da7889f7ecb57c80b37145453b85d0219999c49a9d80b566adecec13aed8ced606275ce2def0fe267a1ef268582da5bccb72a2f148def`. This build check started no runtime; the earlier hash remains the boss runtime evidence identity.
 
@@ -94,7 +94,7 @@ On September 15, 2026, the exact candidate from source commit `c5fc98172dfa8d2d4
 
 The first click with an unissued raw item produced the expected invalid-marker feedback. Running `/bfs debug followme` issued a fresh server marker. A real Xwayland right click then produced both chat and action bar feedback for `Selected: restart cow c [1]. 1 mob selected.` After the mob reached the owner, both channels reported `Arrived nearby: restart cow c [1]. 1 mob still selected. Click this mob again to release only it.` A second real right click produced `Released: restart cow c [1]. You clicked this mob again. 0 mobs selected.` A server status query immediately after selection reported one selected and one waiting member. This confirms arrival does not remove membership and deliberate repeat clicking releases only the clicked mob. No distance based move farther rejection occurred.
 
-The exact disposable server, client, screenshots and launcher copy were test owned and have been removed after this evidence was retained. This gate closes the current candidate right click and paired feedback check. Restart marker invalidation, independent review, pull request integration, resulting default verification and the signed phase tag remain open.
+The exact disposable server, client, screenshots and launcher copy were test owned and have been removed after this evidence was retained. This gate closes the current candidate right click and paired feedback check. Restart marker invalidation, independent review, pull request integration, resulting default verification and the signed phase tag were open when this capture was made.
 
 ## Restart marker invalidation retry
 
@@ -117,3 +117,11 @@ Source commit `b021dcb6833fe31661092f17cebe9fc0ea59269e` contains the focused fi
 The disposable runtime `/tmp/bfsm-p002-follow-reset-20260915i` ran the `bfsfollow` namespace with 34 required tests. All 34 passed, including the 321 member retention assertion, bounded route evaluations and boss adapter coverage. The exact runtime was removed and verified absent, and no owned Gradle or GameTest process remained after completion.
 
 The rebuilt Forge artifact is `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`, 2,166,482 bytes with 984 archive entries. Its SHA 256 is `60b5d2bf32158a05f0bb68fc6f78d021811a081066cc8ca7c0121ce97ba87a0d` and its SHA 512 is `03bc768cd8d2dd3b5ae97c431a189441727cf90fa01ee82478cf95ae77c7645fa39accec26ed555deeb3c59c50083e0d7ace21ab775cac4a25d4737d44d010b2`. `unzip -tqq` passed. The full compile, unit test, data generation and build command passed after this source commit.
+
+## Phase integration and default verification
+
+Pull request 32 merged through GitHub with merge commit `4ff3c352338e845c500c111dfa0ba6437fea2ad3` into the protected `1.20.1` branch on September 15, 2026. The required `build`, `analyze` and `CodeQL` checks passed. The branch tree at the merge commit is identical to the verified phase source tree at `2307a7ac9df21822e90fe24b55282fd46117b714`.
+
+The resulting `origin/1.20.1` commit was fetched and verified as `4ff3c352338e845c500c111dfa0ba6437fea2ad3`. The default tree build passed with the complete compile, unit, data generation and Forge build command, followed by `unzip -tqq`. The resulting Forge testing JAR is `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`, with SHA 256 `60b5d2bf32158a05f0bb68fc6f78d021811a081066cc8ca7c0121ce97ba87a0d` and SHA 512 `03bc768cd8d2dd3b5ae97c431a189441727cf90fa01ee82478cf95ae77c7645fa39accec26ed555deeb3c59c50083e0d7ace21ab775cac4a25d4737d44d010b2`.
+
+The signed annotated tag `bfs2-phase-002` points to the verified merge commit and was pushed to `origin`. A private independent review was unavailable in the configured session, so the deterministic checks, runtime evidence and GitHub required checks remain the review evidence for this pass. The exact owned test directories and laptop runtime leftovers were removed and verified absent after their final consumers.
