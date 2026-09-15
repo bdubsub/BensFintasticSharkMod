@@ -149,10 +149,11 @@ public final class BfsFollowManager {
         }
         Entity target = resolveTarget(event.getTarget());
         ClaimResult result = claim(owner, target, event.getItemStack());
-        if (!result.accepted()) {
+        boolean activeDuplicate = activeLeaseFor(owner, target);
+        if (!result.accepted() && !activeDuplicate) {
             sendRejectionFeedback(owner, result.reason());
         }
-        if (result.accepted()) {
+        if (result.accepted() || activeDuplicate) {
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
         }
@@ -165,13 +166,19 @@ public final class BfsFollowManager {
         }
         Entity target = resolveTarget(event.getTarget());
         ClaimResult result = claim(owner, target, event.getItemStack());
-        if (!result.accepted()) {
+        boolean activeDuplicate = activeLeaseFor(owner, target);
+        if (!result.accepted() && !activeDuplicate) {
             sendRejectionFeedback(owner, result.reason());
         }
-        if (result.accepted()) {
+        if (result.accepted() || activeDuplicate) {
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
         }
+    }
+
+    private static boolean activeLeaseFor(ServerPlayer owner, Entity target) {
+        Lease lease = BY_OWNER.get(owner.getUUID());
+        return lease != null && target != null && lease.targetId.equals(target.getUUID());
     }
 
     private static ClaimResult claim(ServerPlayer owner, Entity target, ItemStack marker) {

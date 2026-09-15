@@ -121,6 +121,14 @@ public final class BfsFollowGameTests {
         helper.assertTrue(duplicate.isCanceled(), "the duplicate interaction callback must stay consumed");
         helper.assertTrue(BfsFollowManager.status(owner).following(),
                 "the duplicate callback must leave the original follow lease active");
+        owner.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        PlayerInteractEvent.EntityInteractSpecific missingMarkerDuplicate = new PlayerInteractEvent.EntityInteractSpecific(
+                owner, InteractionHand.MAIN_HAND, target, Vec3.ZERO);
+        BfsFollowManager.onEntityInteractSpecific(missingMarkerDuplicate);
+        helper.assertTrue(missingMarkerDuplicate.isCanceled(),
+                "an active lease callback must stay consumed when its duplicate stack is empty");
+        helper.assertTrue(BfsFollowManager.status(owner).following(),
+                "a duplicate callback with an empty stack must not drop the active lease");
         BfsFollowManager.stop(owner, "duplicate_callback_fixture");
         owner.remove(Entity.RemovalReason.DISCARDED);
         target.remove(Entity.RemovalReason.DISCARDED);
