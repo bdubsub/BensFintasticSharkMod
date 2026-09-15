@@ -94,5 +94,6 @@
 * [Dive equipment and oxygen support](test/dive-equipment.md)
 * [Phase 006 task 001 entry evidence](verification/phase-006/phase-006-task-001-entry.md)
 * [Phase 006 dive GameTest evidence](verification/phase-006/phase-006-task-004-dive-gametest.md)
+* [Phase 006 dive diagnostics evidence](verification/phase-006/dive-diagnostics-20260915.md)
 
 Gameplay and technical documentation describe released or currently implemented behavior. The [debug and content implementation plan](general/plan.md) defines the next pass across eight phases. Its [phase manifest](general/plan.index.json) registers the execution blueprints, and its [research package](general/research/brief.md) records the supporting evidence and resolved product decisions. Planned behavior is not yet implemented. Historical evidence remains available, and unresolved performance work is recorded in [issue 28](https://github.com/bdubsub/BensFintasticSharkMod/issues/28) and [pull request 29](https://github.com/bdubsub/BensFintasticSharkMod/pull/29). The previous planning reset did not mark that work complete.
