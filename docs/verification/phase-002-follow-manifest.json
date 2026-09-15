@@ -141,7 +141,7 @@
     "cleanup": "runtime_removed_and_verified_absent"
   },
   "privateSecurityReview": {
-    "sourceCommit": "91c854c",
+    "sourceCommit": "140ff9dc036116654e775501f2b86cd07fdfa8d7",
     "result": "no_confirmed_exploitable_finding",
     "scope": [
       "permission_level_two_command_entry",
@@ -153,8 +153,15 @@
       "follow_diagnostic_redaction"
     ],
     "residualRisk": [
-      "real_process_restart_marker_click_invalidation_requires_final_laptop_input_capture"
-    ]
+      "real_process_restart_marker_click_invalidation_requires_final_laptop_input_capture",
+      "issued_marker_for_an_unprivileged_recipient_is_rejected_at_claim_time_by_design"
+    ],
+    "tooling": {
+      "codegraph": "used_before_source_review",
+      "gitleaks": "unavailable",
+      "heuristic_secret_scan": "no_matches",
+      "diff_check": "passed"
+    }
   },
   "thirdPartyArtifact": {
     "result": "pinned_production_startup_and_current_candidate_laptop_follow_claim_verified",
