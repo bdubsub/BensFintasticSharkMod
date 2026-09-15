@@ -1,6 +1,7 @@
 package tfar.bensfintasticsharks.client;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -405,9 +406,9 @@ public final class BfsClientDebugManager {
         record.addProperty("render.selected", false);
         record.addProperty("render.reason", unavailable);
         record.addProperty("render.resourceReloadGeneration", RENDER_RESOURCES.reloadGeneration());
-        record.add("render.textureHash", null);
-        record.add("render.maskHash", null);
-        record.add("render.alphaBackgroundCheck", null);
+        record.add("render.textureHash", JsonNull.INSTANCE);
+        record.add("render.maskHash", JsonNull.INSTANCE);
+        record.add("render.alphaBackgroundCheck", JsonNull.INSTANCE);
     }
 
     private static void addControllerSnapshot(JsonObject record, Entity entity) {
