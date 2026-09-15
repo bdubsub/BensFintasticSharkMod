@@ -26,4 +26,4 @@ The analyzer command used the candidate manifest for `BFS2-REQ-013` and returned
 
 ## Cleanup
 
-The owned laptop client and launcher remain running only until the final phase audit completes. The exact Java playback stream is muted and at zero volume. The disposable server and isolated client are retained for the remaining checksum and cleanup audit, then will be stopped and removed. Protected repository paths were not modified.
+The owned laptop client and launcher exited. The matched Java playback stream is absent. The disposable node 1 server and its private ports were stopped. The isolated client instance, disposable server runtime, captures, screenshots, manifests, analysis output, and test run directories were removed from both hosts. Protected repository paths were not modified.
