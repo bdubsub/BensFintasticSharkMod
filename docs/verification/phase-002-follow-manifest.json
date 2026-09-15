@@ -521,5 +521,21 @@
     ],
     "fixtureIsolation": "bosses_invulnerable_and_silent_to_keep_combat_from_removing_follow_subjects",
     "cleanup": "runtime_removed_and_verified_absent"
+  },
+  "finalBuildBinding20260915": {
+    "sourceCommit": "bc1be6b",
+    "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
+    "artifactSha256": "c13637fa370ce47003a36d55335e0d1a08aa3520c7a26031316112fe56494aa0",
+    "artifactSha512": "d3447013e2936013f9bef03927180f4bbcb7da6ec03072cbb56c62aff5d7cc51422c6c2c00eb4d0c0056b26413cce7580b56ca364549ac0e7268f5171b8dfc63",
+    "checks": [
+      "forge_compile_java",
+      "forge_compile_test_java",
+      "forge_test",
+      "forge_data",
+      "forge_build",
+      "unzip_test"
+    ],
+    "result": "passed",
+    "cleanup": "no_runtime_started_by_this_build_check"
   }
 }
