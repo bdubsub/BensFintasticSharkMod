@@ -12,7 +12,7 @@
     "P002-TASK-004",
     "P002-TASK-005"
   ],
-  "status": "open",
+  "status": "complete",
   "candidate": {
     "sourceCommit": "140ff9dc036116654e775501f2b86cd07fdfa8d7",
     "artifactSha256": "d4ea9dee317fe879fb91e52f27cd1b8ccbb84d86f866b514260bb7977c41d051",
@@ -634,5 +634,29 @@
       "unzip_test"
     ],
     "cleanup": "runtime_removed_and_verified_absent_no_owned_process_remained"
+  },
+  "phaseIntegration20260915": {
+    "pullRequest": 32,
+    "mergeCommit": "4ff3c352338e845c500c111dfa0ba6437fea2ad3",
+    "defaultBranch": "1.20.1",
+    "defaultBranchCommit": "4ff3c352338e845c500c111dfa0ba6437fea2ad3",
+    "requiredChecks": {
+      "build": "passed",
+      "analyze": "passed",
+      "CodeQL": "passed"
+    },
+    "privateIndependentReview": "unavailable_in_configured_session",
+    "treeIdentity": "merge_tree_matches_verified_phase_source",
+    "defaultVerification": {
+      "command": "forge_compile_java forge_compile_test_java forge_test forge_data forge_build unzip_test",
+      "result": "passed",
+      "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
+      "artifactSha256": "60b5d2bf32158a05f0bb68fc6f78d021811a081066cc8ca7c0121ce97ba87a0d",
+      "artifactSha512": "03bc768cd8d2dd3b5ae97c431a189441727cf90fa01ee82478cf95ae77c7645fa39accec26ed555deeb3c59c50083e0d7ace21ab775cac4a25d4737d44d010b2"
+    },
+    "phaseTag": "bfs2-phase-002",
+    "phaseTagTarget": "4ff3c352338e845c500c111dfa0ba6437fea2ad3",
+    "phaseTagSignature": "verified_envisione_ssh_key",
+    "cleanup": "exact_test_and_client_leftovers_absent"
   }
 }
