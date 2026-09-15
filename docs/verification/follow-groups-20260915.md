@@ -102,6 +102,14 @@ A separate retry used the same source and artifact in disposable world `bfs-p002
 
 The post restart right click was attempted through the focused Xwayland window, an explicit centered pointer, repeated XTest button events and a short evdev uinput button event. The follow status stayed at zero selected members and no claim or rejection callback was captured. Because the click callback itself was not observed, this retry does not prove the stale marker rejection outcome. The restart marker invalidation gate remains open. The exact server, client, screenshots and launcher copy were removed and verified absent after the retry.
 
+## Restart marker invalidation production rerun
+
+Source commit `b021dcb6833fe31661092f17cebe9fc0ea59269e` and Forge artifact SHA 256 `60b5d2bf32158a05f0bb68fc6f78d021811a081066cc8ca7c0121ce97ba87a0d` were exercised in a disposable production Forge server and client pair. The server used Forge `47.2.0`, Java `17.0.19`, the pinned Alex's Mobs and Citadel dependencies, and endpoint `100.76.164.109:25953`. The world was `bfs-p002-restart-proof-20260915`. The laptop client used Java `17.0.15` on the NVIDIA GeForce RTX 5090 Laptop GPU. Client PID `4023683` used PipeWire stream `148`, and `wpctl get-volume 148` reported `Volume: 1.00 [MUTED]` before the post restart assertion.
+
+The first session issued a marker with `/bfs debug followme`, and a real Xwayland right click selected the spawned cow. Client chat recorded `Selected: restart proof cow [1]. 1 mob selected.` followed by the expected paused transition. The server then stopped gracefully, saved all dimensions, and restarted the same world. The client rejoined with the old marker still held. A second real Xwayland right click on the same cow produced client chat `This Follow Debug Stick is invalid. Issue a fresh stick with /bfs debug followme.` The server recorded no new follow claim after restart. This closes stale marker invalidation across a real server restart and reconnect.
+
+The exact server runtime, client instance, launcher logs, screenshots, stream and processes were removed and verified absent after the assertion. No personal instance or default audio device was changed.
+
 ## Scheduler witness fixture stability rerun
 
 Source commit `b021dcb6833fe31661092f17cebe9fc0ea59269e` contains the focused fixture stabilization. Each of the 321 scheduler witness cows is invulnerable and silent so entity cramming cannot remove a member while the test measures queue retention. The production follow manager is unchanged by this fixture adjustment.
