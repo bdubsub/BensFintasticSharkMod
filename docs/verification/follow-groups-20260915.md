@@ -4,13 +4,13 @@ This is server verification for BFS2-REQ-008 and BFS2-REQ-009 in Phase 002. The 
 
 ## Source and candidate
 
-* Source commit: `3ffa91d610447b22852921f5b310814df3a44fd6` on `envy/bfs2-phase-002`.
+* Source commit: `4d3c4bf063618b5b16cf5c1430332ec47da60890` on `envy/bfs2-phase-002`.
 * Target: Minecraft 1.20.1, Forge 47.2.0, Java 17.0.19 and SmartBrainLib 1.14.2.
-* Candidate: `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`, 2,162,230 bytes and 983 archive entries.
-* SHA 256: `99cf56f133a023ec6a217d27aa6e716f522a6b12aa590b9c318edc31c40f6b16`.
-* SHA 512: `9108006373c2ca22cba7de227f16d0cb5f834a5055771bbc406e91bf3b9cdada358852cf302628c9cc2ea6f46a59deb92f7c166c2b2e7f69bf625ea461e899aa`.
+* Candidate: `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`, 2,164,376 bytes and 984 archive entries.
+* SHA 256: `bfd23944b647f5cc0d2b5edbd5c1c92ba2d19055189c9e443c739e99914f50f0`.
+* SHA 512: `111c143143c2be2d2b2ad9a5b5e7bac5a70f362845305bc19d177221e0a853470bf484c2f4194cbd2f7a481ed1cec6fcbb4298e9a00e141b002c8195318ffb5c`.
 
-The candidate is retained for the next matching packaged runtime checks. It has not been installed or visually accepted on the laptop, integrated into `1.20.1`, or published as a release.
+The candidate was installed in a disposable packaged client and server pair for the live interaction check. It has not been integrated into `1.20.1` or published as a release.
 
 ## Implemented behavior
 
@@ -40,7 +40,7 @@ The final combined run finished on September 15, 2026 UTC. It used the actual `f
 | Diff and credential checks | Passed, including the tracked text scan |
 | Final server shutdown | All dimensions saved and the process exited cleanly |
 
-The follow fixtures cover a moving 20 member group, a second owner movement without reclaiming, individual release of every member, 33 simultaneous memberships, a 321-member scheduler witness, paging, ownership conflict, reissue, held input deduplication, two feedback channels, retention beyond 2,400 ticks, marker and permission loss, slime navigation, shark route ownership against prey, controller restoration, and native fire escape. The scheduler witness observed at least one route evaluation for every member and a peak of no more than 32 route evaluations in one server tick. These are server fixtures. They do not prove a real client press or visible network delivery.
+The follow fixtures cover a moving 20 member group, a second owner movement without reclaiming, individual release of every member, 33 simultaneous memberships, a 321-member scheduler witness, paging, ownership conflict, reissue, held input deduplication, two feedback channels, retention beyond 2,400 ticks, marker and permission loss, slime navigation, shark route ownership against prey, controller restoration, and native fire escape. The scheduler witness observed at least one route evaluation for every member and a peak of no more than 32 route evaluations in one server tick.
 
 The real capture came from `followCaptureWritesPrivateGroupTransitions`. Its SHA 256 is `6cd10acda68157a6fbcd62b2ee0cfecbeb929bd8804b7f53e89660ad563750da`. The independent parser verified its closing record and monotonic tick order. Raw captures were removed after validation.
 
@@ -58,12 +58,18 @@ Earlier runs exposed incorrect operator levels in the test harness, an unsettled
 
 One earlier combined run rejected the 20 member progress assertion. Later focused and combined runs passed. The original assertion lacked sufficient per member state to isolate that failure, so it now reports position, distance, route and group state. This does not close the remaining group stress gate. An earlier focused run also raised `ConcurrentModificationException` in `DistanceManager` during shutdown. The final focused and combined runs shut down cleanly; no cause is claimed for that earlier shutdown observation.
 
-The 321 member scheduler witness, complete controller and lifecycle matrix, actual pinned third party fixture, boss locomotion, exact laptop input and visible feedback, packaged server and client acceptance, phase review, integration and signed phase tag remain open. Generic claims in older compatibility records do not prove those locomotion cases. No phase or full goal completion is claimed.
+The complete controller and lifecycle matrix, actual pinned third party fixture, boss locomotion, phase review, integration and signed phase tag remain open. Generic claims in older compatibility records do not prove those locomotion cases. No phase or full goal completion is claimed.
+
+## Packaged client verification
+
+The exact candidate was run on the `envision` laptop against a disposable production Forge server at `100.76.164.109:25870`. The host reported an NVIDIA GeForce RTX 5090 Laptop GPU, Java 17.0.15, Forge 47.2.0 and the Xwayland Minecraft window at PID `3265310`. The client used the pinned Alex's Mobs, Citadel, SmartBrainLib and GeckoLib dependencies recorded in the phase manifest. The client master volume was `0.0`, and the Java playback stream for that PID reported `Mute: yes`.
+
+The real right click path produced visible chat feedback for each state. The operator selected `follow cow alpha [1]`, received waiting and resumption messages, received a blocked route pause, selected `follow cow gamma [2]` while alpha remained selected, and then right clicked gamma again. The release message reported `Released: follow cow gamma [2]. You clicked this mob again. 1 mob selected.` The server status immediately afterward showed alpha still selected and following. This verifies independent group membership and individual release at the same distance without the old move farther away rejection.
 
 ## Cleanup
 
-Both owned runtimes and their worlds, captures, logs and generated configuration were removed and verified absent after their last consumer. All owned runtime and build processes exited. Seventy seven newly created test build files were removed. Preexisting build files, shared dependency caches, protected untracked data and the candidate JAR were preserved. The private audit scratch files were removed after this sanitized evidence was saved.
+Both owned runtimes and their worlds, captures, logs and generated configuration were removed and verified absent after their last consumer. The disposable Prism client copy, screenshots and installer were removed after the live evidence was saved. All owned runtime, launcher and client processes exited. Seventy seven newly created test build files were removed. Preexisting build files, shared dependency caches, protected untracked data and the owner Prism instance were preserved. The owner instance jar still matched `f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef` and its master volume remained `0.0`.
 
-The laptop check was read only. Its existing Hyprland session and NVIDIA GeForce RTX 5090 Laptop GPU were reachable, and it had no Minecraft window. No laptop runtime, audio stream or screenshot was created or changed by this verification.
+The laptop check used only the disposable instance and the existing Hyprland session. No personal instance, default audio sink or unrelated stream was changed.
 
 See the [follow support guide](../test/debug-diagnostics.md) for current commands and interpretation.

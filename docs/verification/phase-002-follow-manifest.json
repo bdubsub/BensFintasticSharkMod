@@ -413,12 +413,12 @@
     "cleanup": "run_directory_removed_and_verified_absent"
   },
   "currentGroupFollowEvidence": {
-    "sourceCommit": "3ffa91d610447b22852921f5b310814df3a44fd6",
+    "sourceCommit": "4d3c4bf063618b5b16cf5c1430332ec47da60890",
     "document": "follow-groups-20260915.md",
     "status": "server_regressions_passed_phase_open",
     "combinedRequiredGameTests": 123,
-    "focusedRequiredGameTests": 32,
-    "clientInput": "unverified",
+    "focusedRequiredGameTests": 33,
+    "clientInput": "verified_real_xwayland_right_click",
     "schedulerWitness": {
       "test": "threeHundredTwentyOneFollowersUseFairBoundedScheduler",
       "requiredGameTests": 33,
@@ -427,5 +427,34 @@
       "allMembersServiced": true,
       "result": "passed"
     }
+  },
+  "clientVerification20260915": {
+    "sourceCommit": "4d3c4bf063618b5b16cf5c1430332ec47da60890",
+    "artifactSha256": "bfd23944b647f5cc0d2b5edbd5c1c92ba2d19055189c9e443c739e99914f50f0",
+    "artifactSha512": "111c143143c2be2d2b2ad9a5b5e7bac5a70f362845305bc19d177221e0a853470bf484c2f4194cbd2f7a481ed1cec6fcbb4298e9a00e141b002c8195318ffb5c",
+    "serverEndpoint": "100.76.164.109:25870",
+    "host": "envision",
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "forge": "47.2.0",
+    "java": "17.0.15",
+    "clientWindowPid": 3265310,
+    "dependencySha256": {
+      "alexsmobs-1.22.9": "16bc5bcc19db9029c24f951346ec71098e6f5b0afef96e61894a2e9407aad37c",
+      "citadel-2.6.0": "549596de295d90a84ee70625076087a9724dabca1de0567ef6ef03435aab7d5d",
+      "smartbrainlib-1.14.2": "3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b",
+      "geckolib-4.4.7": "6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0"
+    },
+    "audio": "master volume 0.0 and current java playback stream mute verified",
+    "result": "real_client_group_selection_and_individual_release_verified",
+    "chatOutcomes": [
+      "Selected: follow cow alpha [1]. 1 mob selected.",
+      "Waiting nearby: follow cow alpha [1]. 1 mob still selected.",
+      "Following again: follow cow alpha [1]. 1 mob selected.",
+      "Paused: follow cow alpha [1]. Waiting for a safe reachable route. 1 mob still selected.",
+      "Selected: follow cow gamma [2]. 2 mobs selected.",
+      "Released: follow cow gamma [2]. You clicked this mob again. 1 mob selected."
+    ],
+    "finalServerStatus": "alpha remains selected and following after gamma release",
+    "cleanup": "complete_server_client_audio_runtime_disposable_instance_and_screenshots_removed_and_verified"
   }
 }
