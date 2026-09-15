@@ -137,7 +137,7 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
     @Override
     protected void onSharkTick() {
         super.onSharkTick();
-        if (MovementIntentOverrides.active(this)) return;
+        if (MovementIntentOverrides.active(this) || FollowMovementOwners.suppressOrdinary(this)) return;
         if (level().isClientSide) return;
         if (biteFlash > 0) biteFlash--;
         if (recentItemCooldown > 0 && --recentItemCooldown == 0) {

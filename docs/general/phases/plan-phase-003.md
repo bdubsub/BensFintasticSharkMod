@@ -187,20 +187,24 @@ The accountable owner is Repository maintainer. The component scope is disturban
       "id": "IFC-004",
       "signature": {
         "lease": {
-          "version": "int=1",
+          "version": "int=2",
           "token": "server issued opaque nonce",
           "owner": "UUID",
           "mob": "UUID",
           "dimension": "registry ID",
           "adapter": "capability ID",
           "startedTick": "long",
-          "expiresTick": "long",
           "lastProgressTick": "long",
-          "ownedIntentId": "opaque string"
+          "ownedIntentId": "opaque string",
+          "state": "following|waiting|paused",
+          "pauseReason": "bounded enum|null"
         },
-        "claim": "claim(serverPlayer, clickedEntity, markedStack, hand, interactionId) -> Lease|Rejected(reason)",
-        "tick": "tick(lease, level) -> active|blocked|released(reason)",
-        "release": "release(lease, reason) -> restoration result"
+        "claim": "claim(serverPlayer, clickedEntity, markedStack, hand, interactionId) -> Selected(Lease)|Released(restoration)|IgnoredDuplicate|IgnoredUnrelated|Rejected(reason)",
+        "tick": "tick(lease, level) -> following|waiting|paused(reason)|released(reason)",
+        "release": "release(lease, reason) -> restoration result",
+        "releaseAll": "releaseAll(serverPlayer, reason) -> releasedCount, remainingCount, restoration results",
+        "status": "status(serverPlayer, page: int>=1) -> groupRevision, selectedCount, followingCount, waitingCount, pausedCount, pageCount, entries[0,10]",
+        "feedback": "notify(owner, interactionId|null, eventSequence, groupRevision, targetAlias|null, outcome, reason, selectedCount) -> localized chat and action bar receipt"
       },
       "acceptance_ids": [
         "BFS2-AC-008",
@@ -273,7 +277,7 @@ IFC-001 records are emitted from the server event producer, throttle, reaction d
 | IFC-001 | BFS2-PHASE-000 | Default off bounded capture with status, stop footer, redaction, parser, and permission level 2. | Run existing control self tests before adding `disturbance` and `boat` payloads. | Stop dependent assertion if capture cannot report complete status or parser compatibility. |
 | IFC-002 | BFS2-PHASE-001 | Immutable revisioned snapshot with atomic mutation, reset, reload, fields, provenance, and capability reasons. | Readback every new disturbance field and assert one revision per accepted edit. | Reject incomplete field catalog or stale revision with the existing transaction path. |
 | IFC-003 | BFS2-PHASE-001 | One final travel writer, known priority, conservative body and fin envelope, bounded recovery. | Confirm boat intent is below safety, follow, and combat before route tests. | Do not introduce a second controller. Route to safe recovery or stop on ownership conflict. |
-| IFC-004 | BFS2-PHASE-002 | Follow lease exposes owner, target, intent, and release state without stale references. | Fixture competing follow against boat acquisition and release. | Follow remains authoritative. Boat intent stays suppressed or is released. |
+| IFC-004 | BFS2-PHASE-002 | Follow lease exposes owner, target, intent, and release state without stale references. | Fixture two independently selected Great Whites against boat acquisition, including waiting and recoverable pause, then release only one and verify the other remains selected. | Follow remains authoritative. Boat intent stays suppressed or is released. |
 | EXT-001 | Existing laptop and private controls | Laptop only client capability, renderer, quiet owned stream, and private server route can be revalidated. | Perform the full silent client and joined world gate before client assertions. | Keep client rows unverified and record the exact missing capability. |
 | EXT-002 | Repository signing and merge capability | EnVy author identity, signing key, GitHub checks, protected default, and merge commit workflow. | Revalidate immediately before commit, tag, and merge actions. | Stop integration before a failed signature or unmet check. |
 
@@ -313,7 +317,7 @@ The decision consumes one resolved snapshot. It reports `ignored` with distinct 
 
 Only a Great White that is eligible under resolved disturbance policy may acquire an occupied moving boat. From actual horizontal travel direction, compute the waypoint behind the boat by at least boat half length plus scaled shark half length plus two blocks. Predict no more than 20 ticks and retain existing turn bounds. Call IFC-005 `boatTarget`, then IFC-003 `evaluate`; publish a `boat` owned `boat_track` intent only when the conservative swept body is wet and solid clear. A positive fin exposure is allowed only where the current route and depth permit it. The body never follows the fin above the surface.
 
-Arbitration is exact: safety and survival recovery outrank follow, follow outranks combat, combat outranks boat, and boat outranks ordinary navigation. A preexisting valid boat target persists to avoid oscillation. Multiple candidates use nearest safe candidate then stable UUID tie break. Reevaluate every 10 ticks. Dismount, removal, wrong dimension, and unsafe route release within 20 ticks; a stationary boat expires at 100 ticks. On rejection or loss, clear only the boat owned intent, brake or replan to a safe wet waypoint, apply configured stall and retry bounds, then return to ordinary safe recovery. Do not alter combat memories, follow lease data, boat state, rider state, or damage behavior.
+Arbitration is exact: safety and survival recovery outrank follow, follow outranks combat, combat outranks boat, and boat outranks ordinary navigation. Check IFC-004 ownership per mob, including waiting and recoverable pause, rather than assuming one follower per owner. Arrival never enables boat pursuit. Releasing one selected shark allows only that shark to resume eligible boat interest; other group members retain selection and follow priority. Group stop releases every member without changing other operators. A preexisting valid boat target persists to avoid oscillation. Multiple candidates use nearest safe candidate then stable UUID tie break. Reevaluate every 10 ticks. Dismount, removal, wrong dimension, and unsafe route release within 20 ticks; a stationary boat expires at 100 ticks. On rejection or loss, clear only the boat owned intent, brake or replan to a safe wet waypoint, apply configured stall and retry bounds, then return to ordinary safe recovery. Do not alter combat memories, follow lease data, boat state, rider state, or damage behavior.
 
 ### P003-TASK-004 detail
 

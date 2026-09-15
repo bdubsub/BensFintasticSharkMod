@@ -138,6 +138,20 @@
         "subject": "Pinned current diagnostic manager, parser and support guide",
         "source": "Pinned current diagnostic manager, parser and support guide",
         "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-111",
+        "role": "owner_request",
+        "subject": "Follow group and feedback amendment",
+        "source": "Owner request for independent selections and visible feedback",
+        "use": "Scope authority"
+      },
+      {
+        "id": "SRC-112",
+        "role": "repository_evidence",
+        "subject": "Follow ownership, arrival and feedback paths",
+        "source": "Follow manager and tests at faccaf58ffeb6c1d7b857c9c702a970d78062316",
+        "use": "Evidence only, subordinate to owner requirements"
       }
     ]
   },
@@ -274,14 +288,14 @@
     },
     {
       "id": "BFS2-REQ-008",
-      "summary": "NBT marked follow stick selects and follows all mob families, including bosses and other mods, through temporary movement ownership without a species whitelist.",
+      "summary": "NBT marked follow stick adds independently selected mobs from all families, including bosses and other mods, to an operator group without a species whitelist or arbitrary follower count cap. Each deliberate click toggles only that mob, with chat and on screen feedback.",
       "source": "Current owner request and research finding catalogue",
       "lifecycle_stage": "change",
       "production_verification": "none"
     },
     {
       "id": "BFS2-REQ-009",
-      "summary": "Release selected followers and restore ordinary behavior on explicit stop and bounded lifecycle exits, without deleting unrelated behavior state.",
+      "summary": "Keep followers selected through arrival and recoverable pauses until individually toggled or explicitly stopped. Restore only owned behavior on release or required lifecycle cleanup, and report every meaningful outcome in chat and on screen.",
       "source": "Current owner request and research finding catalogue",
       "lifecycle_stage": "change",
       "production_verification": "none"
@@ -497,6 +511,12 @@
       "question": "How should comprehensive controls and algae scope be bounded",
       "status": "resolved",
       "selected_choice": "Use distinct group quantity and physical scale controls, tune existing behavior and hunting capabilities, and report effective limits. Restore face and column algae behavior with bounded richer natural generation, preserving authored animation. Do not add boat damage or unrelated ecosystem features."
+    },
+    {
+      "id": "DEC-011",
+      "question": "How should follow groups and feedback work",
+      "status": "resolved",
+      "selected_choice": "An operator may select multiple mobs, including a group of twenty and larger groups, without replacing earlier selections or imposing an arbitrary follower count cap. A deliberate right click toggles only the clicked mob. Arrival keeps it selected and waiting, and walking away resumes following. Selection has no duration expiry; recoverable pauses preserve it. Every meaningful action, state transition, rejection, and cleanup has truthful chat and on screen feedback. Existing server authorization, per mob exclusive ownership, safety, and required lifecycle cleanup remain in force."
     }
   ],
   "prerequisites": [

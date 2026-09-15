@@ -54,6 +54,8 @@ The subject is the complete repair and operator tuning experience in the Forge m
 | SRC-108 | reference | https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.2.0/forge-1.20.1-47.2.0-sources.jar | https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.2.0/forge-1.20.1-47.2.0-sources.jar | Evidence only, subordinate to owner requirements |
 | SRC-109 | reference | GeckoLib Forge 1.20.1 version4.4.7 exact sources | GeckoLib Forge 1.20.1 version4.4.7 exact sources | Evidence only, subordinate to owner requirements |
 | SRC-110 | repository_evidence | Pinned current diagnostic manager, parser and support guide | Pinned current diagnostic manager, parser and support guide | Evidence only, subordinate to owner requirements |
+| SRC-111 | owner_request | Follow group and feedback amendment | Owner request for independent selections and visible feedback | Scope authority |
+| SRC-112 | repository_evidence | Follow ownership, arrival and feedback paths | Follow manager and tests at faccaf58ffeb6c1d7b857c9c702a970d78062316 | Evidence only, subordinate to owner requirements |
 
 ## 3. Purpose and Intended Outcome
 
@@ -110,8 +112,8 @@ Inputs are authorized commands, actual game interactions, entity registrations, 
 - BFS2-REQ-005: `setspawnsize` controls group quantity, with separate physical size controls and explicit natural versus administrative behavior.
 - BFS2-REQ-006: Useful comprehensive species controls for spawning, scale, health/damage where supported, hunting, sensing, cooldown, movement and recovery, with safe reload.
 - BFS2-REQ-007: Inspect and tune disturbance source, radius, sensitivity, rate and reaction eligibility per species where applicable.
-- BFS2-REQ-008: NBT marked follow stick selects and follows all mob families, including bosses and other mods, through temporary movement ownership without a species whitelist.
-- BFS2-REQ-009: Release selected followers and restore ordinary behavior on explicit stop and bounded lifecycle exits, without deleting unrelated behavior state.
+- BFS2-REQ-008: NBT marked follow stick adds independently selected mobs from all families, including bosses and other mods, to an operator group without a species whitelist or arbitrary follower count cap. Each deliberate click toggles only that mob, with chat and on screen feedback.
+- BFS2-REQ-009: Keep followers selected through arrival and recoverable pauses until individually toggled or explicitly stopped. Restore only owned behavior on release or required lifecycle cleanup, and report every meaningful outcome in chat and on screen.
 - BFS2-REQ-010: Sharks remain physically and visually safe at surface, seabed, walls and slopes during pursuit, pitch, turning and recovery, across supported scales and tuning limits.
 - BFS2-REQ-011: Real jumping/water entry and occupied moving boats produce bounded, observable shark alerts through real event paths.
 - BFS2-REQ-012: Great whites follow eligible boats from behind with body submerged and fin visible where safe, and recover when depth, target or route becomes invalid. No boat damage is implied.
@@ -224,6 +226,16 @@ Inputs are authorized commands, actual game interactions, entity registrations, 
 **Affected requirements:** BFS2-REQ-005, BFS2-REQ-006, BFS2-REQ-007, BFS2-REQ-012, BFS2-REQ-014, BFS2-REQ-015, BFS2-REQ-016  
 **Supersedes:** none
 
+### DEC-011 — How should follow groups and feedback work
+
+**Status:** RESOLVED  
+**Selected choice:** An operator may select multiple mobs, including a group of twenty and larger groups, without replacing earlier selections or imposing an arbitrary follower count cap. A deliberate right click toggles only the clicked mob. Arrival keeps it selected and waiting, and walking away resumes following. Selection has no duration expiry; recoverable pauses preserve it. Every meaningful action, state transition, rejection, and cleanup has truthful chat and on screen feedback. Existing server authorization, per mob exclusive ownership, safety, and required lifecycle cleanup remain in force.  
+**Rationale:** The owner requires a reusable group of followers and clear outcomes for every meaningful interaction. Arrival and another selection must not silently dismiss existing followers.  
+**Affected requirements:** BFS2-REQ-008, BFS2-REQ-009, BFS2-REQ-012, BFS2-REQ-021, BFS2-REQ-022  
+**Supersedes:** none
+
+DEC-011 replaces the earlier engineering defaults for one follower per operator, the server selection cap, arrival release, automatic lifetime expiry, and release on recoverable route, range or held item changes. DEC-005 continues to govern mob coverage. Security and required lifecycle cleanup remain in force.
+
 Routine engineering defaults in the shared contracts implement these choices. They do not promote optional work. They specify units, safety bounds, oxygen refill and death handling, kelp style growth, and item mechanics so execution does not require another product design pass.
 
 ## 10. External Prerequisites
@@ -284,7 +296,7 @@ The existing `/bfs` root, level 2 permission and existing species cap/list/info 
 | `reset <species|*> [field|all]` | Remove selected session overrides and reapply effective validated server defaults atomically. |
 | `reload` | Revalidate existing config into a new baseline snapshot. Preserve explicit session overrides. Invalid config leaves the entire previous snapshot active. |
 | `on [category] [ticks] [targets]`, `status`, `off` | Preserve capture syntax and bounded behavior in IFC-001. Capture and gameplay tuning are separate state. |
-| `followme [player]`, `followme status [player]`, `followme stop [player]` | Issue marked stick, inspect lease, or release the selected target. Console requires explicit player for issuance and owner selection. |
+| `followme [player]`, `followme status [player] [page]`, `followme stop [player]` | Issue a marked stick, inspect a paginated group, or release that operator's entire group. `followme stopone <target> [player]` releases only the selected mob owned by that operator. Console requires an explicit player for issuance and owner selection. All outcomes report affected and remaining counts. |
 
 The setting catalog is the minimum complete surface, not permission to make unsupported combat abilities universal. Defaults labelled `existing` are extracted once from current config and immutable species definitions by P001-TASK-001, normalized and exposed by `list`; they are not guessed numerical balance values. New disturbance source defaults are frozen in IFC-005. No command silently writes TOML, entity base attributes, or a named tuning file.
 
@@ -324,7 +336,7 @@ Forge disturbance listeners preserve typed source identity through `WaterDisturb
 
 ### 11.3 Shared interface contracts
 
-These signatures are normative version 1 interfaces except the retained version 2 diagnostic format. JSON blocks define field types and interface ownership; subsequent paragraphs define constraints and default semantics. An implementation may use repository conventional class names but must preserve signatures and evidence semantics. All settings and duration calculations use 20 simulation ticks per second, separately from wall clock speed under server lag.
+These signatures are normative version 1 interfaces except IFC-004 version 2 and the retained version 2 diagnostic format. JSON blocks define field types and interface ownership; subsequent paragraphs define constraints and default semantics. An implementation may use repository conventional class names but must preserve signatures and evidence semantics. All settings and duration calculations use 20 simulation ticks per second, separately from wall clock speed under server lag.
 
 #### IFC-001: Bounded diagnostic record and capture
 
@@ -398,32 +410,66 @@ Priority is collision/breathing/survival recovery, then explicit follow lease, t
 
 Movement samples/substeps cover at most 0.25 block translation or five degrees of rotation between swept envelope checks, with at most 32 bounded steps per tick. If a proposed motion needs more work, shorten it safely and report `WORK_BUDGET`. A finite solver validates segment geometry and fluid occupancy conservatively between samples. Surface or route failure selects a safe wet waypoint or brakes within the last safe region; it never force teleports through a wall or leaves powered flight. Lack of progress for the configured stall window causes bounded replan attempts then yields ordinary safe recovery, with a terminal reason and no endless oscillation. Client interpolation and scaled render pose must remain within the accepted conservative envelope; corresponding laptop evidence is mandatory.
 
-#### IFC-004: Temporary mob follow lease
+#### IFC-004: Temporary mob follow group
 
 ```json
 {
   "id": "IFC-004",
-  "version": 1,
+  "version": 2,
   "producer_phase": "BFS2-PHASE-002",
-  "consumer_phases": ["BFS2-PHASE-003", "BFS2-PHASE-007"],
-  "requirement_ids": ["BFS2-REQ-008", "BFS2-REQ-009"],
-  "acceptance_ids": ["BFS2-AC-008", "BFS2-AC-009"],
+  "consumer_phases": [
+    "BFS2-PHASE-003",
+    "BFS2-PHASE-007"
+  ],
+  "requirement_ids": [
+    "BFS2-REQ-008",
+    "BFS2-REQ-009"
+  ],
+  "acceptance_ids": [
+    "BFS2-AC-008",
+    "BFS2-AC-009"
+  ],
   "signature": {
-    "lease": {"version": "int=1", "token": "server issued opaque nonce", "owner": "UUID", "mob": "UUID", "dimension": "registry ID", "adapter": "capability ID", "startedTick": "long", "expiresTick": "long", "lastProgressTick": "long", "ownedIntentId": "opaque string"},
-    "claim": "claim(serverPlayer, clickedEntity, markedStack, hand, interactionId) -> Lease|Rejected(reason)",
-    "tick": "tick(lease, level) -> active|blocked|released(reason)",
-    "release": "release(lease, reason) -> restoration result"
+    "lease": {
+      "version": "int=2",
+      "token": "server issued opaque nonce",
+      "owner": "UUID",
+      "mob": "UUID",
+      "dimension": "registry ID",
+      "adapter": "capability ID",
+      "startedTick": "long",
+      "lastProgressTick": "long",
+      "ownedIntentId": "opaque string",
+      "state": "following|waiting|paused",
+      "pauseReason": "bounded enum|null"
+    },
+    "claim": "claim(serverPlayer, clickedEntity, markedStack, hand, interactionId) -> Selected(Lease)|Released(restoration)|IgnoredDuplicate|IgnoredUnrelated|Rejected(reason)",
+    "tick": "tick(lease, level) -> following|waiting|paused(reason)|released(reason)",
+    "release": "release(lease, reason) -> restoration result",
+    "releaseAll": "releaseAll(serverPlayer, reason) -> releasedCount, remainingCount, restoration results",
+    "status": "status(serverPlayer, page: int>=1) -> groupRevision, selectedCount, followingCount, waitingCount, pausedCount, pageCount, entries[0,10]",
+    "feedback": "notify(owner, interactionId|null, eventSequence, groupRevision, targetAlias|null, outcome, reason, selectedCount) -> localized chat and action bar receipt"
   }
 }
 ```
 
-One active follower per operator, one owner per mob, at most 32 concurrent server leases, 2400 tick lifetime, 64 block range and 10 tick route update interval. Follow destination respects a four block arrival distance plus both bodies' dimensions. A second click on the same mob releases it; a valid new selection first validates acquisition, then releases the old selection. Another operator cannot steal a lease. Stop is idempotent. The special stick stores namespaced version/token/owner fields and a clear localized label; server issuance registry and permission checks defeat forged or copied NBT as authority. The player must hold the issued stick in either hand and remain permission level 2. Both Forge interaction callbacks deduplicate the same click. Console issuance uses an explicit online recipient and never requires the owner to join for unrelated diagnostics.
+A server owns a collection of independently indexed leases per operator and exactly one owner per mob. There is no arbitrary selected follower count cap per operator or server. Twenty is a required working group, not a maximum; tests also cross the former 32 lease boundary. Selecting a new mob adds it without replacing any existing follower. A fresh deliberate right click on an already selected mob releases only that mob, including when it is beside the owner. A released mob can be selected again immediately without moving away. Another operator cannot steal a selection. Validate acquisition before publishing any group change; a failed new selection changes no existing lease. Group revision and counts reflect only actual mutations. `stopone` validates ownership and releases one target; `stop` releases the selected operator's whole group and is idempotent. Status uses stable per session target aliases, names or localized entity types, state, pause reason, count and ten entry pages.
+
+Selection lasts until a deliberate toggle, explicit stop or required lifecycle cleanup. It has no 2400 tick or other automatic duration expiry. Arrival within four blocks plus the bodies' dimensions changes the lease to `waiting`, retains its owner and pauses powered movement. Resume `following` after separation exceeds that arrival distance by 0.5 block. This hysteresis is for movement only, never a click cooldown. Waiting preserves physiology, collision, separation between mobs and follow priority, without jitter or pushing all followers into one point. No arrival latch may reject the next click.
+
+Temporary absence of the valid stick from both hands, separation beyond 64 blocks, or a blocked route pauses movement while retaining selection. Resume with the same selection when the valid stick is held, the owner returns within range, or a safe route becomes available. Reaching 200 blocked ticks enters a stable blocked pause, not an automatic deselection. Recheck a blocked route at most once every 20 ticks. Clear the old movement intent while paused and allow survival recovery, but suppress competing combat or boat pursuit until explicit release. An invalid or revoked issuance, lost level 2 permission, owner or target death/removal, logout, dimension change, unload, shutdown or unrecoverable adapter conflict releases the affected leases within one server tick. An owner exit releases their entire group; a target exit releases only that target. Keep no live entity references across unload, force loaded chunks, teleportation, persistent live selections or revived leases after restart. Explain the cleanup reason when a recipient is connected; a disconnected owner receives one bounded summary on rejoining the same server session. Restart starts with no selections and invalidates old issuance, as reported by issuance/status.
+
+Keep route work bounded independently of group size. Each follower's route update interval is at least ten ticks, with at most 32 route evaluations per server tick through a fair rotating queue. At a stable eligible count N, every eligible follower receives a turn within `max(10, ceil(N/32))` ticks. Deferred work retains selection and reports scheduling delay in status/diagnostics instead of evicting followers or rejecting the next selection. Cheap ownership and lifecycle validation runs every tick; route search, collision work, target queries and temporary queues remain bounded. IFC-001's 32 capture target limit remains separate from group membership. Larger group evidence uses disjoint capture cohorts and a constant size independent count/scheduling witness. No telemetry overflow changes gameplay selection.
+
+The special stick stores namespaced version, issue identifier and owner fields and has a localized label and toggle instructions. Server issuance, level 2 permission, actual held stack, target identity, dimension and normal interaction reach validate every action. Keep the legitimate issued stick reusable across per target releases; reissuing it rotates authorization without silently dropping other selected mobs. Both Forge callbacks, both hands, network retries and repeated events while holding the button must resolve to the same accepted physical press, with exactly one mutation and one result per output channel. Releasing and pressing again creates a new action, even while standing still. A server tick key or arbitrary time cooldown alone cannot establish a new press. If the pinned input path requires a small client press identifier, it carries no authority: correlate it with the real server interaction, bound and expire deduplication state, reject replay and validate the marker and permissions again. No client writable group, target or success state is permitted. An active lease alone never converts a denied interaction into success. Unrelated items and empty offhand callbacks neither emit follow errors nor cancel ordinary behavior; a genuine marked-stick attempt is consumed once so it does not also feed, tame or grant an interaction advancement.
+
+Every meaningful follow outcome is visible without enabling verbose capture. Issuance, selection, individual/group release, arrival waiting, resumed movement, each changed pause reason, rejection, lifecycle cleanup and status produce localized chat plus concise action bar text. Feedback reports the actual result, recognizable mob name/type and stable alias, selected count with correct pluralization, and an actionable reason when needed. For example, `Following: Cow [3]. Selected mobs: 20.` and `Waiting nearby: Cow [3]. Still selected.` A successful selection must never also say it could not claim the entity. Duplicates reuse the original result silently and produce no extra message. Emit once per meaningful state transition, never every tick or path retry. Use movement hysteresis and group transition batches of at most ten ticks to avoid repeated arrival/resume chatter; each batch preserves event kinds, affected aliases and counts in chat, with a concise action bar summary. Status can inspect every selection through pagination. Chat is the durable in-session history when a newer action bar message supersedes an older one. Report failures with words as well as color; never expose authorization tokens or raw private data. Capture records use pseudonyms and outcome codes, not copies of chat.
 
 All living mob families are in scope, including ground, flying, swimming, amphibious, vanilla Brain, SmartBrainLib, multipart bosses and third party controllers. A clicked dragon part resolves to its owning mob; a projectile, armor stand, item, vehicle or player is not a follower. Use registry driven capability detection and explicit movement adapters, not namespace or entity type whitelist acceptance. Boss controller arbitration and temporary suppression of owned destructive travel side effects must preserve health, phases and ordinary behavior after release. Do not disable physiology, collide through terrain, drag water breathers onto land, force ground mobs into drowning routes, mount/dismount mobs, or teleport between dimensions. No special mob can be rejected merely to make the all mobs gate pass.
 
 P002-TASK-001 creates the compatibility inventory from the active registry, exercises vanilla goal/Brain/flying/aquatic cases, Ender Dragon and Wither special movement, and a separately loaded Forge compatibility fixture with a non BFS namespace and independent controller. It also tests an actual pinned compatible third party mob artifact selected from the existing authorized test environment or an official redistributable source, recording version, hashes, license and controller path. A test fixture alone does not establish external mod compatibility. Discover each controller's real ownership hook and implement required adapters before the phase closes. An uncooperative controller produces `ADAPTER_CONFLICT`, releases safely and remains an unresolved mandatory defect; it is not an accepted category exclusion or universal compatibility claim. Unknown future third party implementations are covered by the generic contract and tested extension path, not a claim that every future artifact has been run.
 
-Release within one server tick on explicit stop, permission loss, no held marked stick, target/owner death or removal, logout, dimension change, unload or shutdown. Release on timeout, range excess, and after 200 ticks of blocked route without progress. Invalidate nonce on server restart. Store no live entity references across unload and no persistent follow flag that revives a lease on reload. Clear only this lease's intent/goal/modifier/memory; restore original controller ownership and unchanged unrelated brain state. Within 40 ticks after release, ordinary valid goal selection must resume in the fixture; physiology and collision never stopped.
+Release clears only the identified lease's intent, goal, modifier and memory. Restore original controller ownership and unchanged unrelated brain state. Within 40 ticks after a release, ordinary valid goal selection must resume in the fixture; physiology and collision never stopped. Releasing one member must not remove another member's owned state. IFC-004 version 2 replaces the session only version 1 follow interface; there is no saved selection migration. Existing issued stick schema may remain compatible when it passes the same server authorization checks.
 
 #### IFC-005: Water disturbance and boat interest
 
@@ -537,7 +583,8 @@ Performance acceptance uses the existing installed production Forge harness, see
 | `PERMISSION_DENIED`, `INVALID_STICK`, `OWNER_CONFLICT` | Reject without mutation. Only authorized command source and server validated interactions can create changes. |
 | `INVALID_VALUE`, `UNKNOWN_SPECIES`, `UNKNOWN_FIELD`, `NOT_APPLICABLE`, `REVISION_CONFLICT` | Atomic input rejection with exact field and bounds. Refresh readback before retry. Never silently clamp command input. |
 | `BODY_NO_FIT`, `SOLID_BLOCKED`, `WATER_ENVELOPE`, `SURFACE_UNSAFE`, `WORK_BUDGET` | Hold or shorten motion safely, explain actual limitation, retry at bounded cadence. A scale transaction rejects entirely when no fit is possible. |
-| `NO_ROUTE`, `ADAPTER_CONFLICT`, `LEASE_EXPIRED`, `OWNER_GONE`, `TARGET_GONE`, `WRONG_DIMENSION` | Stop only owned intent and release lease. Adapter conflict remains a required compatibility defect. |
+| `NO_ROUTE`, `OUT_OF_RANGE`, `MARKER_NOT_HELD` | Retain follow selection in a safe pause and resume when its condition clears. No automatic lease expiry or arrival release. |
+| `ADAPTER_CONFLICT`, `OWNER_GONE`, `TARGET_GONE`, `WRONG_DIMENSION` | Release only affected follow leases and restore their ordinary controller. Adapter conflict remains a required compatibility defect. |
 | `THROTTLED`, `OUT_OF_RANGE`, `REACTION_DISABLED`, `SOURCE_BUDGET`, `NO_SAFE_BOAT_ROUTE` | Observable bounded disturbance decision, no fabricated reaction or unbounded rescan. |
 | `SCHEMA_UNSUPPORTED`, `STATE_CORRUPT`, `CONFIG_REJECTED` | Keep previous validated settings; conservatively recover player reserve and report repair. Preserve source data for diagnosis, not silent reset. |
 | `CAPTURE_INCOMPLETE`, `IO_FAILURE`, `LIMIT_REACHED` | Stop capture safely, mark evidence unusable for a passing result and retain a minimal sanitized failure. Gameplay continues unchanged. |
@@ -691,7 +738,7 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 ### BFS2-REQ-008 — All mob temporary following
 
-**Behavior:** The server issued marked stick selects mobs across all families and controls temporary safe movement through IFC-004.  
+**Behavior:** The server issued marked stick maintains independent selections across all mob families through IFC-004. Deliberate clicks toggle one mob, arrival retains selection, and chat plus on screen feedback explains the result.  
 **Owner:** Follow controller  
 **Canonical phase:** BFS2-PHASE-002  
 **Contributors:** Follow interactions and controller adapters and final regression verification as referenced in the task IDs.  
@@ -703,7 +750,7 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 **Acceptance criteria**
 
-- **BFS2-AC-008:** Real right click acquires exactly one lease and mob follows a moving owner around a valid obstacle. Goal, Brain, SmartBrainLib, aquatic, flying, ground, amphibious, multipart boss and actual third party paths are exercised. Players and nonmob entities are rejected; a boss part resolves to its mob. Forged NBT, permission loss and duplicate hand callbacks cannot grant or duplicate control. Special controller failure keeps acceptance open.
+- **BFS2-AC-008:** A real deliberate right click toggles exactly the clicked mob. Selecting 20 mobs and a separate group of at least 33 preserves all earlier selections without an arbitrary cap. They follow a moving owner around safe obstacles, wait nearby without deselection, and resume after the owner moves. Goal, Brain, SmartBrainLib, aquatic, flying, ground, amphibious, multipart boss and actual third party paths are exercised. Forged markers, denied permission, held button repeats, both hands and duplicate callbacks cannot grant, double toggle or silently replace control. Players and nonmob entities are rejected; boss parts resolve to their owning mob. Every meaningful action/state change has truthful localized chat and action bar output, with matching counts and no false rejection. Special controller failure keeps acceptance open.
 
 **Required evidence**
 
@@ -711,7 +758,7 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 ### BFS2-REQ-009 — Follow restoration and lifecycle
 
-**Behavior:** Release only owned state and restore ordinary controller behavior on every IFC-004 termination path.  
+**Behavior:** Retain independent selections during IFC-004 waiting and recoverable pauses, then release only affected owned state and restore ordinary controller behavior on explicit toggle/stop and required lifecycle termination. Report each outcome through both user feedback channels.  
 **Owner:** Follow controller  
 **Canonical phase:** BFS2-PHASE-002  
 **Contributors:** Follow lease lifecycle and final regression verification as referenced in the task IDs.  
@@ -723,11 +770,11 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 **Acceptance criteria**
 
-- **BFS2-AC-009:** Stop, repeated click, reselection, lost stick, lost permission, death, logout, dimension change, unload, shutdown, timeout, range excess and route failure meet release bounds. Competing owners cannot steal. No stale references or revived lease persists after restart. Normal valid goal selection resumes within 40 ticks and unrelated memories/health remain intact.
+- **BFS2-AC-009:** Selection survives arrival, at least 2401 ticks, adding another mob, temporary unheld stick, range excess and a 200 tick blocked pause. It resumes without reclaiming. A deliberate second click or stopone removes only that target; stop removes the owner group. Permission loss, invalid issuance, death, logout, dimension change, unload, shutdown and unrecoverable adapter conflict release only affected leases within one tick. Competing owners cannot steal. Ordinary valid behavior resumes within 40 ticks after release without altered health or unrelated memories. No stale reference or live selection revives after restart. Feedback distinguishes waiting, paused, resumed, released and rejected with correct group counts and no per tick spam.
 
 **Required evidence**
 
-- Real lifecycle and serialization tests for each adapter family, two operator conflict, blocked route timer, repeated acquire/release and same server tick removal; actual reconnect evidence for client state.
+- Real lifecycle and serialization tests for each adapter family, two operator groups, blocked pause and recovery, arrival/resume, deliberate toggles and held input deduplication, group size and fair scheduling witness, targeted/group stop, and same tick removal. Actual laptop evidence verifies both feedback channels, input and reconnect cleanup.
 
 ### BFS2-REQ-010 — Whole body shark movement safety
 
@@ -1056,7 +1103,7 @@ The GameTest task must be verified to start only a dedicated server. Run affecte
 | BFS2-REQ-001, BFS2-REQ-020 | Manifest/parser/comparison rejection boundaries | Four case installed Forge matrix, current source/PR/default/tag identity | None for server performance; no player joins the measurement. |
 | BFS2-REQ-002 through BFS2-REQ-006 | Atomic validation, equation, capability and modifier tests | All species actual movement/spawn/policy/lifecycle paths | Readable control feedback and physical scale/render agreement. |
 | BFS2-REQ-007, BFS2-REQ-011, BFS2-REQ-012 | Throttle and source/intent validation | Actual water/boat producer to shark decision, bounded state and recovery | Actual jump/boat input and behind boat fin/body presentation. |
-| BFS2-REQ-008, BFS2-REQ-009 | Marker/lease validation and state bounds | All controller families, special boss/third party and lifecycle restoration | Actual right click selection, moving owner and reconnect. |
+| BFS2-REQ-008, BFS2-REQ-009 | Marker/lease validation, independent membership, deduplication, bounded scheduling and feedback | All controller families, groups of 20 and at least 33, arrival/pause/resume and lifecycle restoration | Actual deliberate and held right click input, moving group, chat and action bar outcomes, and reconnect cleanup. |
 | BFS2-REQ-010 | Finite math and conservative swept envelope properties | Surface/prey/slope/wall/scale/recovery fixtures | Rendered/interpolated whole body and fin clearance. |
 | BFS2-REQ-013 | Asset identity, model/layer choice and reload state | Packaged resources and client class separation | Day/dark/day/reload original markings and other glow variants. |
 | BFS2-REQ-014 through BFS2-REQ-016 | Blockstate, growth and data invariant tests | Actual placement/support/drop/save/generation and cave counts | Faces, columns and retained animation. |
@@ -1091,7 +1138,7 @@ Required sanitized records go under existing `docs/verification/` conventions, u
 | `settingsRevision`, field value/source/capability and transaction reason | Server, revision/count and field units from Section 11.1, on changes | One revision per accepted transaction, no partial wildcard state or join compounding. |
 | Base/sprint/effective axes, actual displacement, powered/external velocity, intent/state | Server, blocks per simulation second and blocks per tick, at most five tick sampling | Correct equation and active state; external movement and safety limits explain deviations. Teleports/dimension moves split windows. |
 | `bodyWet`, `solidClear`, surfaceY, scale, safe/desired pitch, recovery attempt | Server envelope and client pose, blocks/degrees/count | Whole body safe, fin exception only for valid boat intent, bounded recovery and no renderer escape. |
-| Lease owner/target pseudonyms, adapter, active writer, progress/release reason | Server interaction/behavior, tick/count/blocks | One owner and writer, real route progress, bounded release and ordinary behavior restoration. |
+| Lease owner/target pseudonyms, group revision/counts, state, interaction/outcome correlation, adapter, active writer, scheduling delay and progress/release reason | Server interaction/behavior, tick/count/blocks | One owner per mob and one writer, independent group membership, waiting/pause/resume, real route progress, truthful feedback outcome, bounded release and ordinary behavior restoration. |
 | Disturbance source kind/strength/radius/throttle/reaction and boat ID correlation | Server real event path, dimensionless/blocks/ticks | Real source reaches eligible sharks once per interval; absence, suppression and unsafe boat route are distinguishable. |
 | Variant, selected texture/layer, brightness and reload generation | Client renderer, registry path/brightness level/generation | Authored Zippy markings survive daylight and reload with intended dark glow. |
 | Face/segment/age/fluid/support, placement/growth/drop and generation rejection | Server block/data paths, state/count/ticks | Valid water preserved, no duplicate drops, bounded columns and zero enclosed red cave generation. |
@@ -1140,7 +1187,7 @@ Tracked documentation is canonical. Prepare wiki changes from it and publish onl
 | BFS2-RISK-001. Historical root overwrites current fixes. | BFS2-REQ-001, IFC-008 | Observed wrong anchor lineage creates high exposure and broad loss risk. | Pin retained PR29 source and protect dirty owner state. | Source ancestry and complete diff against current default. | Stop mismatched work, preserve owner state, resume applicable checkout. | BFS2-PHASE-000, P000-TASK-001, P000-TASK-005 | Current source/fishing/debug presence, historical evidence unchanged and exact resulting merge/tag. |
 | BFS2-RISK-002. Axes are masked, applied twice or bypassed by a movement path. | BFS2-REQ-003, BFS2-REQ-004, IFC-002, IFC-003 | Observed fixed ratios and distinct writers make this likely with high functional impact. | One formula, 22 species adapters and explicit state. | Effective/actual axes, writer and limit reasons. | Atomic reset and safe ordinary movement. | BFS2-PHASE-001, P001-TASK-002, P001-TASK-004 | Orthogonal paired axis changes, cruise/pursuit/flee transitions, all adapters and finite extreme values. |
 | BFS2-RISK-003. Reload compounds attributes, rerolls scale or partly applies wildcard. | BFS2-REQ-002, BFS2-REQ-005, BFS2-REQ-006, IFC-002 | Existing join path supports a concrete high impact lifecycle concern. | Immutable bases, stable modifiers, normalized roll and transaction validation. | Revision/source, health fraction, modifier count and scale roll. | Keep previous snapshot on rejection, remove only owned modifiers on reset. | BFS2-PHASE-001, P001-TASK-001, P001-TASK-003, P001-TASK-004 | Repeated join/save/reload, invalid one member transaction, body no fit and no healing/duplication. |
-| BFS2-RISK-004. Special mob controller defeats following or restoration. | BFS2-REQ-008, BFS2-REQ-009, IFC-004 | Diverse brains and boss controllers make exposure high; broken safety/normal behavior is severe. | Early registry driven feasibility and adapters, one temporary writer. | Adapter identity, lease/intent, progress and release reasons. | Release owned state safely; unresolved adapter remains a mandatory defect. | BFS2-PHASE-002, P002-TASK-001, P002-TASK-002, P002-TASK-003, P002-TASK-004 | Boss/Brain/third party positive routes, blocked/lifecycle/competing owner negatives and ordinary behavior within 40 ticks. |
+| BFS2-RISK-004. Controller arbitration, single target storage, arrival cleanup or duplicate callbacks break follow groups and feedback. | BFS2-REQ-008, BFS2-REQ-009, IFC-004 | Diverse controllers and observed arrival/reselection paths create high exposure; lost selection or misleading feedback defeats testing. | Independent per mob leases, retained waiting/pauses, physical press correlation, bounded fair work and server outcome notifications. | Group counts/revision, state, adapter, intent, press/outcome, scheduling delay, feedback and release reason. | Pause recoverable routes, release only invalid owned state, preserve other members and repair unresolved adapters. | BFS2-PHASE-002, P002-TASK-001 through P002-TASK-004 | Broad controller routes, 20 and 33 member groups, 2401 tick retention, held input, two owners, targeted/group cleanup, chat/action bar parity and ordinary behavior within 40 ticks. |
 | BFS2-RISK-005. Wet center hides body clipping, flight or stalled pursuit. | BFS2-REQ-010, BFS2-REQ-012, IFC-003 | Current center water test directly supports the risk; mechanical and visual impact high. | Scaled swept body/fin envelope and bounded recovery. | BodyWet/solidClear, desired/safe pose and progress counters. | Brake or safe wet replan, no teleport/flight. | BFS2-PHASE-001, P001-TASK-004. BFS2-PHASE-003, P003-TASK-004 | Surface/shore/slope/wall/ceiling and extrema, server shape invariant plus actual laptop mesh. |
 | BFS2-RISK-006. Boat events flood work or retain stale dimension/source state. | BFS2-REQ-007, BFS2-REQ-011, BFS2-REQ-012, IFC-005 | Added frequent producer and existing maps create credible performance and wrong target risk. | Typed source identity, bounded query/cadence/maps, lifecycle prune. | Source, throttle, map size, candidate count and intent release. | Expire/release invalid source and safe ordinary state. | BFS2-PHASE-003, P003-TASK-001, P003-TASK-004 | Many sources, empty/stationary boats, source recreation, unload and dimension isolation. |
 | BFS2-RISK-007. Glow extraction removes daylight markings. | BFS2-REQ-013 | Exact library mechanism is strong evidence; visual impact localized. | Nondestructive original art overlay and explicit lighting behavior. | Variant/mask/layer/brightness/reload signals. | Restore correct original texture path and invalidate visual evidence. | BFS2-PHASE-004, P004-TASK-001, P004-TASK-002, P004-TASK-003 | Day/dark/day/reload with preserved pixels and unaffected glow variants. |
@@ -1172,7 +1219,7 @@ All mandatory repairs and debug controls are verified, integrated through sequen
 ```text
 Mandatory boundary: BFS2-REQ-001 through BFS2-REQ-022, all eight registered phases and all required evidence.
 Optional/future disposition: excluded. FUT-001, FUT-002, FUT-003, FUT-004 remain outside completion.
-Locked owner decisions: DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006, DEC-007, DEC-008, DEC-009, DEC-010.
+Locked owner decisions: DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006, DEC-007, DEC-008, DEC-009, DEC-010, DEC-011.
 Active phase: BFS2-PHASE-000
 Active phase plan: phases/plan-phase-000.md
 Next executable action: P000-TASK-001. Revalidate the retained PR29 source, current remote/default state, protected working changes, issue28 and exact historical evidence before any implementation or runtime allocation.

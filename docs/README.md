@@ -1,6 +1,7 @@
 # Documentation
 
 * [Project overview and setup](../README.md)
+* [Follow groups and feedback verification](verification/follow-groups-20260915.md)
 * [Debug and content plan validation](verification/bfs2-plan-validation.md)
 * [Phase 000 task 001 intake](verification/phase-000-task-001-intake-20260912.md)
 * [Phase 000 task 002 diagnostic verification](verification/phase-000-task-002-diagnostics-20260912.md)
@@ -34,6 +35,8 @@
 * [Phase 002 packaged server verification](verification/phase-002-task-008-packaged-current-20260910.md)
 * [Phase 002 client visual approval](verification/phase-002-task-008-client-visual-approval-20260910.md)
 * [Phase 002 task 011 species policy evidence](verification/phase-002-task-011-species-policy-20260909.md)
+* [Phase 002 follow evidence](verification/phase-002-follow-20260913.md)
+* [Phase 002 follow manifest](verification/phase-002-follow-manifest.json)
 * [Phase 003 baseline evidence](verification/phase-003/phase-003-evidence.md)
 * [Phase 003 baseline manifest](verification/phase-003/phase-003-manifest.json)
 * [Phase 003 task 002 icon pipeline](verification/phase-003/phase-003-task-002-icons.md)
@@ -75,6 +78,8 @@
 * [Phase 001 movement and lifecycle consumer evidence](verification/phase-001-consumers-20260913.md)
 * [Phase 001 movement oracle evidence](verification/phase-001-movement-oracle-20260913.md)
 * [Phase 001 client visual evidence](verification/phase-001-client-visual-20260913.md)
+* [Phase 002 follow lease verification](verification/phase-002-follow-20260913.md)
+* [Phase 002 follow compatibility manifest](verification/phase-002-follow-manifest.json)
 * [Packaged server performance verification](test/packaged-performance.md)
 * [Release candidate installation and rollback](test/release-rollback.md)
 * [Depth route regressions and acceptance boundaries](test/depth-route-regressions.md)

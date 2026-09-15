@@ -74,6 +74,7 @@ public class BensFintasticSharksForge {
         MinecraftForge.EVENT_BUS.register(new tfar.bensfintasticsharks.spawn.MobCapManager());
         WaterDisturbanceListeners.register(MinecraftForge.EVENT_BUS);
         tfar.bensfintasticsharks.debug.BfsDebugManager.register(MinecraftForge.EVENT_BUS);
+        tfar.bensfintasticsharks.follow.BfsFollowManager.register(MinecraftForge.EVENT_BUS);
         bus.addListener(this::onCommonSetup);
         tfar.bensfintasticsharks.config.BfsConfig.register();
         tfar.bensfintasticsharks.worldgen.ModFeatures.register(bus);
@@ -133,8 +134,13 @@ public class BensFintasticSharksForge {
         Entity entity = event.getEntity();
         if (entity instanceof SharkGrabber grabber) {
             grabber.releaseGrabPassengers();
-        } else if (entity.isPassenger()) {
-            entity.stopRiding();
+        } else if (entity.isPassenger() && event.getLevel() instanceof net.minecraft.server.level.ServerLevel level) {
+            // EntityLeaveLevelEvent can fire while the chunk distance manager is iterating its
+            // tracking set. Dismount after that callback so the relationship is cleaned without
+            // mutating the set that is currently being traversed.
+            level.getServer().execute(() -> {
+                if (entity.isPassenger()) entity.stopRiding();
+            });
         }
     }
 

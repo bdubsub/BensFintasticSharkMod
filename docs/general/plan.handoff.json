@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "planId": "PLAN-MASTER",
-  "planSetSha256": "216c3313debf57e9843b4a83faf9f53fa20734c74a03df606c2752953b7826f3",
+  "planSetSha256": "fc59302339994eb6c12b84408dd1ba07ae64e6cd4600a186b82f4ec3005af55c",
   "planningSubject": {
     "name": "Ben's Fintastic Sharks debug and repair pass",
     "requestedArtifact": "authoritative_plan",
@@ -138,6 +138,20 @@
         "role": "repository_evidence",
         "subject": "Pinned current diagnostic manager, parser and support guide",
         "source": "Pinned current diagnostic manager, parser and support guide",
+        "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-111",
+        "role": "owner_request",
+        "subject": "Follow group and feedback amendment",
+        "source": "Owner request for independent selections and visible feedback",
+        "use": "Scope authority"
+      },
+      {
+        "id": "SRC-112",
+        "role": "repository_evidence",
+        "subject": "Follow ownership, arrival and feedback paths",
+        "source": "Follow manager and tests at faccaf58ffeb6c1d7b857c9c702a970d78062316",
         "use": "Evidence only, subordinate to owner requirements"
       }
     ]
@@ -319,7 +333,7 @@
     },
     {
       "id": "BFS2-REQ-008",
-      "summary": "NBT marked follow stick selects and follows all mob families, including bosses and other mods, through temporary movement ownership without a species whitelist.",
+      "summary": "NBT marked follow stick adds independently selected mobs from all families, including bosses and other mods, to an operator group without a species whitelist or arbitrary follower count cap. Each deliberate click toggles only that mob, with chat and on screen feedback.",
       "source": "Current owner request and research finding catalogue",
       "owner": "Follow controller",
       "contributors": "Follow interactions and controller adapters and final regression verification as referenced in the task IDs.",
@@ -336,7 +350,7 @@
     },
     {
       "id": "BFS2-REQ-009",
-      "summary": "Release selected followers and restore ordinary behavior on explicit stop and bounded lifecycle exits, without deleting unrelated behavior state.",
+      "summary": "Keep followers selected through arrival and recoverable pauses until individually toggled or explicitly stopped. Restore only owned behavior on release or required lifecycle cleanup, and report every meaningful outcome in chat and on screen.",
       "source": "Current owner request and research finding catalogue",
       "owner": "Follow controller",
       "contributors": "Follow lease lifecycle and final regression verification as referenced in the task IDs.",
@@ -750,6 +764,20 @@
         "BFS2-REQ-016"
       ],
       "supersedes": []
+    },
+    {
+      "id": "DEC-011",
+      "question": "How should follow groups and feedback work",
+      "selectedChoice": "An operator may select multiple mobs, including a group of twenty and larger groups, without replacing earlier selections or imposing an arbitrary follower count cap. A deliberate right click toggles only the clicked mob. Arrival keeps it selected and waiting, and walking away resumes following. Selection has no duration expiry; recoverable pauses preserve it. Every meaningful action, state transition, rejection, and cleanup has truthful chat and on screen feedback. Existing server authorization, per mob exclusive ownership, safety, and required lifecycle cleanup remain in force.",
+      "rationale": "The owner requires a reusable group of followers and clear outcomes for every meaningful interaction. Arrival and another selection must not silently dismiss existing followers.",
+      "affectedRequirements": [
+        "BFS2-REQ-008",
+        "BFS2-REQ-009",
+        "BFS2-REQ-012",
+        "BFS2-REQ-021",
+        "BFS2-REQ-022"
+      ],
+      "supersedes": []
     }
   ],
   "externalPrerequisites": [
@@ -919,7 +947,7 @@
   "goalCreator": {
     "mandatoryBoundary": "BFS2-REQ-001 through BFS2-REQ-022, all eight registered phases and all required evidence.",
     "optionalFutureDisposition": "excluded. FUT-001, FUT-002, FUT-003, FUT-004 remain outside completion.",
-    "lockedOwnerDecisions": "DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006, DEC-007, DEC-008, DEC-009, DEC-010.",
+    "lockedOwnerDecisions": "DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006, DEC-007, DEC-008, DEC-009, DEC-010, DEC-011.",
     "activePhase": "BFS2-PHASE-000",
     "nextExecutableAction": "P000-TASK-001. Revalidate the retained PR29 source, current remote/default state, protected working changes, issue28 and exact historical evidence before any implementation or runtime allocation.",
     "knownFailingChecks": "Historical ordinary performance rejection is final. Doubled cases were not run. New feature and final candidate evidence has not been executed.",

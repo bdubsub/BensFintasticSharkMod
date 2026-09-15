@@ -262,6 +262,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         super.customServerAiStep();
         if (biteCooldown > 0) biteCooldown--;
         if (huntCooldown > 0) huntCooldown--;
+        if (FollowMovementOwners.suppressOrdinary(this)) return;
         // Land the scheduled bite at the visual peak of the animation.
         if (pendingBiteTicks > 0) {
             pendingBiteTicks--;
@@ -390,7 +391,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     /** Hook for species-specific tick behaviors (item investigation, hovering, etc). */
     protected void onSharkTick() {
         if (level().isClientSide) return;
-        if (MovementIntentOverrides.active(this)) return;
+        if (MovementIntentOverrides.active(this) || FollowMovementOwners.suppressOrdinary(this)) return;
 
         // Sustained flight from a larger shark (Ben 0.19). While fleeing the shark neither
         // hunts nor chases — it just keeps re-pathing away every half-second until the timer

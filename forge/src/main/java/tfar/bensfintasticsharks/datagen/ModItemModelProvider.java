@@ -117,6 +117,8 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         trident(ModItems.SHARK_TRIDENT);
 
+        getBuilder("follow_stick").parent(getExistingFile(mcLoc("item/stick")));
+
         makeOneLayerItem(ModItems.BFS_LOGO);
     }
 

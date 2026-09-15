@@ -1,0 +1,638 @@
+{
+  "schema": 1,
+  "phaseId": "BFS2-PHASE-002",
+  "requirementIds": [
+    "BFS2-REQ-008",
+    "BFS2-REQ-009"
+  ],
+  "taskIds": [
+    "P002-TASK-001",
+    "P002-TASK-002",
+    "P002-TASK-003",
+    "P002-TASK-004",
+    "P002-TASK-005"
+  ],
+  "status": "open",
+  "candidate": {
+    "sourceCommit": "140ff9dc036116654e775501f2b86cd07fdfa8d7",
+    "artifactSha256": "d4ea9dee317fe879fb91e52f27cd1b8ccbb84d86f866b514260bb7977c41d051",
+    "artifactSha512": "a5991ae8c9d41f0f1debb8bfcb0fb54303a180399dfb8dd12a63afd759eddeba5a3382e4809336def822c7d99cc135805e07d0cec7a28038af1fda2db6a04635",
+    "listenerFix": "receives_canceled_entity_interaction_callbacks_captures_aquatic_entity_destinations_and_keeps_initial_close_range_claim_armed",
+    "permissionFeedbackFix": "permission_denied_claims_are_reported_as_explicit_operator_feedback",
+    "permissionStatusDiagnostic": "follow_status_reports_permitted_issued_and_following_separately",
+    "fixtureStabilityFix": "close_range_owner_move_fixture_uses_a_bounded_corridor"
+  },
+  "productionBinaryComparison": {
+    "previousLaptopArtifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
+    "currentCandidateArtifactSha256": "d0725a88e2ac7789d62d08279f1482550dbfacd941f032bd6f30e05970f7a366",
+    "excludedPaths": [
+      "META-INF/MANIFEST.MF",
+      "tfar/bensfintasticsharks/gametest/"
+    ],
+    "productionTreeDigestSha256": "b63633b032d814f9ec90840973799c83abc5fdc4a52bbf3c7a1fde7628e382a3",
+    "fileCount": 834,
+    "result": "production_classes_and_resources_byte_identical_previous_laptop_gate_remains_unverified"
+  },
+  "headlessVerification": {
+    "sourceCommit": "140ff9dc036116654e775501f2b86cd07fdfa8d7",
+    "artifactSha256": "d4ea9dee317fe879fb91e52f27cd1b8ccbb84d86f866b514260bb7977c41d051",
+    "artifactSha512": "a5991ae8c9d41f0f1debb8bfcb0fb54303a180399dfb8dd12a63afd759eddeba5a3382e4809336def822c7d99cc135805e07d0cec7a28038af1fda2db6a04635",
+    "compileAndUnitTests": "passed",
+    "focusedFollowGameTests": "passed_twenty_three_required_tests",
+    "packagedJarIntegrity": "passed_unzip_test",
+    "parserTests": "passed_twenty_tests",
+    "diffCheck": "passed",
+    "cleanup": "disposable_run_directory_removed_and_verified_absent",
+    "permissionStatusDiagnostic": "passed_unprivileged_permission_state_assertion",
+    "fixtureStabilityFix": "passed_bounded_corridor_close_range_owner_move_fixture",
+    "shutdownObservation": "all_tests_passed_and_server_saved_all_dimensions_then_exited_cleanly_with_explicit_disposable_server_properties",
+    "runDirectory": "/tmp/bfsm-p002-follow-20260915e"
+  },
+  "adapter": {
+    "capabilityId": "registry_mob_controller",
+    "ownershipHooks": {
+      "ordinary": "Mob.getNavigation().moveTo",
+      "smartbrainlib": "Brain WALK_TARGET via SmartBrainOwner",
+      "ender_dragon": "EnderDragonPhaseManager CHARGING_PLAYER target"
+    },
+    "safeMotionWriters": [
+      "mob_navigation",
+      "smartbrain_walk_target",
+      "ender_dragon_charge"
+    ],
+    "result": "ordinary_smartbrain_and_ender_dragon_claim_release_exercised"
+  },
+  "activeRegistryFamilies": [
+    "bensfintasticsharks:great_white_shark",
+    "bensfintasticsharks:great_hammerhead_shark",
+    "bensfintasticsharks:common_thresher_shark",
+    "bensfintasticsharks:harbor_seal",
+    "bensfintasticsharks:common_stingray",
+    "bensfintasticsharks:shortfin_mako_shark",
+    "bensfintasticsharks:tiger_shark",
+    "bensfintasticsharks:oceanic_whitetip_shark",
+    "bensfintasticsharks:sandtiger_shark",
+    "bensfintasticsharks:blacktip_reef_shark",
+    "bensfintasticsharks:bottlenose_dolphin",
+    "bensfintasticsharks:orca",
+    "bensfintasticsharks:common_octopus",
+    "bensfintasticsharks:caribbean_reef_octopus",
+    "bensfintasticsharks:nautilus",
+    "bensfintasticsharks:giant_moray_eel",
+    "bensfintasticsharks:green_sea_turtle",
+    "bensfintasticsharks:american_lobster",
+    "bensfintasticsharks:black_sea_nettle_jellyfish",
+    "bensfintasticsharks:cannonball_jellyfish",
+    "bensfintasticsharks:atlantic_cod",
+    "bensfintasticsharks:atlantic_salmon"
+  ],
+  "namedFixtures": {
+    "minecraft:zombie": "passed",
+    "minecraft:salmon": "passed",
+    "minecraft:phantom": "passed",
+    "minecraft:frog": "passed",
+    "minecraft:villager": "passed",
+    "bensfintasticsharks:harbor_seal": "passed_smartbrain_claim_release",
+    "minecraft:ender_dragon_part": "passed_parent_resolution",
+    "minecraft:wither": "passed"
+  },
+  "smartBrainLib": {
+    "result": "adapter_claim_release_exercised",
+    "fixture": "bensfintasticsharks:harbor_seal",
+    "ownershipHook": "Brain WALK_TARGET through SmartBrainLib MoveToWalkTarget",
+    "restorationWithinFortyTicks": "passed",
+    "restorationTest": "smartBrainLeaseRestoresWithinFortyTicks",
+    "restorationAssertions": [
+      "lease_remains_released_after_forty_ticks",
+      "owner_walk_target_not_retained",
+      "target_health_and_entity_remain_unchanged"
+    ],
+    "runDirectory": "/tmp/bfs2-phase-002-restoration-YLrbRN",
+    "cleanup": "runtime_removed_and_verified_absent"
+  },
+  "lifecycleGameTest": {
+    "fixture": "minecraft:zombie",
+    "test": "followLeaseReleasesWhenTargetDies",
+    "result": "passed_next_server_tick",
+    "runDirectory": "/tmp/bfs2-phase-002-follow-lifecycle-YdFGXS",
+    "cleanup": "runtime_removed_and_verified_absent"
+  },
+  "securityLifecycleGameTests": {
+    "tests": [
+      "followLeaseReleasesWhenMarkerIsLost",
+      "followLeaseReleasesWhenPermissionIsLost",
+      "followLeaseReleasesWhenOwnerLeavesRange",
+      "followLeaseReleasesAfterBlockedRoute"
+    ],
+    "result": "passed_next_server_tick_and_two_hundred_blocked_ticks",
+    "runDirectory": "/tmp/bfs2-phase-002-security-aCi9m2hh",
+    "cleanup": "runtime_removed_and_verified_absent"
+  },
+  "independentFixture": {
+    "result": "passed",
+    "test": "independentlyControlledNonBfsMobUsesGenericLease",
+    "fixtureClass": "tfar.bensfintasticsharks.gametest.BfsFollowGameTests$IndependentFixtureMob",
+    "registeredType": "minecraft:cow",
+    "controllerPath": "test_only_Mob_subclass_with_independent_goal_registration_and_generic_navigation",
+    "assertions": [
+      "non_bfs_fixture_claimed",
+      "generic_navigation_adapter_selected",
+      "lease_released_cleanly"
+    ],
+    "runDirectory": "/tmp/bfs2-phase-002-independent-zcUIS6",
+    "cleanup": "runtime_removed_and_verified_absent"
+  },
+  "privateSecurityReview": {
+    "sourceCommit": "140ff9dc036116654e775501f2b86cd07fdfa8d7",
+    "result": "no_confirmed_exploitable_finding",
+    "scope": [
+      "permission_level_two_command_entry",
+      "server_side_marker_validation_and_replay",
+      "duplicate_callback_deduplication",
+      "owner_and_target_arbitration",
+      "bounded_range_duration_and_blocked_limits",
+      "lifecycle_release_and_token_scoped_restoration",
+      "follow_diagnostic_redaction"
+    ],
+    "residualRisk": [
+      "real_process_restart_marker_click_invalidation_requires_final_laptop_input_capture",
+      "issued_marker_for_an_unprivileged_recipient_is_rejected_at_claim_time_by_design"
+    ],
+    "tooling": {
+      "codegraph": "used_before_source_review",
+      "gitleaks": "unavailable",
+      "heuristic_secret_scan": "no_matches",
+      "diff_check": "passed"
+    }
+  },
+  "thirdPartyArtifact": {
+    "result": "pinned_production_startup_and_current_candidate_laptop_follow_claim_verified",
+    "artifactUrl": "https://mediafilez.forgecdn.net/files/5698/791/alexsmobs-1.22.9.jar",
+    "sourceUrl": "https://www.curseforge.com/minecraft/mc-mods/alexs-mobs/files/5698791",
+    "version": "1.22.9",
+    "forgeTarget": "47.2.0",
+    "sha256": "16bc5bcc19db9029c24f951346ec71098e6f5b0afef96e61894a2e9407aad37c",
+    "sha512": "b50280057926d750f9ffbf6a8df36deb37529356895f6bf59f25d272ecf69afccec65ec1a5c3a8bfad24f9475c15b93c5ec4666447b1fce26a90c41445bbfb04",
+    "license": "GNU Lesser General Public License version 3",
+    "securityInspection": "archive integrity passed, static strings reviewed, no executable download or process launch hook observed",
+    "entityId": "alexsmobs:grizzly_bear",
+    "controllerPath": "EntityGrizzlyBear extends TamableAnimal, GoalSelector, custom MoveControl and normal PathNavigation",
+    "dependency": {
+      "modId": "citadel",
+      "version": "2.6.0",
+      "sha256": "549596de295d90a84ee70625076087a9724dabca1de0567ef6ef03435aab7d5d",
+      "sha512": "8edb2264317e547230960109aaadae36ce0db9abb27748d47033c64c7f4958a970172ae382552c5e3c41a4885e95437328a6eba53226fd64c4ce0b4f0ec22b4f"
+    },
+    "productionStartup": "passed",
+    "followGameTest": "not_used_external_runtime_laptop_capture_verified",
+    "movementRegressionFixture": "source_added_requires_pinned_external_runtime_execution",
+    "movementAssertion": "target_distance_reduces_by_more_than_0_5_after_60_ticks",
+    "fixtureRetentionObservation": "cow_and_alexs_mobs_grizzly_bear_remained_persistent_after_arrival_release_and_repeated_held_clicks",
+    "productionRuntime": {
+      "serverEndpoint": "100.76.164.109:25869",
+      "result": "loaded_bound_artifact_and_restarted_cleanly",
+      "cleanup": "temporary_world_client_and_runtime_removed"
+    }
+  },
+  "repeatInteractionFix": {
+    "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d",
+    "result": "arrival_latch_prevents_repeated_held_click_reclaims_after_release",
+    "headlessFixture": "passed_all_thirteen_follow_gametests",
+    "laptopGate": "unverified_client_timeout"
+  },
+  "interactionListenerFix": {
+    "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d",
+    "result": "receives_canceled_entity_interaction_callbacks_and_latches_arrived_targets",
+    "headlessFixture": "passed_all_thirteen_follow_gametests",
+    "laptopGate": "partial_real_click_claim_observed_normal_moving_route_unverified"
+  },
+  "previousLiveAttempt": {
+    "sourceCommit": "15d0be0",
+    "artifactSha256": "f0d839239c7a9b0efc68a83fb9837b09b75dad3c1d05f696ba413158d7cc02ef",
+    "serverEndpoint": "100.76.164.109:25864",
+    "result": "joined_server_no_claim_recorded",
+    "observations": [
+      "client_and_server_used_matching_bfs_alexsmobs_and_citadel_artifacts",
+      "exact_java_audio_stream_was_muted",
+      "persistent_zombie_died_from_vanilla_daytime_burning_before_interaction",
+      "later_zombie_attack_left_the_player_on_the_vanilla_death_screen",
+      "follow_manager_did_not_remove_an_entity"
+    ],
+    "cleanup": "server_client_and_disposable_runtime_removed_instance_launch_settings_restored"
+  },
+  "latestLiveAttempt": {
+    "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d",
+    "artifactSha256": "d0725a88e2ac7789d62d08279f1482550dbfacd941f032bd6f30e05970f7a366",
+    "serverEndpoint": "100.76.164.109:25869",
+    "clientWindowPid": 2292097,
+    "audioNode": "no_new_stream_client_audio_disabled_personal_node_154_muted",
+    "audioState": "personal_stream_154_mute_verified_disposable_client_created_no_playback_stream",
+    "captureIds": [
+      "898dc3b4-4e7c-4217-891b-39dcb4f598cb",
+      "437810f1-8aa6-4171-a412-27059ad471cb",
+      "3f90e704-9ffc-4545-a052-9bc9dbcf307c"
+    ],
+    "result": "current_candidate_cow_and_grizzly_bear_claim_arrival_restore_and_held_click_latch_observed_bound_runtime_startup_verified",
+    "observations": [
+      "client_joined_disposable_thirdparty_world",
+      "cow_remained_at_0_5_41_0_3_5_after_arrival_release",
+      "grizzly_bear_remained_at_0_5_41_0_6_5_after_arrival_release",
+      "each_target_emitted_one_claim_one_adapter_one_intent_one_arrival_release_and_one_restore",
+      "repeated_held_clicks_emitted_arrival_latched_rejects_without_new_claims",
+      "bound_capture_recorded_source_commit_artifact_hash_configuration_datapack_and_java_runtime",
+      "server_restart_reloaded_both_persistent_targets"
+    ],
+    "cleanup": "complete_disposable_runtime_client_and_audio_resources_removed_and_verified"
+  },
+  "movingObstacleGameTest": {
+    "fixture": "minecraft:zombie",
+    "test": "followLeaseNavigatesAroundMovingObstacle",
+    "result": "passed_all_twelve_follow_tests",
+    "route": "solid_floor_with_two_block_wall_and_owner_positions_around_wall",
+    "assertions": [
+      "reduced_owner_distance",
+      "target_remained_alive",
+      "lease_stopped_cleanly"
+    ],
+    "runDirectory": "/tmp/bfs2-phase-002-nav-7KklvQ",
+    "cleanup": "runtime_removed_and_verified_absent",
+    "sourceCommit": "fc01cf514b57964f3681368066a8263318d0cf0d"
+  },
+  "slimeRegression": {
+    "fixture": "minecraft:slime",
+    "test": "followSlimeNavigatesToOwner",
+    "result": "passed_reduced_distance_with_generic_navigation_adapter",
+    "runDirectory": "/tmp/bfsm-p002-slime-20260914",
+    "cleanup": "runtime_removed_and_verified_absent",
+    "sourceCommit": "94922089e41aa2d5d21ec64c0a6e0d6c56824d19"
+  },
+  "ownerClickRetry20260914": {
+    "sourceCommit": "aa053bb485bc760e48a295ad6bd85432519620d",
+    "artifactSha256": "038aa4c1d7a32bafcb138f24b94c402ddd596cd3f54cce737ccbee172ee0a845",
+    "serverEndpoint": "100.76.164.109:25871",
+    "world": "bfs2-phase-002-owner-click-20260914b",
+    "target": "minecraft:cow",
+    "captureId": "c610fcaf-b436-41c4-8777-237be1bb22b9",
+    "result": "unverified_no_owner_click_before_bounded_timeout",
+    "audioState": "owned_client_stream_muted_read_back",
+    "cleanup": "complete_disposable_paths_absent_personal_instance_preserved"
+  },
+  "externalMovementRetry20260914": {
+    "sourceCommit": "b146dd10312366e3db1118328fcb5aff4ec49ab9",
+    "artifactSha256": "69d76f0409dcd361f7618674348352c9b96e3a02ef117c79e9a217705eb1ab7a",
+    "serverEndpoint": "100.76.164.109:25901",
+    "serverJava": "17.0.19",
+    "clientJava": "17.0.15",
+    "clientRenderer": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "audioNode": "110",
+    "audioState": "owned_java_stream_muted_read_back",
+    "target": "alexsmobs:grizzly_bear",
+    "result": "production_startup_passed_owner_respawn_and_right_click_unverified",
+    "observations": [
+      "production_server_loaded_current_candidate_and_pinned_external_dependencies",
+      "persistent_grizzly_fixture_prepared_on_stone_lane",
+      "first_setup_player_died_before_interaction",
+      "second_setup_remained_on_death_screen_without_owner_respawn_or_click",
+      "no_follow_claim_or_movement_evidence_accepted"
+    ],
+    "cleanup": "complete_server_client_audio_runtime_instance_and_screenshots_removed_and_verified"
+  },
+  "latestClickRetry20260914": {
+    "sourceCommit": "5d2e27d4c2d1a450802dd9d1bf42afa9345994ad",
+    "artifactSha256": "b20b0cc4b4703a01708445414d3f129c110f94440df430d9f863e524fc2666fd",
+    "artifactSha512": "5d50638ec9837ba5a4babc2dddf854c6c220467353a3303e8bf502e002714ad410e46c97b69f7aeebd7ba24e97bb3bc972ce1b1d5fbdb4c7a5d42cbff5d7cf29",
+    "serverEndpoint": "100.76.164.109:25911",
+    "world": "bfs2-phase-002-click-current",
+    "target": "minecraft:cow",
+    "captureIds": [
+      "f67ad86a-0f25-4bd3-98f6-0bc5255f1bb9",
+      "01d432b2-9540-472c-bb88-5554b06080fd"
+    ],
+    "serverJava": "17.0.19",
+    "clientJava": "17.0.15",
+    "clientRenderer": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "audioNode": "110",
+    "audioState": "owned_java_stream_muted_read_back",
+    "result": "unverified_remote_right_button_did_not_deliver_forge_interaction",
+    "observations": [
+      "server_reached_done_and_client_joined_exact_private_endpoint",
+      "issued_marker_selected_with_current_owner_and_issue_identifier",
+      "camera_movement_worked_after_owned_window_focus",
+      "two_bounded_follow_captures_expired_without_claim_or_movement",
+      "remote_uinput_and_xwayland_right_button_path_did_not_deliver_entity_interaction"
+    ],
+    "cleanup": "complete_server_client_audio_runtime_instance_and_screenshots_removed_personal_instance_preserved"
+  },
+  "aquaticNavigationHandoffFix20260914": {
+    "sourceCommit": "c5875bba822e507177b3429f2dcb675279a6f107",
+    "artifactSha256": "c2103661dd43797ce19a521e8c69157c349a3766a3c4b262ee50d84a162ab642",
+    "artifactSha512": "f0dc7a7dd4154969d695d77fe426fa780e7976ac59de3e6a9029ecb93a2261c4f1d47cbf584d730e91aa7e5daee2b0000ad8cb685b15286aeaaa99e5dbeee0ea",
+    "rootCause": "PathNavigation_entity_moveTo_bypassed_PitchSwimmingNavigation_coordinate_handoff",
+    "fix": "override_entity_moveTo_capture_exact_destination_and_clear_owned_destination_on_stop",
+    "gameTests": "passed_twenty_one_required_bfsfollow_tests",
+    "runDirectory": "/tmp/bfsm-p002-release-fix-20260914e",
+    "cleanup": "runtime_removed_and_verified_absent",
+    "laptopGate": "unverified_remote_right_button_event_delivery"
+  },
+  "closeClickArrivalFix20260914": {
+    "sourceCommit": "48ec206d932d457c4aae07df6cf6e5a1198e87a4",
+    "artifactSha256": "807b715c0dc5d5961789f8e206871cbf5bea478ac201441f42a82d10bd23c797",
+    "artifactSha512": "0a9fe5d73316191ba2ddfef370ceabe2e53630c12225536aa10f1130384cfb9bf6e30b29ad55b425c0943b6b6551d4d45843ef1f5e275a818d387c4e39c45365",
+    "rootCause": "four_block_arrival_release_overlapped_real_entity_click_reach",
+    "fix": "keep_initial_close_range_lease_unarmed_until_owner_exceeds_four_point_five_blocks_then_release_at_four_blocks",
+    "gameTests": "passed_twenty_two_required_bfsfollow_tests",
+    "test": "followClickRangeArmsWhenOwnerMoves",
+    "runDirectory": "/tmp/bfsm-p002-click-range-20260914c",
+    "cleanup": "runtime_removed_and_verified_absent",
+    "laptopGate": "unverified_remote_right_button_event_delivery"
+  },
+  "ownerClickRetry20260914CurrentCandidate": {
+    "sourceCommit": "b34a6e86a3482c75b053ac373a85f59b4017c282",
+    "artifactSha256": "807b715c0dc5d5961789f8e206871cbf5bea478ac201441f42a82d10bd23c797",
+    "artifactSha512": "0a9fe5d73316191ba2ddfef370ceabe2e53630c12225536aa10f1130384cfb9bf6e30b29ad55b425c0943b6b6551d4d45843ef1f5e275a818d387c4e39c45365",
+    "serverEndpoint": "100.76.164.109:25931",
+    "world": "bfs2-phase-002-owner-click-20260914e2",
+    "captureId": "299b5425-0b40-411b-8d04-579bd72d1235",
+    "serverJava": "17.0.19",
+    "clientJava": "17.0.15",
+    "clientRenderer": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "result": "unverified_no_owner_click_before_bounded_timeout",
+    "observations": [
+      "production_server_reached_done_and_client_joined_exact_private_endpoint",
+      "fresh_operator_marker_was_issued_and_selected_with_current_owner_identifier",
+      "stationary_invulnerable_cow_was_centered_in_the_crosshair_with_normal_ai_disabled_for_click_setup",
+      "follow_capture_expired_with_one_header_and_one_terminal_record_and_no_claim",
+      "no_client_input_was_synthesized"
+    ],
+    "audioState": "owned_java_stream_was_muted_before_observation",
+    "cleanup": "complete_server_client_audio_runtime_instance_and_screenshots_removed_and_verified"
+  },
+  "currentFocusedFollowGameTest20260914": {
+    "sourceCommit": "b34a6e86a3482c75b053ac373a85f59b4017c282",
+    "artifactSha256": "807b715c0dc5d5961789f8e206871cbf5bea478ac201441f42a82d10bd23c797",
+    "artifactSha512": "0a9fe5d73316191ba2ddfef370ceabe2e53630c12225536aa10f1130384cfb9bf6e30b29ad55b425c0943b6b6551d4d45843ef1f5e275a818d387c4e39c45365",
+    "runDirectory": "/tmp/bfsm-p002-follow-20260914g",
+    "namespaces": [
+      "bfsfollow"
+    ],
+    "result": "all_twenty_two_required_tests_passed",
+    "cleanup": "run_directory_removed_and_verified_absent",
+    "observations": [
+      "server_java_17.0.19",
+      "forge_47.2.0",
+      "game_test_server_shutdown_cleanly"
+    ]
+  },
+  "currentFocusedFollowPermissionBoundaryGameTest20260914": {
+    "sourceCommit": "ac33f5deb56b91e45feaf9b7101068b012edcffd",
+    "artifactSha256": "2b6a078c1015da7631c648df599e4a035a86ab323666ab115d6060b174c707b9",
+    "artifactSha512": "9e82f37a4214cb546bcf118babdfb70ec56b8dadd2796fad32f5ba9b0c0a398eefcde5190bc2508533bdcc2b547742710b867c25f4b081df6306e6c810164058",
+    "runDirectory": "/tmp/bfsm-p002-follow-20260914i",
+    "namespaces": [
+      "bfsfollow"
+    ],
+    "result": "all_twenty_three_required_tests_passed",
+    "newRegression": "unprivilegedIssuedMarkerCannotClaimMob",
+    "permissionBoundary": "issued_marker_requires_operator_permission_for_claim_and_active_lease",
+    "cleanup": "run_directory_removed_and_verified_absent",
+    "observations": [
+      "server_java_17.0.19",
+      "forge_47.2.0",
+      "game_test_server_shutdown_cleanly"
+    ]
+  },
+  "permissionFeedbackFix20260914": {
+    "sourceCommit": "d9c5c705f8b0e3fb02b754d4e13034334230cd29",
+    "artifactSha256": "b0d3dafcb8e7a65d4078d5717c6066d80b7749f8f3addcb1e97e05e1b6e38c98",
+    "artifactSha512": "5b606e0d562363c5065040110864a89f067c24a329bd85f9b5193493e21eefad9d8c1fedea42241af3cc28b8e18a63408bcefaa84455acf3bf8ce13e1de41424",
+    "result": "permission_denied_follow_clicks_return_explicit_operator_feedback",
+    "permissionBoundary": "unchanged_level_two_requirement",
+    "focusedFollowGameTests": "all_twenty_three_required_tests_passed",
+    "compileAndUnitTests": "passed",
+    "forgeBuild": "passed",
+    "jarIntegrity": "passed_unzip_test",
+    "runDirectory": "/tmp/bfsm-p002-follow-20260915a",
+    "cleanup": "run_directory_removed_and_verified_absent"
+  },
+  "currentGroupFollowEvidence": {
+    "sourceCommit": "4d3c4bf063618b5b16cf5c1430332ec47da60890",
+    "document": "follow-groups-20260915.md",
+    "status": "server_regressions_passed_phase_open",
+    "combinedRequiredGameTests": 123,
+    "focusedRequiredGameTests": 33,
+    "clientInput": "verified_real_xwayland_right_click",
+    "schedulerWitness": {
+      "test": "threeHundredTwentyOneFollowersUseFairBoundedScheduler",
+      "requiredGameTests": 33,
+      "selectedMembers": 321,
+      "maxRouteEvaluationsPerTick": 32,
+      "allMembersServiced": true,
+      "result": "passed"
+    }
+  },
+  "clientVerification20260915": {
+    "sourceCommit": "4d3c4bf063618b5b16cf5c1430332ec47da60890",
+    "artifactSha256": "bfd23944b647f5cc0d2b5edbd5c1c92ba2d19055189c9e443c739e99914f50f0",
+    "artifactSha512": "111c143143c2be2d2b2ad9a5b5e7bac5a70f362845305bc19d177221e0a853470bf484c2f4194cbd2f7a481ed1cec6fcbb4298e9a00e141b002c8195318ffb5c",
+    "serverEndpoint": "100.76.164.109:25870",
+    "host": "envision",
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "forge": "47.2.0",
+    "java": "17.0.15",
+    "clientWindowPid": 3265310,
+    "dependencySha256": {
+      "alexsmobs-1.22.9": "16bc5bcc19db9029c24f951346ec71098e6f5b0afef96e61894a2e9407aad37c",
+      "citadel-2.6.0": "549596de295d90a84ee70625076087a9724dabca1de0567ef6ef03435aab7d5d",
+      "smartbrainlib-1.14.2": "3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b",
+      "geckolib-4.4.7": "6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0"
+    },
+    "audio": "master volume 0.0 and current java playback stream mute verified",
+    "result": "real_client_group_selection_and_individual_release_verified",
+    "chatOutcomes": [
+      "Selected: follow cow alpha [1]. 1 mob selected.",
+      "Waiting nearby: follow cow alpha [1]. 1 mob still selected.",
+      "Following again: follow cow alpha [1]. 1 mob selected.",
+      "Paused: follow cow alpha [1]. Waiting for a safe reachable route. 1 mob still selected.",
+      "Selected: follow cow gamma [2]. 2 mobs selected.",
+      "Released: follow cow gamma [2]. You clicked this mob again. 1 mob selected."
+    ],
+    "finalServerStatus": "alpha remains selected and following after gamma release",
+    "cleanup": "complete_server_client_audio_runtime_disposable_instance_and_screenshots_removed_and_verified"
+  },
+  "thirdPartyClientVerification20260914": {
+    "sourceCommit": "4d3c4bf063618b5b16cf5c1430332ec47da60890",
+    "artifactSha256": "bfd23944b647f5cc0d2b5edbd5c1c92ba2d19055189c9e443c739e99914f50f0",
+    "serverEndpoint": "100.76.164.109:25871",
+    "world": "follow-thirdparty-production-20260914",
+    "host": "envision",
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "forge": "47.2.0",
+    "java": "17.0.15",
+    "clientWindowPid": 3364266,
+    "dependencies": {
+      "alexsmobs": {
+        "version": "1.22.9",
+        "sha256": "16bc5bcc19db9029c24f951346ec71098e6f5b0afef96e61894a2e9407aad37c",
+        "sha512": "b50280057926d750f9ffbf6a8df36deb37529356895f6bf59f25d272ecf69afccec65ec1a5c3a8bfad24f9475c15b93c5ec4666447b1fce26a90c41445bbfb04"
+      },
+      "citadel": {
+        "version": "2.6.0",
+        "sha256": "549596de295d90a84ee70625076087a9724dabca1de0567ef6ef03435aab7d5d",
+        "sha512": "8edb2264317e547230960109aaadae36ce0db9abb27748d47033c64c7f4958a970172ae382552c5e3c41a4885e95437328a6eba53226fd64c4ce0b4f0ec22b4f"
+      }
+    },
+    "target": "alexsmobs:grizzly_bear",
+    "controllerPath": "EntityGrizzlyBear extends TamableAnimal with GoalSelector, custom MoveControl and normal PathNavigation",
+    "audio": "master volume 0.0 and owned java playback stream mute verified",
+    "chatOutcomes": [
+      "Selected: external grizzly [1]. 1 mob selected.",
+      "Paused: external grizzly [1]. Waiting for a safe reachable route. 1 mob still selected.",
+      "Following again: external grizzly [1]. 1 mob selected.",
+      "Waiting nearby: external grizzly [1]. 1 mob still selected.",
+      "Released: external grizzly [1]. You clicked this mob again. 0 mobs selected."
+    ],
+    "movementObservation": "target moved from x 108 to x 101.29355298412146 toward owner x 96 while selected",
+    "result": "real_client_pinned_third_party_selection_follow_waiting_and_individual_release_verified",
+    "devGameTestLimitation": "Citadel mapped LevelMixin shadow does not load on the Forge userdev classpath",
+    "cleanup": "complete_server_client_audio_runtime_disposable_instance_and_screenshots_removed_and_verified"
+  },
+  "bossAdapterAndShutdownRerun20260915": {
+    "sourceCommit": "6f81eed",
+    "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
+    "artifactSha256": "146732dd96304be47d4f0061b8fc3ffc71198cbce750dda2322fafc5bfe85a0a",
+    "artifactSha512": "110ff999ed4643f84754e663c85fd6306d7d7d9092694dda12897e72e63c934637ffa9e8abf00e82f9e291212d607319c562f0d400e12f0a8060fd8cd5efea28",
+    "runtime": "/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix/forge/run/follow-boss-adapter-20260915-v4",
+    "requiredFollowGameTests": 34,
+    "result": "all_required_follow_gametests_passed",
+    "fixtures": [
+      "minecraft:ender_dragon_head_to_parent",
+      "minecraft:wither"
+    ],
+    "adapters": [
+      "ender_dragon_charge",
+      "mob_navigation"
+    ],
+    "assertions": [
+      "dragon_distance_reduced",
+      "wither_distance_reduced",
+      "independent_release",
+      "dragon_phase_restored",
+      "clean_shutdown_without_distance_manager_concurrent_modification"
+    ],
+    "fixtureIsolation": "bosses_invulnerable_and_silent_to_keep_combat_from_removing_follow_subjects",
+    "cleanup": "runtime_removed_and_verified_absent"
+  },
+  "currentCandidateFeedbackGate20260915": {
+    "sourceCommit": "c5fc98172dfa8d2d4e062e9c23a10c6effee9c4f",
+    "artifactSha256": "b74d864d23fc5cc34213e8ea2bfd1ccdfe900e3481f5b7911b88cb1c32603a65",
+    "serverEndpoint": "100.76.164.109:25951",
+    "world": "bfs-p002-restart-gate-c",
+    "clientInstance": "bfsm-p002-restart-gate-20260915c",
+    "clientWindowPid": 3787793,
+    "clientRenderer": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "clientJava": "17.0.15",
+    "audioNode": "148",
+    "audioState": "owned_java_stream_mute_verified",
+    "rawMarkerRejection": "passed_explicit_invalid_marker_feedback",
+    "freshMarkerCommand": "/bfs debug followme",
+    "realInput": "xwayland_right_click",
+    "chatAndActionbarOutcomes": [
+      "Selected: restart cow c [1]. 1 mob selected.",
+      "Arrived nearby: restart cow c [1]. 1 mob still selected. Click this mob again to release only it.",
+      "Released: restart cow c [1]. You clicked this mob again. 0 mobs selected."
+    ],
+    "statusAfterReselect": "selected_1_following_0_waiting_1_paused_0",
+    "result": "current_candidate_real_click_arrival_retention_individual_release_and_paired_feedback_verified",
+    "remainingGates": [
+      "restart_marker_invalidation",
+      "private_independent_review",
+      "pull_request_integration",
+      "resulting_default_verification",
+      "signed_phase_tag"
+    ],
+    "cleanup": "exact_disposable_runtime_client_stream_and_screenshots_removed_and_verified_absent"
+  },
+  "restartMarkerClientAttempt20260915": {
+    "sourceCommit": "c5fc98172dfa8d2d4e062e9c23a10c6effee9c4f",
+    "artifactSha256": "b74d864d23fc5cc34213e8ea2bfd1ccdfe900e3481f5b7911b88cb1c32603a65",
+    "serverEndpoint": "100.76.164.109:25952",
+    "world": "bfs-p002-restart-gate-d",
+    "serverJava": "17.0.19",
+    "markerPersistence": "selected_marker_owner_and_issue_data_present_after_graceful_server_restart_and_client_reconnect",
+    "inputRoutes": [
+      "focused_xwayland_xtest",
+      "centered_pointer_xtest",
+      "evdev_uinput_button"
+    ],
+    "result": "unverified_no_post_restart_entity_interaction_callback",
+    "followStatus": "zero_selected_members_after_all_attempts",
+    "gate": "restart_marker_invalidation_remains_open",
+    "cleanup": "exact_server_client_runtime_stream_and_screenshots_removed_and_verified_absent"
+  },
+  "restartMarkerProductionRerun20260915": {
+    "sourceCommit": "b021dcb6833fe31661092f17cebe9fc0ea59269e",
+    "artifactSha256": "60b5d2bf32158a05f0bb68fc6f78d021811a081066cc8ca7c0121ce97ba87a0d",
+    "serverEndpoint": "100.76.164.109:25953",
+    "world": "bfs-p002-restart-proof-20260915",
+    "serverForge": "47.2.0",
+    "serverJava": "17.0.19",
+    "clientJava": "17.0.15",
+    "clientHost": "envision",
+    "clientRenderer": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "clientWindowPid": 4023683,
+    "audioNode": "148",
+    "audioState": "owned_java_stream_mute_verified",
+    "preRestartInteraction": [
+      "real_xwayland_right_click_selected_restart_proof_cow",
+      "chat_selected_and_paused_feedback_observed"
+    ],
+    "restart": "graceful_stop_saved_all_dimensions_same_world_restart_and_client_reconnect",
+    "postRestartInteraction": "real_xwayland_right_click_with_retained_marker",
+    "postRestartFeedback": "This Follow Debug Stick is invalid. Issue a fresh stick with /bfs debug followme.",
+    "serverObservation": "no_post_restart_follow_claim",
+    "result": "stale_marker_rejected_after_restart_and_reconnect",
+    "cleanup": "exact_server_client_runtime_stream_launcher_logs_and_screenshots_removed_and_verified_absent"
+  },
+  "finalBuildBinding20260915": {
+    "sourceCommit": "db3a589",
+    "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
+    "artifactSha256": "b74d864d23fc5cc34213e8ea2bfd1ccdfe900e3481f5b7911b88cb1c32603a65",
+    "artifactSha512": "129a0a75d492f11a010da7889f7ecb57c80b37145453b85d0219999c49a9d80b566adecec13aed8ced606275ce2def0fe267a1ef268582da5bccb72a2f148def",
+    "checks": [
+      "forge_compile_java",
+      "forge_compile_test_java",
+      "forge_test",
+      "forge_data",
+      "forge_build",
+      "unzip_test"
+    ],
+    "result": "passed",
+    "cleanup": "no_runtime_started_by_this_build_check"
+  },
+  "schedulerWitnessFixtureRerun20260915": {
+    "sourceCommit": "b021dcb6833fe31661092f17cebe9fc0ea59269e",
+    "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
+    "artifactSha256": "60b5d2bf32158a05f0bb68fc6f78d021811a081066cc8ca7c0121ce97ba87a0d",
+    "artifactSha512": "03bc768cd8d2dd3b5ae97c431a189441727cf90fa01ee82478cf95ae77c7645fa39accec26ed555deeb3c59c50083e0d7ace21ab775cac4a25d4737d44d010b2",
+    "runtime": "/tmp/bfsm-p002-follow-reset-20260915i",
+    "namespace": "bfsfollow",
+    "requiredFollowGameTests": 34,
+    "result": "all_34_required_follow_gametests_passed",
+    "assertions": [
+      "three_hundred_twenty_one_followers_retained",
+      "route_evaluations_bounded",
+      "no_entity_cramming_lifecycle_loss",
+      "boss_adapter_coverage"
+    ],
+    "fixtureIsolation": "scheduler_witness_cows_invulnerable_and_silent_to_measure_queue_retention",
+    "checks": [
+      "forge_compile_java",
+      "forge_compile_test_java",
+      "forge_test",
+      "forge_data",
+      "forge_build",
+      "unzip_test"
+    ],
+    "cleanup": "runtime_removed_and_verified_absent_no_owned_process_remained"
+  }
+}

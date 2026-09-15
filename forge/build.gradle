@@ -18,6 +18,8 @@ mixin {
 def bfsGameTestRunDirectory = providers.gradleProperty('bfsGameTestRunDir')
         .map { file(it) }
         .getOrElse(file('run'))
+def bfsGameTestNamespaces = providers.gradleProperty('bfsGameTestNamespaces')
+        .getOrElse("${mod_id},bfsfollow")
 def bfsClientRunDirectory = providers.gradleProperty('bfsClientRunDir')
         .map { file(it) }
         .getOrElse(file('run'))
@@ -70,7 +72,7 @@ minecraft {
             workingDirectory bfsGameTestRunDirectory
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'GameTestServer'
-            property 'forge.enabledGameTestNamespaces', mod_id
+            property 'forge.enabledGameTestNamespaces', bfsGameTestNamespaces
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {

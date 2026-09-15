@@ -12,7 +12,7 @@ The Gradle `:forge:Server` development task is a startup smoke test. It may not 
 
 ```text
 /bfs debug on
-/bfs debug on <all|movement|brain|combat|population|advancement|algae> <20-36000> [targets]
+/bfs debug on <all|movement|brain|combat|population|advancement|algae|follow> <20-36000> [targets]
 /bfs debug status
 /bfs debug off
 ```
@@ -57,6 +57,34 @@ create a persistent profile.
 Each server owns at most one session. A second `on` command reports the existing session without resetting its limits. A session ends at its requested tick duration, its wall time deadline, an explicit `off`, a source dimension loss, or server shutdown. The wall deadline is twice the requested tick duration at 20 ticks per second plus 30 seconds. Queue overflow, oversized records, write failure, source loss, and server shutdown mark the capture incomplete.
 
 The active status line and terminal record expose the p95 nanoseconds spent in the bounded server capture path and the number of sampled server ticks. The sample is collected only while a session is enabled and never allocates or scans when capture is disabled. Compare this value with the same seeded fixture with capture off, and reject the diagnostic gate when the added p95 exceeds 5 percent or 0.25 milliseconds, whichever allowance is larger.
+
+## Follow debug leases
+
+The follow tool uses server authority and permission level two. Issue a reusable marker to the command sender or another online player. Click each living mob to add it to the group. Release the use button before clicking again; a fresh click on a selected mob releases only that member.
+
+```text
+/bfs debug followme [recipient]
+/bfs debug followme status [recipient] [page]
+/bfs debug followme stopone <target> [recipient]
+/bfs debug followme stop [recipient]
+/bfs debug on follow 400 [targets]
+```
+
+Console commands require an explicit recipient. Status pages contain up to ten members with stable session aliases and state, plus group counts. There is no arbitrary follower count limit. The diagnostic capture limit of 32 targets is independent of the number of selected mobs. Reissuing a stick rotates marker authorization while preserving existing selections.
+
+The marker carries a version, issue identifier and owner identifier. Only the server session that issued it may authorize its owner. Level two permission, the actual held stack, a living target and normal entity interaction reach are validated for every marked interaction. Invalid marked attempts are consumed to prevent an ordinary feeding, taming or advancement interaction. Unrelated items and empty hand callbacks remain untouched. Vanilla item use and its release signal distinguish a held button from a fresh click, including callbacks delivered on adjacent ticks. No click cooldown or arrival latch is used.
+
+Each mob has one owner. Arrival within four blocks plus the half widths of the owner and mob changes the member to waiting. It resumes following after another half block of separation. Selection has no automatic duration expiry. Putting the marker away, moving beyond 64 blocks or a blocked route pauses movement while retaining membership. A blocked route is retried at most once every 20 ticks. Normal route updates run no more often than once every ten ticks, through a fair queue with at most 32 route evaluations per server tick. Deferring route work never evicts a member.
+
+Chat and the action bar report selection, release, group stop, waiting, resuming, changed pause reasons and actual rejection reasons. Stable states do not emit a message every tick. A successful selection never also reports a claim failure. Messages use localized mob names and aliases, counts and words for the result. Marker issuance and status remain available when verbose capture is disabled.
+
+Use status to distinguish a selected member that is waiting or paused from a rejected claim. An operator permission rejection requires level two access. An invalid marker requires issuance during the current server session. For a paused member, hold the valid stick, return within range or clear a safe route according to its message. Turning toward the owner alone does not prove that a route exists or that a claim failed. Check membership and route progress rather than inferring the cause from appearance.
+
+Explicit toggle, targeted stop and group stop restore only the released member's owned controller state. Death, logout, dimension exit, removal, permission loss and server shutdown release affected selections. Logout clears the group and retains a bounded cleanup count for the next login in the same server session. Restart clears live selections and issuance. The manager never teleports, discards or moves a selected mob into a test fixture.
+
+The current adapters use normal mob navigation, SmartBrainLib walk targets, and the Ender Dragon charge phase target. Ground controllers receive temporary movement and targeting goals; owned paths and walk targets are removed by identity on release. SmartBrainLib sensors and memory expiry continue ticking. Temporary wrappers prevent ordinary activities and the normal walk task from replacing the follow route. Core look and panic tasks remain installed, and safety movement can use the ordinary walk task. Release restores the original behavior instances and priorities. Shared aquatic controllers check the same session ownership before writing an ordinary prey, school or habitat route. Slimes retain their native jump controller while the follow adapter supplies navigation direction. Dragon parts resolve to the parent dragon, and release restores its prior phase. Support has no species namespace whitelist, but actual boss, Brain and external controller movement and restoration require their recorded compatibility fixtures. A generic accepted claim is not proof of every controller's behavior.
+
+Follow captures use the existing `bfs-debug-v2` writer and the `follow` category. Events include `follow.claim`, `follow.adapter`, `follow.intent`, `follow.progress`, `follow.state`, `follow.reject`, `follow.release` and `follow.restore`. Version two follow records add group revision, selected count and member state. The parser validates those fields. Captures omit marker NBT and issuance tokens. Closing a capture drains pending records and writes its terminal record even when a writer task was already running. An I/O failure remains incomplete and does not start an unbounded retry loop. The remaining phase gates include group route fairness at larger loads, all controller and lifecycle cases, and actual laptop input and visible feedback against the matching installed candidate.
 
 When a selected entity leaves the level, its `target_lifecycle` record includes its runtime ID, whether it was removed, and the engine removal reason when the engine exposes one. A missing entity without a loaded object records explicit `unavailable:` values instead. Use that lifecycle evidence before treating a missing target as an animation or navigation failure. The server GameTest fixture `serverDebugCaptureRecordsRemovedTargetLifecycle` exercises the discarded path and requires the complete terminal record.
 

@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -119,7 +120,7 @@ public final class BfsDebugManager {
         }
         DebugCategory parsedCategory = DebugCategory.parse(category);
         if (parsedCategory == null) {
-            return StartResult.failure("Unknown debug category. Use all, movement, brain, combat, population, advancement, or algae.");
+            return StartResult.failure("Unknown debug category. Use all, movement, brain, combat, population, advancement, algae, or follow.");
         }
         if (durationTicks < MIN_DURATION_TICKS || durationTicks > MAX_DURATION_TICKS) {
             return StartResult.failure("Debug duration must be between " + MIN_DURATION_TICKS + " and " + MAX_DURATION_TICKS + " ticks.");
@@ -234,9 +235,49 @@ public final class BfsDebugManager {
         enqueue(active, record);
     }
 
+    public static void recordFollowEvent(ServerLevel level, String event, ServerPlayer owner, Entity target,
+                                         String reason, String adapter, long age, int blocked, double distance) {
+        recordFollowEvent(level, event, owner == null ? null : owner.getUUID(), target,
+                reason, adapter, age, blocked, distance);
+    }
+
+    public static void recordFollowEvent(ServerLevel level, String event, UUID ownerId, Entity target,
+                                         String reason, String adapter, long age, int blocked, double distance) {
+        recordFollowEvent(level, event, ownerId, target, reason, adapter, age, blocked, distance, -1, -1, null);
+    }
+
+    public static void recordFollowEvent(ServerLevel level, String event, UUID ownerId, Entity target,
+                                         String reason, String adapter, long age, int blocked, double distance,
+                                         int selectedCount, long groupRevision, String state) {
+        Session active = session;
+        if (active == null || !active.category.capturesFollow() || level == null
+                || level.isClientSide
+                || !level.dimension().equals(active.dimension)
+                || target != null && !active.tracks(target.getUUID())) {
+            return;
+        }
+        JsonObject record = baseRecord(active, event, level.getGameTime());
+        record.addProperty("owner", ownerId == null ? "owner_unavailable" : playerPseudonym(active, ownerId));
+        record.addProperty("target", target == null ? "entity_unavailable" : "entity_" + UUID.nameUUIDFromBytes(
+                (active.id + ":target:" + target.getUUID()).getBytes(StandardCharsets.UTF_8)).toString().replace("-", ""));
+        record.addProperty("targetType", target == null ? "unavailable" : entityId(target));
+        record.addProperty("reason", reason);
+        record.addProperty("adapter", adapter);
+        record.addProperty("leaseAge", age);
+        record.addProperty("blockedTicks", blocked);
+        record.addProperty("distance", distance);
+        if (selectedCount >= 0) {
+            record.addProperty("followVersion", 2);
+            record.addProperty("selectedCount", selectedCount);
+            record.addProperty("groupRevision", groupRevision);
+            record.addProperty("state", state);
+        }
+        enqueue(active, record);
+    }
+
     private static String playerPseudonym(Session active, UUID playerId) {
         return "player_" + UUID.nameUUIDFromBytes((active.id + ":" + playerId)
-                .getBytes(StandardCharsets.UTF_8));
+                .getBytes(StandardCharsets.UTF_8)).toString().replace("-", "");
     }
 
     private static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -258,7 +299,7 @@ public final class BfsDebugManager {
                 return;
             }
             long tick = level.getGameTime();
-            active.lastTick = tick;
+            active.lastTick.accumulateAndGet(tick, Math::max);
             for (FishingCatchTrace trace : active.pendingFishing.values()) {
                 recordFishing(active.id, tick, trace.settlement());
             }
@@ -788,7 +829,7 @@ public final class BfsDebugManager {
     }
 
     private static JsonObject endRecord(Session active, String reason) {
-        JsonObject record = baseRecord(active, "end", active.lastTick);
+        JsonObject record = baseRecord(active, "end", active.lastTick.get());
         record.addProperty("reason", reason);
         record.addProperty("recordsAccepted", active.accepted.get());
         record.addProperty("recordsDropped", active.dropped.get());
@@ -803,6 +844,7 @@ public final class BfsDebugManager {
     }
 
     private static JsonObject baseRecord(Session active, String type, long tick) {
+        active.lastTick.accumulateAndGet(tick, Math::max);
         JsonObject record = new JsonObject();
         record.addProperty("schema", SCHEMA_VERSION);
         record.addProperty("sessionId", active.id.toString());
@@ -843,6 +885,7 @@ public final class BfsDebugManager {
     }
 
     private static void drain(Session active) {
+        boolean canRetry = true;
         try {
             Files.createDirectories(active.outputDirectory);
             try (BufferedWriter writer = Files.newBufferedWriter(active.outputPath, StandardCharsets.UTF_8,
@@ -860,35 +903,38 @@ public final class BfsDebugManager {
                     writer.newLine();
                     active.writtenBytes += bytes.length + 1L;
                 }
-                writeTerminalRecord(writer, active);
+                canRetry = writeTerminalRecord(writer, active);
             }
         } catch (IOException exception) {
+            canRetry = false;
             active.markIncomplete("writer failure: " + exception.getClass().getSimpleName());
             finish(active, "writer_failure");
             active.records.clear();
             BensFintasticSharks.LOG.error("BFS debug capture writer failed for {}", active.id, exception);
         } finally {
             active.writerScheduled.set(false);
-            if (!active.closed.get() && !active.records.isEmpty()) {
+            if (canRetry && (!active.records.isEmpty()
+                    || active.terminalRecord != null && !active.terminalWritten.get())) {
                 scheduleWriter(active);
             }
         }
     }
 
-    private static void writeTerminalRecord(BufferedWriter writer, Session active) throws IOException {
+    private static boolean writeTerminalRecord(BufferedWriter writer, Session active) throws IOException {
         String terminal = active.terminalRecord;
         if (terminal == null || active.terminalWritten.get()) {
-            return;
+            return true;
         }
         byte[] bytes = terminal.getBytes(StandardCharsets.UTF_8);
         if (active.writtenBytes + bytes.length + 1L > MAX_SESSION_BYTES) {
             active.markIncomplete("terminal record exceeds reserved session output budget");
-            return;
+            return false;
         }
         writer.write(terminal);
         writer.newLine();
         active.writtenBytes += bytes.length + 1L;
         active.terminalWritten.set(true);
+        return true;
     }
 
     private static void finish(Session active, String reason) {
@@ -996,7 +1042,8 @@ public final class BfsDebugManager {
         COMBAT("combat"),
         POPULATION("population"),
         ADVANCEMENT("advancement"),
-        ALGAE("algae");
+        ALGAE("algae"),
+        FOLLOW("follow");
 
         private final String id;
 
@@ -1036,6 +1083,10 @@ public final class BfsDebugManager {
 
         private boolean capturesAlgae() {
             return this == ALL || this == ALGAE;
+        }
+
+        private boolean capturesFollow() {
+            return this == ALL || this == FOLLOW;
         }
     }
 
@@ -1117,7 +1168,7 @@ public final class BfsDebugManager {
         private final long startNanos = System.nanoTime();
         private volatile String incompleteReason = "none";
         private volatile long writtenBytes;
-        private volatile long lastTick;
+        private final AtomicLong lastTick = new AtomicLong();
         private volatile String stopReason = "none";
         @Nullable
         private volatile String terminalRecord;
@@ -1136,7 +1187,7 @@ public final class BfsDebugManager {
             this.excludedTargets = excludedTargets;
             this.startTick = startTick;
             this.endTick = endTick;
-            this.lastTick = startTick;
+            this.lastTick.set(startTick);
             this.wallDeadlineMillis = wallDeadlineMillis;
             this.outputDirectory = outputDirectory;
             this.outputPath = outputDirectory.resolve("bfs-debug-" + FILE_TIME.format(Instant.now()) + "-" + id + ".jsonl");

@@ -130,3 +130,9 @@ Hashes below describe the exact observed bytes. All are SHA 256. The pinned sour
 | [tools/performance/run_matrix.py](https://github.com/bdubsub/BensFintasticSharkMod/blob/40207d1b4cbe8db9963f32e43b79bdcfce58918a/tools/performance/run_matrix.py) | `a0e8adca931524ee8c383b4f23d18c7a0d262f2d7c71e0b589e5b6f5e5a0f54c` | Match |
 | [tools/performance/analyze_performance.py](https://github.com/bdubsub/BensFintasticSharkMod/blob/40207d1b4cbe8db9963f32e43b79bdcfce58918a/tools/performance/analyze_performance.py) | `8647d10e5fdb2203e6c418773df2d08749f07f8d3a99f9187827432095fef496` | Match |
 | [tools/performance/test_analyze_performance.py](https://github.com/bdubsub/BensFintasticSharkMod/blob/40207d1b4cbe8db9963f32e43b79bdcfce58918a/tools/performance/test_analyze_performance.py) | `1b89fba747ccc7539dea7fe11c36e45ba4852f9bda579cba6b725792a3a2b3aa` | Match |
+
+## Follow group amendment boundary
+
+At the revision and observation time in [the follow amendment source record](sources/follow-group-amendment.md), `BfsFollowManager` owns issuance, interaction, indexes, arrival state, navigation, lifecycle and rejection feedback. `BfsDebugCommands` owns issuance/status/stop parsing; `BfsFollowGameTests` covers current click and lifecycle paths. Group membership, actual press deduplication, clear outcome delivery and per mob cleanup require coordinated changes across those boundaries. Existing capture managers, follow item input, parser and localized messages supply observability and presentation. Use the recorded exact file hashes to recheck affected evidence after edits.
+
+CodeGraph reported its index current but omitted the requested follow symbols in exploration. Bounded direct reads covered those exact paths; no graph caller completeness or runtime pass is inferred. The amended IFC-004 version 2 is produced by Phase 002 and consumed by Phases 003 and 007. Other interfaces and phase ownership remain unchanged.

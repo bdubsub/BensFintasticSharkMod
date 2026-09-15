@@ -13,8 +13,10 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
 import tfar.bensfintasticsharks.config.SpeciesSettingsConfigBridge;
 import tfar.bensfintasticsharks.entity.SpeciesSettingsService;
+import tfar.bensfintasticsharks.follow.BfsFollowManager;
 import tfar.bensfintasticsharks.spawn.MobCapManager;
 
 import java.util.EnumMap;
@@ -56,6 +58,7 @@ public final class BfsDebugCommands {
                 .then(on)
                 .then(Commands.literal("off").executes(BfsDebugCommands::stop))
                 .then(Commands.literal("status").executes(BfsDebugCommands::status))
+                .then(followNode())
                 .then(settingsNode())
                 .then(speedNode())
                 .then(sprintNode())
@@ -65,6 +68,69 @@ public final class BfsDebugCommands {
                 .then(attributeNode("setdamage", SpeciesSettingsService.Field.DAMAGE_MULTIPLIER))
                 .then(attributeNode("setknockback", SpeciesSettingsService.Field.KNOCKBACK_RESISTANCE))
                 .then(behaviorNode());
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> followNode() {
+        return Commands.literal("followme").requires(source -> source.hasPermission(2))
+                .executes(context -> issueFollow(context, context.getSource().getPlayerOrException()))
+                .then(Commands.argument("recipient", EntityArgument.player())
+                        .executes(context -> issueFollow(context, EntityArgument.getPlayer(context, "recipient"))))
+                .then(Commands.literal("status")
+                        .executes(context -> followStatus(context, context.getSource().getPlayerOrException(), 1))
+                        .then(Commands.argument("recipient", EntityArgument.player())
+                                .executes(context -> followStatus(context, EntityArgument.getPlayer(context, "recipient"), 1))
+                                .then(Commands.argument("page", IntegerArgumentType.integer(1))
+                                        .executes(context -> followStatus(context, EntityArgument.getPlayer(context, "recipient"),
+                                                IntegerArgumentType.getInteger(context, "page"))))))
+                .then(Commands.literal("stopone")
+                        .then(Commands.argument("target", EntityArgument.entity())
+                                .executes(context -> stopOneFollow(context, context.getSource().getPlayerOrException()))
+                                .then(Commands.argument("recipient", EntityArgument.player())
+                                        .executes(context -> stopOneFollow(context, EntityArgument.getPlayer(context, "recipient"))))))
+                .then(Commands.literal("stop")
+                        .executes(context -> stopFollow(context, context.getSource().getPlayerOrException()))
+                        .then(Commands.argument("recipient", EntityArgument.player())
+                                .executes(context -> stopFollow(context, EntityArgument.getPlayer(context, "recipient")))));
+    }
+
+    private static int issueFollow(CommandContext<CommandSourceStack> context, ServerPlayer recipient) {
+        BfsFollowManager.issue(recipient);
+        if (context.getSource().getEntity() != recipient) {
+            context.getSource().sendSuccess(() -> BfsFollowManager.message("issued_to", recipient.getDisplayName()), false);
+        }
+        return 1;
+    }
+
+    private static int followStatus(CommandContext<CommandSourceStack> context, ServerPlayer recipient, int page) {
+        BfsFollowManager.Status status = BfsFollowManager.status(recipient, page);
+        Component summary = BfsFollowManager.message("status", recipient.getDisplayName(),
+                BfsFollowManager.count(status.selectedCount()), status.followingCount(), status.waitingCount(),
+                status.pausedCount(), status.page(), status.pages());
+        if (context.getSource().getEntity() instanceof ServerPlayer viewer) {
+            BfsFollowManager.notifyOwner(viewer, summary);
+        } else context.getSource().sendSuccess(() -> summary, false);
+        for (BfsFollowManager.MemberStatus member : status.entries()) {
+            Component entry = BfsFollowManager.message("status_entry", member.label(),
+                    BfsFollowManager.message("state." + member.state()), BfsFollowManager.message("reason." + member.reason()));
+            context.getSource().sendSuccess(() -> entry, false);
+        }
+        return status.selectedCount();
+    }
+
+    private static int stopFollow(CommandContext<CommandSourceStack> context, ServerPlayer recipient) {
+        int count = BfsFollowManager.stopAll(recipient, "command_stop");
+        if (context.getSource().getEntity() != recipient) context.getSource().sendSuccess(
+                () -> BfsFollowManager.message("group_released", BfsFollowManager.count(count),
+                        BfsFollowManager.count(BfsFollowManager.selectedCount(recipient))), false);
+        return count;
+    }
+
+    private static int stopOneFollow(CommandContext<CommandSourceStack> context, ServerPlayer recipient)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        boolean released = BfsFollowManager.stopOne(recipient, EntityArgument.getEntity(context, "target"));
+        if (context.getSource().getEntity() != recipient) context.getSource().sendSuccess(
+                () -> BfsFollowManager.message(released ? "target_released" : "not_selected"), false);
+        return released ? 1 : 0;
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> settingsNode() {

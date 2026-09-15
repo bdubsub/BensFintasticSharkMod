@@ -105,6 +105,7 @@ public class BfsCommands {
         line(src, "/bfs disturbance <type>", "fire a test light/heavy/blood disturbance at your position");
         line(src, "/bfs reload", "reload config without restarting the server");
         line(src, "/bfs debug on", "start a bounded server diagnostic capture");
+        line(src, "/bfs debug followme", "issue a reusable stick for temporary mob follow tests");
         line(src, "/bfs debug settings help", "inspect session-only species tuning and revision controls");
         return 1;
     }

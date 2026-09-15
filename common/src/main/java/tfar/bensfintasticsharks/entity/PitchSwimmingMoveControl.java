@@ -128,6 +128,42 @@ public class PitchSwimmingMoveControl extends MoveControl {
         routeHandoff = false;
     }
 
+    /** Clears one navigation-owned destination without touching external velocity. */
+    public void clearNavigationRequest() {
+        operation = Operation.WAIT;
+        route = null;
+        requestedGoal = null;
+        progressWaypoint = null;
+        bestWaypointDistance = 0;
+        stalledTicks = 0;
+        navigationOwned = false;
+        pitchRate = 0;
+        routeSpeedCap = 0;
+        selectedWaypoint = null;
+        targetPitch = mob.getXRot();
+        directVerticalTarget = false;
+        blockedGoal = null;
+        retryAfterTick = 0;
+        depthGuidance = null;
+        settling = false;
+        committedHeading = false;
+        headingCorrectionUsed = false;
+        waitingForHeading = false;
+        longDirectVerticalRoute = false;
+        headingHoldTicks = 0;
+        remainingVerticalDistance = 0;
+        routeStartedWithOpposingPitch = false;
+        suppressSettlingTranslation = false;
+        routeHandoff = false;
+        routeState = "idle";
+        Vec3 observed = mob.getDeltaMovement();
+        mob.setDeltaMovement(observed.subtract(poweredCarry));
+        poweredCarry = Vec3.ZERO;
+        mob.setXxa(0);
+        mob.setYya(0);
+        mob.setZza(0);
+    }
+
     @Override
     public void tick() {
         if (MovementIntentOverrides.active(mob)) {

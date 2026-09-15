@@ -1,4 +1,4 @@
-// 1.20.1	2026-09-10T18:27:39.171576454	Item Models: bensfintasticsharks
+// 1.20.1	2026-09-13T20:33:18.521906178	Item Models: bensfintasticsharks
 0931dc0eba9d0c9310ec557c158a1eb7789233d5 assets/bensfintasticsharks/models/item/albino.json
 7e38b0672cf67bb7e4c5eecaac5b4e81e197e741 assets/bensfintasticsharks/models/item/algae_block.json
 09d95f667da77ceacbeb073bb61f7573f48c90c8 assets/bensfintasticsharks/models/item/american_lobster_spawn_egg.json
@@ -26,6 +26,7 @@ e302ccab93f83614d8f7a2f0d8c3ae1daa6d7861 assets/bensfintasticsharks/models/item/
 83d3df9de6d7a1c4869dbc337e3a6c3b9b6504fa assets/bensfintasticsharks/models/item/cooked_atlantic_salmon.json
 0e6b724fe1924625f1c160c72c6d56f734a2b2f1 assets/bensfintasticsharks/models/item/cooked_lobster_claw.json
 7aa62a211b2c5c9b6640b7755799c687c7673ea5 assets/bensfintasticsharks/models/item/cooked_lobster_tail.json
+be44db6dcd5cd06217ef4e7a8025a21185ac48ac assets/bensfintasticsharks/models/item/follow_stick.json
 c4dd529ed4a846789e925df68c999eadd7dd0a2a assets/bensfintasticsharks/models/item/giant_moray_eel_spawn_egg.json
 6d9098db848dfdabd7f5a2bb7c3bbec85d0c9c40 assets/bensfintasticsharks/models/item/great_hammerhead_shark_advancement_icon.json
 ffeab6faed204cc04c22abca4c2bb4e5505f90f0 assets/bensfintasticsharks/models/item/great_hammerhead_shark_pixel_art.json

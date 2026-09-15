@@ -75,6 +75,9 @@ public class ModItems {
 
     public static final Item SHARK_TRIDENT = new SharkTridentItem(new Item.Properties().durability(500));
 
+    /** Reusable server issued marker used by the bounded follow debug harness. */
+    public static final Item FOLLOW_STICK = new tfar.bensfintasticsharks.item.FollowStickItem(new Item.Properties().stacksTo(1));
+
     public static final Item SHARK_CODEX = new SharkCodexItem(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
     public static final Item LOST_MANUSCRIPT = new Item(new Item.Properties());
     public static final Item CODEX_PAGE = new Item(new Item.Properties());

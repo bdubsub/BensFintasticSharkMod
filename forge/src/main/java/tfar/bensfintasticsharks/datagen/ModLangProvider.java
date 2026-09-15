@@ -23,9 +23,57 @@ public class ModLangProvider extends LanguageProvider {
         super(gen, BensFintasticSharks.MOD_ID, "en_us");
     }
 
+    private void addFollowTranslations() {
+        add("bfs.follow.reason.safety", "Safety behavior has priority");
+        add("bfs.follow.tooltip", "Right click a mob to select it. Release the button, then click it again to stop following.");
+        add("bfs.follow.issued", "Follow Debug Stick issued. Click mobs to add them, then click each again to release it. %s selected.");
+        add("bfs.follow.issued_to", "Follow Debug Stick issued to %s.");
+        add("bfs.follow.target", "%s [%s]");
+        add("bfs.follow.count.one", "1 mob");
+        add("bfs.follow.count.many", "%s mobs");
+        add("bfs.follow.selected", "Selected: %s. %s selected.");
+        add("bfs.follow.waiting", "Arrived nearby: %1$s. %3$s still selected. Click this mob again to release only it.");
+        add("bfs.follow.resumed", "Following again: %1$s. %3$s selected.");
+        add("bfs.follow.paused", "Paused: %s. %s. %s still selected.");
+        add("bfs.follow.released", "Released: %s. %s. %s selected.");
+        add("bfs.follow.group_released", "Released %s. %s selected.");
+        add("bfs.follow.target_released", "The selected mob was released.");
+        add("bfs.follow.not_selected", "That mob is not selected in this follow group.");
+        add("bfs.follow.offline_cleanup", "Your previous follow group was cleared when you left. Released %s.");
+        add("bfs.follow.permission_denied", "The Follow Debug Stick requires operator permission level 2.");
+        add("bfs.follow.invalid_stick", "This Follow Debug Stick is invalid. Issue a fresh stick with /bfs debug followme.");
+        add("bfs.follow.unsupported_target", "Select a living mob with the Follow Debug Stick.");
+        add("bfs.follow.target_out_of_range", "Move within normal interaction reach of that mob.");
+        add("bfs.follow.target_already_claimed", "That mob is selected by another operator.");
+        add("bfs.follow.status", "Follow group for %s. Selected: %s. Following: %s. Waiting: %s. Paused: %s. Page %s of %s.");
+        add("bfs.follow.status_entry", "%s. %s. %s.");
+        add("bfs.follow.state.following", "Following");
+        add("bfs.follow.state.waiting", "Waiting");
+        add("bfs.follow.state.paused", "Paused");
+        add("bfs.follow.reason.tracking", "Moving toward you");
+        add("bfs.follow.reason.nearby", "Still selected nearby");
+        add("bfs.follow.reason.marker_not_held", "Hold your valid Follow Debug Stick to resume");
+        add("bfs.follow.reason.range_exceeded", "Return within 64 blocks to resume");
+        add("bfs.follow.reason.no_route", "Waiting for a safe reachable route");
+        add("bfs.follow.reason.clicked_again", "You clicked this mob again");
+        add("bfs.follow.reason.command_stop", "Stopped by command");
+        add("bfs.follow.reason.lifecycle", "The owner or mob is no longer available");
+        add("bfs.follow.reason.permission_lost", "Follow authorization was lost");
+        add("bfs.follow.reason.dimension_changed", "The owner and mob are in different dimensions");
+        add("bfs.follow.reason.entity_left_level", "The mob left the loaded world");
+        add("bfs.follow.reason.owner_left_level", "The owner left the loaded world");
+        add("bfs.follow.reason.target_died", "The mob died");
+        add("bfs.follow.reason.owner_died", "The owner died");
+        add("bfs.follow.reason.owner_changed_dimension", "The owner changed dimension");
+        add("bfs.follow.reason.owner_respawned", "The owner respawned");
+        add("bfs.follow.reason.owner_logged_out", "The owner disconnected");
+        add("bfs.follow.reason.server_stopping", "The server is stopping");
+    }
+
     protected final Set<Item> exclude_items = new HashSet<>();
     @Override
     protected void addTranslations() {
+        addFollowTranslations();
         BensFintasticSharks.getKnownItems().filter(item -> item instanceof BlockItem).forEach(exclude_items::add);
         // Bug 12: exclude the hat from auto-naming ("Captain Ben Hat") so the explicit
         // "Capitán" override below is the single source of truth (LanguageProvider.add throws
@@ -41,6 +89,7 @@ public class ModLangProvider extends LanguageProvider {
         // next datagen run ("Nautilus"/"Sandtiger Shark" regressions). Overrides below.
         exclude_items.add(tfar.bensfintasticsharks.init.ModItems.NAUTILUS_SPAWN_EGG);
         exclude_items.add(tfar.bensfintasticsharks.init.ModItems.SANDTIGER_SHARK_SPAWN_EGG);
+        exclude_items.add(tfar.bensfintasticsharks.init.ModItems.FOLLOW_STICK);
         BensFintasticSharks.getKnownItems().toList().stream().filter(item -> !exclude_items.contains(item)).<Supplier<? extends Item>>map(item -> () -> item).forEach(this::addDefaultItem);
         BensFintasticSharks.getKnownBlocks().<Supplier<? extends Block>>map(block -> () -> block).forEach(this::addDefaultBlock);
 
@@ -163,6 +212,7 @@ public class ModLangProvider extends LanguageProvider {
         // 0.18 — Megalodon Tooth gag subtext (split so the tooltip doesn't run long).
         add("item.bensfintasticsharks.megalodon_tooth.flavor", "100% authentic Otodus megalodon");
         add("item.bensfintasticsharks.megalodon_tooth.flavor2", "specimen tooth!...Probably.");
+        add("item.bensfintasticsharks.follow_stick", "Follow Debug Stick");
 
         // Conservation effect
         add("effect.bensfintasticsharks.respect_the_ocean", "Respect the Ocean");
