@@ -45,6 +45,9 @@ import tfar.bensfintasticsharks.entity.AquaticMovement;
 import tfar.bensfintasticsharks.entity.SmartWaterAnimal;
 import tfar.bensfintasticsharks.entity.SpeciesBehaviorProfile;
 import tfar.bensfintasticsharks.diagnostics.AlgaeDiagnostics;
+import tfar.bensfintasticsharks.dive.DiveOxygenManager;
+import tfar.bensfintasticsharks.dive.DiveSuitEligibility;
+import tfar.bensfintasticsharks.mixin.LivingEntityJumpingAccessor;
 
 import javax.annotation.Nullable;
 import java.io.BufferedWriter;
@@ -124,7 +127,7 @@ public final class BfsDebugManager {
         }
         DebugCategory parsedCategory = DebugCategory.parse(category);
         if (parsedCategory == null) {
-            return StartResult.failure("Unknown debug category. Use all, movement, brain, combat, population, advancement, algae, follow, disturbance, or boat.");
+            return StartResult.failure("Unknown debug category. Use all, movement, brain, combat, population, advancement, algae, dive, follow, disturbance, or boat.");
         }
         if (durationTicks < MIN_DURATION_TICKS || durationTicks > MAX_DURATION_TICKS) {
             return StartResult.failure("Debug duration must be between " + MIN_DURATION_TICKS + " and " + MAX_DURATION_TICKS + " ticks.");
@@ -139,6 +142,9 @@ public final class BfsDebugManager {
         }
 
         ServerLevel level = source.getLevel();
+        if (parsedCategory == DebugCategory.DIVE && requestedTargets.isEmpty()) {
+            return StartResult.failure("Dive diagnostics require one explicit player target.");
+        }
         LinkedHashSet<UUID> selected = new LinkedHashSet<>();
         int eligible = 0;
         int excluded = 0;
@@ -163,12 +169,19 @@ public final class BfsDebugManager {
                     excluded++;
                     continue;
                 }
+                if (parsedCategory == DebugCategory.DIVE && !(candidate instanceof ServerPlayer)) {
+                    excluded++;
+                    continue;
+                }
                 if (selected.size() < MAX_TARGETS) {
                     selected.add(candidate.getUUID());
                 } else {
                     excluded++;
                 }
             }
+        }
+        if (parsedCategory == DebugCategory.DIVE && selected.isEmpty()) {
+            return StartResult.failure("Dive diagnostics require a player target in the source dimension.");
         }
 
         long startTick = level.getGameTime();
@@ -426,6 +439,89 @@ public final class BfsDebugManager {
         enqueue(active, record);
     }
 
+    public static void recordDiveOxygen(ServerPlayer player, DiveSuitEligibility.Result eligibility,
+                                        int before, int after, String transition, boolean consumed,
+                                        boolean refilled, String reason) {
+        Session active = session;
+        if (active == null || !active.category.capturesDive() || player == null
+                || !player.level().dimension().equals(active.dimension) || !active.tracks(player.getUUID())) {
+            return;
+        }
+        JsonObject record = baseRecord(active, "dive_oxygen", player.level().getGameTime());
+        record.addProperty("player", playerPseudonym(active, player.getUUID()));
+        record.addProperty("entityType", entityId(player));
+        record.addProperty("fullSuit", eligibility.fullSuit());
+        record.addProperty("submergedEyes", eligibility.submergedEyes());
+        record.addProperty("waterContact", eligibility.waterContact());
+        record.addProperty("eligible", eligibility.eligible());
+        record.addProperty("beforeTicks", before);
+        record.addProperty("remainingTicks", after);
+        record.addProperty("deltaTicks", after - before);
+        record.addProperty("consumed", consumed);
+        record.addProperty("refilled", refilled);
+        record.addProperty("transition", transition);
+        record.addProperty("reason", reason);
+        record.addProperty("schema", DiveOxygenManager.schema(player));
+        record.addProperty("revision", DiveOxygenManager.revision(player));
+        enqueue(active, record);
+    }
+
+    public static void recordDiveTravel(ServerPlayer player, DiveSuitEligibility.Result eligibility,
+                                        boolean applied, String reason, Vec3 input,
+                                        Vec3 beforeVelocity, Vec3 afterVelocity, boolean jumpEdge) {
+        Session active = session;
+        if (active == null || !active.category.capturesDive() || player == null
+                || !player.level().dimension().equals(active.dimension) || !active.tracks(player.getUUID())) {
+            return;
+        }
+        JsonObject record = baseRecord(active, "dive_travel", player.level().getGameTime());
+        record.addProperty("player", playerPseudonym(active, player.getUUID()));
+        record.addProperty("entityType", entityId(player));
+        record.addProperty("fullSuit", eligibility.fullSuit());
+        record.addProperty("waterContact", eligibility.waterContact());
+        record.addProperty("eligible", eligibility.eligible());
+        record.addProperty("applied", applied);
+        record.addProperty("reason", reason);
+        record.addProperty("jumpEdge", jumpEdge);
+        record.addProperty("inputX", input.x);
+        record.addProperty("inputY", input.y);
+        record.addProperty("inputZ", input.z);
+        record.addProperty("beforeVelocityX", beforeVelocity.x);
+        record.addProperty("beforeVelocityY", beforeVelocity.y);
+        record.addProperty("beforeVelocityZ", beforeVelocity.z);
+        record.addProperty("afterVelocityX", afterVelocity.x);
+        record.addProperty("afterVelocityY", afterVelocity.y);
+        record.addProperty("afterVelocityZ", afterVelocity.z);
+        record.addProperty("movementMode", applied ? "seabed" : "vanilla");
+        record.addProperty("schema", DiveOxygenManager.schema(player));
+        record.addProperty("revision", DiveOxygenManager.revision(player));
+        enqueue(active, record);
+    }
+
+    public static void recordDiveWork(ServerPlayer player, String action, BlockState state, BlockPos pos,
+                                      float before, float after, String result, String reason) {
+        Session active = session;
+        if (active == null || !active.category.capturesDive() || player == null
+                || !player.level().dimension().equals(active.dimension) || !active.tracks(player.getUUID())) {
+            return;
+        }
+        JsonObject record = baseRecord(active, "dive_work", player.level().getGameTime());
+        record.addProperty("player", playerPseudonym(active, player.getUUID()));
+        record.addProperty("action", action);
+        record.addProperty("block", BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
+        record.addProperty("positionX", pos.getX());
+        record.addProperty("positionY", pos.getY());
+        record.addProperty("positionZ", pos.getZ());
+        record.addProperty("beforeSpeed", before);
+        record.addProperty("afterSpeed", after);
+        record.addProperty("result", result);
+        record.addProperty("reason", reason);
+        record.addProperty("eligible", DiveSuitEligibility.evaluate(player).eligible());
+        record.addProperty("schema", DiveOxygenManager.schema(player));
+        record.addProperty("revision", DiveOxygenManager.revision(player));
+        enqueue(active, record);
+    }
+
     private static String playerPseudonym(Session active, UUID playerId) {
         return "player_" + UUID.nameUUIDFromBytes((active.id + ":" + playerId)
                 .getBytes(StandardCharsets.UTF_8)).toString().replace("-", "");
@@ -598,6 +694,14 @@ public final class BfsDebugManager {
                     && tick > active.startTick
                     && (tick - active.startTick) % POPULATION_SAMPLE_INTERVAL_TICKS == 0) {
                 enqueue(active, populationRecord(active, level, tick));
+            }
+            if (active.category.capturesDive()) {
+                for (UUID targetId : active.trackedTargets()) {
+                    Entity target = level.getEntity(targetId);
+                    if (target instanceof ServerPlayer player) {
+                        enqueue(active, diveRecord(active, player, tick));
+                    }
+                }
             }
             if (!active.category.capturesMovement()) {
                 return;
@@ -1016,6 +1120,40 @@ public final class BfsDebugManager {
         return record;
     }
 
+    private static JsonObject diveRecord(Session active, ServerPlayer player, long tick) {
+        DiveSuitEligibility.Result eligibility = DiveSuitEligibility.evaluate(player);
+        JsonObject record = baseRecord(active, "dive_eligibility", tick);
+        record.addProperty("player", playerPseudonym(active, player.getUUID()));
+        record.addProperty("entityType", entityId(player));
+        record.addProperty("fullSuit", eligibility.fullSuit());
+        record.addProperty("submergedEyes", eligibility.submergedEyes());
+        record.addProperty("waterContact", eligibility.waterContact());
+        record.addProperty("eligible", eligibility.eligible());
+        record.addProperty("movementMode", eligibility.eligible() ? "seabed" : "vanilla");
+        record.addProperty("oxygenMode", diveOxygenMode(player, eligibility));
+        record.addProperty("remainingTicks", DiveOxygenManager.readReserve(player));
+        record.addProperty("schema", DiveOxygenManager.schema(player));
+        record.addProperty("revision", DiveOxygenManager.revision(player));
+        record.addProperty("onGround", player.onGround());
+        record.addProperty("jumping", ((LivingEntityJumpingAccessor) player).bfs$isJumping());
+        record.addProperty("velocityX", player.getDeltaMovement().x);
+        record.addProperty("velocityY", player.getDeltaMovement().y);
+        record.addProperty("velocityZ", player.getDeltaMovement().z);
+        record.addProperty("positionX", player.getX());
+        record.addProperty("positionY", player.getY());
+        record.addProperty("positionZ", player.getZ());
+        record.addProperty("airSupply", player.getAirSupply());
+        record.addProperty("tickCount", player.tickCount);
+        return record;
+    }
+
+    private static String diveOxygenMode(ServerPlayer player, DiveSuitEligibility.Result eligibility) {
+        if (!eligibility.fullSuit()) return "vanilla";
+        if (player.hasEffect(net.minecraft.world.effect.MobEffects.WATER_BREATHING)) return "external_breathing";
+        if (!eligibility.submergedEyes()) return "air";
+        return DiveOxygenManager.readReserve(player) > 0 ? "protected" : "empty";
+    }
+
     private static JsonObject populationRecord(Session active, ServerLevel level, long tick) {
         JsonObject record = baseRecord(active, "population_sample", tick);
         int loadedEntities = 0;
@@ -1330,6 +1468,7 @@ public final class BfsDebugManager {
         POPULATION("population"),
         ADVANCEMENT("advancement"),
         ALGAE("algae"),
+        DIVE("dive"),
         FOLLOW("follow"),
         DISTURBANCE("disturbance"),
         BOAT("boat");
@@ -1372,6 +1511,10 @@ public final class BfsDebugManager {
 
         private boolean capturesAlgae() {
             return this == ALL || this == ALGAE;
+        }
+
+        private boolean capturesDive() {
+            return this == ALL || this == DIVE;
         }
 
         private boolean capturesFollow() {

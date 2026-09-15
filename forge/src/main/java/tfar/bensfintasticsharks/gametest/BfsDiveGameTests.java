@@ -90,6 +90,52 @@ public final class BfsDiveGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_dive", timeoutTicks = 40)
+    public static void oxygenSchemaRepairsCorruptionAndPreservesNewerState(GameTestHelper helper) {
+        prepareWater(helper);
+        Player missing = makePlayer(helper, new BlockPos(2, 3, 2));
+        Player corrupt = makePlayer(helper, new BlockPos(4, 3, 2));
+        Player newer = makePlayer(helper, new BlockPos(6, 3, 2));
+        equipFullSuit(missing);
+        equipFullSuit(corrupt);
+        equipFullSuit(newer);
+        corrupt.getPersistentData().putInt("bfs_dive_oxygen_schema", DiveOxygenManager.SCHEMA);
+        corrupt.getPersistentData().putBoolean("bfs_dive_oxygen_initialized", true);
+        corrupt.getPersistentData().putInt("bfs_dive_oxygen_ticks", -7);
+        newer.getPersistentData().putInt("bfs_dive_oxygen_schema", DiveOxygenManager.SCHEMA + 1);
+        newer.getPersistentData().putBoolean("bfs_dive_oxygen_initialized", true);
+        newer.getPersistentData().putInt("bfs_dive_oxygen_ticks", 1234);
+        helper.runAfterDelay(10, () -> {
+            missing.setPos(helper.absolutePos(new BlockPos(2, 2, 2)).getCenter());
+            corrupt.setPos(helper.absolutePos(new BlockPos(4, 2, 2)).getCenter());
+            newer.setPos(helper.absolutePos(new BlockPos(6, 2, 2)).getCenter());
+            missing.setDeltaMovement(Vec3.ZERO);
+            corrupt.setDeltaMovement(Vec3.ZERO);
+            newer.setDeltaMovement(Vec3.ZERO);
+            DiveOxygenManager.tick(missing);
+            helper.assertTrue(missing.getPersistentData().getBoolean("bfs_dive_oxygen_initialized")
+                            && missing.getPersistentData().getInt("bfs_dive_oxygen_ticks") >= 0
+                            && missing.getPersistentData().getInt("bfs_dive_oxygen_ticks")
+                            <= DiveOxygenManager.MAX_RESERVE_TICKS,
+                    "missing state must initialize once within the supported reserve range");
+            DiveOxygenManager.tick(corrupt);
+            helper.assertTrue(DiveOxygenManager.readReserve(corrupt) == 0,
+                    "established supported corruption must repair to zero, value="
+                            + DiveOxygenManager.readReserve(corrupt));
+            DiveOxygenManager.tick(newer);
+            helper.assertTrue(newer.getPersistentData().getInt("bfs_dive_oxygen_schema")
+                            == DiveOxygenManager.SCHEMA + 1
+                            && newer.getPersistentData().getInt("bfs_dive_oxygen_ticks") == 1234,
+                    "newer schema state must remain opaque and unchanged");
+            helper.assertTrue(!DiveOxygenManager.supportsSchema(newer),
+                    "newer schema must be rejected without downgrade");
+            missing.remove(Entity.RemovalReason.DISCARDED);
+            corrupt.remove(Entity.RemovalReason.DISCARDED);
+            newer.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
     private static void prepareWater(GameTestHelper helper) {
         for (int x = 0; x < 8; x++) {
             for (int z = 0; z < 8; z++) {

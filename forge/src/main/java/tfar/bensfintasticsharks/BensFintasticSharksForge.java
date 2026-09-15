@@ -1,21 +1,26 @@
 package tfar.bensfintasticsharks;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -38,6 +43,7 @@ import tfar.bensfintasticsharks.init.ModMobEffects;
 import tfar.bensfintasticsharks.init.ModTags;
 import tfar.bensfintasticsharks.trade.BfsFishermanTrades;
 import tfar.bensfintasticsharks.network.DiveNetworking;
+import tfar.bensfintasticsharks.debug.BfsDebugManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,6 +74,9 @@ public class BensFintasticSharksForge {
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerRespawn);
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoggedIn);
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerClone);
+        MinecraftForge.EVENT_BUS.addListener(this::onBreakSpeed);
+        MinecraftForge.EVENT_BUS.addListener(this::onBlockBreak);
+        MinecraftForge.EVENT_BUS.addListener(this::onBlockPlace);
         MinecraftForge.EVENT_BUS.addListener(this::onEntityLeaveLevel);
         MinecraftForge.EVENT_BUS.addListener(this::onServerStopping);
         MinecraftForge.EVENT_BUS.addListener(this::trading);
@@ -147,6 +156,43 @@ public class BensFintasticSharksForge {
 
     private void onPlayerClone(PlayerEvent.Clone event) {
         DiveOxygenManager.copy(event.getOriginal(), event.getEntity());
+    }
+
+    private void onBreakSpeed(PlayerEvent.BreakSpeed event) {
+        Player player = event.getEntity();
+        DiveSuitEligibility.Result eligibility = DiveSuitEligibility.evaluate(player);
+        float before = event.getNewSpeed();
+        float after = before;
+        String reason = "ineligible";
+        if (eligibility.eligible() && player.isEyeInFluid(FluidTags.WATER)
+                && !EnchantmentHelper.hasAquaAffinity(player)) {
+            after = before * 5.0F;
+            event.setNewSpeed(after);
+            reason = "removed_underwater_penalty";
+        }
+        if (player instanceof ServerPlayer serverPlayer) {
+            BlockState state = event.getState();
+            BlockPos pos = event.getPosition().orElse(serverPlayer.blockPosition());
+            BfsDebugManager.recordDiveWork(serverPlayer, "break_speed", state, pos, before, after,
+                    "observed", reason);
+        }
+    }
+
+    private void onBlockBreak(BlockEvent.BreakEvent event) {
+        if (event.getPlayer() instanceof ServerPlayer serverPlayer) {
+            BlockState state = event.getState();
+            BfsDebugManager.recordDiveWork(serverPlayer, "break", state, event.getPos(),
+                    0.0F, 0.0F, event.isCanceled() ? "denied" : "accepted",
+                    event.isCanceled() ? "event_cancelled" : "break_requested");
+        }
+    }
+
+    private void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            BfsDebugManager.recordDiveWork(serverPlayer, "place", event.getPlacedBlock(), event.getPos(),
+                    0.0F, 0.0F, event.isCanceled() ? "denied" : "accepted",
+                    event.isCanceled() ? "event_cancelled" : "placed");
+        }
     }
 
     private void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
