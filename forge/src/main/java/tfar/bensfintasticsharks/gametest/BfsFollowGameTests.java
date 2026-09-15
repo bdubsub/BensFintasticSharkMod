@@ -30,6 +30,8 @@ import tfar.bensfintasticsharks.entity.PitchSwimmingNavigation;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 import tfar.bensfintasticsharks.init.ModItems;
 
+import java.util.List;
+
 /** Server fixtures for the marked follow debug lease. */
 @GameTestHolder("bfsfollow")
 public final class BfsFollowGameTests {
@@ -262,6 +264,32 @@ public final class BfsFollowGameTests {
         owner.remove(Entity.RemovalReason.DISCARDED);
         first.remove(Entity.RemovalReason.DISCARDED);
         second.remove(Entity.RemovalReason.DISCARDED);
+        helper.succeed();
+    }
+
+    @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 60)
+    public static void followGroupHasNoArbitraryMemberCap(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-group-cap", new BlockPos(2, 2, 2));
+        List<Mob> targets = new java.util.ArrayList<>();
+        issueAndHold(owner);
+        FeedbackPlayer feedback = (FeedbackPlayer) owner;
+        feedback.receipts.clear();
+        for (int index = 0; index < 20; index++) {
+            Mob target = helper.spawn(EntityType.COW, new BlockPos(4 + index, 2, 4));
+            targets.add(target);
+            interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, target));
+        }
+        helper.assertTrue(BfsFollowManager.selectedCount(owner) == 20,
+                "one held press must support twenty independent selected mobs");
+        helper.assertTrue(feedback.receipts.size() == 40,
+                "every distinct selection must report once in chat and once in the action bar");
+        owner.releaseUsingItem();
+        interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, targets.get(0)));
+        helper.assertTrue(BfsFollowManager.selectedCount(owner) == 19,
+                "a fresh click must release only the clicked member");
+        BfsFollowManager.stopAll(owner, "group_cap_fixture");
+        owner.remove(Entity.RemovalReason.DISCARDED);
+        targets.forEach(target -> target.remove(Entity.RemovalReason.DISCARDED));
         helper.succeed();
     }
 

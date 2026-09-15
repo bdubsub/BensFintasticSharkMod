@@ -3,6 +3,7 @@
 * [Project overview and setup](../README.md)
 * [Follow groups and feedback verification](verification/follow-groups-20260915.md)
 * [Held follow group verification](verification/follow-held-group-20260915.md)
+* [Phase 006 follow group regression](verification/phase-006/follow-group-regression-20260915.md)
 * [Debug and content plan validation](verification/bfs2-plan-validation.md)
 * [Phase 000 task 001 intake](verification/phase-000-task-001-intake-20260912.md)
 * [Phase 000 task 002 diagnostic verification](verification/phase-000-task-002-diagnostics-20260912.md)
@@ -90,5 +91,8 @@
 * [Release candidate installation and rollback](test/release-rollback.md)
 * [Depth route regressions and acceptance boundaries](test/depth-route-regressions.md)
 * [Phase 001 fishing transaction regressions](test/phase-001-fishing-transactions.md)
+* [Dive equipment and oxygen support](test/dive-equipment.md)
+* [Phase 006 task 001 entry evidence](verification/phase-006/phase-006-task-001-entry.md)
+* [Phase 006 dive GameTest evidence](verification/phase-006/phase-006-task-004-dive-gametest.md)
 
 Gameplay and technical documentation describe released or currently implemented behavior. The [debug and content implementation plan](general/plan.md) defines the next pass across eight phases. Its [phase manifest](general/plan.index.json) registers the execution blueprints, and its [research package](general/research/brief.md) records the supporting evidence and resolved product decisions. Planned behavior is not yet implemented. Historical evidence remains available, and unresolved performance work is recorded in [issue 28](https://github.com/bdubsub/BensFintasticSharkMod/issues/28) and [pull request 29](https://github.com/bdubsub/BensFintasticSharkMod/pull/29). The previous planning reset did not mark that work complete.

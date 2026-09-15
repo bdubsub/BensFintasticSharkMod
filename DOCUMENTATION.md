@@ -28,6 +28,12 @@ Most of these species ship with multiple skin variants that get rolled randomly 
 
 There is one cosmetic item, Captain Ben's Hat, which is a head slot armor with leather tier stats and a 3D worn model. You find it in chest loot rather than crafting it.
 
+The Dive Suit is a four piece head, chest, legs, and feet set. Each piece uses the supplied item icon and the authored atlas backed worn model. The pieces use leather tier durability and defense, zero toughness and knockback bonus, and no crafting recipe. The set is available through ordinary item access and can be equipped or removed like other armor.
+
+When all four pieces are equipped, a survival or adventure player in water uses landlike travel. Horizontal input, collision, gravity, and external movement remain ordinary player systems, while a grounded jump uses the suit's bounded buoyant impulse. Releasing a piece, leaving water, entering creative or spectator mode, dying, or changing dimensions returns the player to vanilla travel on the next authoritative tick.
+
+The full suit owns a player persistent oxygen reserve of 6,000 submerged ticks. The server decrements it once per submerged tick when Water Breathing is absent, shows the remaining reserve through the bounded Dive oxygen action bar message, and lets vanilla drowning begin after the reserve reaches zero. The reserve refills by 20 ticks per tick only while the eyes are in breathable air, up to the full 6,000 ticks. Re-equipping a partial suit does not reset the stored value, and the state is copied through player replacement and respawn. A revisioned snapshot of the reserve, movement mode, and oxygen mode is sent to the owning client at transitions and at bounded steady state intervals, with stale and unsupported snapshots ignored.
+
 There is one readable item chain that ends in the Shark Codex. You assemble it from Lost Manuscripts you find in dungeon, shipwreck, buried treasure, and ocean ruin loot. See section 11.
 
 There is one structure, the Sunken Trove. It generates on the ocean floor in non frozen ocean biomes and contains a chest with our loot table.

@@ -87,6 +87,11 @@ public class ModItemModelProvider extends ItemModelProvider {
         makeOneLayerItem(ModItems.PRISMARINE_LEGGINGS);
         makeOneLayerItem(ModItems.PRISMARINE_BOOTS);
 
+        makeOneLayerItem(ModItems.DIVE_HELMET);
+        makeOneLayerItem(ModItems.DIVE_CHESTPLATE);
+        makeOneLayerItem(ModItems.DIVE_LEGGINGS);
+        makeOneLayerItem(ModItems.DIVE_BOOTS);
+
         makeOneLayerItem(ModItems.LOST_MANUSCRIPT);
         makeOneLayerItem(ModItems.SHARK_CODEX);
         makeOneLayerItem(ModItems.CODEX_PAGE);

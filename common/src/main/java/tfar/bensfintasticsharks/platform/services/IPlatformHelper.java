@@ -72,6 +72,8 @@ public interface IPlatformHelper {
 
     ArmorItem createPrismarineArmor(ArmorMaterial prismarine, ArmorItem.Type helmet, Item.Properties properties);
 
+    ArmorItem createDiveArmor(ArmorMaterial dive, ArmorItem.Type type, Item.Properties properties);
+
     /** Platform helper for the GeckoLib-rendered captain's hat. */
     ArmorItem createCaptainBenHat(ArmorMaterial material, Item.Properties properties);
 

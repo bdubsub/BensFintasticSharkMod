@@ -16,6 +16,7 @@ import tfar.bensfintasticsharks.BensFintasticSharksForge;
 import tfar.bensfintasticsharks.entity.*;
 import tfar.bensfintasticsharks.init.ModMobCategories;
 import tfar.bensfintasticsharks.item.CaptainBenHatItem;
+import tfar.bensfintasticsharks.item.DiveArmorItem;
 import tfar.bensfintasticsharks.item.PrismarineArmorItem;
 import tfar.bensfintasticsharks.platform.services.IPlatformHelper;
 
@@ -197,6 +198,11 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public ArmorItem createPrismarineArmor(ArmorMaterial prismarine, ArmorItem.Type helmet, Item.Properties properties) {
         return new PrismarineArmorItem(prismarine, helmet,properties);
+    }
+
+    @Override
+    public ArmorItem createDiveArmor(ArmorMaterial dive, ArmorItem.Type type, Item.Properties properties) {
+        return new DiveArmorItem(dive, type, properties);
     }
 
     @Override

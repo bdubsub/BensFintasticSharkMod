@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "bensfintasticsharks:item/dive_chestplate"
+  }
+}

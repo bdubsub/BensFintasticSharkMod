@@ -146,6 +146,11 @@ public class FabricPlatformHelper implements IPlatformHelper {
     }
 
     @Override
+    public ArmorItem createDiveArmor(ArmorMaterial dive, ArmorItem.Type type, Item.Properties properties) {
+        return null;
+    }
+
+    @Override
     public ArmorItem createCaptainBenHat(ArmorMaterial material, Item.Properties properties) {
         return null;
     }

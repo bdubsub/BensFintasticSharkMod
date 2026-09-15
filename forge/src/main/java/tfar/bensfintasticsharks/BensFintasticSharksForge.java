@@ -15,6 +15,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -28,12 +29,15 @@ import net.minecraftforge.registries.RegisterEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import tfar.bensfintasticsharks.client.ModClientForge;
 import tfar.bensfintasticsharks.datagen.ModDatagen;
+import tfar.bensfintasticsharks.dive.DiveOxygenManager;
+import tfar.bensfintasticsharks.dive.DiveSuitEligibility;
 import tfar.bensfintasticsharks.disturbance.WaterDisturbanceListeners;
 import tfar.bensfintasticsharks.entity.*;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 import tfar.bensfintasticsharks.init.ModMobEffects;
 import tfar.bensfintasticsharks.init.ModTags;
 import tfar.bensfintasticsharks.trade.BfsFishermanTrades;
+import tfar.bensfintasticsharks.network.DiveNetworking;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +51,7 @@ public class BensFintasticSharksForge {
     public BensFintasticSharksForge() {
 
         GeckoLib.initialize();
+        DiveNetworking.register();
     
         // This method is invoked by the Forge mod loader when it is ready
         // to load your mod. You can access Forge and Common code in this
@@ -61,6 +66,8 @@ public class BensFintasticSharksForge {
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerRespawn);
+        MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoggedIn);
+        MinecraftForge.EVENT_BUS.addListener(this::onPlayerClone);
         MinecraftForge.EVENT_BUS.addListener(this::onEntityLeaveLevel);
         MinecraftForge.EVENT_BUS.addListener(this::onServerStopping);
         MinecraftForge.EVENT_BUS.addListener(this::trading);
@@ -94,11 +101,13 @@ public class BensFintasticSharksForge {
 
             if (vehicle !=  null &&vehicle.getType().is(ModTags.EntityTypes.SHARKS)) {
                 event.player.setForcedPose(Pose.SWIMMING);
+            } else if (DiveSuitEligibility.evaluate(event.player).eligible()) {
+                event.player.setForcedPose(event.player.isCrouching() ? Pose.CROUCHING : Pose.STANDING);
             } else {
                 event.player.setForcedPose(null);
             }
 
-
+            DiveOxygenManager.tick(event.player);
 
             BensFintasticSharks.playerTick(event.player);
 
@@ -124,10 +133,20 @@ public class BensFintasticSharksForge {
 
     private void onPlayerChangedDimension(net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent event) {
         releaseGrabbedPlayer(event.getEntity());
+        if (event.getEntity() instanceof ServerPlayer player) DiveOxygenManager.syncNow(player);
     }
 
     private void onPlayerRespawn(net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent event) {
         releaseGrabbedPlayer(event.getEntity());
+        if (event.getEntity() instanceof ServerPlayer player) DiveOxygenManager.syncNow(player);
+    }
+
+    private void onPlayerLoggedIn(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) DiveOxygenManager.syncNow(player);
+    }
+
+    private void onPlayerClone(PlayerEvent.Clone event) {
+        DiveOxygenManager.copy(event.getOriginal(), event.getEntity());
     }
 
     private void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
