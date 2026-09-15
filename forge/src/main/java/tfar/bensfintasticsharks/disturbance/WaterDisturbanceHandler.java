@@ -74,11 +74,18 @@ public class WaterDisturbanceHandler {
             Long previous = LAST_REACTION.get(key);
             DisturbanceSettings.Decision decision = DisturbanceSettings.evaluate(settings,
                     event.getStrength(), Math.sqrt(sharkLike.distanceToSqr(Vec3.atCenterOf(event.getSource()))), tick, previous);
+            String outcome = decision.outcome();
+            String reason = decision.reason();
             if (decision.accepted()) {
                 LAST_REACTION.put(key, tick);
-                applyReaction(sharkLike, event, settings);
+                String applied = applyReaction(sharkLike, event, settings);
+                if (event.getSourceKind() == WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT
+                        && applied != null && !applied.equals("generic")) {
+                    outcome = applied.equals("boat_track") ? "boat_track" : "ignored";
+                    reason = applied;
+                }
             }
-            record(level, event, decision.outcome(), decision.reason(),
+            record(level, event, outcome, reason,
                     speciesOf(sharkLike), candidateCount, sourceKeyCount, settings.radius(),
                     settings.sensitivity(), settings.strength(), settings.effectiveIntervalTicks(),
                     settings.alertTicks(), decision.thresholdAccepted(), settings.revision(),
@@ -105,11 +112,16 @@ public class WaterDisturbanceHandler {
         return null;
     }
 
-    private static void applyReaction(LivingEntity sharkLike, WaterDisturbanceEvent event,
+    private static String applyReaction(LivingEntity sharkLike, WaterDisturbanceEvent event,
                                       DisturbanceSettings.Effective settings) {
         DisturbanceType type = disturbanceType(event);
         LivingEntity sourceLiving = event.getSourceEntity() instanceof LivingEntity le ? le : null;
         if (sharkLike instanceof AbstractSharkEntity shark) {
+            if (event.getSourceKind() == WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT
+                    && shark instanceof tfar.bensfintasticsharks.entity.GreatWhiteSharkEntity greatWhite
+                    && event.getLevel() instanceof ServerLevel level) {
+                return new GreatWhiteBoatInterest().acquire(level, greatWhite, event).reason();
+            }
             shark.reactToDisturbance(event.getSource(), type, sourceLiving);
             shark.setStateTimer(settings.alertTicks());
             if (settings.reaction() == DisturbanceSettings.Reaction.INVESTIGATE) {
@@ -119,9 +131,9 @@ public class WaterDisturbanceHandler {
                     shark.setSharkState(AbstractSharkEntity.SharkState.CURIOUS);
                 }
             }
-            return;
+            return "generic";
         }
-        if (!(sharkLike instanceof WaterAnimal waterAnimal)) return;
+        if (!(sharkLike instanceof WaterAnimal waterAnimal)) return "generic";
         if (type == DisturbanceType.BLOOD && sourceLiving != null
                 && sourceLiving != waterAnimal && waterAnimal.getTarget() == null) {
             waterAnimal.setTarget(sourceLiving);
@@ -129,6 +141,7 @@ public class WaterDisturbanceHandler {
             BrainUtils.setMemory(waterAnimal.getBrain(), MemoryModuleType.WALK_TARGET,
                     new WalkTarget(Vec3.atCenterOf(event.getSource()), 1.0f, 1));
         }
+        return "generic";
     }
 
     private static void record(ServerLevel level, WaterDisturbanceEvent event, String outcome,

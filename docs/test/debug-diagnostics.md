@@ -122,6 +122,21 @@ Use the `disturbance` category for typed swim, attack, damage, block break, fall
 
 The water producers use real server transitions. Place a tagged living actor just outside a shallow water boundary, move it into water, then make it leave upward without a three block fall. For a boat producer, seat a dry rider in a boat and move the boat at least `0.02` blocks per tick. An occupied boat event is throttled to one accepted event per ten server ticks. Empty, stationary, subthreshold and removed boats produce no accepted event.
 
+Great White boat interest uses the accepted occupied boat event as a low priority `boat_track`
+intent. The waypoint is behind the measured horizontal travel direction by the boat half width,
+the shark half width, and two blocks. The predicted approach is capped at twenty server ticks.
+The server rejects a turn beyond seventy five degrees, a blocked or non water body envelope, a
+stationary boat held for more than one hundred ticks, a missing rider, a dimension change, or a
+higher priority safety, follow, or combat owner. A valid follow lease always wins and remains
+individually releasable. The shark body route remains underwater and does not use fin exposure to
+place the body. Boat interest refreshes every ten ticks and never writes entity
+position, velocity, navigation, animation, player, or boat state directly.
+
+Decision records use `boat_track`, `higher_priority_intent`, `unsafe_route`, `turn_exceeds_bound`,
+`stationary_expired`, `boat_unavailable`, and `boat_tie_break` where applicable. The boat source
+record also retains the finite measured horizontal movement vector, so a capture can distinguish
+the boat's actual travel from a static source position.
+
 Source records retain a typed `sourceKind`, normalized `strength`, dimension, world tick, finite block position, pseudonymous source identity and nullable boat and rider identities. Decision records add the bounded eligible candidate count, source key count, boat correlation, threshold result and named outcome or rejection reason. Duplicate callbacks create a `disturbance.throttle` or `boat.throttle` record with `duplicate` and never create a second accepted source record. Source state is keyed by dimension, source identity and source kind, expires after a bounded interval, and is removed on entity or level unload. The listener retains no more than 4,096 source keys per level and the handler inspects no more than 64 eligible sharks for one event.
 
 Run `python3 -B tools/bfs_debug_analyze.py --help` before analysis, then validate the returned JSONL path with a phase manifest that requests `disturbance` or `boat` minimum events. The analyzer rejects raw UUIDs, unknown source kinds, nonfinite positions, out of range strength, missing correlation fields, invalid candidate or source key counts and incomplete terminal records. Keep only the sanitized parser result and the minimum source and decision excerpts after the bounded test.

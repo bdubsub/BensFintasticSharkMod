@@ -304,6 +304,8 @@ public final class BfsDebugManager {
                 ? "unavailable" : entityPseudonym(active, "boat", event.getBoat().getUUID()));
         record.addProperty("riderId", event.getRider() == null
                 ? "unavailable" : entityPseudonym(active, "rider", event.getRider().getUUID()));
+        record.addProperty("boatMovementX", event.getBoatMovement().x);
+        record.addProperty("boatMovementZ", event.getBoatMovement().z);
         record.addProperty("outcome", outcome == null ? "unavailable" : outcome);
         record.addProperty("reason", reason == null ? "unavailable" : reason);
         enqueue(active, record);
@@ -349,6 +351,8 @@ public final class BfsDebugManager {
         record.addProperty("riderId", event.getRider() == null
                 ? "unavailable" : entityPseudonym(active, "rider", event.getRider().getUUID()));
         record.addProperty("boatCorrelation", event.getBoat() != null && event.getRider() != null);
+        record.addProperty("boatMovementX", event.getBoatMovement().x);
+        record.addProperty("boatMovementZ", event.getBoatMovement().z);
         record.addProperty("species", species == null ? "unavailable" : species);
         record.addProperty("settingsRevision", Math.max(0L, settingsRevision));
         record.addProperty("radius", Math.max(0.0D, radius));

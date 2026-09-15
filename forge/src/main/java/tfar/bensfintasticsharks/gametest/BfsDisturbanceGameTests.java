@@ -9,6 +9,8 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
@@ -18,7 +20,9 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import tfar.bensfintasticsharks.disturbance.WaterDisturbanceEvent;
+import tfar.bensfintasticsharks.disturbance.GreatWhiteBoatInterest;
 import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
+import tfar.bensfintasticsharks.entity.BoatMovementOwners;
 import tfar.bensfintasticsharks.entity.SpeciesSettingsService;
 import tfar.bensfintasticsharks.init.ModEntityTypes;
 
@@ -167,6 +171,75 @@ public final class BfsDisturbanceGameTests {
                 helper.succeed();
             });
         });
+    }
+
+    @GameTest(template = "empty", batch = "disturbance_boat_interest", timeoutTicks = 100)
+    public static void greatWhiteTracksMovingBoatFromSafeBehindOffset(GameTestHelper helper) {
+        fillWater(helper, 0, 0, 0, 14, 8, 14);
+        AbstractSharkEntity<?> shark = helper.spawn(ModEntityTypes.GREAT_WHITE_SHARK, new BlockPos(3, 1, 7));
+        shark.setNoAi(true);
+        shark.setNoGravity(true);
+        Boat boat = helper.spawn(EntityType.BOAT, new BlockPos(8, 3, 7));
+        ServerPlayer rider = makeTestPlayer(helper, "boat-interest-rider", new BlockPos(8, 10, 7));
+        rider.startRiding(boat, true);
+        WaterDisturbanceEvent event = new WaterDisturbanceEvent(helper.getLevel(), boat.blockPosition(), boat,
+                WaterDisturbanceEvent.Type.LIGHT, WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT, 1.0D,
+                boat, rider, new Vec3(0.5D, 0.0D, 0.0D));
+        GreatWhiteBoatInterest.Decision decision = new GreatWhiteBoatInterest().acquire(
+                helper.getLevel(), (tfar.bensfintasticsharks.entity.GreatWhiteSharkEntity) shark, event);
+        helper.assertTrue(decision.accepted(), "the direct boat lease decision must be accepted, reason=" + decision.reason());
+        MinecraftForge.EVENT_BUS.post(event);
+        helper.runAfterDelay(3, () -> {
+            try {
+                helper.assertTrue(BoatMovementOwners.active(shark),
+                        "a safe moving occupied boat must acquire the great white boat_track lease");
+                WalkTarget target = shark.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null);
+                helper.assertTrue(target != null && target.getTarget().currentPosition().x < boat.getX(),
+                        "the tracked waypoint must stay behind the boat travel direction");
+            } finally {
+                rider.stopRiding();
+                rider.remove(Entity.RemovalReason.DISCARDED);
+                boat.remove(Entity.RemovalReason.DISCARDED);
+                shark.remove(Entity.RemovalReason.DISCARDED);
+            }
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "disturbance_boat_interest", timeoutTicks = 100)
+    public static void higherPriorityCombatBlocksBoatInterest(GameTestHelper helper) {
+        fillWater(helper, 0, 0, 0, 14, 8, 14);
+        AbstractSharkEntity<?> shark = helper.spawn(ModEntityTypes.GREAT_WHITE_SHARK, new BlockPos(3, 1, 7));
+        shark.setNoAi(true);
+        shark.setNoGravity(true);
+        Mob prey = helper.spawn(EntityType.COD, new BlockPos(4, 1, 7));
+        prey.setNoAi(true);
+        shark.setTarget(prey);
+        Boat boat = helper.spawn(EntityType.BOAT, new BlockPos(8, 3, 7));
+        ServerPlayer rider = makeTestPlayer(helper, "boat-combat-rider", new BlockPos(8, 10, 7));
+        rider.startRiding(boat, true);
+        MinecraftForge.EVENT_BUS.post(new WaterDisturbanceEvent(helper.getLevel(), boat.blockPosition(), boat,
+                WaterDisturbanceEvent.Type.LIGHT, WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT, 1.0D,
+                boat, rider, new Vec3(0.5D, 0.0D, 0.0D)));
+        helper.runAfterDelay(3, () -> {
+            try {
+                helper.assertFalse(BoatMovementOwners.active(shark),
+                        "combat ownership must outrank occupied boat interest");
+            } finally {
+                rider.stopRiding();
+                rider.remove(Entity.RemovalReason.DISCARDED);
+                boat.remove(Entity.RemovalReason.DISCARDED);
+                prey.remove(Entity.RemovalReason.DISCARDED);
+                shark.remove(Entity.RemovalReason.DISCARDED);
+            }
+            helper.succeed();
+        });
+    }
+
+    private static void fillWater(GameTestHelper helper, int minX, int minY, int minZ,
+                                  int maxX, int maxY, int maxZ) {
+        for (int x = minX; x <= maxX; x++) for (int y = minY; y <= maxY; y++)
+            for (int z = minZ; z <= maxZ; z++) helper.setBlock(new BlockPos(x, y, z), Blocks.WATER.defaultBlockState());
     }
 
     private static void moveBoat(GameTestHelper helper, Boat boat, int step) {

@@ -42,6 +42,7 @@ public class WaterDisturbanceListeners {
     public static void register(IEventBus bus) {
         bus.register(new WaterDisturbanceListeners());
         bus.register(new WaterDisturbanceHandler());
+        bus.register(new GreatWhiteBoatInterest());
         bus.register(new SharkAlertHandler());
         bus.register(new PreyFleeHandler());
     }
@@ -108,6 +109,7 @@ public class WaterDisturbanceListeners {
         if (entity instanceof Boat) BOATS.remove(entity.getUUID());
         if (event.getLevel() instanceof ServerLevel level) {
             WaterDisturbanceHandler.clearEntity(level, entity.getUUID());
+            GreatWhiteBoatInterest.clearEntity(level, entity.getUUID());
         }
         LAST_FIRED.keySet().removeIf(key -> key.dimension().equals(dimension) && key.source().equals(entity.getUUID()));
     }
@@ -120,6 +122,7 @@ public class WaterDisturbanceListeners {
         BOATS.entrySet().removeIf(entry -> entry.getValue().dimension().equals(dimension));
         LAST_FIRED.keySet().removeIf(key -> key.dimension().equals(dimension));
         WaterDisturbanceHandler.clearLevel(level);
+        GreatWhiteBoatInterest.clearLevel(level);
     }
 
     @net.minecraftforge.eventbus.api.SubscribeEvent
@@ -168,7 +171,7 @@ public class WaterDisturbanceListeners {
                     boat.blockPosition(), boat, WaterDisturbanceEvent.Type.LIGHT, boat, rider)) continue;
             double strength = Math.min(1.0D, horizontal / Math.max(0.25D, movementThreshold * 12.5D));
             post(level, boat.blockPosition(), boat, WaterDisturbanceEvent.Type.LIGHT,
-                    WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT, strength, boat, rider);
+                    WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT, strength, boat, rider, delta);
             BOATS.replace(entry.getKey(), updated,
                     new BoatState(updated.dimension(), updated.position(), tick));
         }
@@ -299,8 +302,14 @@ public class WaterDisturbanceListeners {
     private static void post(Level level, BlockPos source, Entity sourceEntity, WaterDisturbanceEvent.Type type,
                              WaterDisturbanceEvent.SourceKind sourceKind, double strength,
                              Entity boat, Entity rider) {
+        post(level, source, sourceEntity, type, sourceKind, strength, boat, rider, net.minecraft.world.phys.Vec3.ZERO);
+    }
+
+    private static void post(Level level, BlockPos source, Entity sourceEntity, WaterDisturbanceEvent.Type type,
+                             WaterDisturbanceEvent.SourceKind sourceKind, double strength,
+                             Entity boat, Entity rider, net.minecraft.world.phys.Vec3 boatMovement) {
         WaterDisturbanceEvent event = new WaterDisturbanceEvent(level, source, sourceEntity, type,
-                sourceKind, strength, boat, rider);
+                sourceKind, strength, boat, rider, boatMovement);
         if (level instanceof ServerLevel serverLevel) {
             tfar.bensfintasticsharks.debug.BfsDebugManager.recordDisturbanceEvent(serverLevel, event,
                     "emitted", "producer");

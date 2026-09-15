@@ -3,6 +3,7 @@ package tfar.bensfintasticsharks.disturbance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,6 +57,7 @@ public class WaterDisturbanceEvent extends Event {
     private final double strength;
     private final @Nullable Entity boat;
     private final @Nullable Entity rider;
+    private final Vec3 boatMovement;
 
     public WaterDisturbanceEvent(Level level, BlockPos source, @Nullable Entity sourceEntity, Type type) {
         this(level, source, sourceEntity, type, defaultSourceKind(type), 1.0D, null, null);
@@ -64,6 +66,12 @@ public class WaterDisturbanceEvent extends Event {
     public WaterDisturbanceEvent(Level level, BlockPos source, @Nullable Entity sourceEntity, Type type,
                                  SourceKind sourceKind, double strength,
                                  @Nullable Entity boat, @Nullable Entity rider) {
+        this(level, source, sourceEntity, type, sourceKind, strength, boat, rider, Vec3.ZERO);
+    }
+
+    public WaterDisturbanceEvent(Level level, BlockPos source, @Nullable Entity sourceEntity, Type type,
+                                 SourceKind sourceKind, double strength,
+                                 @Nullable Entity boat, @Nullable Entity rider, Vec3 boatMovement) {
         this.level = level;
         this.source = source;
         this.sourceEntity = sourceEntity;
@@ -72,6 +80,7 @@ public class WaterDisturbanceEvent extends Event {
         this.strength = Math.max(0.0D, Math.min(1.0D, strength));
         this.boat = boat;
         this.rider = rider;
+        this.boatMovement = boatMovement == null || !finite(boatMovement) ? Vec3.ZERO : boatMovement;
     }
 
     public Level getLevel() { return level; }
@@ -82,6 +91,11 @@ public class WaterDisturbanceEvent extends Event {
     public double getStrength() { return strength; }
     public @Nullable Entity getBoat() { return boat; }
     public @Nullable Entity getRider() { return rider; }
+    public Vec3 getBoatMovement() { return boatMovement; }
+
+    private static boolean finite(Vec3 value) {
+        return Double.isFinite(value.x) && Double.isFinite(value.y) && Double.isFinite(value.z);
+    }
 
     private static SourceKind defaultSourceKind(Type type) {
         return switch (type) {
