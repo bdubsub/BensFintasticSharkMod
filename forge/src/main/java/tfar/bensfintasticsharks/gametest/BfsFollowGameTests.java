@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.gametest.GameTestHolder;
@@ -103,6 +104,27 @@ public final class BfsFollowGameTests {
                 helper.succeed();
             });
         });
+    }
+
+    @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 20)
+    public static void duplicateInteractionCallbacksStayConsumed(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-duplicate", new BlockPos(2, 2, 2));
+        Mob target = helper.spawn(EntityType.COW, new BlockPos(5, 2, 2));
+        issueAndHold(owner);
+        PlayerInteractEvent.EntityInteract first = new PlayerInteractEvent.EntityInteract(
+                owner, InteractionHand.MAIN_HAND, target);
+        BfsFollowManager.onEntityInteract(first);
+        PlayerInteractEvent.EntityInteractSpecific duplicate = new PlayerInteractEvent.EntityInteractSpecific(
+                owner, InteractionHand.MAIN_HAND, target, Vec3.ZERO);
+        BfsFollowManager.onEntityInteractSpecific(duplicate);
+        helper.assertTrue(first.isCanceled(), "the first interaction callback must claim the mob");
+        helper.assertTrue(duplicate.isCanceled(), "the duplicate interaction callback must stay consumed");
+        helper.assertTrue(BfsFollowManager.status(owner).following(),
+                "the duplicate callback must leave the original follow lease active");
+        BfsFollowManager.stop(owner, "duplicate_callback_fixture");
+        owner.remove(Entity.RemovalReason.DISCARDED);
+        target.remove(Entity.RemovalReason.DISCARDED);
+        helper.succeed();
     }
 
     @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 100)

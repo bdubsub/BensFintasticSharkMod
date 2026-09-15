@@ -201,7 +201,13 @@ public final class BfsFollowManager {
             INTERACTIONS.clear();
         }
         if (!INTERACTIONS.add(interaction)) {
-            return ClaimResult.rejected("duplicate_interaction");
+            // Forge can deliver one physical click through both entity interaction callbacks.
+            // The first callback owns the claim, so consume the duplicate silently instead of
+            // showing a rejection message for a lease that was already accepted.
+            Lease existing = BY_OWNER.get(owner.getUUID());
+            return existing != null && existing.targetId.equals(target.getUUID())
+                    ? ClaimResult.success()
+                    : ClaimResult.rejected("duplicate_interaction");
         }
         Lease ownerLease = BY_OWNER.get(owner.getUUID());
         if (ownerLease != null) {
