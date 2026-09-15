@@ -14,16 +14,16 @@ player, or boat state.
 Verification used Java 17, Forge 47.2.0, Minecraft 1.20.1, and the checked in Gradle wrapper on
 the headless host. The exact source worktree was
 `/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix` on branch `envy/bfs2-phase-003`. The source
-implementation commit is `5fa8659`. No client or renderer was started.
+implementation commit is `20ff55a`. No client or renderer was started.
 
 Passed checks.
 
 * `./gradlew :forge:test --no-daemon` passed the full Java unit suite, including the behind offset,
   depth preservation, and twenty tick prediction cap tests.
 * `./gradlew :forge:GameTestServer --no-daemon --rerun-tasks -PbfsGameTestNamespaces=bfsdisturbance`
-  passed all five required tests. The source transition test, occupied boat interval test, real
-  water entry settings test, safe Great White behind waypoint test, and combat priority test all
-  passed.
+  passed all seven required tests. The source transition test, occupied boat interval test, real
+  water entry settings test, safe Great White behind waypoint test, combat priority test, prompt
+  dismount and stationary release test, and obstructed route test all passed.
 * The same GameTest run was started with the disposable runtime target
   `/tmp/bfsm-bfs2-task003-20260915`, configured with `eula=true`, and the exact disposable target
   was removed after the final log was read. No owned GameTest process remained.
