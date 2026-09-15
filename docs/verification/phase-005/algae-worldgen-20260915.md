@@ -9,7 +9,7 @@ This packet records the Phase 005 algae state, generation, diagnostic, and visua
 | Phase | `BFS2-PHASE-005` |
 | Requirements | `BFS2-REQ-014`, `BFS2-REQ-015`, `BFS2-REQ-016`, `BFS2-REQ-022` |
 | Default branch | `1.20.1` |
-| Source implementation commit | Bound after the implementation commit |
+| Source implementation commit | `6325509a614164b1d09bc211d6bf0c3ba38b0de3` |
 | Minecraft | `1.20.1` |
 | Forge | `47.2.0` |
 | Java | `17.0.19` Eclipse Adoptium |
