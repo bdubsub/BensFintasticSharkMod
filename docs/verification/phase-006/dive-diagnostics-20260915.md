@@ -24,7 +24,7 @@ The targeted command and schema fixture passed:
 
 Four required tests passed. They cover full suit eligibility and landlike travel, the 6000 tick reserve and 20 tick per tick real air refill, missing, established corrupt, and newer schema state, and matched water and air break speed. The existing `bfs_debug_dive` fixture also reached its capture assertions during the complete server run and verified pseudonymous player records, movement and oxygen fields, and a clean terminal footer.
 
-The complete 95 test run passed all required tests, including `bfs_debug_dive`, with the capture schema and `oxygenSchema` fields intact. The final targeted run was repeated after the client diagnostics fix and passed all four `bfsdive` tests.
+An earlier complete 95 test run passed all required tests, including `bfs_debug_dive`, with the capture schema and `oxygenSchema` fields intact. Two latest-source reruns remain outside the dive scope and were not clean: one reported `vanillafishreplacementhonorsoneforoneandmodes` and `tigercuriosityignoresnonedibleitem`, and the repeat reported `livefishingreelarcsoverobstructiontoangler` and `tigercuriosityignoresnonedibleitem`. The final targeted run was repeated after the client diagnostics fix and passed all four `bfsdive` tests.
 
 The new `dive` category requires explicit player targets and records `dive_eligibility`, `dive_oxygen`, `dive_travel`, and `dive_work` events. The capture schema remains `bfs-debug-v2`; the player reserve is recorded as `oxygenSchema`. Reserve schema 1 keeps a newer schema opaque and repairs supported established malformed state to zero without downgrade. Break speed, break, and placement observations are retained for water work parity analysis.
 
