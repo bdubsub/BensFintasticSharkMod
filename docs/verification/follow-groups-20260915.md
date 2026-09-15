@@ -2,6 +2,8 @@
 
 This is server verification for BFS2-REQ-008 and BFS2-REQ-009 in Phase 002. The phase remains open. The saved goal, plan set and phase cursor are unchanged by this implementation.
 
+The original packet below is retained as historical evidence. The superseding rerun at the end of this document binds the boss adapter and shutdown correction to source commit `76f5982` and the rebuilt Forge artifact.
+
 ## Source and candidate
 
 * Source commit: `4d3c4bf063618b5b16cf5c1430332ec47da60890` on `envy/bfs2-phase-002`.
@@ -75,3 +77,11 @@ Both owned runtimes and their worlds, captures, logs and generated configuration
 The laptop check used only the disposable instance and the existing Hyprland session. No personal instance, default audio sink or unrelated stream was changed.
 
 See the [follow support guide](../test/debug-diagnostics.md) for current commands and interpretation.
+
+## Superseding boss adapter and shutdown rerun
+
+This rerun extends the follow regression packet without changing the phase contract. Source commit `76f5982` adds a vanilla Ender Dragon phase adapter and defers passenger cleanup from `EntityLeaveLevelEvent` so distance tracking is not modified during its iteration. The adapter uses the dragon's charge phase target and restores the phase captured at selection when the lease is released.
+
+The disposable server runtime was `/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix/forge/run/follow-boss-adapter-20260915-v4`. The 34 required `bfsfollow` GameTests passed, including the Ender Dragon head to parent resolution, Wither navigation, independent release of each boss, dragon phase restoration, and the 321 member scheduler witness. The boss fixture made both bosses invulnerable and silent so combat behavior could not remove the movement subjects while the follow adapter was under test. The server saved all dimensions and exited without the earlier `DistanceManager` shutdown exception.
+
+The rebuilt candidate was `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`, with SHA 256 `36cb7e69d7636170207099c2aa09ac10bfa74f310c50a8e98eac9cdc9cf31f45` and SHA 512 `cfeb4b0782e837abc2c0ddf2097b3036335ccd26fe57366a4948262d0655661f8a16970fec5dd942e8bc8cfd1db550dff3443e14fb5278d69b786d0c3521312a`. `unzip -tqq` passed. The exact runtime was removed and verified absent after the log was inspected. The phase remains open for its remaining controller matrix, review, integration merge, and signed tag gates.

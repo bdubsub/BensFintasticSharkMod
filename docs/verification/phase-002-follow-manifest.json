@@ -493,5 +493,31 @@
     "result": "real_client_pinned_third_party_selection_follow_waiting_and_individual_release_verified",
     "devGameTestLimitation": "Citadel mapped LevelMixin shadow does not load on the Forge userdev classpath",
     "cleanup": "complete_server_client_audio_runtime_disposable_instance_and_screenshots_removed_and_verified"
+  },
+  "bossAdapterAndShutdownRerun20260915": {
+    "sourceCommit": "76f5982",
+    "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
+    "artifactSha256": "36cb7e69d7636170207099c2aa09ac10bfa74f310c50a8e98eac9cdc9cf31f45",
+    "artifactSha512": "cfeb4b0782e837abc2c0ddf2097b3036335ccd26fe57366a4948262d0655661f8a16970fec5dd942e8bc8cfd1db550dff3443e14fb5278d69b786d0c3521312a",
+    "runtime": "/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix/forge/run/follow-boss-adapter-20260915-v4",
+    "requiredFollowGameTests": 34,
+    "result": "all_required_follow_gametests_passed",
+    "fixtures": [
+      "minecraft:ender_dragon_head_to_parent",
+      "minecraft:wither"
+    ],
+    "adapters": [
+      "ender_dragon_charge",
+      "mob_navigation"
+    ],
+    "assertions": [
+      "dragon_distance_reduced",
+      "wither_distance_reduced",
+      "independent_release",
+      "dragon_phase_restored",
+      "clean_shutdown_without_distance_manager_concurrent_modification"
+    ],
+    "fixtureIsolation": "bosses_invulnerable_and_silent_to_keep_combat_from_removing_follow_subjects",
+    "cleanup": "runtime_removed_and_verified_absent"
   }
 }
