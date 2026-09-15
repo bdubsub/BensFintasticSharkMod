@@ -14,4 +14,4 @@ The exact disposable runtime, world, logs, debug capture, and generated configur
 
 The source commit is `1d92832b6b01f449e8d7a9a7df768d37fe319a5e` on `envy/bfs2-phase-006`.
 
-The packaged Forge artifact built after this test passed archive validation. Its SHA 256 is `7a240ff549085341be440463fe2d2cc5ee66fbd9c3b4f1acf74c9cf8bdd7b0bd` and its SHA 512 is `0e94d9bb9b1a18d110729de576b00907d2f54721efa03981490d14e09370a9bb7a16fb037cb76909bfcf3ec8553dc1848f0cdd07a701d089048d7df4064ca4bd`.
+The packaged Forge artifact built for the final Phase 006 candidate passed archive validation. Its SHA 256 is `6fd559a53e28ef6c81563d6923f3b7fc84e91d4df3860ad9163e72d2b7dfda1a` and its SHA 512 is `93dd9eb448b37fcc0f9588c34f89c92ec93353156fda724fbd15ba925dc27a6a7e0442dab552cb15266fe2a07ac378b013fbeb5af4b68db55982dd1ba2624ccb`.

@@ -6,10 +6,12 @@ The isolated server fixture was run from the exact Phase 006 worktree with:
 ./gradlew :forge:GameTestServer --no-daemon -PbfsGameTestNamespaces=bfsdive
 ```
 
-The disposable runtime was `forge/run/bfs2-p006-dive-gametest-20260915p`. Both required tests passed.
+The disposable runtime was `forge/run/bfs2-p006-dive-gametest-20260915p`. All four required `bfsdive` tests passed.
 
 * `fullSuitEligibilityAndLandlikeTravel` passed the full four piece predicate, body water contact, one owned travel decision, gravity, and the grounded jump edge.
 * `oxygenReserveUsesOnlySubmergedTicksAndRealAirRefill` passed the 6,000 tick submerged boundary, zero reserve behavior, 300 refill ticks at 20 ticks per tick, and partial suit retention.
+* `oxygenSchemaRepairsCorruptionAndPreservesNewerState` passed missing, corrupt, and newer schema handling.
+* `waterWorkKeepsMatchingBreakSpeed` passed matched submerged and dry break speed.
 
 The runtime and its generated logs were removed after the final consumer. The protected pre-existing `forge/logs/` directory and `performance-matrix-20260912-interval50/` directory were not changed.
 
