@@ -396,13 +396,14 @@ public final class BfsClientDebugManager {
     }
 
     private static void addUnavailableRenderObservation(JsonObject record, String reason) {
-        record.add("render.variantId", null);
-        record.add("render.baseResource", null);
-        record.add("render.maskResource", null);
-        record.add("render.rawBrightness", null);
-        record.add("render.layer", null);
+        String unavailable = "unavailable:" + reason;
+        record.addProperty("render.variantId", unavailable);
+        record.addProperty("render.baseResource", unavailable);
+        record.addProperty("render.maskResource", unavailable);
+        record.addProperty("render.rawBrightness", 0);
+        record.addProperty("render.layer", "base");
         record.addProperty("render.selected", false);
-        record.addProperty("render.reason", "unavailable:" + reason);
+        record.addProperty("render.reason", unavailable);
         record.addProperty("render.resourceReloadGeneration", RENDER_RESOURCES.reloadGeneration());
         record.add("render.textureHash", null);
         record.add("render.maskHash", null);
