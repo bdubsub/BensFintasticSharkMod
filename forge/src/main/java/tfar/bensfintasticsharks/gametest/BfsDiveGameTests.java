@@ -136,6 +136,24 @@ public final class BfsDiveGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_dive", timeoutTicks = 40)
+    public static void waterWorkKeepsMatchingBreakSpeed(GameTestHelper helper) {
+        prepareWater(helper);
+        Player player = makePlayer(helper, new BlockPos(3, 2, 3));
+        equipFullSuit(player);
+        BlockPos target = helper.absolutePos(new BlockPos(3, 2, 3));
+        helper.runAfterDelay(10, () -> {
+            player.setOnGround(true);
+            float submerged = player.getDigSpeed(Blocks.STONE.defaultBlockState(), target);
+            player.setPos(helper.absolutePos(new BlockPos(3, 20, 3)).getCenter());
+            float dry = player.getDigSpeed(Blocks.STONE.defaultBlockState(), target);
+            helper.assertTrue(Math.abs(submerged - dry) <= 0.0001F,
+                    "a full dive suit must preserve the same break speed in water and air");
+            player.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
     private static void prepareWater(GameTestHelper helper) {
         for (int x = 0; x < 8; x++) {
             for (int z = 0; z < 8; z++) {
