@@ -78,6 +78,7 @@
 * [Living species action and presentation inventory](verification/living-species-inventory.md)
 * [Phase 000 test runbook](test/phase-000-runbook.md)
 * [BFS debug diagnostics](test/debug-diagnostics.md)
+* [Phase 004 Zippy render evidence](verification/phase-004-zippy-render-20260915.md)
 * [Phase 001 task 001 settings evidence](verification/phase-001-task-001-settings-20260913.md)
 * [Phase 001 movement and lifecycle consumer evidence](verification/phase-001-consumers-20260913.md)
 * [Phase 001 movement oracle evidence](verification/phase-001-movement-oracle-20260913.md)

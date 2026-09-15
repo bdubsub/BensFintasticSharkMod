@@ -8,6 +8,7 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import tfar.bensfintasticsharks.BensFintasticSharks;
 import tfar.bensfintasticsharks.client.renderer.*;
@@ -22,6 +23,7 @@ public class ModClientForge {
         bus.addListener(ModClientForge::renderers);
         bus.addListener(ModClientForge::setup);
         bus.addListener(ModClientForge::registerAdditionalModels);
+        bus.addListener(BfsClientDebugManager::registerReloadListeners);
         // 0.18 — grab/thrash screen effects (camera lock + red tint) live on the
         // runtime Forge bus; init() is only reached on the client dist.
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new GrabClientHandler());

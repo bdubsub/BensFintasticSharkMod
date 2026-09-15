@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
@@ -12,6 +13,10 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -19,6 +24,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -29,10 +35,12 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationProcessor;
 import tfar.bensfintasticsharks.BensFintasticSharks;
+import tfar.bensfintasticsharks.entity.CommonThresherSharkEntityForge;
 
 import javax.annotation.Nullable;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,11 +48,14 @@ import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -84,6 +95,10 @@ public final class BfsClientDebugManager {
         eventBus.addListener(BfsClientDebugManager::onRegisterCommands);
         eventBus.addListener(BfsClientDebugManager::onClientTick);
         eventBus.addListener(BfsClientDebugManager::onRenderLevelStage);
+    }
+
+    public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener((ResourceManagerReloadListener) RENDER_RESOURCES::invalidate);
     }
 
     private static void onRegisterCommands(RegisterClientCommandsEvent event) {
@@ -338,8 +353,60 @@ public final class BfsClientDebugManager {
         record.addProperty("interpolatedYaw", Mth.rotLerp(partialTick, entity.yRotO, entity.getYRot()));
         record.addProperty("interpolatedPitch", Mth.lerp(partialTick, entity.xRotO, entity.getXRot()));
         record.addProperty("interpolationSource", "client_previous_and_current_entity_state");
+        addRenderObservation(record, entity);
         addControllerSnapshot(record, entity);
         return record;
+    }
+
+    private static void addRenderObservation(JsonObject record, Entity entity) {
+        if (!(entity instanceof CommonThresherSharkEntityForge thresher)) {
+            addUnavailableRenderObservation(record, "not_common_thresher");
+            return;
+        }
+        String variant = thresher.getVariant().getName();
+        boolean zippy = thresher.isZippy();
+        ResourceLocation baseResource = BensFintasticSharks.id("textures/entity/common_thresher_shark/"
+                + variant + ".png");
+        ResourceLocation maskResource = zippy
+                ? BensFintasticSharks.id("textures/entity/common_thresher_shark/" + variant + "_glowmask.png")
+                : null;
+        int rawBrightness = thresher.level().getMaxLocalRawBrightness(thresher.blockPosition());
+        String layer = selectedLayer(zippy, rawBrightness);
+        RenderResourceObservation observation = RENDER_RESOURCES.observe(baseResource, maskResource);
+        boolean selected = observation.available && (maskResource == null || observation.alphaBackgroundCheck);
+        record.addProperty("render.variantId", variant);
+        record.addProperty("render.baseResource", baseResource.toString());
+        record.addProperty("render.maskResource", maskResource == null ? "unavailable:not_applicable" : maskResource.toString());
+        record.addProperty("render.rawBrightness", rawBrightness);
+        record.addProperty("render.layer", layer);
+        record.addProperty("render.selected", selected);
+        record.addProperty("render.reason", observation.reason);
+        record.addProperty("render.resourceReloadGeneration", observation.reloadGeneration);
+        record.addProperty("render.textureHash", observation.textureHash);
+        record.addProperty("render.maskHash", observation.maskHash);
+        if (observation.alphaBackgroundCheck == null) {
+            record.add("render.alphaBackgroundCheck", null);
+        } else {
+            record.addProperty("render.alphaBackgroundCheck", observation.alphaBackgroundCheck);
+        }
+    }
+
+    static String selectedLayer(boolean zippy, int rawBrightness) {
+        return zippy ? (rawBrightness >= 8 ? "marking" : "glow") : "base";
+    }
+
+    private static void addUnavailableRenderObservation(JsonObject record, String reason) {
+        record.add("render.variantId", null);
+        record.add("render.baseResource", null);
+        record.add("render.maskResource", null);
+        record.add("render.rawBrightness", null);
+        record.add("render.layer", null);
+        record.addProperty("render.selected", false);
+        record.addProperty("render.reason", "unavailable:" + reason);
+        record.addProperty("render.resourceReloadGeneration", RENDER_RESOURCES.reloadGeneration());
+        record.add("render.textureHash", null);
+        record.add("render.maskHash", null);
+        record.add("render.alphaBackgroundCheck", null);
     }
 
     private static void addControllerSnapshot(JsonObject record, Entity entity) {
@@ -583,6 +650,142 @@ public final class BfsClientDebugManager {
     private static String runtimeBinding(String property, String unavailable) {
         String value = System.getProperty(property);
         return value == null || value.isBlank() ? unavailable : value;
+    }
+
+    private static final RenderResourceCache RENDER_RESOURCES = new RenderResourceCache();
+
+    private static final class RenderResourceCache {
+        @Nullable
+        private ResourceManager resourceManager;
+        private long reloadGeneration;
+        private final Map<ResourceLocation, ResourceObservation> observations = new HashMap<>();
+
+        private RenderResourceObservation observe(ResourceLocation baseResource, @Nullable ResourceLocation maskResource) {
+            ResourceManager current = Minecraft.getInstance().getResourceManager();
+            if (current != resourceManager) {
+                resourceManager = current;
+                reloadGeneration++;
+                observations.clear();
+            }
+            ResourceObservation base = observation(baseResource, false);
+            ResourceObservation mask = maskResource == null ? ResourceObservation.notApplicable(reloadGeneration)
+                    : observation(maskResource, true);
+            boolean dimensionsMatch = base.width > 0 && mask.width > 0
+                    && base.width == mask.width && base.height == mask.height;
+            Boolean alphaBackgroundCheck = maskResource == null ? null
+                    : mask.available && dimensionsMatch && mask.alphaBackgroundCheck;
+            String reason;
+            if (!base.available) {
+                reason = base.reason;
+            } else if (maskResource != null && !mask.available) {
+                reason = mask.reason;
+            } else if (maskResource != null && !dimensionsMatch) {
+                reason = "mask_dimensions_mismatch";
+            } else if (maskResource != null && !Boolean.TRUE.equals(alphaBackgroundCheck)) {
+                reason = "mask_alpha_background_invalid";
+            } else {
+                reason = "resources_resolved";
+            }
+            return new RenderResourceObservation(reloadGeneration, base.available && (maskResource == null || mask.available),
+                    reason, base.hash, mask.hash, alphaBackgroundCheck);
+        }
+
+        private ResourceObservation observation(ResourceLocation location, boolean mask) {
+            return observations.computeIfAbsent(location, key -> load(key, mask));
+        }
+
+        private ResourceObservation load(ResourceLocation location, boolean mask) {
+            Optional<Resource> resource = resourceManager.getResource(location);
+            if (resource.isEmpty()) {
+                return ResourceObservation.failure(reloadGeneration, "resource_missing:" + location);
+            }
+            try {
+                byte[] bytes;
+                try (InputStream input = resource.get().open()) {
+                    bytes = input.readAllBytes();
+                }
+                int width = 0;
+                int height = 0;
+                boolean alphaBackgroundCheck = true;
+                try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
+                    width = image.getWidth();
+                    height = image.getHeight();
+                    if (mask) {
+                        alphaBackgroundCheck = hasTransparentAndOpaquePixels(image);
+                    }
+                }
+                return new ResourceObservation(reloadGeneration, true, sha256(bytes), width, height,
+                        mask ? alphaBackgroundCheck : null, "resources_resolved");
+            } catch (IOException | RuntimeException exception) {
+                return ResourceObservation.failure(reloadGeneration,
+                        "resource_read_failed:" + exception.getClass().getSimpleName());
+            }
+        }
+
+        private long reloadGeneration() {
+            ResourceManager current = Minecraft.getInstance().getResourceManager();
+            if (current != resourceManager) {
+                resourceManager = current;
+                reloadGeneration++;
+                observations.clear();
+            }
+            return reloadGeneration;
+        }
+
+        private void invalidate(ResourceManager manager) {
+            resourceManager = manager;
+            reloadGeneration++;
+            observations.clear();
+        }
+
+        private static boolean hasTransparentAndOpaquePixels(NativeImage image) {
+            boolean transparent = false;
+            boolean opaque = false;
+            for (int y = 0; y < image.getHeight(); y++) {
+                for (int x = 0; x < image.getWidth(); x++) {
+                    int pixel = image.getPixelRGBA(x, y);
+                    int alpha = pixel >>> 24;
+                    if (alpha == 0) {
+                        transparent = true;
+                    } else {
+                        opaque = true;
+                    }
+                    if (transparent && opaque) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    private record RenderResourceObservation(long reloadGeneration, boolean available, String reason,
+                                             String textureHash, String maskHash,
+                                             @Nullable Boolean alphaBackgroundCheck) {
+    }
+
+    private record ResourceObservation(long reloadGeneration, boolean available, String hash, int width, int height,
+                                       @Nullable Boolean alphaBackgroundCheck, String reason) {
+        private static ResourceObservation failure(long reloadGeneration, String reason) {
+            return new ResourceObservation(reloadGeneration, false, null, 0, 0, null, reason);
+        }
+
+        private static ResourceObservation notApplicable(long reloadGeneration) {
+            return new ResourceObservation(reloadGeneration, true, null, 0, 0, null, "not_applicable");
+        }
+    }
+
+    private static String sha256(byte[] bytes) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(bytes);
+            StringBuilder result = new StringBuilder(digest.length * 2);
+            for (byte value : digest) {
+                result.append(String.format("%02x", value));
+            }
+            return result.toString();
+        } catch (NoSuchAlgorithmException exception) {
+            return "unavailable:sha256_not_supported";
+        }
     }
 
     private static final class StopSummary {
