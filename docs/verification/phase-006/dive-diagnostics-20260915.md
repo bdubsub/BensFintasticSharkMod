@@ -1,6 +1,6 @@
 # Phase 006 dive diagnostics evidence
 
-This packet records the bounded dive diagnostic and schema lifecycle work present on source commit `d6360c71030d06dcc09775f13a0d4ece449d755f`.
+This packet records the bounded dive diagnostic and schema lifecycle work present on source commit `806ec1cca23b8c4a2d29132d9e53fb52c3c246fc`.
 
 ## Candidate identity
 
@@ -8,8 +8,8 @@ The Forge artifact was built from that commit with the checked in Gradle wrapper
 
 ```text
 artifact: forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar
-sha256: 8c1c35cd34b8388cf3f9f60f173c8fc9c1f957f068225582b714d4d2cbff7529
-sha512: 6d77f049f7098c6553e491f1b263168e69470d6c0c8f2d9b06871a3f01d226a67ca4163107939bfea20443538be77a7be020c8af1eff8df2f473092def356b2f
+sha256: 56d4d9e5e7c8e593fab2cecc424a292a4703c14a683a7b5cfc634ebfbecc7913
+sha512: a01f96770c16a359fe69efb6b87982fb86dfd6d1ee86600f7bc4afce33a31797acedb5b71e0354b71b6f5ac4a427935a47201bba4f443ecb4aa83a834981e166
 ```
 
 The package contains the four dive item models, the supplied armor textures, the compatible geometry, the server diagnostics classes, and no dive recipe. Existing recipe resources remain unchanged.
@@ -26,7 +26,7 @@ Three required tests passed. They cover full suit eligibility and landlike trave
 
 The complete 95 test run reached all batches and reported one pre existing failure in `bfsgametests.tigercuriosityignoresnonedibleitem`. That run is failed and does not close the phase gate. The failure is unrelated to the dive fixtures and remains open for its owning regression pass.
 
-The new `dive` category requires explicit player targets and records `dive_eligibility`, `dive_oxygen`, `dive_travel`, and `dive_work` events. Reserve schema 1 keeps a newer schema opaque and repairs supported established malformed state to zero without downgrade. Break speed, break, and placement observations are retained for water work parity analysis.
+The new `dive` category requires explicit player targets and records `dive_eligibility`, `dive_oxygen`, `dive_travel`, and `dive_work` events. The capture schema remains `bfs-debug-v2`; the player reserve is recorded as `oxygenSchema`. Reserve schema 1 keeps a newer schema opaque and repairs supported established malformed state to zero without downgrade. Break speed, break, and placement observations are retained for water work parity analysis.
 
 ## Cleanup
 
