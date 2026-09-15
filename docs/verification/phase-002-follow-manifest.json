@@ -456,5 +456,42 @@
     ],
     "finalServerStatus": "alpha remains selected and following after gamma release",
     "cleanup": "complete_server_client_audio_runtime_disposable_instance_and_screenshots_removed_and_verified"
+  },
+  "thirdPartyClientVerification20260914": {
+    "sourceCommit": "4d3c4bf063618b5b16cf5c1430332ec47da60890",
+    "artifactSha256": "bfd23944b647f5cc0d2b5edbd5c1c92ba2d19055189c9e443c739e99914f50f0",
+    "serverEndpoint": "100.76.164.109:25871",
+    "world": "follow-thirdparty-production-20260914",
+    "host": "envision",
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "forge": "47.2.0",
+    "java": "17.0.15",
+    "clientWindowPid": 3364266,
+    "dependencies": {
+      "alexsmobs": {
+        "version": "1.22.9",
+        "sha256": "16bc5bcc19db9029c24f951346ec71098e6f5b0afef96e61894a2e9407aad37c",
+        "sha512": "b50280057926d750f9ffbf6a8df36deb37529356895f6bf59f25d272ecf69afccec65ec1a5c3a8bfad24f9475c15b93c5ec4666447b1fce26a90c41445bbfb04"
+      },
+      "citadel": {
+        "version": "2.6.0",
+        "sha256": "549596de295d90a84ee70625076087a9724dabca1de0567ef6ef03435aab7d5d",
+        "sha512": "8edb2264317e547230960109aaadae36ce0db9abb27748d47033c64c7f4958a970172ae382552c5e3c41a4885e95437328a6eba53226fd64c4ce0b4f0ec22b4f"
+      }
+    },
+    "target": "alexsmobs:grizzly_bear",
+    "controllerPath": "EntityGrizzlyBear extends TamableAnimal with GoalSelector, custom MoveControl and normal PathNavigation",
+    "audio": "master volume 0.0 and owned java playback stream mute verified",
+    "chatOutcomes": [
+      "Selected: external grizzly [1]. 1 mob selected.",
+      "Paused: external grizzly [1]. Waiting for a safe reachable route. 1 mob still selected.",
+      "Following again: external grizzly [1]. 1 mob selected.",
+      "Waiting nearby: external grizzly [1]. 1 mob still selected.",
+      "Released: external grizzly [1]. You clicked this mob again. 0 mobs selected."
+    ],
+    "movementObservation": "target moved from x 108 to x 101.29355298412146 toward owner x 96 while selected",
+    "result": "real_client_pinned_third_party_selection_follow_waiting_and_individual_release_verified",
+    "devGameTestLimitation": "Citadel mapped LevelMixin shadow does not load on the Forge userdev classpath",
+    "cleanup": "complete_server_client_audio_runtime_disposable_instance_and_screenshots_removed_and_verified"
   }
 }

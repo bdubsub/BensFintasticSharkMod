@@ -58,13 +58,15 @@ Earlier runs exposed incorrect operator levels in the test harness, an unsettled
 
 One earlier combined run rejected the 20 member progress assertion. Later focused and combined runs passed. The original assertion lacked sufficient per member state to isolate that failure, so it now reports position, distance, route and group state. This does not close the remaining group stress gate. An earlier focused run also raised `ConcurrentModificationException` in `DistanceManager` during shutdown. The final focused and combined runs shut down cleanly; no cause is claimed for that earlier shutdown observation.
 
-The complete controller and lifecycle matrix, actual pinned third party fixture, boss locomotion, phase review, integration and signed phase tag remain open. Generic claims in older compatibility records do not prove those locomotion cases. No phase or full goal completion is claimed.
+The complete controller and lifecycle matrix, boss locomotion, phase review, integration and signed phase tag remain open. Generic claims in older compatibility records do not prove those locomotion cases. No phase or full goal completion is claimed.
 
 ## Packaged client verification
 
 The exact candidate was run on the `envision` laptop against a disposable production Forge server at `100.76.164.109:25870`. The host reported an NVIDIA GeForce RTX 5090 Laptop GPU, Java 17.0.15, Forge 47.2.0 and the Xwayland Minecraft window at PID `3265310`. The client used the pinned Alex's Mobs, Citadel, SmartBrainLib and GeckoLib dependencies recorded in the phase manifest. The client master volume was `0.0`, and the Java playback stream for that PID reported `Mute: yes`.
 
 The real right click path produced visible chat feedback for each state. The operator selected `follow cow alpha [1]`, received waiting and resumption messages, received a blocked route pause, selected `follow cow gamma [2]` while alpha remained selected, and then right clicked gamma again. The release message reported `Released: follow cow gamma [2]. You clicked this mob again. 1 mob selected.` The server status immediately afterward showed alpha still selected and following. This verifies independent group membership and individual release at the same distance without the old move farther away rejection.
+
+A second production client run used the same candidate against `100.76.164.109:25871` with Alex's Mobs `1.22.9` and Citadel `2.6.0`. The actual right click selected a pinned `alexsmobs:grizzly_bear`, then emitted `Paused`, `Following again`, and `Waiting nearby` while the server restored the bear's normal AI after setup and moved it from x `108` to x `101.29355298412146` toward the owner at x `96`. A second deliberate right click emitted `Released: external grizzly [1]. You clicked this mob again. 0 mobs selected.` This proves the pinned third party path keeps a member selected through waiting and releases only the clicked mob without a distance based reselection rule. The development GameTest path was not used for this external namespace because Citadel's mapped mixin does not load on the Forge userdev classpath; the production Forge runtime was used for the actual client interaction.
 
 ## Cleanup
 
