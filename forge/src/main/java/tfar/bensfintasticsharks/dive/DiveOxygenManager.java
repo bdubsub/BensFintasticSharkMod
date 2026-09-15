@@ -92,6 +92,9 @@ public final class DiveOxygenManager {
         target.putInt(SCHEMA_KEY, source.getInt(SCHEMA_KEY));
         target.putBoolean(INITIALIZED_KEY, source.getBoolean(INITIALIZED_KEY));
         target.putInt(RESERVE_KEY, source.getInt(RESERVE_KEY));
+        if (source.contains(REVISION_KEY)) {
+            target.putLong(REVISION_KEY, source.getLong(REVISION_KEY));
+        }
         target.remove(SYNC_INITIALIZED_KEY);
     }
 
