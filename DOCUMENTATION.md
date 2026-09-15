@@ -179,7 +179,7 @@ Every `/bfs` command needs op permission (level 2). Species names and disturbanc
 | `/bfs cap reset <species>` | Clears that species runtime override |
 | `/bfs cap reset` | Clears every runtime override |
 | `/bfs disturbance <type>` | Fires a test light, heavy, or blood disturbance at your position. Reports how many sharks are in range to react |
-| `/bfs debug on [category] [ticks] [targets]` | Starts one bounded server diagnostic capture. Categories are all, movement, brain, combat, population, advancement, algae, and follow. Bare `on` uses all for 1,200 ticks |
+| `/bfs debug on [category] [ticks] [targets]` | Starts one bounded server diagnostic capture. Categories are all, movement, brain, combat, population, advancement, algae, follow, disturbance, and boat. Bare `on` uses all for 1,200 ticks |
 | `/bfs debug status` | Reports the active or last server capture, including limits, output path, and any incomplete reason |
 | `/bfs debug off` | Stops the active server diagnostic capture. It is safe to repeat after the capture is already inactive. |
 | `/bfs debug settings help` | Shows the session only tuning fields, units, bounds, revision and specialized aliases |
@@ -252,6 +252,8 @@ When a shark is idle and a light disturbance fires, there's a 15% chance it turn
 When a shark is already curious and a heavy disturbance fires, it definitely moves toward the new source. Light disturbances are ignored. Blood still escalates to hostile.
 
 There are some safety rules. Sharks never target players in creative or spectator mode. If a target has been out of water for 60 ticks (three seconds), the shark drops it and returns to idle. Sharks in shallow water (less than 3 blocks deep) move at 60% speed. Sharks check for beach biomes every 40 ticks and walk back toward deeper water if they're near shore. If a target dies mid chase the shark drops it and returns to idle, so no more frozen poses after a successful kill.
+
+Occupied moving boats create a bounded disturbance when a dry rider is present and the measured horizontal movement reaches the configured threshold. An eligible Great White may investigate from a submerged waypoint behind the boat's travel direction. This is a low priority noncombat interest. Safety, follow ownership, and combat always win, and a route is rejected when the shark body cannot remain in water or the turn exceeds the configured bound. The interest refreshes on a fixed interval, releases on dismount, removal, unsafe routing, or prolonged stationarity, and never moves the rider or boat.
 
 You can scale how sensitive sharks are to each disturbance type with the three multipliers in `[disturbance]`. Setting any of them to 0.0 disables that type entirely. Particle and audio feedback also have their own toggles.
 

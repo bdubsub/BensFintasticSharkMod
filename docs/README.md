@@ -42,6 +42,7 @@
 * [Phase 003 baseline manifest](verification/phase-003/phase-003-manifest.json)
 * [BFS2 Phase 003 task 002 disturbance settings evidence](verification/bfs2-phase-003-task-002.md)
 * [BFS2 Phase 003 task 003 boat interest evidence](verification/bfs2-phase-003-task-003.md)
+* [BFS2 Phase 003 task 004 runtime gate evidence](verification/bfs2-phase-003-task-004.md)
 * [Phase 003 task 002 icon pipeline](verification/phase-003/phase-003-task-002-icons.md)
 * [Phase 003 task 003 advancement graph](verification/phase-003/phase-003-task-003-graph.md)
 * [Phase 003 task 004 advancement copy](verification/phase-003/phase-003-task-004-copy.md)
