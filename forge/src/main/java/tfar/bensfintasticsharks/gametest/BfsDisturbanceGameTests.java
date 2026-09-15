@@ -236,6 +236,65 @@ public final class BfsDisturbanceGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "disturbance_boat_interest", timeoutTicks = 150)
+    public static void boatInterestReleasesOnDismountAndStationarity(GameTestHelper helper) {
+        fillWater(helper, 0, 0, 0, 14, 8, 14);
+        AbstractSharkEntity<?> shark = helper.spawn(ModEntityTypes.GREAT_WHITE_SHARK, new BlockPos(3, 1, 7));
+        shark.setNoAi(true);
+        shark.setNoGravity(true);
+        Boat boat = helper.spawn(EntityType.BOAT, new BlockPos(8, 3, 7));
+        ServerPlayer rider = makeTestPlayer(helper, "boat-release-rider", new BlockPos(8, 10, 7));
+        rider.startRiding(boat, true);
+        WaterDisturbanceEvent event = new WaterDisturbanceEvent(helper.getLevel(), boat.blockPosition(), boat,
+                WaterDisturbanceEvent.Type.LIGHT, WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT, 1.0D,
+                boat, rider, new Vec3(0.5D, 0.0D, 0.0D));
+        GreatWhiteBoatInterest.Decision decision = new GreatWhiteBoatInterest().acquire(
+                helper.getLevel(), (tfar.bensfintasticsharks.entity.GreatWhiteSharkEntity) shark, event);
+        helper.assertTrue(decision.accepted(), "the release fixture must acquire a boat lease");
+        rider.stopRiding();
+        helper.runAfterDelay(3, () -> helper.assertFalse(BoatMovementOwners.active(shark),
+                "dismount must release boat interest promptly"));
+        helper.runAfterDelay(110, () -> {
+            try {
+                helper.assertFalse(BoatMovementOwners.active(shark),
+                        "stationary boat interest must remain released by its one hundred tick deadline");
+            } finally {
+                rider.remove(Entity.RemovalReason.DISCARDED);
+                boat.remove(Entity.RemovalReason.DISCARDED);
+                shark.remove(Entity.RemovalReason.DISCARDED);
+            }
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "disturbance_boat_interest", timeoutTicks = 100)
+    public static void boatInterestRejectsObstructedBehindRoute(GameTestHelper helper) {
+        fillWater(helper, 0, 0, 0, 14, 8, 14);
+        helper.setBlock(new BlockPos(5, 1, 7), Blocks.STONE.defaultBlockState());
+        AbstractSharkEntity<?> shark = helper.spawn(ModEntityTypes.GREAT_WHITE_SHARK, new BlockPos(3, 1, 7));
+        shark.setNoAi(true);
+        shark.setNoGravity(true);
+        Boat boat = helper.spawn(EntityType.BOAT, new BlockPos(8, 3, 7));
+        ServerPlayer rider = makeTestPlayer(helper, "boat-obstruction-rider", new BlockPos(8, 10, 7));
+        rider.startRiding(boat, true);
+        WaterDisturbanceEvent event = new WaterDisturbanceEvent(helper.getLevel(), boat.blockPosition(), boat,
+                WaterDisturbanceEvent.Type.LIGHT, WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT, 1.0D,
+                boat, rider, new Vec3(0.5D, 0.0D, 0.0D));
+        GreatWhiteBoatInterest.Decision decision = new GreatWhiteBoatInterest().acquire(
+                helper.getLevel(), (tfar.bensfintasticsharks.entity.GreatWhiteSharkEntity) shark, event);
+        try {
+            helper.assertFalse(decision.accepted(), "a solid obstruction must reject the behind route");
+            helper.assertTrue(decision.reason().equals("unsafe_route"),
+                    "the obstruction must report unsafe_route, got " + decision.reason());
+        } finally {
+            rider.stopRiding();
+            rider.remove(Entity.RemovalReason.DISCARDED);
+            boat.remove(Entity.RemovalReason.DISCARDED);
+            shark.remove(Entity.RemovalReason.DISCARDED);
+        }
+        helper.succeed();
+    }
+
     private static void fillWater(GameTestHelper helper, int minX, int minY, int minZ,
                                   int maxX, int maxY, int maxZ) {
         for (int x = minX; x <= maxX; x++) for (int y = minY; y <= maxY; y++)
