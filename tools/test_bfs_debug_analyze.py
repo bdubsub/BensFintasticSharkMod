@@ -30,6 +30,51 @@ def record(event: str, tick: int, **values: object) -> dict[str, object]:
 
 
 class BfsDebugAnalyzerTest(unittest.TestCase):
+    def test_render_boundary_and_reload_contract(self) -> None:
+        base = {
+            "render.variantId": "zippy",
+            "render.baseResource": "bensfintasticsharks:textures/entity/common_thresher_shark/zippy.png",
+            "render.maskResource": "bensfintasticsharks:textures/entity/common_thresher_shark/zippy_glowmask.png",
+            "render.selected": True,
+            "render.reason": "resources_resolved",
+            "render.textureHash": "a" * 64,
+            "render.maskHash": "b" * 64,
+            "render.alphaBackgroundCheck": True,
+        }
+        records = [
+            {**record("header", 1), "side": "client"},
+            {**record("presentation", 2, **base, **{
+                "render.rawBrightness": 7, "render.layer": "glow",
+                "render.resourceReloadGeneration": 1,
+            }), "side": "client"},
+            {**record("presentation", 3, **base, **{
+                "render.rawBrightness": 8, "render.layer": "marking",
+                "render.resourceReloadGeneration": 2,
+            }), "side": "client"},
+            {**record("end", 4, incomplete=False, recordsDropped=0), "side": "client"},
+        ]
+        analysis = bfs_debug_analyze.validate(records, [], {"render": {"minimumSamples": 2}})
+        self.assertEqual("complete", analysis["verdict"])
+        self.assertEqual([1, 2], analysis["metrics"]["render"]["reloadGenerations"])
+
+    def test_render_rejects_wrong_layer_and_missing_hash(self) -> None:
+        row = {
+            "render.variantId": "zippy", "render.baseResource": "base.png",
+            "render.maskResource": "mask.png", "render.rawBrightness": 8,
+            "render.layer": "glow", "render.selected": True,
+            "render.reason": "resources_resolved", "render.resourceReloadGeneration": 0,
+            "render.textureHash": None, "render.maskHash": "b" * 64,
+            "render.alphaBackgroundCheck": True,
+        }
+        analysis = bfs_debug_analyze.validate([
+            {**record("header", 1), "side": "client"},
+            {**record("presentation", 2, **row), "side": "client"},
+            {**record("end", 3, incomplete=False, recordsDropped=0), "side": "client"},
+        ], [], {})
+        self.assertEqual("invalid", analysis["verdict"])
+        self.assertTrue(any("zippy layer must be marking" in error for error in analysis["errors"]))
+        self.assertTrue(any("selected without a texture hash" in error for error in analysis["errors"]))
+
     def test_complete_capture_preserves_history(self) -> None:
         records = [
             record("header", 1),

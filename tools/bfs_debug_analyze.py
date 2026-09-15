@@ -44,6 +44,8 @@ SOURCE_KINDS = {
     "water_entry", "water_jump", "occupied_boat",
 }
 UUID_PATTERN = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b")
+HASH_PATTERN = re.compile(r"(?i)\A[0-9a-f]{64}\Z")
+RENDER_LAYERS = {"base", "marking", "glow"}
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -199,6 +201,9 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
     if boat_decisions:
         metrics["boatDecisions"] = validate_decision_events(
             boat_decisions, errors, "boat")
+    presentation_records = [row for row in records if row.get("event") == "presentation"]
+    if presentation_records or "render" in manifest:
+        metrics["render"] = validate_render(presentation_records, manifest.get("render", {}), errors)
     verdict = "invalid" if errors else "incomplete" if warnings else "complete"
     coverage = {
         "movementEntityCount": len(movement_history),
@@ -207,6 +212,71 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
         "hasTerminalRecord": len(end_records) == 1,
     }
     return result(verdict, errors, warnings, metrics, records, manifest, dict(events), checks, coverage)
+
+
+def validate_render(records: list[dict[str, Any]], contract: Any, errors: list[str]) -> dict[str, Any]:
+    """Validate the bounded client render observations used by the Zippy gate."""
+    if not isinstance(contract, dict):
+        errors.append("render manifest must be an object")
+        contract = {}
+    generations: list[int] = []
+    selected = 0
+    for index, row in enumerate(records, start=1):
+        prefix = f"presentation record {index}"
+        required = {
+            "render.variantId", "render.baseResource", "render.maskResource",
+            "render.rawBrightness", "render.layer", "render.selected", "render.reason",
+            "render.resourceReloadGeneration", "render.textureHash", "render.maskHash",
+            "render.alphaBackgroundCheck",
+        }
+        missing = sorted(field for field in required if field not in row)
+        if missing:
+            errors.append(f"{prefix} is missing render fields: {', '.join(missing)}")
+            continue
+        brightness = row["render.rawBrightness"]
+        layer = row["render.layer"]
+        variant = row["render.variantId"]
+        if not isinstance(brightness, int) or not 0 <= brightness <= 15:
+            errors.append(f"{prefix} has raw brightness outside 0 through 15")
+        if layer not in RENDER_LAYERS:
+            errors.append(f"{prefix} has an unknown render layer")
+        if not isinstance(row["render.selected"], bool):
+            errors.append(f"{prefix} render.selected must be boolean")
+        generation = row["render.resourceReloadGeneration"]
+        if not isinstance(generation, int) or generation < 0:
+            errors.append(f"{prefix} has an invalid resource reload generation")
+        else:
+            if generations and generation < generations[-1]:
+                errors.append(f"{prefix} moves resource reload generation backward")
+            generations.append(generation)
+        texture_hash = row["render.textureHash"]
+        if texture_hash is not None and (not isinstance(texture_hash, str) or not HASH_PATTERN.fullmatch(texture_hash)):
+            errors.append(f"{prefix} has an invalid texture hash")
+        mask_hash = row["render.maskHash"]
+        if mask_hash is not None and (not isinstance(mask_hash, str) or not HASH_PATTERN.fullmatch(mask_hash)):
+            errors.append(f"{prefix} has an invalid mask hash")
+        alpha = row["render.alphaBackgroundCheck"]
+        if alpha is not None and not isinstance(alpha, bool):
+            errors.append(f"{prefix} alpha background check must be boolean or null")
+        if isinstance(variant, str) and variant == "zippy" and isinstance(brightness, int):
+            expected = "marking" if brightness >= 8 else "glow"
+            if layer != expected:
+                errors.append(f"{prefix} zippy layer must be {expected} at raw brightness {brightness}")
+        elif isinstance(variant, str) and variant != "zippy" and layer != "base":
+            errors.append(f"{prefix} non zippy layer must be base")
+        if row["render.selected"]:
+            selected += 1
+            if not isinstance(row["render.baseResource"], str) or row["render.baseResource"].startswith("unavailable:"):
+                errors.append(f"{prefix} selected without a base resource")
+            if texture_hash is None:
+                errors.append(f"{prefix} selected without a texture hash")
+            if alpha is False:
+                errors.append(f"{prefix} selected with an invalid mask alpha background")
+    minimum = contract.get("minimumSamples")
+    if isinstance(minimum, int) and len(records) < minimum:
+        errors.append(f"render capture has {len(records)} samples, expected at least {minimum}")
+    return {"sampleCount": len(records), "selectedCount": selected,
+            "reloadGenerations": sorted(set(generations))}
 
 
 def validate_follow(records: list[dict[str, Any]], contract: Any, errors: list[str]) -> dict[str, Any]:

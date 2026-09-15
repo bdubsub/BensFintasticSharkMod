@@ -50,6 +50,10 @@ Archive member safety and the complete machine-readable member manifest are reco
 | `common/src/main/resources/assets/bensfintasticsharks/textures/item/specimen_8.png` | `88f6dc345a7c399034142cf2bebc54fdd488e41b9f36f19d470806d393c1fc65` |
 | `common/src/main/resources/assets/bensfintasticsharks/textures/item/zippy_pixel_art.png` | `4f54793625dc71ab456ca58de55b6bfe015f586c81930d11b72d5a3d6942595d` |
 
+## Zippy render records
+
+The Common Thresher Zippy render keeps the supplied base and glow mask bytes unchanged. The base texture is `common/src/main/resources/assets/bensfintasticsharks/textures/entity/common_thresher_shark/zippy.png` with SHA 256 `cd4352898da93334fb3c313d293ada7f7cae1b7d99729e9b01ce7d10fba4767d`. The authored glow mask is `common/src/main/resources/assets/bensfintasticsharks/textures/entity/common_thresher_shark/zippy_glowmask.png` with SHA 256 `cb6035ce2dafe249c020c4e9fa4f2b847119b17470a0bdf8cf41f51af184ff8f`. The client layer composes the mask with `RenderType.eyes` as a second pass, leaving the base resource available for daylight markings. The local render capture records both resource IDs and hashes, raw brightness, the selected layer, mask alpha validation, and reload generation.
+
 ## Algae records
 
 The loose algae drop contains 22 PNG files. `algea_block.png` is the 16 by 16 source for `bensfintasticsharks:algae_block`. `biggreenalgea_strip.png` is a 16 by 160 strip containing ten ordered frames for `bensfintasticsharks:large_green_algae`. `bigredalgea_strip.png` is a 16 by 144 strip containing nine ordered frames for `bensfintasticsharks:large_red_algae`. The numbered PNG files are source frame evidence and are not separate public blocks.
