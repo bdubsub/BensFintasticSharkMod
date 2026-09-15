@@ -4,15 +4,15 @@
   "documents": {
     "brief": {
       "path": "brief.md",
-      "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+      "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
     },
     "repository_map": {
       "path": "repository-map.md",
-      "sha256": "25f962d8f51c54bcd32903a41b74b0939b532569fcc3d6f5aa4ba474fb8b89c4"
+      "sha256": "abec445f429a0bb25aa897e3255b243d6bbf19c2e0f7170ddc1e6a79085ab557"
     },
     "intake": {
       "path": "intake.json",
-      "sha256": "76883ff234ef266aa300fa334955d7298b2841b211ba42fef90c28360cf2800d"
+      "sha256": "b39cc8384bb3e06bf74af5158e7f298f7f2cf7b3ca1f8a7dc1a01a1864a2f94c"
     }
   },
   "sources": [
@@ -143,7 +143,7 @@
       "freshness": "pinned",
       "snapshot": {
         "path": "brief.md",
-        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+        "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
       },
       "repository_files": []
     },
@@ -156,7 +156,7 @@
       "freshness": "pinned",
       "snapshot": {
         "path": "brief.md",
-        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+        "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
       },
       "repository_files": [
         {
@@ -471,7 +471,7 @@
       "recheck_after": "2026-09-13T01:46:21.578641+00:00",
       "snapshot": {
         "path": "brief.md",
-        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+        "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
       },
       "repository_files": []
     },
@@ -485,7 +485,7 @@
       "recheck_after": "2026-09-13T01:46:21.578641+00:00",
       "snapshot": {
         "path": "brief.md",
-        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+        "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
       },
       "repository_files": []
     },
@@ -498,7 +498,7 @@
       "freshness": "pinned",
       "snapshot": {
         "path": "brief.md",
-        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+        "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
       },
       "repository_files": [
         {
@@ -564,7 +564,7 @@
       "freshness": "pinned",
       "snapshot": {
         "path": "brief.md",
-        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+        "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
       },
       "repository_files": [
         {
@@ -598,7 +598,7 @@
       "freshness": "pinned",
       "snapshot": {
         "path": "brief.md",
-        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+        "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
       },
       "repository_files": [
         {
@@ -640,7 +640,7 @@
       "freshness": "pinned",
       "snapshot": {
         "path": "brief.md",
-        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+        "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
       },
       "repository_files": []
     },
@@ -653,7 +653,7 @@
       "freshness": "pinned",
       "snapshot": {
         "path": "brief.md",
-        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+        "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
       },
       "repository_files": []
     },
@@ -666,7 +666,7 @@
       "freshness": "pinned",
       "snapshot": {
         "path": "brief.md",
-        "sha256": "5e62986e35f5e918eb0b1606c601a97989d2da41d147ed069289047dac32d693"
+        "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
       },
       "repository_files": [
         {
@@ -692,6 +692,73 @@
         {
           "path": "tools/test_bfs_debug_analyze.py",
           "sha256": "1db97d335893c996b3efbd9900fd0b68988ff90405c58b8eafb221e71f8b8dfc"
+        }
+      ]
+    },
+    {
+      "id": "SRC-111",
+      "role": "owner_request",
+      "locator": "Owner request for independent selections and visible feedback",
+      "revision": "DEC-011",
+      "observed_at": "2026-09-15T02:16:45.136615+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/follow-group-amendment.md",
+        "sha256": "acd5106e3c6e5d9b695d35b382c559042510b630204083ccfd0ae52ad1d9404b"
+      },
+      "repository_files": []
+    },
+    {
+      "id": "SRC-112",
+      "role": "repository_evidence",
+      "locator": "Follow manager and tests at faccaf58ffeb6c1d7b857c9c702a970d78062316",
+      "revision": "faccaf58ffeb6c1d7b857c9c702a970d78062316",
+      "observed_at": "2026-09-15T02:16:45.136615+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/follow-group-amendment.md",
+        "sha256": "acd5106e3c6e5d9b695d35b382c559042510b630204083ccfd0ae52ad1d9404b"
+      },
+      "repository_files": [
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/follow/BfsFollowManager.java",
+          "sha256": "875119a7cba0e117838b2ceb614361e74e40e1b05cc930983b811d338ad24ba0"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/gametest/BfsFollowGameTests.java",
+          "sha256": "e456b73abe8b2ed0500e2628570d46f10e885a2852888d558057ddb948db1523"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/debug/BfsDebugCommands.java",
+          "sha256": "93d3760cb5c2583deda4859b043ecd781511611e8d040c1b575560997cf92e73"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/debug/BfsDebugManager.java",
+          "sha256": "8154abad8d90543b94f42a3ffab49656020bed3108ae55c21efb7b382f7edb96"
+        },
+        {
+          "path": "forge/src/main/java/tfar/bensfintasticsharks/client/BfsClientDebugManager.java",
+          "sha256": "6868d64d1200fe4de097a008023bcfcec55cc75acfeedcd18dd50a90d87fa1ad"
+        },
+        {
+          "path": "common/src/main/java/tfar/bensfintasticsharks/init/ModItems.java",
+          "sha256": "c65b080807f3c8f96be8bf2d005bb529a8b389a763017fa882cc98bec5929996"
+        },
+        {
+          "path": "tools/bfs_debug_analyze.py",
+          "sha256": "805ed618e416b00cca162b03d0baa55a975c18629120c02554497befc1a59c41"
+        },
+        {
+          "path": "tools/test_bfs_debug_analyze.py",
+          "sha256": "0ca1813da0c14549f049d91de7424add0efc289775a0858b40f3406c55a01c02"
+        },
+        {
+          "path": "docs/test/debug-diagnostics.md",
+          "sha256": "7e82c900fa160d3d974d12b071a8221faa26387ff2132388e1dd5e2ad60dcc27"
+        },
+        {
+          "path": "gradle.properties",
+          "sha256": "4e80b57815a112037d2ce88acb7be4fcaa69752a63fc4b93cc4276bb7c84dd91"
         }
       ]
     }
@@ -797,30 +864,36 @@
     },
     {
       "id": "FIND-108",
-      "summary": "NBT marked follow stick selects and follows all mob families, including bosses and other mods, through temporary movement ownership without a species whitelist.",
+      "summary": "NBT marked follow stick adds independently selected mobs from all families, including bosses and other mods, to an operator group without a species whitelist or arbitrary follower count cap. Each deliberate click toggles only that mob, with chat and on screen feedback.",
       "classification": "PROPOSED",
       "source_ids": [
         "SRC-001",
-        "SRC-003"
+        "SRC-003",
+        "SRC-111"
       ],
       "requirement_ids": [
         "BFS2-REQ-008"
       ],
-      "depends_on": [],
+      "depends_on": [
+        "FIND-123"
+      ],
       "conflicts_with": []
     },
     {
       "id": "FIND-109",
-      "summary": "Release selected followers and restore ordinary behavior on explicit stop and bounded lifecycle exits, without deleting unrelated behavior state.",
+      "summary": "Keep followers selected through arrival and recoverable pauses until individually toggled or explicitly stopped. Restore only owned behavior on release or required lifecycle cleanup, and report every meaningful outcome in chat and on screen.",
       "classification": "PROPOSED",
       "source_ids": [
         "SRC-001",
-        "SRC-003"
+        "SRC-003",
+        "SRC-111"
       ],
       "requirement_ids": [
         "BFS2-REQ-009"
       ],
-      "depends_on": [],
+      "depends_on": [
+        "FIND-123"
+      ],
       "conflicts_with": []
     },
     {
@@ -1016,6 +1089,21 @@
       ],
       "requirement_ids": [
         "BFS2-REQ-017"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-123",
+      "summary": "At the pinned current revision, single-owner storage, duration expiry, arrival release/latch and partial callback feedback conflict with DEC-011 independent retained follow groups. This static finding requires real input, group and feedback regression proof.",
+      "classification": "OBSERVED",
+      "source_ids": [
+        "SRC-111",
+        "SRC-112"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-008",
+        "BFS2-REQ-009"
       ],
       "depends_on": [],
       "conflicts_with": []
