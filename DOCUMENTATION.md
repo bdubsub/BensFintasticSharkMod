@@ -32,7 +32,7 @@ There is one readable item chain that ends in the Shark Codex. You assemble it f
 
 There is one structure, the Sunken Trove. It generates on the ocean floor in non frozen ocean biomes and contains a chest with our loot table.
 
-The release candidate also adds three permanent aquatic plants. Algae Block is a single still texture. Large Green Algae and Large Red Algae use their supplied animated strips and can generate in ocean biomes from y 20 through y 62. They require source water and a valid underwater seagrass position, use cutout rendering, and do not generate in rivers or non ocean biomes. Their block and item forms are available through the generated `bensfintasticsharks:algae` tags.
+The release candidate also adds three permanent aquatic plants. Small Algae is a waterlogged multiface block that attaches to supported horizontal sides and the top face of the block below. Large Green Algae and Large Red Algae use their supplied animated strips and waterlogged `single`, `body`, and `top` segments. Players can stack or bonemeal the top segment through source water up to eight cells, and age 25 stops random growth while leaving valid manual and bonemeal extension available. Natural placement uses bounded exposed ocean floor candidates and rejects roofed red algae locations. Their block and item forms are available through the generated `bensfintasticsharks:algae` tags. See [the algae and world generation guide](docs/test/algae-worldgen.md) for support, fluid, loot, and diagnostic details.
 
 ## 2. How spawning works
 

@@ -14,11 +14,14 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
+import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.enderdragon.phases.DragonChargePlayerPhase;
 import net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -46,7 +49,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.entity.monster.Slime;
-import net.minecraft.util.Mth;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.UUID;
@@ -254,6 +256,7 @@ public final class BfsFollowManager {
         Group group = BY_OWNER.computeIfAbsent(owner.getUUID(), ignored -> new Group());
         long tick = owner.serverLevel().getGameTime();
         String adapter = mob instanceof EnderDragon ? "ender_dragon_charge"
+                : mob.getMoveControl() instanceof FlyingMoveControl ? "flying_move_control"
                 : mob instanceof SmartBrainOwner<?> ? "smartbrain_walk_target" : "mob_navigation";
         EnderDragonPhase<?> previousDragonPhase = mob instanceof EnderDragon dragon
                 ? dragon.getPhaseManager().getCurrentPhase().getPhase() : null;
@@ -422,6 +425,10 @@ public final class BfsFollowManager {
             routeEnderDragon(lease, owner, mob);
             return;
         }
+        if (lease.adapter.equals("flying_move_control")) {
+            routeFlyingMoveControl(lease, owner, mob);
+            return;
+        }
         if (lease.adapter.equals("smartbrain_walk_target")) {
             lease.ownedWalkTarget = new WalkTarget(owner, 1.0F, 1);
             mob.getBrain().setMemory(MemoryModuleType.WALK_TARGET, lease.ownedWalkTarget);
@@ -435,6 +442,50 @@ public final class BfsFollowManager {
         record(lease, owner, mob, "follow.progress", lease.reason);
     }
 
+    private static void routeFlyingMoveControl(Lease lease, ServerPlayer owner, Mob mob) {
+        if (!(mob.getMoveControl() instanceof FlyingMoveControl)) {
+            transition(lease, owner, mob, "paused", "no_route");
+            record(lease, owner, mob, "follow.intent", "flying_move_control_rejected");
+            record(lease, owner, mob, "follow.progress", lease.reason);
+            return;
+        }
+        Vec3 target = flyingTarget(lease, owner, mob);
+        mob.getMoveControl().setWantedPosition(target.x, target.y, target.z, 1.0D);
+        steerFlyingMob(lease, owner, mob);
+        lease.ownsMoveControl = true;
+        if (lease.blocked < BLOCKED_TICKS) transition(lease, owner, mob, "following", "tracking");
+        record(lease, owner, mob, "follow.intent", "flying_move_control_accepted");
+        record(lease, owner, mob, "follow.progress", lease.reason);
+    }
+
+    private static void steerFlyingMob(Lease lease, ServerPlayer owner, Mob mob) {
+        Vec3 delta = flyingTarget(lease, owner, mob).subtract(mob.position());
+        double distance = delta.length();
+        if (distance <= 1.0E-4D) {
+            mob.setDeltaMovement(Vec3.ZERO);
+            return;
+        }
+        double speed = Math.min(0.35D, Math.max(0.12D, distance * 0.1D));
+        mob.setNoGravity(true);
+        mob.setDeltaMovement(delta.scale(speed / distance));
+        float yaw = (float) (Mth.atan2(delta.x, -delta.z) * Mth.RAD_TO_DEG);
+        mob.setYRot(yaw);
+        mob.yBodyRot = yaw;
+    }
+
+    private static Vec3 flyingTarget(Lease lease, ServerPlayer owner, Mob mob) {
+        double verticalOffset = 2.0D;
+        Group group = BY_OWNER.get(lease.ownerId);
+        if (group != null && group.members.values().stream().anyMatch(other -> {
+            if (other == lease || !other.adapter.equals("ender_dragon_charge")) return false;
+            Entity entity = findMob(mob.level().getServer(), other.targetId);
+            return entity instanceof EnderDragon && entity.distanceToSqr(mob) < 256.0D;
+        })) {
+            verticalOffset = -6.0D;
+        }
+        return owner.position().add(0.0D, verticalOffset, 0.0D);
+    }
+
     private static void routeEnderDragon(Lease lease, ServerPlayer owner, Mob mob) {
         if (!(mob instanceof EnderDragon dragon)) {
             transition(lease, owner, mob, "paused", "no_route");
@@ -444,7 +495,15 @@ public final class BfsFollowManager {
         }
         dragon.getPhaseManager().setPhase(EnderDragonPhase.CHARGING_PLAYER);
         DragonChargePlayerPhase charge = dragon.getPhaseManager().getPhase(EnderDragonPhase.CHARGING_PLAYER);
-        charge.setTarget(owner.position().add(0.0D, 4.0D, 0.0D));
+        Vec3 target = owner.position().add(0.0D, 4.0D, 0.0D);
+        charge.setTarget(target);
+        Vec3 horizontal = target.subtract(dragon.position()).multiply(1.0D, 0.0D, 1.0D);
+        if (horizontal.lengthSqr() > 1.0E-6D) {
+            float yaw = (float) (Mth.atan2(horizontal.x, -horizontal.z) * Mth.RAD_TO_DEG);
+            dragon.setYRot(yaw);
+            dragon.yRotO = yaw;
+            dragon.yBodyRot = yaw;
+        }
         lease.dragonPhaseControlled = true;
         if (lease.blocked < BLOCKED_TICKS) transition(lease, owner, mob, "following", "tracking");
         record(lease, owner, mob, "follow.intent", "phase_target_accepted");
@@ -460,6 +519,11 @@ public final class BfsFollowManager {
         }
         if (lease.ownsNavigation && mob.getNavigation().getPath() == lease.ownedPath) mob.getNavigation().stop();
         lease.ownsNavigation = false;
+        if (lease.ownsMoveControl) {
+            mob.getMoveControl().setWantedPosition(mob.getX(), mob.getY(), mob.getZ(), 0.0D);
+            lease.ownsMoveControl = false;
+            mob.setNoGravity(lease.previousNoGravity);
+        }
         if (lease.ownedWalkTarget != null && mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null) == lease.ownedWalkTarget) {
             mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         }
@@ -663,6 +727,17 @@ public final class BfsFollowManager {
         public void tick() {
             Mob target = mob.get();
             if (!movement || target == null || !lease.state.equals("following")) return;
+            if (lease.adapter.equals("flying_move_control")
+                    && target.getMoveControl() instanceof FlyingMoveControl
+                    && target.level() instanceof ServerLevel level) {
+                ServerPlayer owner = level.getServer().getPlayerList().getPlayer(lease.ownerId);
+                if (owner != null) {
+                    Vec3 wanted = flyingTarget(lease, owner, target);
+                    target.getMoveControl().setWantedPosition(wanted.x, wanted.y, wanted.z, 1.0D);
+                    steerFlyingMob(lease, owner, target);
+                }
+                return;
+            }
             Path path = target.getNavigation().getPath();
             if (target.getMoveControl() instanceof Slime.SlimeMoveControl control && path != null && !path.isDone()) {
                 var point = path.getNextEntityPos(target);
@@ -697,12 +772,14 @@ public final class BfsFollowManager {
         private final int alias;
         private final String adapter;
         private final EnderDragonPhase<?> previousDragonPhase;
+        private final boolean previousNoGravity;
         private final long started;
         private final WalkTarget previousWalkTarget;
         private SmartBrainFollowControl<?> brainControl;
         private WalkTarget ownedWalkTarget;
         private Path ownedPath;
         private boolean ownsNavigation;
+        private boolean ownsMoveControl;
         private boolean dragonPhaseControlled;
         private long lastRoute = -1;
         private double lastDistance = Double.MAX_VALUE;
@@ -720,6 +797,7 @@ public final class BfsFollowManager {
             this.alias = alias;
             this.adapter = adapter;
             this.previousDragonPhase = previousDragonPhase;
+            this.previousNoGravity = mob.isNoGravity();
             this.started = started;
             this.previousWalkTarget = adapter.equals("smartbrain_walk_target")
                     ? mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null) : null;

@@ -73,6 +73,19 @@ Each server owns at most one session. A second `on` command reports the existing
 
 The active status line and terminal record expose the p95 nanoseconds spent in the bounded server capture path and the number of sampled server ticks. The sample is collected only while a session is enabled and never allocates or scans when capture is disabled. Compare this value with the same seeded fixture with capture off, and reject the diagnostic gate when the added p95 exceeds 5 percent or 0.25 milliseconds, whichever allowance is larger.
 
+## Algae capture
+
+The `algae` category uses the existing bounded server writer and adds typed records for `algae_place`, `algae_support`, `algae_migrate`, `algae_grow`, `algae_remove`, and `algae_generate`. Records keep the capture sequence, tick, dimension, bounded reason, sanitized coordinates, intended and final state summaries, support direction, face set, water state, segment, age, height, source water result, surface visibility, candidate counters, placed cell count, and item count where those values apply. Captures remain off until an operator starts them.
+
+```text
+/bfs debug on algae 1200
+/bfs debug status
+/bfs debug off
+python3 tools/bfs_debug_analyze.py capture.jsonl --scenario algae-fixture --requirement BFS2-REQ-014 --candidate-manifest candidate.json --output analysis
+```
+
+The analyzer accepts the additive `schemaMinor` field and validates the six algae event types when an `algae` manifest is supplied. It rejects missing state fields, invalid age or height bounds, more than sixteen candidate attempts per patch, more than eight placed cells, missing source water or surface booleans, and incomplete terminal records. Generation records describe rejected roofed red candidates as well as accepted columns, so a zero cave result can be distinguished from an absent capture.
+
 ## Follow debug leases
 
 The follow tool uses server authority and permission level two. Issue a reusable marker to the command sender or another online player. Click each living mob to add it to the group. A held press is deduplicated per target, so you can add another mob without releasing the button. Release the use button before clicking a selected mob again; a fresh click on that mob releases only it.

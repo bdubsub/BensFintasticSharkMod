@@ -37,9 +37,9 @@ Use the [current artifact checksums and source manifest](docs/verification/artif
 * Pitched fish and sharks retain forward propulsion while smoothly reorienting, with vertical travel still limited by their species movement profile.
 * Shark tools, armor, a Prismarine armor set fitted to swimming poses, Captain Ben's Hat, collectible items, and advancements.
 * The Shark Codex and the Sunken Trove ocean structure.
-* Three permanent algae blocks with animated large green and red variants and ocean biome generation.
+* Three permanent algae blocks. Small Algae uses waterlogged supported side and floor faces. Large Green Algae and Large Red Algae use waterlogged single, body, and top segments with bonemeal and manual stacking up to eight cells. Natural placement is bounded to exposed ocean floors, and red algae rejects roofed caves.
 
-The documentation index is in [docs/README.md](docs/README.md). The retained 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md). Diagnostic command and parser instructions are in [docs/test/debug-diagnostics.md](docs/test/debug-diagnostics.md). Candidate installation and rollback guidance is in [docs/test/release-rollback.md](docs/test/release-rollback.md).
+The documentation index is in [docs/README.md](docs/README.md). The retained 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md). Algae placement and generation behavior is in [docs/test/algae-worldgen.md](docs/test/algae-worldgen.md). Diagnostic command and parser instructions are in [docs/test/debug-diagnostics.md](docs/test/debug-diagnostics.md). Candidate installation and rollback guidance is in [docs/test/release-rollback.md](docs/test/release-rollback.md).
 
 The retained Phase 001 verification records document the current 0.23 compatibility baseline, including the real fishing advancement path and the packaged Forge server checks. The interactive advancement and rendering review remains a laptop-only acceptance step.
 
