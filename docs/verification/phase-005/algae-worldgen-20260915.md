@@ -1,6 +1,6 @@
 # Phase 005 Algae and World Generation Evidence
 
-This packet records the Phase 005 algae state, generation, diagnostic, and visual verification for Minecraft 1.20.1.
+This packet records the Phase 005 algae state, generation, diagnostic, and visual verification status for Minecraft 1.20.1.
 
 ## Contract identity
 
@@ -51,8 +51,8 @@ The server GameTest suite includes twenty independently controlled followers and
 
 ## Visual gate
 
-The required laptop client ran on the EnVy Linux laptop with the NVIDIA RTX 5090 Laptop GPU. The owned client process was muted at the application stream before interaction. A matching dedicated server showed rendered green and red single, body, and top columns with their existing animated textures. Small algae support and waterlogged state fixtures were also captured. The client was stopped after the final consumer and its temporary run directory and screenshots are cleanup targets.
+The required laptop client gate is not verified for source commit `6325509a614164b1d09bc211d6bf0c3ba38b0de3` and artifact SHA 256 `f9c0c8ca970d31be6bd71a4051a4104f67508cdbefe89605968cbc3312c53141`. This execution host is headless `node-1`, so no client, renderer, or display was started here. The earlier Phase 005 client record is bound to a different source and artifact and is retained as historical evidence only. The phase remains open until the matching silent laptop client observes small algae attachments, old-save normalization, green and red column segments, and resource reload behavior.
 
 ## Cleanup and remaining binding
 
-All evidence worlds, server processes, client processes, temporary analyzer outputs, and capture scripts are disposable and must be removed after their final consumer. Protected pre-existing `forge/logs/` and `performance-matrix-20260912-interval50/` directories are not phase-owned and remain untouched. The final artifact checksums, implementation commit, merged `1.20.1` commit, signed phase tag, and final GameTest result are filled before the Phase 005 pull request is opened.
+All evidence worlds, server processes, client processes, temporary analyzer outputs, and capture scripts are disposable and must be removed after their final consumer. Protected pre-existing `forge/logs/` and `performance-matrix-20260912-interval50/` directories are not phase-owned and remain untouched. The matching laptop client gate, merged `1.20.1` commit, signed phase tag, and final cleanup record remain before the Phase 005 pull request can be opened.
