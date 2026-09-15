@@ -1,6 +1,7 @@
 # Documentation
 
 * [Project overview and setup](../README.md)
+* [Follow groups and feedback verification](verification/follow-groups-20260915.md)
 * [Debug and content plan validation](verification/bfs2-plan-validation.md)
 * [Phase 000 task 001 intake](verification/phase-000-task-001-intake-20260912.md)
 * [Phase 000 task 002 diagnostic verification](verification/phase-000-task-002-diagnostics-20260912.md)

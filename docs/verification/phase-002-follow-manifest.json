@@ -411,5 +411,13 @@
     "jarIntegrity": "passed_unzip_test",
     "runDirectory": "/tmp/bfsm-p002-follow-20260915a",
     "cleanup": "run_directory_removed_and_verified_absent"
+  },
+  "currentGroupFollowEvidence": {
+    "sourceCommit": "3ffa91d610447b22852921f5b310814df3a44fd6",
+    "document": "follow-groups-20260915.md",
+    "status": "server_regressions_passed_phase_open",
+    "combinedRequiredGameTests": 123,
+    "focusedRequiredGameTests": 32,
+    "clientInput": "unverified"
   }
 }
