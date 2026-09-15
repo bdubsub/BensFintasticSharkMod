@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
@@ -85,6 +86,7 @@ public final class BfsFollowManager {
         bus.addListener(BfsFollowManager::onServerStopping);
         bus.addListener(BfsFollowManager::onEntityLeave);
         bus.addListener(BfsFollowManager::onLivingDeath);
+        bus.addListener(BfsFollowManager::onFollowStickUseStopped);
         bus.addListener(BfsFollowManager::onPlayerLoggedOut);
         bus.addListener(BfsFollowManager::onPlayerLoggedIn);
         bus.addListener(BfsFollowManager::onPlayerChangedDimension);
@@ -394,10 +396,12 @@ public final class BfsFollowManager {
             schedulerEvaluationsTotal++;
             schedulerPeakEvaluations = Math.max(schedulerPeakEvaluations, schedulerEvaluationsThisTick);
         }
-        USE_RESULTS.keySet().removeIf(id -> {
-            ServerPlayer owner = findPlayer(server, id);
-            return owner == null || !owner.isUsingItem();
-        });
+    }
+
+    private static void onFollowStickUseStopped(LivingEntityUseItemEvent.Stop event) {
+        if (event.getEntity() instanceof ServerPlayer owner && event.getItem().is(ModItems.FOLLOW_STICK)) {
+            USE_RESULTS.remove(owner.getUUID());
+        }
     }
 
     private static void transition(Lease lease, ServerPlayer owner, Mob mob, String state, String reason) {
