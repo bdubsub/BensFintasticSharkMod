@@ -70,6 +70,8 @@ public final class BfsFollowGameTests {
         PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
                 owner, InteractionHand.MAIN_HAND, target);
         BfsFollowManager.onEntityInteract(event);
+        helper.assertTrue(!BfsFollowManager.status(owner).permitted(),
+                "a deopped owner must report that the follow permission is unavailable");
         helper.assertTrue(!event.isCanceled() && !BfsFollowManager.status(owner).following(),
                 "an issued follow marker must not claim a mob after operator permission is lost");
         owner.remove(Entity.RemovalReason.DISCARDED);

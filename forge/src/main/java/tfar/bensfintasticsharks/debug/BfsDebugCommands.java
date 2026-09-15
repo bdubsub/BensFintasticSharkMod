@@ -97,7 +97,8 @@ public final class BfsDebugCommands {
         BfsFollowManager.Status status = BfsFollowManager.status(recipient);
         String target = status.targetType() == null ? "none" : status.targetType();
         context.getSource().sendSuccess(() -> Component.literal("Follow debug for "
-                + recipient.getGameProfile().getName() + ": issued=" + status.issued()
+                + recipient.getGameProfile().getName() + ": permitted=" + status.permitted()
+                + ", issued=" + status.issued()
                 + ", following=" + status.following() + ", target=" + target
                 + ", age=" + status.age() + " ticks, active leases=" + status.activeLeases())
                 .withStyle(status.following() ? ChatFormatting.GREEN : ChatFormatting.GRAY), false);

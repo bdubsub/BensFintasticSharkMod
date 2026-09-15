@@ -129,7 +129,7 @@ public final class BfsFollowManager {
     public static Status status(ServerPlayer owner) {
         Lease lease = BY_OWNER.get(owner.getUUID());
         Issuance issuance = ISSUED.get(owner.getUUID());
-        return new Status(issuance != null, lease != null, lease == null ? null : lease.targetType,
+        return new Status(hasPermission(owner), issuance != null, lease != null, lease == null ? null : lease.targetType,
                 lease == null ? 0 : lease.age(owner.serverLevel().getGameTime()), BY_OWNER.size());
     }
 
@@ -565,7 +565,7 @@ public final class BfsFollowManager {
     public record IssueResult(UUID issueId, boolean replacedLease) {
     }
 
-    public record Status(boolean issued, boolean following, String targetType, long age, int activeLeases) {
+    public record Status(boolean permitted, boolean issued, boolean following, String targetType, long age, int activeLeases) {
     }
 
     public record ClaimResult(boolean accepted, String reason) {
