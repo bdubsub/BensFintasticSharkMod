@@ -522,6 +522,36 @@
     "fixtureIsolation": "bosses_invulnerable_and_silent_to_keep_combat_from_removing_follow_subjects",
     "cleanup": "runtime_removed_and_verified_absent"
   },
+  "currentCandidateFeedbackGate20260915": {
+    "sourceCommit": "c5fc98172dfa8d2d4e062e9c23a10c6effee9c4f",
+    "artifactSha256": "b74d864d23fc5cc34213e8ea2bfd1ccdfe900e3481f5b7911b88cb1c32603a65",
+    "serverEndpoint": "100.76.164.109:25951",
+    "world": "bfs-p002-restart-gate-c",
+    "clientInstance": "bfsm-p002-restart-gate-20260915c",
+    "clientWindowPid": 3787793,
+    "clientRenderer": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "clientJava": "17.0.15",
+    "audioNode": "148",
+    "audioState": "owned_java_stream_mute_verified",
+    "rawMarkerRejection": "passed_explicit_invalid_marker_feedback",
+    "freshMarkerCommand": "/bfs debug followme",
+    "realInput": "xwayland_right_click",
+    "chatAndActionbarOutcomes": [
+      "Selected: restart cow c [1]. 1 mob selected.",
+      "Arrived nearby: restart cow c [1]. 1 mob still selected. Click this mob again to release only it.",
+      "Released: restart cow c [1]. You clicked this mob again. 0 mobs selected."
+    ],
+    "statusAfterReselect": "selected_1_following_0_waiting_1_paused_0",
+    "result": "current_candidate_real_click_arrival_retention_individual_release_and_paired_feedback_verified",
+    "remainingGates": [
+      "restart_marker_invalidation",
+      "private_independent_review",
+      "pull_request_integration",
+      "resulting_default_verification",
+      "signed_phase_tag"
+    ],
+    "cleanup": "exact_disposable_runtime_client_stream_and_screenshots_removed_and_verified_absent"
+  },
   "finalBuildBinding20260915": {
     "sourceCommit": "db3a589",
     "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
