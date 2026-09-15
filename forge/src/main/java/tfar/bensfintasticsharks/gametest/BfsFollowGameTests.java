@@ -107,6 +107,15 @@ public final class BfsFollowGameTests {
 
     @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 100)
     public static void followClickRangeArmsWhenOwnerMoves(GameTestHelper helper) {
+        for (int x = 0; x <= 14; x++) {
+            for (int z = 0; z <= 4; z++) {
+                helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE.defaultBlockState());
+            }
+            for (int y = 1; y <= 2; y++) {
+                helper.setBlock(new BlockPos(x, y, 0), Blocks.STONE.defaultBlockState());
+                helper.setBlock(new BlockPos(x, y, 4), Blocks.STONE.defaultBlockState());
+            }
+        }
         ServerPlayer owner = makeTestPlayer(helper, "follow-click-range", new BlockPos(2, 2, 2));
         Mob target = helper.spawn(EntityType.COW, new BlockPos(5, 2, 2));
         issueAndHold(owner);
