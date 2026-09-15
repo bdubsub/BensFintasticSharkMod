@@ -39,6 +39,10 @@ FOLLOW_EVENTS = {
     "follow.reject",
     "follow.state",
 }
+SOURCE_KINDS = {
+    "swim_sprint", "attack", "damage", "block_break", "fall", "projectile",
+    "water_entry", "water_jump", "occupied_boat",
+}
 UUID_PATTERN = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b")
 
 
@@ -177,6 +181,24 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
                       and row.get("event", "").startswith("follow.")]
     if follow_records or "follow" in manifest:
         metrics["follow"] = validate_follow(follow_records, manifest.get("follow", {}), errors)
+    disturbance_records = [row for row in records if row.get("event") == "disturbance.source"]
+    boat_records = [row for row in records if row.get("event") == "boat.source"]
+    disturbance_decisions = [row for row in records if row.get("event") in {
+        "disturbance.decision", "disturbance.throttle"}]
+    boat_decisions = [row for row in records if row.get("event") in {
+        "boat.decision", "boat.throttle"}]
+    if disturbance_records or "disturbance" in manifest:
+        metrics["disturbance"] = validate_source_events(
+            disturbance_records, manifest.get("disturbance", {}), errors, "disturbance")
+    if boat_records or "boat" in manifest:
+        metrics["boat"] = validate_source_events(
+            boat_records, manifest.get("boat", {}), errors, "boat")
+    if disturbance_decisions:
+        metrics["disturbanceDecisions"] = validate_decision_events(
+            disturbance_decisions, errors, "disturbance")
+    if boat_decisions:
+        metrics["boatDecisions"] = validate_decision_events(
+            boat_decisions, errors, "boat")
     verdict = "invalid" if errors else "incomplete" if warnings else "complete"
     coverage = {
         "movementEntityCount": len(movement_history),
@@ -232,6 +254,90 @@ def validate_follow(records: list[dict[str, Any]], contract: Any, errors: list[s
         errors.append(f"follow observed {counts['follow.claim']} claims, requires {minimum_claims}")
     if contract.get("requireRestore") is True and counts["follow.restore"] == 0:
         errors.append("follow capture has no restore event")
+    return {"eventCounts": dict(counts), "recordCount": len(records)}
+
+
+def validate_source_events(records: list[dict[str, Any]], contract: Any,
+                           errors: list[str], kind: str) -> dict[str, Any]:
+    """Validate typed water or boat producers and their bounded pseudonymous fields."""
+    if not isinstance(contract, dict):
+        errors.append(f"{kind} manifest must be an object")
+        contract = {}
+    counts: defaultdict[str, int] = defaultdict(int)
+    for index, row in enumerate(records, start=1):
+        source_kind = row.get("sourceKind")
+        if source_kind not in SOURCE_KINDS:
+            errors.append(f"{kind} record {index} has an unknown sourceKind")
+        else:
+            counts[source_kind] += 1
+        source_id = row.get("sourceId")
+        if not isinstance(source_id, str) or not source_id.startswith(("source_", "source_unavailable")):
+            errors.append(f"{kind} record {index} has no pseudonymous sourceId")
+        if isinstance(source_id, str) and UUID_PATTERN.search(source_id):
+            errors.append(f"{kind} record {index} leaks a raw source uuid")
+        if not isinstance(row.get("sourceType"), str) or not row["sourceType"]:
+            errors.append(f"{kind} record {index} has no sourceType")
+        strength = row.get("strength")
+        if not isinstance(strength, (int, float)) or not math.isfinite(strength) or not 0.0 <= strength <= 1.0:
+            errors.append(f"{kind} record {index} has invalid strength")
+        for field in ("positionX", "positionY", "positionZ"):
+            value = row.get(field)
+            if not isinstance(value, (int, float)) or not math.isfinite(value):
+                errors.append(f"{kind} record {index} has invalid {field}")
+        for field in ("outcome", "reason"):
+            if not isinstance(row.get(field), str) or not row[field]:
+                errors.append(f"{kind} record {index} has no {field}")
+        for field in ("boatId", "riderId"):
+            value = row.get(field)
+            if not isinstance(value, str) or not value:
+                errors.append(f"{kind} record {index} has no {field}")
+            if isinstance(value, str) and UUID_PATTERN.search(value):
+                errors.append(f"{kind} record {index} leaks a raw {field} uuid")
+        if kind == "boat" and source_kind != "occupied_boat":
+            errors.append(f"boat record {index} must use occupied_boat")
+    minimum = contract.get("minimumEvents", 0)
+    if type(minimum) is not int or minimum < 0:
+        errors.append(f"{kind} minimumEvents must be a nonnegative integer")
+    elif len(records) < minimum:
+        errors.append(f"{kind} observed {len(records)} events, requires {minimum}")
+    return {"sourceKindCounts": dict(counts), "recordCount": len(records)}
+
+
+def validate_decision_events(records: list[dict[str, Any]], errors: list[str], kind: str) -> dict[str, Any]:
+    """Validate bounded source decisions and named throttle rejections."""
+    counts: defaultdict[str, int] = defaultdict(int)
+    for index, row in enumerate(records, start=1):
+        source_kind = row.get("sourceKind")
+        if source_kind not in SOURCE_KINDS:
+            errors.append(f"{kind} decision {index} has an unknown sourceKind")
+        else:
+            counts[row.get("event", "unknown")] += 1
+        for field in ("sourceId", "sourceType", "boatId", "riderId", "outcome", "reason"):
+            value = row.get(field)
+            if not isinstance(value, str) or not value:
+                errors.append(f"{kind} decision {index} has no {field}")
+            elif field.endswith("Id") and UUID_PATTERN.search(value):
+                errors.append(f"{kind} decision {index} leaks a raw {field} uuid")
+        strength = row.get("strength")
+        if not isinstance(strength, (int, float)) or not math.isfinite(strength) or not 0.0 <= strength <= 1.0:
+            errors.append(f"{kind} decision {index} has invalid strength")
+        for field in ("positionX", "positionY", "positionZ"):
+            value = row.get(field)
+            if not isinstance(value, (int, float)) or not math.isfinite(value):
+                errors.append(f"{kind} decision {index} has invalid {field}")
+        for field in ("candidateCount", "sourceKeyCount"):
+            value = row.get(field)
+            if type(value) is not int or value < 0:
+                errors.append(f"{kind} decision {index} has invalid {field}")
+        if row.get("event", "").endswith(".decision"):
+            if type(row.get("boatCorrelation")) is not bool:
+                errors.append(f"{kind} decision {index} has no boolean boatCorrelation")
+            if type(row.get("acceptedThreshold")) is not bool:
+                errors.append(f"{kind} decision {index} has no boolean acceptedThreshold")
+        if row.get("event", "").endswith(".throttle"):
+            value = row.get("throttleElapsedTicks")
+            if type(value) is not int or value < 0:
+                errors.append(f"{kind} throttle {index} has invalid throttleElapsedTicks")
     return {"eventCounts": dict(counts), "recordCount": len(records)}
 
 

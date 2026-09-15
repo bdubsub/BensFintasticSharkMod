@@ -31,7 +31,12 @@ public class WaterDisturbanceHandler {
             case HEAVY -> tfar.bensfintasticsharks.config.BfsConfig.COMMON.heavySensitivityMult.get();
             case BLOOD -> tfar.bensfintasticsharks.config.BfsConfig.COMMON.bloodSensitivityMult.get();
         };
-        if (sensMult <= 0.0) return;
+        if (sensMult <= 0.0) {
+            tfar.bensfintasticsharks.debug.BfsDebugManager.recordDisturbanceDecision(level, event,
+                    "ignored", "sensitivity_disabled", 0,
+                    WaterDisturbanceListeners.sourceKeyCount(level));
+            return;
+        }
 
         if (tfar.bensfintasticsharks.config.BfsConfig.COMMON.disturbanceParticlesEnabled.get()) {
             spawnFeedback(level, event);
@@ -49,43 +54,55 @@ public class WaterDisturbanceHandler {
             case LIGHT -> 12.0;
         };
 
-        DisturbanceType ct = switch (event.getType()) {
-            case LIGHT -> DisturbanceType.LIGHT;
-            case HEAVY -> DisturbanceType.HEAVY;
-            case BLOOD -> DisturbanceType.BLOOD;
-        };
+        DisturbanceType ct = disturbanceType(event);
 
         AABB area = new AABB(event.getSource()).inflate(radius);
         LivingEntity sourceLiving = event.getSourceEntity() instanceof LivingEntity le ? le : null;
 
-        // 1) New-style sharks react via state machine
-        List<AbstractSharkEntity> sharks = level.getEntitiesOfClass(AbstractSharkEntity.class, area,
-                shark -> shark.isAlive() && shark.isInWaterOrBubble());
-        for (AbstractSharkEntity shark : sharks) {
-            shark.reactToDisturbance(event.getSource(), ct, sourceLiving);
-        }
-
-        // 2) Legacy alpha sharks react via target/walk-target nudges
-        List<WaterAnimal> legacySharks = level.getEntitiesOfClass(WaterAnimal.class, area,
-                e -> e.isAlive() && e.isInWaterOrBubble() && e.getType().is(ModTags.EntityTypes.SHARKS)
-                        && !(e instanceof AbstractSharkEntity));
-        for (WaterAnimal sharkLike : legacySharks) {
+        int[] inspected = {0};
+        List<LivingEntity> sharks = level.getEntitiesOfClass(LivingEntity.class, area, entity -> {
+            if (!entity.isAlive() || !entity.isInWaterOrBubble()
+                    || (!(entity instanceof AbstractSharkEntity)
+                    && !(entity instanceof WaterAnimal waterAnimal && waterAnimal.getType().is(ModTags.EntityTypes.SHARKS)))) {
+                return false;
+            }
+            if (inspected[0] >= 64) return false;
+            inspected[0]++;
+            return true;
+        });
+        for (LivingEntity sharkLike : sharks) {
+            if (sharkLike instanceof AbstractSharkEntity shark) {
+                shark.reactToDisturbance(event.getSource(), ct, sourceLiving);
+                continue;
+            }
+            if (!(sharkLike instanceof WaterAnimal waterAnimal)) continue;
             switch (ct) {
                 case BLOOD -> {
-                    if (sourceLiving != null && sourceLiving != sharkLike && sharkLike.getTarget() == null) {
-                        sharkLike.setTarget(sourceLiving);
+                    if (sourceLiving != null && sourceLiving != waterAnimal && waterAnimal.getTarget() == null) {
+                        waterAnimal.setTarget(sourceLiving);
                     }
                 }
                 case LIGHT, HEAVY -> {
                     float chance = ct == DisturbanceType.LIGHT ? 0.15f : 0.60f;
-                    if (sharkLike.getTarget() == null && sharkLike.getRandom().nextFloat() < chance) {
-                        BrainUtils.setMemory(sharkLike.getBrain(),
+                    if (waterAnimal.getTarget() == null && waterAnimal.getRandom().nextFloat() < chance) {
+                        BrainUtils.setMemory(waterAnimal.getBrain(),
                                 MemoryModuleType.WALK_TARGET,
                                 new WalkTarget(Vec3.atCenterOf(event.getSource()), 1.0f, 1));
                     }
                 }
             }
         }
+        tfar.bensfintasticsharks.debug.BfsDebugManager.recordDisturbanceDecision(level, event,
+                sharks.isEmpty() ? "ignored" : "alert", sharks.isEmpty() ? "no_eligible_sharks" : "eligible_sharks",
+                inspected[0], WaterDisturbanceListeners.sourceKeyCount(level));
+    }
+
+    private static DisturbanceType disturbanceType(WaterDisturbanceEvent event) {
+        return switch (event.getSourceKind()) {
+            case DAMAGE -> DisturbanceType.BLOOD;
+            case ATTACK, BLOCK_BREAK, FALL, WATER_JUMP -> DisturbanceType.HEAVY;
+            case SWIM_SPRINT, PROJECTILE, WATER_ENTRY, OCCUPIED_BOAT -> DisturbanceType.LIGHT;
+        };
     }
 
     private void spawnFeedback(ServerLevel level, WaterDisturbanceEvent event) {

@@ -120,7 +120,7 @@ public final class BfsDebugManager {
         }
         DebugCategory parsedCategory = DebugCategory.parse(category);
         if (parsedCategory == null) {
-            return StartResult.failure("Unknown debug category. Use all, movement, brain, combat, population, advancement, algae, or follow.");
+            return StartResult.failure("Unknown debug category. Use all, movement, brain, combat, population, advancement, algae, follow, disturbance, or boat.");
         }
         if (durationTicks < MIN_DURATION_TICKS || durationTicks > MAX_DURATION_TICKS) {
             return StartResult.failure("Debug duration must be between " + MIN_DURATION_TICKS + " and " + MAX_DURATION_TICKS + " ticks.");
@@ -277,6 +277,105 @@ public final class BfsDebugManager {
 
     private static String playerPseudonym(Session active, UUID playerId) {
         return "player_" + UUID.nameUUIDFromBytes((active.id + ":" + playerId)
+                .getBytes(StandardCharsets.UTF_8)).toString().replace("-", "");
+    }
+
+    public static void recordDisturbanceEvent(ServerLevel level,
+                                              tfar.bensfintasticsharks.disturbance.WaterDisturbanceEvent event,
+                                              String outcome, String reason) {
+        Session active = session;
+        if (active == null || level == null || event == null || level.isClientSide
+                || !level.dimension().equals(active.dimension)) {
+            return;
+        }
+        boolean boat = event.getSourceKind()
+                == tfar.bensfintasticsharks.disturbance.WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT;
+        if (boat ? !active.category.capturesBoat() : !active.category.capturesDisturbance()) return;
+        JsonObject record = baseRecord(active, boat ? "boat.source" : "disturbance.source", level.getGameTime());
+        Entity source = event.getSourceEntity();
+        record.addProperty("sourceId", source == null ? "source_unavailable" : entityPseudonym(active, "source", source.getUUID()));
+        record.addProperty("sourceType", source == null ? "unavailable" : entityId(source));
+        record.addProperty("sourceKind", event.getSourceKind().id());
+        record.addProperty("strength", event.getStrength());
+        record.addProperty("positionX", event.getSource().getX() + 0.5D);
+        record.addProperty("positionY", event.getSource().getY() + 0.5D);
+        record.addProperty("positionZ", event.getSource().getZ() + 0.5D);
+        record.addProperty("boatId", event.getBoat() == null
+                ? "unavailable" : entityPseudonym(active, "boat", event.getBoat().getUUID()));
+        record.addProperty("riderId", event.getRider() == null
+                ? "unavailable" : entityPseudonym(active, "rider", event.getRider().getUUID()));
+        record.addProperty("outcome", outcome == null ? "unavailable" : outcome);
+        record.addProperty("reason", reason == null ? "unavailable" : reason);
+        enqueue(active, record);
+    }
+
+    public static void recordDisturbanceDecision(ServerLevel level,
+                                                 tfar.bensfintasticsharks.disturbance.WaterDisturbanceEvent event,
+                                                 String outcome, String reason,
+                                                 int candidateCount, int sourceKeyCount) {
+        Session active = session;
+        if (active == null || level == null || event == null || level.isClientSide
+                || !level.dimension().equals(active.dimension)) {
+            return;
+        }
+        boolean boat = event.getSourceKind()
+                == tfar.bensfintasticsharks.disturbance.WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT;
+        if (boat ? !active.category.capturesBoat() : !active.category.capturesDisturbance()) return;
+        JsonObject record = baseRecord(active, boat ? "boat.decision" : "disturbance.decision", level.getGameTime());
+        Entity source = event.getSourceEntity();
+        record.addProperty("sourceId", source == null ? "source_unavailable" : entityPseudonym(active, "source", source.getUUID()));
+        record.addProperty("sourceType", source == null ? "unavailable" : entityId(source));
+        record.addProperty("sourceKind", event.getSourceKind().id());
+        record.addProperty("strength", event.getStrength());
+        record.addProperty("positionX", event.getSource().getX() + 0.5D);
+        record.addProperty("positionY", event.getSource().getY() + 0.5D);
+        record.addProperty("positionZ", event.getSource().getZ() + 0.5D);
+        record.addProperty("boatId", event.getBoat() == null
+                ? "unavailable" : entityPseudonym(active, "boat", event.getBoat().getUUID()));
+        record.addProperty("riderId", event.getRider() == null
+                ? "unavailable" : entityPseudonym(active, "rider", event.getRider().getUUID()));
+        record.addProperty("boatCorrelation", event.getBoat() != null && event.getRider() != null);
+        record.addProperty("candidateCount", Math.max(0, candidateCount));
+        record.addProperty("sourceKeyCount", Math.max(0, sourceKeyCount));
+        record.addProperty("acceptedThreshold", "alert".equals(outcome) || "investigate".equals(outcome));
+        record.addProperty("outcome", outcome == null ? "unavailable" : outcome);
+        record.addProperty("reason", reason == null ? "unavailable" : reason);
+        enqueue(active, record);
+    }
+
+    public static void recordDisturbanceThrottle(ServerLevel level,
+                                                 tfar.bensfintasticsharks.disturbance.WaterDisturbanceEvent event,
+                                                 String reason, long elapsedTicks, int sourceKeyCount) {
+        Session active = session;
+        if (active == null || level == null || event == null || level.isClientSide
+                || !level.dimension().equals(active.dimension)) {
+            return;
+        }
+        boolean boat = event.getSourceKind()
+                == tfar.bensfintasticsharks.disturbance.WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT;
+        if (boat ? !active.category.capturesBoat() : !active.category.capturesDisturbance()) return;
+        JsonObject record = baseRecord(active, boat ? "boat.throttle" : "disturbance.throttle", level.getGameTime());
+        Entity source = event.getSourceEntity();
+        record.addProperty("sourceId", source == null ? "source_unavailable" : entityPseudonym(active, "source", source.getUUID()));
+        record.addProperty("sourceType", source == null ? "unavailable" : entityId(source));
+        record.addProperty("sourceKind", event.getSourceKind().id());
+        record.addProperty("strength", event.getStrength());
+        record.addProperty("positionX", event.getSource().getX() + 0.5D);
+        record.addProperty("positionY", event.getSource().getY() + 0.5D);
+        record.addProperty("positionZ", event.getSource().getZ() + 0.5D);
+        record.addProperty("boatId", event.getBoat() == null
+                ? "unavailable" : entityPseudonym(active, "boat", event.getBoat().getUUID()));
+        record.addProperty("riderId", event.getRider() == null
+                ? "unavailable" : entityPseudonym(active, "rider", event.getRider().getUUID()));
+        record.addProperty("outcome", "ignored");
+        record.addProperty("reason", reason == null ? "unavailable" : reason);
+        record.addProperty("throttleElapsedTicks", Math.max(0L, elapsedTicks));
+        record.addProperty("sourceKeyCount", Math.max(0, sourceKeyCount));
+        enqueue(active, record);
+    }
+
+    private static String entityPseudonym(Session active, String prefix, UUID entityId) {
+        return prefix + "_" + UUID.nameUUIDFromBytes((active.id + ":" + prefix + ":" + entityId)
                 .getBytes(StandardCharsets.UTF_8)).toString().replace("-", "");
     }
 
@@ -1043,7 +1142,9 @@ public final class BfsDebugManager {
         POPULATION("population"),
         ADVANCEMENT("advancement"),
         ALGAE("algae"),
-        FOLLOW("follow");
+        FOLLOW("follow"),
+        DISTURBANCE("disturbance"),
+        BOAT("boat");
 
         private final String id;
 
@@ -1087,6 +1188,14 @@ public final class BfsDebugManager {
 
         private boolean capturesFollow() {
             return this == ALL || this == FOLLOW;
+        }
+
+        private boolean capturesDisturbance() {
+            return this == ALL || this == DISTURBANCE;
+        }
+
+        private boolean capturesBoat() {
+            return this == ALL || this == BOAT;
         }
     }
 

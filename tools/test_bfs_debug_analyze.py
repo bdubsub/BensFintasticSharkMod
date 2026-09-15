@@ -307,6 +307,59 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         self.assertTrue(any("raw owner uuid" in error for error in analysis["errors"]))
         self.assertTrue(any("restore event" in error for error in analysis["errors"]))
 
+    def test_disturbance_and_boat_sources_validate_typed_identity(self) -> None:
+        rows = [
+            record("header", 1),
+            record("disturbance.source", 2, sourceId="source_a", sourceType="minecraft:player",
+                   sourceKind="water_entry", strength=0.5, positionX=1.5, positionY=2.5,
+                   positionZ=3.5, boatId="unavailable", riderId="unavailable",
+                   outcome="emitted", reason="producer"),
+            record("boat.source", 3, sourceId="source_b", sourceType="minecraft:boat",
+                   sourceKind="occupied_boat", strength=1.0, positionX=4.5, positionY=2.5,
+                   positionZ=3.5, boatId="boat_c", riderId="rider_d",
+                   outcome="alert", reason="eligible_sharks_1"),
+            record("disturbance.decision", 4, sourceId="source_a", sourceType="minecraft:player",
+                   sourceKind="water_entry", strength=0.5, positionX=1.5, positionY=2.5,
+                   positionZ=3.5, boatId="unavailable", riderId="unavailable",
+                   boatCorrelation=False, candidateCount=2, sourceKeyCount=1,
+                   acceptedThreshold=True, outcome="alert", reason="eligible_sharks"),
+            record("end", 5, incomplete=False, recordsDropped=0),
+        ]
+        analysis = bfs_debug_analyze.validate(rows, [], {
+            "disturbance": {"minimumEvents": 1},
+            "boat": {"minimumEvents": 1},
+        })
+        self.assertEqual("complete", analysis["verdict"])
+        self.assertEqual(1, analysis["metrics"]["disturbance"]["recordCount"])
+        self.assertEqual(1, analysis["metrics"]["boat"]["sourceKindCounts"]["occupied_boat"])
+        self.assertEqual(1, analysis["metrics"]["disturbanceDecisions"]["recordCount"])
+
+    def test_decision_and_throttle_records_require_bounded_fields(self) -> None:
+        invalid = record("boat.throttle", 2, sourceId="source_a", sourceType="minecraft:boat",
+                         sourceKind="occupied_boat", strength=0.5, positionX=0.0,
+                         positionY=0.0, positionZ=0.0, boatId="boat_a", riderId="rider_a",
+                         outcome="ignored", reason="throttle_duplicate", candidateCount=0,
+                         sourceKeyCount=-1, throttleElapsedTicks=-2)
+        result = bfs_debug_analyze.validate([
+            record("header", 1), invalid, record("end", 3, incomplete=False, recordsDropped=0),
+        ], [], {})
+        self.assertEqual("invalid", result["verdict"])
+        self.assertTrue(any("sourceKeyCount" in error for error in result["errors"]))
+        self.assertTrue(any("throttleElapsedTicks" in error for error in result["errors"]))
+
+    def test_boat_sources_reject_raw_identity_and_invalid_strength(self) -> None:
+        invalid = record("boat.source", 2, sourceId="source_a", sourceType="minecraft:boat",
+                         sourceKind="occupied_boat", strength=2.0, positionX=0.0,
+                         positionY=0.0, positionZ=0.0,
+                         boatId="550e8400-e29b-41d4-a716-446655440000", riderId="rider_d",
+                         outcome="alert", reason="eligible_sharks_1")
+        result = bfs_debug_analyze.validate([
+            record("header", 1), invalid, record("end", 3, incomplete=False, recordsDropped=0),
+        ], [], {"boat": {"minimumEvents": 1}})
+        self.assertEqual("invalid", result["verdict"])
+        self.assertTrue(any("invalid strength" in error for error in result["errors"]))
+        self.assertTrue(any("raw boatId uuid" in error for error in result["errors"]))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -30,6 +30,10 @@ import java.util.Set;
 /** Server command node for bounded debug sessions. */
 public final class BfsDebugCommands {
 
+    private static final com.mojang.brigadier.suggestion.SuggestionProvider<CommandSourceStack> CATEGORY_SUGGESTIONS =
+            (context, builder) -> SharedSuggestionProvider.suggest(
+                    new String[]{"all", "movement", "brain", "combat", "population", "advancement", "algae",
+                            "follow", "disturbance", "boat"}, builder);
     private static final com.mojang.brigadier.suggestion.SuggestionProvider<CommandSourceStack> SPECIES_SUGGESTIONS =
             (context, builder) -> SharedSuggestionProvider.suggest(
                     java.util.stream.Stream.concat(java.util.stream.Stream.of("*"), MobCapManager.getSpeciesPaths().stream()), builder);
@@ -43,7 +47,7 @@ public final class BfsDebugCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> createNode() {
         LiteralArgumentBuilder<CommandSourceStack> on = Commands.literal("on")
                         .executes(context -> start(context, "all", BfsDebugManager.DEFAULT_DURATION_TICKS, List.of()))
-                        .then(Commands.argument("category", StringArgumentType.word())
+                        .then(Commands.argument("category", StringArgumentType.word()).suggests(CATEGORY_SUGGESTIONS)
                                 .then(Commands.argument("ticks", IntegerArgumentType.integer(
                                                 BfsDebugManager.MIN_DURATION_TICKS, BfsDebugManager.MAX_DURATION_TICKS))
                                         .executes(context -> start(context,
