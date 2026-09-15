@@ -75,7 +75,7 @@ public abstract class BfsAquaticEntity<T extends BfsAquaticEntity<T>> extends Sm
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
-        if (MovementIntentOverrides.active(this)) return;
+        if (MovementIntentOverrides.active(this) || FollowMovementOwners.suppressOrdinary(this)) return;
         if (!fleesFromApex()) return;
         if (fleeCheckCooldown-- > 0) return;
         fleeCheckCooldown = 20;

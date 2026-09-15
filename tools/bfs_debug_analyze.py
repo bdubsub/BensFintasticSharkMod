@@ -37,6 +37,7 @@ FOLLOW_EVENTS = {
     "follow.release",
     "follow.restore",
     "follow.reject",
+    "follow.state",
 }
 UUID_PATTERN = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b")
 
@@ -215,6 +216,12 @@ def validate_follow(records: list[dict[str, Any]], contract: Any, errors: list[s
             value = row.get(field)
             if type(value) is not int or value < 0:
                 errors.append(f"follow record {index} has no nonnegative {field}")
+        if row.get("followVersion") == 2:
+            for field in ("selectedCount", "groupRevision"):
+                if type(row.get(field)) is not int or row[field] < 0:
+                    errors.append(f"follow record {index} has invalid {field}")
+            if row.get("state") not in {"following", "waiting", "paused"}:
+                errors.append(f"follow record {index} has invalid state")
         distance = row.get("distance")
         if not isinstance(distance, (int, float)) or not math.isfinite(distance) or distance < 0.0:
             errors.append(f"follow record {index} has no finite nonnegative distance")

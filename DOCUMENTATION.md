@@ -197,8 +197,9 @@ Every `/bfs` command needs op permission (level 2). Species names and disturbanc
 | `/bfs debug setknockback <entity|*> <value> [revision]` | Sets the session knockback resistance value |
 | `/bfs debug setbehavior <entity|*> <detection> <disengage> <action_timeout> <memory_ticks> [revision]` | Sets the session sensing, disengage and behavior timing values |
 | `/bfs debug followme [recipient]` | Issues a server marked reusable follow debug stick to the command sender or selected player |
-| `/bfs debug followme status [recipient]` | Reports the selected player's issued marker and active follow lease |
-| `/bfs debug followme stop [recipient]` | Releases the selected player's follow lease and returns its mob to ordinary navigation |
+| `/bfs debug followme status [recipient] [page]` | Reports selected, following, waiting and paused counts with ten members per page |
+| `/bfs debug followme stopone <target> [recipient]` | Releases only the specified mob from that operator's group |
+| `/bfs debug followme stop [recipient]` | Releases every member of that operator's group |
 | `/bfs reload` | Re reads config values without restart |
 
 `/bfs cap set` is runtime only. Restart the server and your edits are gone. To make changes permanent, edit the config file.

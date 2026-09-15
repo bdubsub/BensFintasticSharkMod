@@ -71,14 +71,22 @@ public final class BfsDebugCommands {
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> followNode() {
-        return Commands.literal("followme")
+        return Commands.literal("followme").requires(source -> source.hasPermission(2))
                 .executes(context -> issueFollow(context, context.getSource().getPlayerOrException()))
                 .then(Commands.argument("recipient", EntityArgument.player())
                         .executes(context -> issueFollow(context, EntityArgument.getPlayer(context, "recipient"))))
                 .then(Commands.literal("status")
-                        .executes(context -> followStatus(context, context.getSource().getPlayerOrException()))
+                        .executes(context -> followStatus(context, context.getSource().getPlayerOrException(), 1))
                         .then(Commands.argument("recipient", EntityArgument.player())
-                                .executes(context -> followStatus(context, EntityArgument.getPlayer(context, "recipient")))))
+                                .executes(context -> followStatus(context, EntityArgument.getPlayer(context, "recipient"), 1))
+                                .then(Commands.argument("page", IntegerArgumentType.integer(1))
+                                        .executes(context -> followStatus(context, EntityArgument.getPlayer(context, "recipient"),
+                                                IntegerArgumentType.getInteger(context, "page"))))))
+                .then(Commands.literal("stopone")
+                        .then(Commands.argument("target", EntityArgument.entity())
+                                .executes(context -> stopOneFollow(context, context.getSource().getPlayerOrException()))
+                                .then(Commands.argument("recipient", EntityArgument.player())
+                                        .executes(context -> stopOneFollow(context, EntityArgument.getPlayer(context, "recipient"))))))
                 .then(Commands.literal("stop")
                         .executes(context -> stopFollow(context, context.getSource().getPlayerOrException()))
                         .then(Commands.argument("recipient", EntityArgument.player())
@@ -86,32 +94,43 @@ public final class BfsDebugCommands {
     }
 
     private static int issueFollow(CommandContext<CommandSourceStack> context, ServerPlayer recipient) {
-        BfsFollowManager.IssueResult result = BfsFollowManager.issue(recipient);
-        context.getSource().sendSuccess(() -> Component.literal("Follow debug stick issued to "
-                + recipient.getGameProfile().getName() + ". Right click any living mob to claim a temporary follow lease.")
-                .withStyle(ChatFormatting.GREEN), true);
-        return result.replacedLease() ? 2 : 1;
+        BfsFollowManager.issue(recipient);
+        if (context.getSource().getEntity() != recipient) {
+            context.getSource().sendSuccess(() -> BfsFollowManager.message("issued_to", recipient.getDisplayName()), false);
+        }
+        return 1;
     }
 
-    private static int followStatus(CommandContext<CommandSourceStack> context, ServerPlayer recipient) {
-        BfsFollowManager.Status status = BfsFollowManager.status(recipient);
-        String target = status.targetType() == null ? "none" : status.targetType();
-        context.getSource().sendSuccess(() -> Component.literal("Follow debug for "
-                + recipient.getGameProfile().getName() + ": permitted=" + status.permitted()
-                + ", issued=" + status.issued()
-                + ", following=" + status.following() + ", target=" + target
-                + ", age=" + status.age() + " ticks, active leases=" + status.activeLeases())
-                .withStyle(status.following() ? ChatFormatting.GREEN : ChatFormatting.GRAY), false);
-        return status.following() ? 1 : 0;
+    private static int followStatus(CommandContext<CommandSourceStack> context, ServerPlayer recipient, int page) {
+        BfsFollowManager.Status status = BfsFollowManager.status(recipient, page);
+        Component summary = BfsFollowManager.message("status", recipient.getDisplayName(),
+                BfsFollowManager.count(status.selectedCount()), status.followingCount(), status.waitingCount(),
+                status.pausedCount(), status.page(), status.pages());
+        if (context.getSource().getEntity() instanceof ServerPlayer viewer) {
+            BfsFollowManager.notifyOwner(viewer, summary);
+        } else context.getSource().sendSuccess(() -> summary, false);
+        for (BfsFollowManager.MemberStatus member : status.entries()) {
+            Component entry = BfsFollowManager.message("status_entry", member.label(),
+                    BfsFollowManager.message("state." + member.state()), BfsFollowManager.message("reason." + member.reason()));
+            context.getSource().sendSuccess(() -> entry, false);
+        }
+        return status.selectedCount();
     }
 
     private static int stopFollow(CommandContext<CommandSourceStack> context, ServerPlayer recipient) {
-        boolean stopped = BfsFollowManager.stop(recipient, "command_stop");
-        context.getSource().sendSuccess(() -> Component.literal(stopped
-                ? "Follow lease released for " + recipient.getGameProfile().getName() + "."
-                : "No follow lease is active for " + recipient.getGameProfile().getName() + ".")
-                .withStyle(stopped ? ChatFormatting.GREEN : ChatFormatting.GRAY), false);
-        return stopped ? 1 : 0;
+        int count = BfsFollowManager.stopAll(recipient, "command_stop");
+        if (context.getSource().getEntity() != recipient) context.getSource().sendSuccess(
+                () -> BfsFollowManager.message("group_released", BfsFollowManager.count(count),
+                        BfsFollowManager.count(BfsFollowManager.selectedCount(recipient))), false);
+        return count;
+    }
+
+    private static int stopOneFollow(CommandContext<CommandSourceStack> context, ServerPlayer recipient)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        boolean released = BfsFollowManager.stopOne(recipient, EntityArgument.getEntity(context, "target"));
+        if (context.getSource().getEntity() != recipient) context.getSource().sendSuccess(
+                () -> BfsFollowManager.message(released ? "target_released" : "not_selected"), false);
+        return released ? 1 : 0;
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> settingsNode() {

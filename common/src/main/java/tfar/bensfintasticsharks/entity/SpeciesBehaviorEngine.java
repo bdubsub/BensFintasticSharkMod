@@ -47,7 +47,7 @@ public final class SpeciesBehaviorEngine {
      * vanilla fish movement integrator still applies the final motion and pitch.
      */
     public static void tickFish(AbstractFish fish) {
-        if (fish.level().isClientSide || !fish.isAlive()) return;
+        if (fish.level().isClientSide || !fish.isAlive() || FollowMovementOwners.suppressOrdinary(fish)) return;
         // Let a newly created fish settle and remain discoverable before its first policy scan.
         // This also prevents a school route or threat response from racing the spawn and
         // encounter triggers that observe the entity on the same server tick.
@@ -83,7 +83,7 @@ public final class SpeciesBehaviorEngine {
     }
 
     public static void tick(SmartWaterAnimal<?> entity) {
-        if (entity.level().isClientSide || !entity.isAlive()) return;
+        if (entity.level().isClientSide || !entity.isAlive() || FollowMovementOwners.suppressOrdinary(entity)) return;
         if (entity.hasBfsBehaviorAction()
                 && (entity.hasLostBfsBehaviorTarget() || entity.hasExpiredBfsBehaviorMemory())) {
             clearOwnedRoute(entity);

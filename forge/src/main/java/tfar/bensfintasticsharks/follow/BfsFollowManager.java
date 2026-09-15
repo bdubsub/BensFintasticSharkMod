@@ -27,26 +27,36 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import tfar.bensfintasticsharks.debug.BfsDebugManager;
 import tfar.bensfintasticsharks.init.ModItems;
+import tfar.bensfintasticsharks.entity.FollowMovementOwners;
+import net.tslat.smartbrainlib.api.core.SmartBrain;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayDeque;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.EnumSet;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.util.Mth;
+import java.lang.ref.WeakReference;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
-/** Server owned, bounded leases used by the follow debug command. */
+/** Server owned follow groups with bounded route work. */
 public final class BfsFollowManager {
 
     public static final int MARKER_VERSION = 1;
-    public static final int MAX_LEASES = 32;
+    public static final int MAX_ROUTES_PER_TICK = 32;
     public static final int ROUTE_INTERVAL_TICKS = 10;
-    public static final int LEASE_DURATION_TICKS = 2_400;
     public static final int BLOCKED_TICKS = 200;
     public static final double MAX_RANGE = 64.0D;
     public static final double ARRIVAL_DISTANCE = 4.0D;
-    private static final double ARRIVAL_RESELECT_DISTANCE = ARRIVAL_DISTANCE + 0.5D;
+    private static final double RESUME_HYSTERESIS = 0.5D;
 
     private static final String MARKER_VERSION_KEY = "bfs_follow_marker_version";
     private static final String ISSUE_ID_KEY = "bfs_follow_issue_id";
@@ -54,12 +64,11 @@ public final class BfsFollowManager {
     private static final String PERSISTENT_ISSUE_KEY = "BfsFollowIssueId";
 
     private static final Map<UUID, Issuance> ISSUED = new HashMap<>();
-    private static final Map<UUID, Lease> BY_OWNER = new HashMap<>();
-    private static final Map<UUID, Lease> BY_TARGET = new HashMap<>();
-    private static final Set<FollowKey> ARRIVAL_LATCHES = new HashSet<>();
-    private static final Set<String> INTERACTIONS = new HashSet<>();
-    private static final Map<UUID, Long> REJECTION_FEEDBACK = new HashMap<>();
-    private static long interactionTick = Long.MIN_VALUE;
+    private static final Map<UUID, Group> BY_OWNER = new HashMap<>();
+    private static final Map<UUID, Lease> BY_TARGET = new LinkedHashMap<>();
+    private static final ArrayDeque<UUID> ROUTES = new ArrayDeque<>();
+    private static final Map<UUID, Boolean> USE_RESULTS = new HashMap<>();
+    private static final Map<UUID, Integer> OFFLINE_CLEANUP = new HashMap<>();
 
     private BfsFollowManager() {
     }
@@ -70,6 +79,7 @@ public final class BfsFollowManager {
         bus.addListener(BfsFollowManager::onEntityLeave);
         bus.addListener(BfsFollowManager::onLivingDeath);
         bus.addListener(BfsFollowManager::onPlayerLoggedOut);
+        bus.addListener(BfsFollowManager::onPlayerLoggedIn);
         bus.addListener(BfsFollowManager::onPlayerChangedDimension);
         bus.addListener(BfsFollowManager::onPlayerRespawn);
         // Entity interaction can be canceled by the target's normal mob handler or by
@@ -80,13 +90,8 @@ public final class BfsFollowManager {
 
     public static IssueResult issue(ServerPlayer recipient) {
         UUID ownerId = recipient.getUUID();
-        Lease existing = BY_OWNER.get(ownerId);
-        boolean replacedLease = existing != null;
-        if (existing != null) {
-            release(existing, recipient.serverLevel(), "marker_reissued",
-                    findMob(recipient.serverLevel().getServer(), existing.targetId));
-        }
-        ARRIVAL_LATCHES.removeIf(key -> key.ownerId().equals(ownerId));
+        recipient.stopUsingItem();
+        USE_RESULTS.remove(ownerId);
         UUID issueId = UUID.randomUUID();
         ISSUED.put(ownerId, new Issuance(issueId));
         recipient.getPersistentData().putString(PERSISTENT_ISSUE_KEY, issueId.toString());
@@ -96,7 +101,8 @@ public final class BfsFollowManager {
         tag.putString(ISSUE_ID_KEY, issueId.toString());
         tag.putString(OWNER_KEY, ownerId.toString());
         equipMarker(recipient, marker);
-        return new IssueResult(issueId, replacedLease);
+        notifyOwner(recipient, message("issued", count(selectedCount(recipient))));
+        return new IssueResult(issueId, false);
     }
 
     private static void equipMarker(ServerPlayer recipient, ItemStack marker) {
@@ -126,197 +132,163 @@ public final class BfsFollowManager {
         }
     }
 
+    public static int selectedCount(ServerPlayer owner) {
+        Group group = BY_OWNER.get(owner.getUUID());
+        return group == null ? 0 : group.members.size();
+    }
+
     public static Status status(ServerPlayer owner) {
-        Lease lease = BY_OWNER.get(owner.getUUID());
-        Issuance issuance = ISSUED.get(owner.getUUID());
-        return new Status(hasPermission(owner), issuance != null, lease != null, lease == null ? null : lease.targetType,
-                lease == null ? 0 : lease.age(owner.serverLevel().getGameTime()), BY_OWNER.size());
+        return status(owner, 1);
+    }
+
+    public static Status status(ServerPlayer owner, int page) {
+        Group group = BY_OWNER.get(owner.getUUID());
+        List<Lease> members = group == null ? List.of() : new ArrayList<>(group.members.values());
+        int following = 0, waiting = 0, paused = 0;
+        for (Lease lease : members) {
+            switch (lease.state) {
+                case "following" -> following++;
+                case "waiting" -> waiting++;
+                default -> paused++;
+            }
+        }
+        int pages = Math.max(1, (members.size() + 9) / 10);
+        int currentPage = Math.max(1, Math.min(page, pages));
+        List<MemberStatus> entries = members.stream().skip((long) (currentPage - 1) * 10).limit(10)
+                .map(lease -> new MemberStatus(lease.targetId, lease.alias, lease.label, lease.state,
+                        lease.reason, lease.age(owner.serverLevel().getGameTime()))).toList();
+        Lease first = members.isEmpty() ? null : members.get(0);
+        return new Status(hasPermission(owner), ISSUED.containsKey(owner.getUUID()), !members.isEmpty(),
+                first == null ? null : first.targetType, first == null ? 0 : first.age(owner.serverLevel().getGameTime()),
+                BY_TARGET.size(), members.size(), following, waiting, paused, group == null ? 0 : group.revision,
+                currentPage, pages, entries);
     }
 
     public static boolean stop(ServerPlayer owner, String reason) {
-        Lease lease = BY_OWNER.get(owner.getUUID());
-        if (lease == null) {
+        return stopAll(owner, reason) > 0;
+    }
+
+    public static int stopAll(ServerPlayer owner, String reason) {
+        int released = releaseForOwner(owner.getUUID(), reason, owner.serverLevel(), false);
+        notifyOwner(owner, message("group_released", count(released), count(selectedCount(owner))));
+        return released;
+    }
+
+    public static boolean stopOne(ServerPlayer owner, Entity target) {
+        target = resolveTarget(target);
+        Lease lease = target == null ? null : BY_TARGET.get(target.getUUID());
+        if (lease == null || !lease.ownerId.equals(owner.getUUID())) {
+            notifyOwner(owner, message("not_selected"));
             return false;
         }
-        release(lease, owner.serverLevel(), reason, findMob(owner.serverLevel().getServer(), lease.targetId));
+        release(lease, owner.serverLevel(), "command_stop", (Mob) target, true);
         return true;
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-        if (event.getLevel().isClientSide || !(event.getEntity() instanceof ServerPlayer owner)) {
-            return;
-        }
-        Entity target = resolveTarget(event.getTarget());
-        ClaimResult result = claim(owner, target, event.getItemStack());
-        boolean activeDuplicate = activeLeaseFor(owner, target);
-        if (!result.accepted() && !activeDuplicate) {
-            sendRejectionFeedback(owner, result.reason());
-        }
-        if (result.accepted() || activeDuplicate) {
-            event.setCancellationResult(InteractionResult.SUCCESS);
-            event.setCanceled(true);
-        }
+        handleInteraction(event, event.getTarget());
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public static void onEntityInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) {
-        if (event.getLevel().isClientSide || !(event.getEntity() instanceof ServerPlayer owner)) {
-            return;
-        }
-        Entity target = resolveTarget(event.getTarget());
-        ClaimResult result = claim(owner, target, event.getItemStack());
-        boolean activeDuplicate = activeLeaseFor(owner, target);
-        if (!result.accepted() && !activeDuplicate) {
-            sendRejectionFeedback(owner, result.reason());
-        }
-        if (result.accepted() || activeDuplicate) {
+        handleInteraction(event, event.getTarget());
+    }
+
+    private static void handleInteraction(PlayerInteractEvent event, Entity clicked) {
+        if (!event.getItemStack().is(ModItems.FOLLOW_STICK)) return;
+        if (event.getLevel().isClientSide) {
+            event.getEntity().startUsingItem(event.getHand());
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
+            return;
         }
+        if (!(event.getEntity() instanceof ServerPlayer owner)) return;
+        Entity target = resolveTarget(clicked);
+        boolean heldRepeat = owner.isUsingItem() && owner.getUseItem().is(ModItems.FOLLOW_STICK)
+                && USE_RESULTS.containsKey(owner.getUUID());
+        String denied = !hasPermission(owner) ? "permission_denied"
+                : !validMarkerWithoutDiagnostics(owner, event.getItemStack()) ? "invalid_stick"
+                : !(target instanceof Mob mob) || !mob.isAlive() || mob.isRemoved() ? "unsupported_target"
+                : owner.level() != target.level() || !owner.canReach(clicked, 0) ? "target_out_of_range" : null;
+        boolean accepted = false;
+        if (!heldRepeat) {
+            if (denied == null) {
+                accepted = toggle(owner, (Mob) target);
+            } else {
+                reject(owner, target, denied);
+            }
+            USE_RESULTS.put(owner.getUUID(), accepted);
+        } else {
+            accepted = denied == null && USE_RESULTS.get(owner.getUUID());
+        }
+        owner.startUsingItem(event.getHand());
+        event.setCancellationResult(accepted ? InteractionResult.SUCCESS : InteractionResult.FAIL);
+        event.setCanceled(true);
     }
 
-    private static boolean activeLeaseFor(ServerPlayer owner, Entity target) {
-        Lease lease = BY_OWNER.get(owner.getUUID());
-        return lease != null && target != null && lease.targetId.equals(target.getUUID());
-    }
-
-    private static ClaimResult claim(ServerPlayer owner, Entity target, ItemStack marker) {
-        if (!hasPermission(owner)) {
-            BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
-                    "permission_denied", "none", 0, 0, target == null ? 0.0D : owner.distanceTo(target));
-            return ClaimResult.rejected("permission_denied");
+    private static boolean toggle(ServerPlayer owner, Mob mob) {
+        Lease existing = BY_TARGET.get(mob.getUUID());
+        if (existing != null) {
+            if (!existing.ownerId.equals(owner.getUUID())) {
+                reject(owner, mob, "target_already_claimed");
+                return false;
+            }
+            release(existing, owner.serverLevel(), "clicked_again", mob, true);
+            return true;
         }
-        if (!validMarker(owner, marker)) {
-            return ClaimResult.rejected("marker_unavailable");
-        }
-        if (!(target instanceof Mob mob) || target instanceof ServerPlayer || !mob.isAlive() || mob.isRemoved()) {
-            BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
-                    "unsupported_target", "none", 0, 0, 0.0D);
-            return ClaimResult.rejected("unsupported_target");
-        }
-        if (target.level() != owner.level() || owner.distanceToSqr(target) > MAX_RANGE * MAX_RANGE) {
-            BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
-                    "target_out_of_range", "navigation", 0, 0, owner.distanceTo(target));
-            return ClaimResult.rejected("target_out_of_range");
-        }
+        Group group = BY_OWNER.computeIfAbsent(owner.getUUID(), ignored -> new Group());
         long tick = owner.serverLevel().getGameTime();
-        FollowKey followKey = new FollowKey(owner.getUUID(), target.getUUID());
-        String interaction = owner.getUUID() + ":" + target.getUUID() + ":" + tick;
-        if (tick != interactionTick) {
-            interactionTick = tick;
-            INTERACTIONS.clear();
-        }
-        if (!INTERACTIONS.add(interaction)) {
-            // Forge can deliver one physical click through both entity interaction callbacks.
-            // The first callback owns the claim, so consume the duplicate silently instead of
-            // showing a rejection message for a lease that was already accepted.
-            Lease existing = BY_OWNER.get(owner.getUUID());
-            return existing != null && existing.targetId.equals(target.getUUID())
-                    ? ClaimResult.success()
-                    : ClaimResult.rejected("duplicate_interaction");
-        }
-        Lease ownerLease = BY_OWNER.get(owner.getUUID());
-        if (ownerLease != null) {
-            if (ownerLease.targetId.equals(target.getUUID())) {
-                // Repeated right click events are emitted while the marker is held. Keep
-                // the existing lease instead of treating the repeat as a toggle.
-                BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reselect", owner, mob,
-                        "already_claimed", ownerLease.adapter, ownerLease.age(tick), ownerLease.blocked,
-                        owner.distanceTo(target));
-                return ClaimResult.success();
-            }
-            Lease targetLease = BY_TARGET.get(target.getUUID());
-            if (targetLease != null) {
-                BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
-                        "target_already_claimed", targetLease.adapter, targetLease.age(tick), targetLease.blocked, owner.distanceTo(target));
-                return ClaimResult.rejected("target_already_claimed");
-            }
-            release(ownerLease, owner.serverLevel(), "reselected", findMob(owner.serverLevel().getServer(), ownerLease.targetId));
-        }
-        if (ARRIVAL_LATCHES.contains(followKey)) {
-            if (owner.distanceTo(target) <= ARRIVAL_RESELECT_DISTANCE) {
-                BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
-                        "arrival_latched", "none", 0, 0, owner.distanceTo(target));
-                return ClaimResult.rejected("arrival_cooldown");
-            }
-            ARRIVAL_LATCHES.remove(followKey);
-        }
-        Lease targetLease = BY_TARGET.get(target.getUUID());
-        if (targetLease != null) {
-            BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
-                    "target_already_claimed", targetLease.adapter, targetLease.age(tick), targetLease.blocked, owner.distanceTo(target));
-            return ClaimResult.rejected("target_already_claimed");
-        }
-        if (BY_OWNER.size() >= MAX_LEASES) {
-            BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
-                    "lease_limit", "navigation", 0, 0, owner.distanceTo(target));
-            return ClaimResult.rejected("lease_limit");
-        }
         String adapter = mob instanceof SmartBrainOwner<?> ? "smartbrain_walk_target" : "mob_navigation";
-        Lease lease = new Lease(owner.getUUID(), target.getUUID(),
-                target.getType().builtInRegistryHolder().key().location().toString(), adapter, tick);
-        BY_OWNER.put(lease.ownerId, lease);
-        BY_TARGET.put(lease.targetId, lease);
-        BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.claim", owner, target,
-                "claimed", lease.adapter, 0, 0, owner.distanceTo(target));
-        BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.adapter", owner, target,
-                lease.adapter, lease.adapter, 0, 0, owner.distanceTo(target));
-        route(lease, owner, mob, tick);
-        return ClaimResult.success();
+        Lease lease = new Lease(owner.getUUID(), mob, adapter, tick, group.nextAlias++);
+        group.members.put(mob.getUUID(), lease);
+        group.revision++;
+        BY_TARGET.put(mob.getUUID(), lease);
+        ROUTES.addLast(mob.getUUID());
+        FollowMovementOwners.claim(mob, lease.nonce);
+        lease.brainControl = claimBrain(mob);
+        mob.goalSelector.addGoal(1, new FollowGoal(lease, mob, true));
+        mob.targetSelector.addGoal(0, new FollowGoal(lease, mob, false));
+        if (mob instanceof Slime) mob.goalSelector.addGoal(1, new SlimePauseGoal(lease));
+        record(lease, owner, mob, "follow.claim", "selected");
+        record(lease, owner, mob, "follow.adapter", adapter);
+        notifyOwner(owner, message("selected", lease.label, count(group.members.size())));
+        return true;
     }
 
-    private static boolean validMarker(ServerPlayer owner, ItemStack marker) {
-        if (!marker.is(ModItems.FOLLOW_STICK) || !marker.hasTag()) {
-            BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, null,
-                    "invalid_stick", "none", 0, 0, 0.0D);
-            return false;
-        }
-        CompoundTag tag = marker.getTag();
-        if (tag.getInt(MARKER_VERSION_KEY) != MARKER_VERSION
-                || !owner.getUUID().toString().equals(tag.getString(OWNER_KEY))) {
-            BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, null,
-                    "invalid_stick", "none", 0, 0, 0.0D);
-            return false;
-        }
-        try {
-            UUID issueId = UUID.fromString(tag.getString(ISSUE_ID_KEY));
-            Issuance issuance = ISSUED.get(owner.getUUID());
-            boolean valid = issuance != null && issuance.issueId.equals(issueId)
-                    && issueId.toString().equals(owner.getPersistentData().getString(PERSISTENT_ISSUE_KEY));
-            if (!valid) {
-                BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, null,
-                        "stale_marker", "none", 0, 0, 0.0D);
-            }
-            return valid;
-        } catch (IllegalArgumentException ignored) {
-            BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, null,
-                    "invalid_stick", "none", 0, 0, 0.0D);
-            return false;
-        }
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static SmartBrainFollowControl<?> claimBrain(Mob mob) {
+        return mob instanceof SmartBrainOwner && mob.getBrain() instanceof SmartBrain brain
+                ? new SmartBrainFollowControl(mob, brain) : null;
+    }
+
+    private static void reject(ServerPlayer owner, Entity target, String reason) {
+        BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.reject", owner, target,
+                reason, "none", 0, 0, target == null ? 0 : owner.distanceTo(target));
+        notifyOwner(owner, message(reason));
     }
 
     private static boolean hasPermission(ServerPlayer player) {
-        return player.serverLevel().getServer().getPlayerList().isOp(player.getGameProfile());
+        return player.hasPermissions(2);
     }
 
-    private static void sendRejectionFeedback(ServerPlayer owner, String reason) {
-        long tick = owner.serverLevel().getGameTime();
-        Long previousTick = REJECTION_FEEDBACK.put(owner.getUUID(), tick);
-        if (previousTick != null && previousTick == tick) {
-            return;
-        }
-        String message = switch (reason) {
-            case "permission_denied" -> "Follow debug stick requires operator permission.";
-            case "invalid_stick", "stale_marker" -> "This follow debug stick is invalid. Issue a fresh one with /bfs debug followme.";
-            case "unsupported_target" -> "That entity cannot be followed by the debug stick.";
-            case "target_out_of_range" -> "The target is too far away for the follow debug stick.";
-            case "target_already_claimed" -> "That entity is already claimed by another follow lease.";
-            case "lease_limit" -> "The follow debug lease limit is reached.";
-            case "arrival_cooldown" -> "That entity just arrived. Move farther away before selecting it again.";
-            default -> "The follow debug stick could not claim that entity.";
-        };
-        owner.sendSystemMessage(Component.literal(message));
+    public static Component message(String key, Object... arguments) {
+        return Component.translatable("bfs.follow." + key, arguments);
+    }
+
+    public static Component count(int count) {
+        return message(count == 1 ? "count.one" : "count.many", count);
+    }
+
+    public static void notifyOwner(ServerPlayer owner, Component text) {
+        owner.sendSystemMessage(text);
+        owner.displayClientMessage(text, true);
+    }
+
+    private static boolean validIssuance(ServerPlayer owner) {
+        Issuance issuance = ISSUED.get(owner.getUUID());
+        return issuance != null && issuance.issueId.toString()
+                .equals(owner.getPersistentData().getString(PERSISTENT_ISSUE_KEY));
     }
 
     private static boolean hasValidHeldMarker(ServerPlayer owner) {
@@ -344,112 +316,121 @@ public final class BfsFollowManager {
     }
 
     private static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) {
-            return;
-        }
+        if (event.phase != TickEvent.Phase.END) return;
         MinecraftServer server = event.getServer();
-        for (Lease lease : new ArrayList<>(BY_OWNER.values())) {
+        for (Lease lease : new ArrayList<>(BY_TARGET.values())) {
             ServerPlayer owner = findPlayer(server, lease.ownerId);
-            Mob mob = findMob(server, lease.targetId);
+            ServerLevel level = server.getLevel(lease.dimension);
+            Mob mob = level != null && level.getEntity(lease.targetId) instanceof Mob found ? found : null;
             if (owner == null || mob == null || !owner.isAlive() || !mob.isAlive()) {
-                release(lease, owner == null ? null : owner.serverLevel(), "lifecycle", mob);
+                release(lease, level, "lifecycle", mob, true);
                 continue;
             }
-            if (!hasPermission(owner)) {
-                release(lease, owner.serverLevel(), "permission_lost", mob);
-                continue;
-            }
-            if (!hasValidHeldMarker(owner)) {
-                release(lease, owner.serverLevel(), "marker_lost", mob);
+            if (!hasPermission(owner) || !validIssuance(owner)) {
+                release(lease, level, "permission_lost", mob, true);
                 continue;
             }
             if (owner.level() != mob.level()) {
-                release(lease, owner.serverLevel(), "dimension_changed", mob);
+                release(lease, level, "dimension_changed", mob, true);
                 continue;
             }
-            ServerLevel level = owner.serverLevel();
-            long tick = level.getGameTime();
             double distance = owner.distanceTo(mob);
-            if (distance > MAX_RANGE) {
-                release(lease, level, "range_exceeded", mob);
+            String pause = FollowMovementOwners.needsSafety(mob) ? "safety" : !hasValidHeldMarker(owner) ? "marker_not_held"
+                    : distance > MAX_RANGE ? "range_exceeded" : null;
+            if (pause != null) {
+                transition(lease, owner, mob, "paused", pause);
                 continue;
             }
-            if (tick - lease.started >= LEASE_DURATION_TICKS) {
-                release(lease, level, "timeout", mob);
-                continue;
-            }
-            // A real entity click can only be made from close range. Keep that initial
-            // acquisition alive until the owner walks away, otherwise every live click
-            // would satisfy the arrival radius and release before the first route update.
-            if (!lease.arrivalArmed) {
-                if (distance > ARRIVAL_RESELECT_DISTANCE) {
-                    lease.arrivalArmed = true;
-                }
-            } else if (distance <= ARRIVAL_DISTANCE) {
-                release(lease, level, "arrived", mob);
-                continue;
-            }
-            if (distance + 0.01D < lease.lastDistance) {
+            double arrival = ARRIVAL_DISTANCE + (owner.getBbWidth() + mob.getBbWidth()) * 0.5D;
+            if (distance <= arrival || lease.state.equals("waiting") && distance <= arrival + RESUME_HYSTERESIS) {
                 lease.blocked = 0;
-            } else {
-                lease.blocked++;
-            }
-            lease.lastDistance = distance;
-            if (lease.blocked == 1 || lease.blocked == BLOCKED_TICKS) {
-                BfsDebugManager.recordFollowEvent(level, "follow.block", owner, mob,
-                        "no_route_progress", lease.adapter, lease.age(tick), lease.blocked, distance);
-            }
-            if (lease.blocked >= BLOCKED_TICKS) {
-                release(lease, level, "blocked", mob);
+                lease.lastDistance = distance;
+                transition(lease, owner, mob, "waiting", "nearby");
                 continue;
             }
-            if (tick - lease.lastRoute >= ROUTE_INTERVAL_TICKS) {
-                route(lease, owner, mob, tick);
-            }
-            BfsDebugManager.recordFollowEvent(level, "follow.progress", owner, mob,
-                    "tracking", lease.adapter, lease.age(tick), lease.blocked, distance);
+            if (!lease.reason.equals("no_route")) transition(lease, owner, mob, "following", "tracking");
+            if (distance + 0.01D < lease.lastDistance) lease.blocked = 0;
+            else lease.blocked = Math.min(BLOCKED_TICKS, lease.blocked + 1);
+            lease.lastDistance = distance;
+            if (lease.blocked >= BLOCKED_TICKS) transition(lease, owner, mob, "paused", "no_route");
         }
+        int remaining = ROUTES.size();
+        int evaluated = 0;
+        while (remaining-- > 0 && evaluated < MAX_ROUTES_PER_TICK) {
+            UUID targetId = ROUTES.removeFirst();
+            Lease lease = BY_TARGET.get(targetId);
+            if (lease == null) continue;
+            ROUTES.addLast(targetId);
+            if (!lease.state.equals("following") && !lease.reason.equals("no_route")) continue;
+            ServerPlayer owner = findPlayer(server, lease.ownerId);
+            ServerLevel level = server.getLevel(lease.dimension);
+            Mob mob = level != null && level.getEntity(lease.targetId) instanceof Mob found ? found : null;
+            if (owner == null || mob == null) continue;
+            long tick = level.getGameTime();
+            if (lease.lastRoute >= 0 && tick - lease.lastRoute < (lease.reason.equals("no_route") ? 20 : ROUTE_INTERVAL_TICKS)) continue;
+            route(lease, owner, mob, tick);
+            evaluated++;
+        }
+        USE_RESULTS.keySet().removeIf(id -> {
+            ServerPlayer owner = findPlayer(server, id);
+            return owner == null || !owner.isUsingItem();
+        });
+    }
+
+    private static void transition(Lease lease, ServerPlayer owner, Mob mob, String state, String reason) {
+        if (lease.state.equals(state) && lease.reason.equals(reason)) return;
+        lease.state = state;
+        lease.reason = reason;
+        Group group = BY_OWNER.get(lease.ownerId);
+        if (group != null) group.revision++;
+        if (!state.equals("following")) pauseMovement(lease, mob);
+        record(lease, owner, mob, "follow.state", reason);
+        String key = state.equals("following") ? "resumed" : state.equals("waiting") ? "waiting" : "paused";
+        notifyOwner(owner, message(key, lease.label, message("reason." + reason), count(selectedCount(owner))));
     }
 
     private static void route(Lease lease, ServerPlayer owner, Mob mob, long tick) {
         lease.lastRoute = tick;
-        boolean started;
         if (lease.adapter.equals("smartbrain_walk_target")) {
-            if (lease.previousWalkTarget == null) {
-                lease.previousWalkTarget = mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null);
-            }
-            mob.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(owner, 1.0F, 1));
-            // SmartBrainLib normally turns WALK_TARGET into a navigation request, but an
-            // active idle activity can replace that request during the same tick. Submit the
-            // navigation request directly as well so custom aquatic move controls receive the
-            // owner destination immediately and keep moving instead of only looking at it.
-            started = mob.getNavigation().moveTo(owner, 1.0D);
-        } else {
-            started = mob.getNavigation().moveTo(owner, 1.0D);
+            lease.ownedWalkTarget = new WalkTarget(owner, 1.0F, 1);
+            mob.getBrain().setMemory(MemoryModuleType.WALK_TARGET, lease.ownedWalkTarget);
         }
-        BfsDebugManager.recordFollowEvent(owner.serverLevel(), "follow.intent", owner, mob,
-                started ? "navigation_accepted" : "navigation_rejected", lease.adapter, lease.age(tick), lease.blocked,
-                owner.distanceTo(mob));
+        boolean started = mob.getNavigation().moveTo(owner, 1.0D);
+        lease.ownedPath = mob.getNavigation().getPath();
+        lease.ownsNavigation = true;
+        if (!started) transition(lease, owner, mob, "paused", "no_route");
+        else if (lease.blocked < BLOCKED_TICKS) transition(lease, owner, mob, "following", "tracking");
+        record(lease, owner, mob, "follow.intent", started ? "navigation_accepted" : "navigation_rejected");
+        record(lease, owner, mob, "follow.progress", lease.reason);
+    }
+
+    private static void pauseMovement(Lease lease, Mob mob) {
+        if (lease.ownsNavigation && mob.getNavigation().getPath() == lease.ownedPath) mob.getNavigation().stop();
+        lease.ownsNavigation = false;
+        if (lease.ownedWalkTarget != null && mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null) == lease.ownedWalkTarget) {
+            mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        }
+        lease.ownedWalkTarget = null;
     }
 
     private static void restoreController(Lease lease, Mob mob) {
-        if (lease.adapter.equals("smartbrain_walk_target")) {
-            Brain<?> brain = mob.getBrain();
-            WalkTarget current = brain.getMemory(MemoryModuleType.WALK_TARGET).orElse(null);
-            if (ownsWalkTarget(current, lease.ownerId)) {
-                if (lease.previousWalkTarget == null) {
-                    brain.eraseMemory(MemoryModuleType.WALK_TARGET);
-                } else {
-                    brain.setMemory(MemoryModuleType.WALK_TARGET, lease.previousWalkTarget);
-                }
-            }
+        pauseMovement(lease, mob);
+        if (lease.brainControl != null) lease.brainControl.restore();
+        FollowMovementOwners.release(mob, lease.nonce);
+        mob.goalSelector.removeAllGoals(goal -> goal instanceof FollowGoal follow && follow.lease == lease
+                || goal instanceof SlimePauseGoal pause && pause.lease == lease);
+        mob.targetSelector.removeAllGoals(goal -> goal instanceof FollowGoal follow && follow.lease == lease
+                || goal instanceof SlimePauseGoal pause && pause.lease == lease);
+        if (lease.previousWalkTarget != null && mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).isEmpty()) {
+            mob.getBrain().setMemory(MemoryModuleType.WALK_TARGET, lease.previousWalkTarget);
         }
-        mob.getNavigation().stop();
     }
 
-    private static boolean ownsWalkTarget(WalkTarget walkTarget, UUID ownerId) {
-        return walkTarget != null && walkTarget.getTarget() instanceof EntityTracker tracker
-                && tracker.getEntity().getUUID().equals(ownerId);
+    private static void record(Lease lease, ServerPlayer owner, Mob mob, String event, String reason) {
+        BfsDebugManager.recordFollowEvent((ServerLevel) mob.level(), event, lease.ownerId, mob, reason,
+                lease.adapter, lease.age(mob.level().getGameTime()), lease.blocked,
+                owner == null ? 0 : owner.distanceTo(mob),
+                BY_OWNER.get(lease.ownerId).members.size(), BY_OWNER.get(lease.ownerId).revision, lease.state);
     }
 
     private static Mob findMob(MinecraftServer server, UUID targetId) {
@@ -486,139 +467,192 @@ public final class BfsFollowManager {
         return entity instanceof EnderDragonPart part ? part.getParent() : entity;
     }
 
-    private static void release(Lease lease, ServerLevel level, String reason, Mob mob) {
-        if (BY_OWNER.remove(lease.ownerId, lease)) {
-            BY_TARGET.remove(lease.targetId, lease);
-            FollowKey followKey = new FollowKey(lease.ownerId, lease.targetId);
-            if ("arrived".equals(reason)) {
-                ARRIVAL_LATCHES.add(followKey);
-            } else {
-                ARRIVAL_LATCHES.remove(followKey);
-            }
-            if (mob != null) {
-                restoreController(lease, mob);
-            }
-            if (level != null) {
-                ServerPlayer owner = findPlayer(level.getServer(), lease.ownerId);
-                long age = lease.age(level.getGameTime());
-                double distance = owner == null || mob == null ? 0.0D : owner.distanceTo(mob);
-                BfsDebugManager.recordFollowEvent(level, "follow.release", owner, mob, reason,
-                        lease.adapter, age, lease.blocked, distance);
-                BfsDebugManager.recordFollowEvent(level, "follow.restore", owner, mob,
-                        "ordinary_controller_resume", lease.adapter, age, lease.blocked, distance);
-            }
+    private static void release(Lease lease, ServerLevel level, String reason, Mob mob, boolean feedback) {
+        if (!BY_TARGET.remove(lease.targetId, lease)) return;
+        ROUTES.remove(lease.targetId);
+        Group group = BY_OWNER.get(lease.ownerId);
+        if (group != null) {
+            group.members.remove(lease.targetId);
+            group.revision++;
         }
+        if (mob != null) restoreController(lease, mob);
+        ServerPlayer owner = level == null ? null : findPlayer(level.getServer(), lease.ownerId);
+        if (mob != null) {
+            record(lease, owner, mob, "follow.release", reason);
+            record(lease, owner, mob, "follow.restore", "ordinary_controller_resume");
+        }
+        if (feedback && owner != null) notifyOwner(owner, message("released", lease.label,
+                message("reason." + reason), count(selectedCount(owner))));
     }
 
     private static void onEntityLeave(EntityLeaveLevelEvent event) {
-        if (event.getLevel().isClientSide()) {
-            return;
-        }
-        releaseForTarget(event.getEntity().getUUID(), "entity_left_level", event.getLevel() instanceof ServerLevel sl ? sl : null);
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        Entity entity = event.getEntity();
+        Lease lease = BY_TARGET.get(entity.getUUID());
+        if (lease != null) release(lease, level, "entity_left_level", entity instanceof Mob mob ? mob : null, true);
+        if (entity instanceof ServerPlayer owner) releaseForOwner(owner.getUUID(), "owner_left_level", level, true);
     }
 
     private static void onLivingDeath(LivingDeathEvent event) {
-        if (event.getEntity().level().isClientSide()) {
-            return;
-        }
+        if (!(event.getEntity().level() instanceof ServerLevel level)) return;
         Entity entity = event.getEntity();
-        releaseForTarget(entity.getUUID(), "target_died", entity.level() instanceof ServerLevel sl ? sl : null);
-        if (entity instanceof ServerPlayer player) {
-            releaseForOwner(player.getUUID(), "owner_died", player.serverLevel());
-        }
+        Lease lease = BY_TARGET.get(entity.getUUID());
+        if (lease != null) release(lease, level, "target_died", entity instanceof Mob mob ? mob : null, true);
+        if (entity instanceof ServerPlayer owner) releaseForOwner(owner.getUUID(), "owner_died", level, true);
     }
 
     private static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            releaseForOwner(player.getUUID(), "owner_logged_out", player.serverLevel());
+            int released = releaseForOwner(player.getUUID(), "owner_logged_out", player.serverLevel(), false);
+            if (released > 0) OFFLINE_CLEANUP.merge(player.getUUID(), released, Integer::sum);
             ISSUED.remove(player.getUUID());
-            REJECTION_FEEDBACK.remove(player.getUUID());
+            BY_OWNER.remove(player.getUUID());
+            USE_RESULTS.remove(player.getUUID());
+        }
+    }
+
+    private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            Integer released = OFFLINE_CLEANUP.remove(player.getUUID());
+            if (released != null) notifyOwner(player, message("offline_cleanup", count(released)));
         }
     }
 
     private static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            releaseForOwner(player.getUUID(), "owner_changed_dimension", player.serverLevel());
-        }
+        if (event.getEntity() instanceof ServerPlayer player) releaseForOwner(player.getUUID(), "owner_changed_dimension", player.serverLevel(), true);
     }
 
     private static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            releaseForOwner(player.getUUID(), "owner_respawned", player.serverLevel());
-        }
+        if (event.getEntity() instanceof ServerPlayer player) releaseForOwner(player.getUUID(), "owner_respawned", player.serverLevel(), true);
     }
 
-    private static void releaseForOwner(UUID ownerId, String reason, ServerLevel level) {
-        Lease lease = BY_OWNER.get(ownerId);
-        if (lease != null) {
-            release(lease, level, reason, findMob(level == null ? null : level.getServer(), lease.targetId));
+    private static int releaseForOwner(UUID ownerId, String reason, ServerLevel level, boolean feedback) {
+        Group group = BY_OWNER.get(ownerId);
+        if (group == null) return 0;
+        int released = group.members.size();
+        for (Lease lease : new ArrayList<>(group.members.values())) {
+            release(lease, level, reason, findMob(level == null ? null : level.getServer(), lease.targetId), feedback);
         }
-    }
-
-    private static void releaseForTarget(UUID targetId, String reason, ServerLevel level) {
-        Lease lease = BY_TARGET.get(targetId);
-        if (lease != null) {
-            release(lease, level, reason, findMob(level == null ? null : level.getServer(), targetId));
-        }
+        return released;
     }
 
     public static void onServerStopping(ServerStoppingEvent event) {
-        for (Lease lease : new ArrayList<>(BY_OWNER.values())) {
+        for (Lease lease : new ArrayList<>(BY_TARGET.values())) {
             Mob mob = findMob(event.getServer(), lease.targetId);
-            release(lease, mob == null || !(mob.level() instanceof ServerLevel sl) ? null : sl, "server_stopping", mob);
+            release(lease, event.getServer().getLevel(lease.dimension), "server_stopping", mob, true);
         }
         BY_OWNER.clear();
         BY_TARGET.clear();
+        ROUTES.clear();
         ISSUED.clear();
-        INTERACTIONS.clear();
-        REJECTION_FEEDBACK.clear();
-        ARRIVAL_LATCHES.clear();
+        USE_RESULTS.clear();
+        OFFLINE_CLEANUP.clear();
     }
 
-    public record IssueResult(UUID issueId, boolean replacedLease) {
+    public record IssueResult(UUID issueId, boolean replacedLease) {}
+
+    public record Status(boolean permitted, boolean issued, boolean following, String targetType, long age,
+                         int activeLeases, int selectedCount, int followingCount, int waitingCount, int pausedCount,
+                         long revision, int page, int pages, List<MemberStatus> entries) {}
+
+    public record MemberStatus(UUID targetId, int alias, Component label, String state, String reason, long age) {}
+
+    private record Issuance(UUID issueId) {}
+
+    private static final class Group {
+        private final Map<UUID, Lease> members = new LinkedHashMap<>();
+        private long revision;
+        private int nextAlias = 1;
     }
 
-    public record Status(boolean permitted, boolean issued, boolean following, String targetType, long age, int activeLeases) {
-    }
+    private static final class FollowGoal extends Goal {
+        private final Lease lease;
+        private final WeakReference<Mob> mob;
+        private final boolean movement;
 
-    public record ClaimResult(boolean accepted, String reason) {
-        private static ClaimResult success() {
-            return new ClaimResult(true, "accepted");
+        private FollowGoal(Lease lease, Mob mob, boolean movement) {
+            this.lease = lease;
+            this.mob = new WeakReference<>(mob);
+            this.movement = movement;
+            setFlags(!movement ? EnumSet.of(Flag.TARGET) : mob instanceof Slime
+                    ? EnumSet.of(Flag.LOOK) : EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
 
-        private static ClaimResult rejected(String reason) {
-            return new ClaimResult(false, reason);
+        @Override
+        public boolean canUse() {
+            Mob target = mob.get();
+            return target != null && BY_TARGET.get(lease.targetId) == lease
+                    && !FollowMovementOwners.needsSafety(target);
+        }
+
+        @Override
+        public boolean canContinueToUse() { return canUse(); }
+
+        @Override
+        public boolean requiresUpdateEveryTick() { return true; }
+
+        @Override
+        public void tick() {
+            Mob target = mob.get();
+            if (!movement || target == null || !lease.state.equals("following")) return;
+            Path path = target.getNavigation().getPath();
+            if (target.getMoveControl() instanceof Slime.SlimeMoveControl control && path != null && !path.isDone()) {
+                var point = path.getNextEntityPos(target);
+                float yaw = (float) (Mth.atan2(point.z - target.getZ(), point.x - target.getX()) * 180 / Math.PI) - 90;
+                control.setDirection(yaw, false);
+            }
         }
     }
 
-    private record Issuance(UUID issueId) {
-    }
+    private static final class SlimePauseGoal extends Goal {
+        private final Lease lease;
 
-    private record FollowKey(UUID ownerId, UUID targetId) {
+        private SlimePauseGoal(Lease lease) {
+            this.lease = lease;
+            setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP));
+        }
+
+        @Override
+        public boolean canUse() {
+            return BY_TARGET.get(lease.targetId) == lease && !lease.state.equals("following")
+                    && !lease.reason.equals("safety");
+        }
     }
 
     private static final class Lease {
+        private final UUID nonce = UUID.randomUUID();
         private final UUID ownerId;
         private final UUID targetId;
+        private final ResourceKey<Level> dimension;
         private final String targetType;
+        private final Component label;
+        private final int alias;
         private final String adapter;
         private final long started;
-        private WalkTarget previousWalkTarget;
-        private long lastRoute = Long.MIN_VALUE;
+        private final WalkTarget previousWalkTarget;
+        private SmartBrainFollowControl<?> brainControl;
+        private WalkTarget ownedWalkTarget;
+        private Path ownedPath;
+        private boolean ownsNavigation;
+        private long lastRoute = -1;
         private double lastDistance = Double.MAX_VALUE;
         private int blocked;
-        private boolean arrivalArmed;
+        private String state = "following";
+        private String reason = "tracking";
 
-        private Lease(UUID ownerId, UUID targetId, String targetType, String adapter, long started) {
+        private Lease(UUID ownerId, Mob mob, String adapter, long started, int alias) {
             this.ownerId = ownerId;
-            this.targetId = targetId;
-            this.targetType = targetType;
+            this.targetId = mob.getUUID();
+            this.dimension = mob.level().dimension();
+            this.targetType = mob.getType().builtInRegistryHolder().key().location().toString();
+            this.label = message("target", mob.getName().copy(), alias);
+            this.alias = alias;
             this.adapter = adapter;
             this.started = started;
+            this.previousWalkTarget = adapter.equals("smartbrain_walk_target")
+                    ? mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null) : null;
         }
 
-        private long age(long tick) {
-            return Math.max(0, tick - started);
-        }
+        private long age(long tick) { return Math.max(0, tick - started); }
     }
 }

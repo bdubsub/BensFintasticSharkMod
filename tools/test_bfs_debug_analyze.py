@@ -282,6 +282,19 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         self.assertEqual("complete", analysis["verdict"])
         self.assertEqual(2, analysis["metrics"]["follow"]["recordCount"])
 
+    def test_follow_group_states_validate_counts_and_revisions(self) -> None:
+        state = record("follow.state", 2, owner="player_owner", target="entity_target",
+                       targetType="minecraft:cow", reason="nearby", adapter="mob_navigation",
+                       leaseAge=2401, blockedTicks=0, distance=3.0, followVersion=2,
+                       selectedCount=33, groupRevision=34, state="waiting")
+        rows = [record("header", 1), state, record("end", 3, incomplete=False, recordsDropped=0)]
+        self.assertEqual("complete", bfs_debug_analyze.validate(rows, [], {})["verdict"])
+        for field, value in (("selectedCount", -1), ("groupRevision", "34"), ("state", "unknown")):
+            invalid = dict(state, **{field: value})
+            result = bfs_debug_analyze.validate([rows[0], invalid, rows[2]], [], {})
+            self.assertEqual("invalid", result["verdict"])
+            self.assertTrue(any(field in error for error in result["errors"]))
+
     def test_follow_events_reject_raw_uuid_and_missing_fields(self) -> None:
         analysis = bfs_debug_analyze.validate([
             record("header", 1),
