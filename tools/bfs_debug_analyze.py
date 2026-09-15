@@ -401,7 +401,13 @@ def validate_render(records: list[dict[str, Any]], contract: Any, errors: list[s
             "render.resourceReloadGeneration", "render.textureHash", "render.maskHash",
             "render.alphaBackgroundCheck",
         }
-        missing = sorted(field for field in required if field not in row)
+        unavailable = row.get("render.reason")
+        optional_unavailable = {
+            "render.textureHash", "render.maskHash", "render.alphaBackgroundCheck",
+        } if isinstance(unavailable, str) and unavailable.startswith("unavailable:") \
+            and row.get("render.selected") is False else set()
+        missing = sorted(field for field in required
+                         if field not in row and field not in optional_unavailable)
         if missing:
             errors.append(f"{prefix} is missing render fields: {', '.join(missing)}")
             continue
@@ -421,13 +427,13 @@ def validate_render(records: list[dict[str, Any]], contract: Any, errors: list[s
             if generations and generation < generations[-1]:
                 errors.append(f"{prefix} moves resource reload generation backward")
             generations.append(generation)
-        texture_hash = row["render.textureHash"]
+        texture_hash = row.get("render.textureHash")
         if texture_hash is not None and (not isinstance(texture_hash, str) or not HASH_PATTERN.fullmatch(texture_hash)):
             errors.append(f"{prefix} has an invalid texture hash")
-        mask_hash = row["render.maskHash"]
+        mask_hash = row.get("render.maskHash")
         if mask_hash is not None and (not isinstance(mask_hash, str) or not HASH_PATTERN.fullmatch(mask_hash)):
             errors.append(f"{prefix} has an invalid mask hash")
-        alpha = row["render.alphaBackgroundCheck"]
+        alpha = row.get("render.alphaBackgroundCheck")
         if alpha is not None and not isinstance(alpha, bool):
             errors.append(f"{prefix} alpha background check must be boolean or null")
         if isinstance(variant, str) and variant == "zippy" and isinstance(brightness, int):

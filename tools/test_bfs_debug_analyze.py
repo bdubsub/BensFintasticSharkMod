@@ -75,6 +75,24 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         self.assertTrue(any("zippy layer must be marking" in error for error in analysis["errors"]))
         self.assertTrue(any("selected without a texture hash" in error for error in analysis["errors"]))
 
+    def test_unavailable_render_can_omit_non_applicable_hashes(self) -> None:
+        row = {
+            "render.variantId": "unavailable:not_common_thresher",
+            "render.baseResource": "unavailable:not_common_thresher",
+            "render.maskResource": "unavailable:not_common_thresher",
+            "render.rawBrightness": 0,
+            "render.layer": "base",
+            "render.selected": False,
+            "render.reason": "unavailable:not_common_thresher",
+            "render.resourceReloadGeneration": 0,
+        }
+        analysis = bfs_debug_analyze.validate([
+            {**record("header", 1), "side": "client"},
+            {**record("presentation", 2, **row), "side": "client"},
+            {**record("end", 3, incomplete=False, recordsDropped=0), "side": "client"},
+        ], [], {})
+        self.assertEqual("complete", analysis["verdict"])
+
     def test_complete_capture_preserves_history(self) -> None:
         records = [
             record("header", 1),
