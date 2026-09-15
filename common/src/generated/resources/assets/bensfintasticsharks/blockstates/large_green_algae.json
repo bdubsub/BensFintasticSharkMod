@@ -1,6 +1,471 @@
 {
   "variants": {
-    "": {
+    "age=0,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=0,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=0,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=0,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=0,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=0,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=1,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=1,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=1,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=1,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=1,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=1,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=10,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=10,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=10,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=10,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=10,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=10,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=11,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=11,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=11,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=11,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=11,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=11,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=12,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=12,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=12,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=12,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=12,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=12,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=13,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=13,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=13,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=13,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=13,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=13,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=14,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=14,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=14,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=14,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=14,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=14,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=15,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=15,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=15,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=15,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=15,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=15,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=16,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=16,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=16,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=16,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=16,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=16,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=17,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=17,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=17,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=17,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=17,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=17,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=18,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=18,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=18,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=18,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=18,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=18,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=19,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=19,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=19,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=19,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=19,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=19,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=2,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=2,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=2,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=2,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=2,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=2,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=20,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=20,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=20,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=20,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=20,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=20,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=21,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=21,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=21,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=21,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=21,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=21,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=22,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=22,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=22,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=22,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=22,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=22,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=23,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=23,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=23,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=23,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=23,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=23,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=24,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=24,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=24,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=24,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=24,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=24,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=25,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=25,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=25,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=25,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=25,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=25,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=3,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=3,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=3,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=3,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=3,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=3,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=4,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=4,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=4,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=4,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=4,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=4,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=5,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=5,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=5,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=5,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=5,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=5,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=6,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=6,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=6,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=6,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=6,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=6,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=7,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=7,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=7,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=7,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=7,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=7,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=8,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=8,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=8,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=8,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=8,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=8,segment=top,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=9,segment=body,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=9,segment=body,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=9,segment=single,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=9,segment=single,waterlogged=true": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=9,segment=top,waterlogged=false": {
+      "model": "bensfintasticsharks:block/large_green_algae"
+    },
+    "age=9,segment=top,waterlogged=true": {
       "model": "bensfintasticsharks:block/large_green_algae"
     }
   }

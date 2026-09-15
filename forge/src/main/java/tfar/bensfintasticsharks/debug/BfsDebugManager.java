@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
@@ -42,6 +44,7 @@ import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
 import tfar.bensfintasticsharks.entity.AquaticMovement;
 import tfar.bensfintasticsharks.entity.SmartWaterAnimal;
 import tfar.bensfintasticsharks.entity.SpeciesBehaviorProfile;
+import tfar.bensfintasticsharks.diagnostics.AlgaeDiagnostics;
 
 import javax.annotation.Nullable;
 import java.io.BufferedWriter;
@@ -103,6 +106,7 @@ public final class BfsDebugManager {
     }
 
     public static void register(IEventBus eventBus) {
+        AlgaeDiagnostics.install(BfsDebugManager::recordAlgaeDiagnostic);
         eventBus.addListener(BfsDebugManager::onServerTick);
         eventBus.addListener(BfsDebugManager::onEntityJoin);
         eventBus.addListener(BfsDebugManager::onEntityLeave);
@@ -195,6 +199,65 @@ public final class BfsDebugManager {
         return active == null ? Status.inactive(lastStop) : Status.active(active);
     }
 
+    /** Returns bounded block counts for an operator supplied algae fixture. */
+    public static AlgaeScan scanAlgae(ServerLevel level, int minX, int minZ, int size) {
+        int maxX = minX + size - 1;
+        int maxZ = minZ + size - 1;
+        int smallCells = 0;
+        int greenCells = 0;
+        int redCells = 0;
+        int greenColumns = 0;
+        int redColumns = 0;
+        int greenTallColumns = 0;
+        int redTallColumns = 0;
+        int generatedCells = 0;
+        int minY = level.getMinBuildHeight();
+        int maxY = level.getMaxBuildHeight();
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                for (int y = minY; y < maxY; y++) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    BlockState state = level.getBlockState(pos);
+                    if (state.is(ModBlocks.ALGAE_BLOCK)) {
+                        smallCells++;
+                    } else if (state.is(ModBlocks.LARGE_GREEN_ALGAE)) {
+                        greenCells++;
+                        if (!level.getBlockState(pos.below()).is(ModBlocks.LARGE_GREEN_ALGAE)) {
+                            greenColumns++;
+                            int height = 1;
+                            while (height < 8 && level.getBlockState(pos.above(height)).is(ModBlocks.LARGE_GREEN_ALGAE)) {
+                                height++;
+                            }
+                            if (height >= 2) {
+                                greenTallColumns++;
+                            }
+                        }
+                    } else if (state.is(ModBlocks.LARGE_RED_ALGAE)) {
+                        redCells++;
+                        if (!level.getBlockState(pos.below()).is(ModBlocks.LARGE_RED_ALGAE)) {
+                            redColumns++;
+                            int height = 1;
+                            while (height < 8 && level.getBlockState(pos.above(height)).is(ModBlocks.LARGE_RED_ALGAE)) {
+                                height++;
+                            }
+                            if (height >= 2) {
+                                redTallColumns++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        generatedCells = greenCells + redCells;
+        return new AlgaeScan(level.getSeed(), minX, minZ, size, smallCells, greenCells, redCells,
+                greenColumns, redColumns, greenTallColumns, redTallColumns, generatedCells);
+    }
+
+    public record AlgaeScan(long seed, int minX, int minZ, int size, int smallCells, int greenCells,
+                            int redCells, int greenColumns, int redColumns, int greenTallColumns,
+                            int redTallColumns, int generatedCells) {
+    }
+
     @Nullable
     public static FishingCatchTrace beginFishing(ItemFishedEvent event, ItemStack rod, String originalItem,
                                                   String lootTable, boolean replace, boolean live) {
@@ -239,6 +302,94 @@ public final class BfsDebugManager {
                                          String reason, String adapter, long age, int blocked, double distance) {
         recordFollowEvent(level, event, owner == null ? null : owner.getUUID(), target,
                 reason, adapter, age, blocked, distance);
+    }
+
+    private static void recordAlgaeDiagnostic(AlgaeDiagnostics.Event event) {
+        if (!(event.level() instanceof ServerLevel level)) {
+            return;
+        }
+        Session active = session;
+        if (active == null || !active.category.capturesAlgae()
+                || !level.dimension().equals(active.dimension)) {
+            return;
+        }
+        JsonObject record = baseRecord(active, event.event(), level.getGameTime());
+        record.addProperty("reason", event.reason());
+        record.addProperty("x", event.pos().getX());
+        record.addProperty("y", event.pos().getY());
+        record.addProperty("z", event.pos().getZ());
+        record.addProperty("actor", event.actor() == null
+                ? "actor_unavailable" : entityPseudonym(active, "algae_actor", event.actor().getUUID()));
+        record.addProperty("actorType", event.actor() == null ? "unavailable" : entityId(event.actor()));
+        addAlgaeState(record, "before", event.before());
+        addAlgaeState(record, "after", event.after());
+        event.details().forEach((key, value) -> addAlgaeValue(record, key, value));
+        enqueue(active, record);
+    }
+
+    public static void recordAlgaeGeneration(ServerLevel level, BlockPos pos, String reason,
+                                             int attempt, int candidateAttempts, int placedCells,
+                                             boolean sourceWater, boolean surfaceVisible, BlockState state) {
+        Session active = session;
+        if (active == null || !active.category.capturesAlgae()
+                || !level.dimension().equals(active.dimension)) {
+            return;
+        }
+        JsonObject record = baseRecord(active, "algae_generate", level.getGameTime());
+        record.addProperty("reason", reason);
+        record.addProperty("x", pos.getX());
+        record.addProperty("y", pos.getY());
+        record.addProperty("z", pos.getZ());
+        record.addProperty("attempt", attempt);
+        record.addProperty("candidateAttempts", candidateAttempts);
+        record.addProperty("placedCells", placedCells);
+        record.addProperty("sourceWater", sourceWater);
+        record.addProperty("surfaceVisible", surfaceVisible);
+        addAlgaeState(record, "after", state);
+        enqueue(active, record);
+    }
+
+    private static void addAlgaeState(JsonObject record, String prefix, @Nullable BlockState state) {
+        if (state == null || !isAlgae(state)) {
+            record.addProperty(prefix + "State", "unavailable");
+            return;
+        }
+        String block = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+        record.addProperty(prefix + "State", block);
+        record.addProperty(prefix + "Block", block);
+        record.addProperty(prefix + "Waterlogged", state.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED)
+                && state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED));
+        if (state.hasProperty(ModBlocks.LargeAlgaeBlock.SEGMENT)) {
+            record.addProperty(prefix + "Segment", state.getValue(ModBlocks.LargeAlgaeBlock.SEGMENT).getSerializedName());
+            record.addProperty(prefix + "Age", state.getValue(ModBlocks.LargeAlgaeBlock.AGE));
+        }
+        if (state.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.NORTH)) {
+            record.addProperty(prefix + "Faces", algaeFaces(state));
+        }
+    }
+
+    private static String algaeFaces(BlockState state) {
+        StringBuilder faces = new StringBuilder();
+        addFace(faces, state, "north", net.minecraft.world.level.block.state.properties.BlockStateProperties.NORTH);
+        addFace(faces, state, "south", net.minecraft.world.level.block.state.properties.BlockStateProperties.SOUTH);
+        addFace(faces, state, "east", net.minecraft.world.level.block.state.properties.BlockStateProperties.EAST);
+        addFace(faces, state, "west", net.minecraft.world.level.block.state.properties.BlockStateProperties.WEST);
+        addFace(faces, state, "down", net.minecraft.world.level.block.state.properties.BlockStateProperties.DOWN);
+        return faces.toString();
+    }
+
+    private static void addFace(StringBuilder faces, BlockState state, String name,
+                                net.minecraft.world.level.block.state.properties.BooleanProperty property) {
+        if (state.hasProperty(property) && state.getValue(property)) {
+            if (!faces.isEmpty()) faces.append(',');
+            faces.append(name);
+        }
+    }
+
+    private static void addAlgaeValue(JsonObject record, String key, Object value) {
+        if (value instanceof Number number) record.addProperty(key, number);
+        else if (value instanceof Boolean bool) record.addProperty(key, bool);
+        else record.addProperty(key, String.valueOf(value));
     }
 
     public static void recordFollowEvent(ServerLevel level, String event, UUID ownerId, Entity target,
@@ -534,7 +685,12 @@ public final class BfsDebugManager {
             return;
         }
         if (isAlgae(event.getState())) {
-            enqueue(active, blockRecord(active, "algae_break", event.getPlayer(), event.getPos()));
+            JsonObject record = blockRecord(active, "algae_remove", event.getPlayer(), event.getPos());
+            record.addProperty("reason", "break_requested");
+            addAlgaeState(record, "before", event.getState());
+            record.addProperty("itemCount", 1);
+            record.addProperty("waterAfter", true);
+            enqueue(active, record);
         }
     }
 
@@ -544,7 +700,12 @@ public final class BfsDebugManager {
             return;
         }
         if (isAlgae(event.getPlacedBlock())) {
-            enqueue(active, blockRecord(active, "algae_place", event.getEntity(), event.getPos()));
+            JsonObject record = blockRecord(active, "algae_place", event.getEntity(), event.getPos());
+            record.addProperty("reason", "accepted");
+            addAlgaeState(record, "intended", event.getPlacedBlock());
+            addAlgaeState(record, "after", event.getLevel().getBlockState(event.getPos()));
+            record.addProperty("sourceWater", event.getLevel().getFluidState(event.getPos()).is(net.minecraft.tags.FluidTags.WATER));
+            enqueue(active, record);
         }
     }
 
@@ -972,6 +1133,7 @@ public final class BfsDebugManager {
         active.lastTick.accumulateAndGet(tick, Math::max);
         JsonObject record = new JsonObject();
         record.addProperty("schema", SCHEMA_VERSION);
+        record.addProperty("schemaMinor", 1);
         record.addProperty("sessionId", active.id.toString());
         record.addProperty("side", "server");
         record.addProperty("event", type);

@@ -371,6 +371,7 @@ public final class BfsFollowGameTests {
         ServerPlayer owner = makeTestPlayer(helper, "follow-shark", new BlockPos(2, 3, 3));
         owner.setGameMode(GameType.CREATIVE);
         Mob target = helper.spawn(ModEntityTypes.GREAT_WHITE_SHARK, new BlockPos(10, 3, 3));
+        target.setPersistenceRequired();
         double initialDistance = owner.distanceTo(target);
         issueAndHold(owner);
         PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
@@ -985,6 +986,7 @@ public final class BfsFollowGameTests {
             int z = 5 + (i / 18);
             Mob mob = helper.spawn(EntityType.COW, new BlockPos(x, 1, z));
             mob.setInvulnerable(true);
+            mob.setPersistenceRequired();
             mob.setSilent(true);
             members.add(mob);
             owner.stopUsingItem();

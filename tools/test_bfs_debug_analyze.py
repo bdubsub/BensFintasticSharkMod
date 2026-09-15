@@ -243,6 +243,39 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         self.assertTrue(any("not valid JSON" in error for error in analysis["errors"]))
         self.assertIn("capture must contain exactly one end record", analysis["errors"])
 
+    def test_algae_events_validate_required_fields_and_caps(self) -> None:
+        common = {"x": 1, "y": 2, "z": 3, "reason": "accepted"}
+        records = [
+            record("header", 1),
+            record("algae_place", 2, **common, afterState="bensfintasticsharks:algae_block"),
+            record("algae_support", 3, **common, beforeState="small", afterState="water",
+                   supportDirection="north", waterAfter=False),
+            record("algae_migrate", 4, **common, beforeState="legacy", afterState="single"),
+            record("algae_grow", 5, **common, beforeState="single", afterState="top",
+                   heightBefore=1, heightAfter=2, ageBefore=24, ageAfter=25, sourceWater=True),
+            record("algae_remove", 6, **common, beforeState="top", itemCount=1, waterAfter=True),
+            record("algae_generate", 7, **common, attempt=0, candidateAttempts=16,
+                   placedCells=8, sourceWater=True, surfaceVisible=True),
+            record("end", 8, incomplete=False, recordsDropped=0),
+        ]
+        analysis = bfs_debug_analyze.validate(records, [], {
+            "algae": {"requiredEvents": sorted(bfs_debug_analyze.ALGAE_EVENTS), "minimumRecords": 6},
+        })
+        self.assertEqual("complete", analysis["verdict"])
+        self.assertEqual(1, analysis["metrics"]["algae"]["eventCounts"]["algae_generate"])
+
+    def test_algae_events_reject_overflow(self) -> None:
+        analysis = bfs_debug_analyze.validate([
+            record("header", 1),
+            record("algae_generate", 2, x=1, y=2, z=3, reason="rejected",
+                   attempt=0, candidateAttempts=17, placedCells=9,
+                   sourceWater=False, surfaceVisible=False),
+            record("end", 3, incomplete=False, recordsDropped=0),
+        ], [], {"algae": {"requiredEvents": ["algae_generate"]}})
+        self.assertEqual("invalid", analysis["verdict"])
+        self.assertTrue(any("sixteen candidate" in error for error in analysis["errors"]))
+        self.assertTrue(any("eight cell" in error for error in analysis["errors"]))
+
     def test_arriving_helical_route_is_rejected_when_declared(self) -> None:
         records = [record("header", 1)]
         for tick, angle in enumerate((0.0, 1.8, 3.6, 5.4, 6.4), start=2):

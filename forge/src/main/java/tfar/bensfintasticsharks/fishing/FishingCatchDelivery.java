@@ -46,7 +46,7 @@ public final class FishingCatchDelivery {
     public static void rememberAttempt(FishingHook hook, ItemStack rod, boolean live, boolean replace,
                                        String originalItem, String lootTable) {
         if (hook.getPlayerOwner() instanceof ServerPlayer player
-                && hook.level() instanceof ServerLevel level && isCurrentCatch(player, hook, level)) {
+                && hook.level() instanceof ServerLevel) {
             ATTEMPTS.put(hook, new AttemptContext(rod.copy(), rod, live, replace, originalItem, lootTable));
         }
     }

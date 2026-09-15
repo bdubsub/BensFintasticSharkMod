@@ -13,6 +13,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import tfar.bensfintasticsharks.config.SpeciesSettingsConfigBridge;
 import tfar.bensfintasticsharks.entity.SpeciesSettingsService;
@@ -62,6 +63,7 @@ public final class BfsDebugCommands {
                 .then(on)
                 .then(Commands.literal("off").executes(BfsDebugCommands::stop))
                 .then(Commands.literal("status").executes(BfsDebugCommands::status))
+                .then(algaeNode())
                 .then(followNode())
                 .then(settingsNode())
                 .then(speedNode())
@@ -72,6 +74,31 @@ public final class BfsDebugCommands {
                 .then(attributeNode("setdamage", SpeciesSettingsService.Field.DAMAGE_MULTIPLIER))
                 .then(attributeNode("setknockback", SpeciesSettingsService.Field.KNOCKBACK_RESISTANCE))
                 .then(behaviorNode());
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> algaeNode() {
+        return Commands.literal("algae").requires(source -> source.hasPermission(2))
+                .then(Commands.literal("scan")
+                        .then(Commands.argument("minX", IntegerArgumentType.integer())
+                                .then(Commands.argument("minZ", IntegerArgumentType.integer())
+                                        .then(Commands.argument("size", IntegerArgumentType.integer(1, 64))
+                                                .executes(BfsDebugCommands::scanAlgae)))));
+    }
+
+    private static int scanAlgae(CommandContext<CommandSourceStack> context) {
+        int minX = IntegerArgumentType.getInteger(context, "minX");
+        int minZ = IntegerArgumentType.getInteger(context, "minZ");
+        int size = IntegerArgumentType.getInteger(context, "size");
+        ServerLevel level = context.getSource().getLevel();
+        BfsDebugManager.AlgaeScan scan = BfsDebugManager.scanAlgae(level, minX, minZ, size);
+        context.getSource().sendSuccess(() -> Component.literal(
+                "algae scan seed=" + scan.seed() + " region=" + scan.minX() + "," + scan.minZ()
+                        + " size=" + scan.size() + " small=" + scan.smallCells()
+                        + " greenCells=" + scan.greenCells() + " redCells=" + scan.redCells()
+                        + " greenColumns=" + scan.greenColumns() + " redColumns=" + scan.redColumns()
+                        + " greenTall=" + scan.greenTallColumns() + " redTall=" + scan.redTallColumns()
+                        + " generatedCells=" + scan.generatedCells()).withStyle(ChatFormatting.AQUA), false);
+        return scan.generatedCells();
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> followNode() {

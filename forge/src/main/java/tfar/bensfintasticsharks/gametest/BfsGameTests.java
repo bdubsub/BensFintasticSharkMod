@@ -12,6 +12,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
@@ -273,6 +274,90 @@ public final class BfsGameTests {
                 "existing seagrass must never be replaced by algae generation");
         helper.assertTrue(!AlgaePatchFeature.isUnoccupiedSourceWater(Blocks.KELP.defaultBlockState()),
                 "existing kelp must never be replaced by algae generation");
+        helper.succeed();
+    }
+
+    @GameTest(template = "empty", batch = "bfs_algae_worldgen", timeoutTicks = 20)
+    public static void redAlgaeRequiresAnOpenWaterSurface(GameTestHelper helper) {
+        BlockPos floor = new BlockPos(5, 200, 5);
+        BlockPos water = floor.above();
+        helper.setBlock(floor, Blocks.STONE.defaultBlockState());
+        helper.setBlock(water, Blocks.WATER.defaultBlockState());
+        BlockPos absoluteWater = helper.absolutePos(water);
+        helper.assertTrue(AlgaePatchFeature.hasOpenWaterSurface(helper.getLevel(), absoluteWater),
+                "red algae must accept a source column with an open sky visible surface");
+
+        helper.setBlock(water.above(), Blocks.STONE.defaultBlockState());
+        helper.assertTrue(!AlgaePatchFeature.hasOpenWaterSurface(helper.getLevel(), absoluteWater),
+                "red algae must reject a roofed underwater cave");
+        helper.succeed();
+    }
+
+    @GameTest(template = "empty", batch = "bfs_algae_states", timeoutTicks = 40)
+    public static void smallAlgaeSupportsWaterloggedSideFaces(GameTestHelper helper) {
+        BlockPos local = new BlockPos(3, 2, 3);
+        helper.setBlock(local.relative(Direction.NORTH), Blocks.STONE.defaultBlockState());
+        helper.setBlock(local, Blocks.WATER.defaultBlockState());
+        BlockState sideState = ModBlocks.ALGAE_BLOCK.defaultBlockState()
+                .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.DOWN, false)
+                .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.NORTH, true)
+                .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED, true);
+        helper.setBlock(local, sideState);
+        BlockPos absolute = helper.absolutePos(local);
+        helper.assertTrue(helper.getLevel().getBlockState(absolute).getValue(
+                        net.minecraft.world.level.block.state.properties.BlockStateProperties.NORTH),
+                "small algae must retain its supported side face");
+        helper.assertTrue(helper.getLevel().getFluidState(absolute).is(FluidTags.WATER),
+                "side attached small algae must remain waterlogged");
+        helper.assertTrue(ModBlocks.ALGAE_BLOCK.getCollisionShape(sideState, helper.getLevel(), absolute,
+                        net.minecraft.world.phys.shapes.CollisionContext.empty()).isEmpty(),
+                "small algae must have no collision shape");
+        helper.succeed();
+    }
+
+    @GameTest(template = "empty", batch = "bfs_algae_states", timeoutTicks = 40)
+    public static void largeAlgaeGrowsAndStopsAtEightSegments(GameTestHelper helper) {
+        BlockPos base = new BlockPos(5, 1, 5);
+        helper.setBlock(base.below(), Blocks.SAND.defaultBlockState());
+        helper.setBlock(base, Blocks.WATER.defaultBlockState());
+        helper.setBlock(base.above(), Blocks.WATER.defaultBlockState());
+        BlockPos absolute = helper.absolutePos(base);
+        ModBlocks.LargeAlgaeBlock green = ModBlocks.LARGE_GREEN_ALGAE;
+        helper.getLevel().setBlock(absolute, green.defaultBlockState(), Block.UPDATE_ALL);
+        green.performBonemeal((net.minecraft.server.level.ServerLevel) helper.getLevel(),
+                net.minecraft.util.RandomSource.create(11L), absolute,
+                helper.getLevel().getBlockState(absolute));
+        helper.assertTrue(helper.getLevel().getBlockState(absolute).getValue(ModBlocks.LargeAlgaeBlock.SEGMENT)
+                        == ModBlocks.AlgaeSegment.BODY,
+                "growth must convert a singleton to a body segment");
+        helper.assertTrue(helper.getLevel().getBlockState(absolute.above()).getValue(ModBlocks.LargeAlgaeBlock.SEGMENT)
+                        == ModBlocks.AlgaeSegment.TOP,
+                "growth must create a top segment");
+
+        helper.getLevel().setBlock(absolute.above(2), Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
+        BlockState ageTwentyFiveTop = helper.getLevel().getBlockState(absolute.above())
+                .setValue(ModBlocks.LargeAlgaeBlock.AGE, 25);
+        helper.getLevel().setBlock(absolute.above(), ageTwentyFiveTop, Block.UPDATE_ALL);
+        helper.assertTrue(green.isValidBonemealTarget(helper.getLevel(), absolute.above(), ageTwentyFiveTop, false),
+                "age twenty five must still allow bonemeal while height remains available");
+        green.performBonemeal((net.minecraft.server.level.ServerLevel) helper.getLevel(),
+                net.minecraft.util.RandomSource.create(12L), absolute.above(), ageTwentyFiveTop);
+        helper.assertTrue(helper.getLevel().getBlockState(absolute.above(2)).getValue(ModBlocks.LargeAlgaeBlock.SEGMENT)
+                        == ModBlocks.AlgaeSegment.TOP,
+                "age twenty five bonemeal must extend into source water");
+        helper.assertTrue(helper.getLevel().getBlockState(absolute.above(2)).getValue(ModBlocks.LargeAlgaeBlock.AGE) == 25,
+                "age twenty five bonemeal must keep the capped age");
+
+        for (int index = 3; index < 8; index++) {
+            helper.getLevel().setBlock(absolute.above(index), Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
+        }
+        green.placeNaturalColumn(helper.getLevel(), absolute, 8);
+        BlockState top = helper.getLevel().getBlockState(absolute.above(7));
+        helper.assertTrue(top.is(green) && top.getValue(ModBlocks.LargeAlgaeBlock.SEGMENT)
+                        == ModBlocks.AlgaeSegment.TOP,
+                "natural columns must retain a top segment at height eight");
+        helper.assertTrue(!green.isValidBonemealTarget(helper.getLevel(), absolute.above(7), top, false),
+                "height eight must reject further growth");
         helper.succeed();
     }
 
@@ -1845,6 +1930,10 @@ public final class BfsGameTests {
         ItemEntity nonEdible = helper.spawnItem(Items.STONE, new BlockPos(8, 3, 3));
         freezeCuriosityItem(nonEdible);
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
+        // Water entry is a separate disturbance signal. Reset that fixture signal so this
+        // test only observes whether the dropped item itself can start curiosity.
+        shark.setSharkState(TigerSharkEntity.SharkState.IDLE);
+        shark.setStateTimer(0);
         helper.runAfterDelay(80, () -> {
             helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
                     "non edible item must not enter curiosity state");
@@ -2598,27 +2687,33 @@ public final class BfsGameTests {
             helper.assertTrue(helper.getLevel().getEntitiesOfClass(Cod.class,
                             new AABB(absolute.offset(0, 0, 8)).inflate(1.0D)).contains(disabledEggSource),
                     "replacement disabled must preserve vanilla Cod spawn eggs through the real entity join path");
-            helper.runAfterDelay(2, () -> {
-                List<Mob> bucketReplacement = helper.getLevel().getEntitiesOfClass(Mob.class,
-                        new AABB(bucketPosition).inflate(0.25D));
-                helper.assertTrue(bucketReplacement.size() == 1
-                                && bucketReplacement.get(0).getType() == ModEntityTypes.ATLANTIC_COD,
-                        "real bucket release must become exactly one Atlantic Cod after vanilla applies bucket state");
-                Mob bucketFish = bucketReplacement.get(0);
-                helper.assertTrue(bucketFish.hasCustomName()
-                                && "join source BUCKET".equals(bucketFish.getCustomName().getString())
-                                && bucketFish.isNoAi()
-                                && bucketFish.isSilent()
-                                && bucketFish.isNoGravity()
-                                && bucketFish.isCurrentlyGlowing()
-                                && bucketFish.isInvulnerable()
-                                && bucketFish.getHealth() == 1.0F,
-                        "real bucket release must preserve compatible bucket state on its replacement");
-                helper.succeed();
+        helper.runAfterDelay(2, () -> {
+                try {
+                    List<Mob> bucketReplacement = helper.getLevel().getEntitiesOfClass(Mob.class,
+                            new AABB(bucketPosition).inflate(0.25D));
+                    helper.assertTrue(bucketReplacement.size() == 1
+                            && bucketReplacement.get(0).getType() == ModEntityTypes.ATLANTIC_COD,
+                            "real bucket release must become exactly one Atlantic Cod after vanilla applies bucket state");
+                    Mob bucketFish = bucketReplacement.get(0);
+                    helper.assertTrue(bucketFish.hasCustomName()
+                            && "join source BUCKET".equals(bucketFish.getCustomName().getString())
+                            && bucketFish.isNoAi()
+                            && bucketFish.isSilent()
+                            && bucketFish.isNoGravity()
+                            && bucketFish.isCurrentlyGlowing()
+                            && bucketFish.isInvulnerable()
+                            && bucketFish.getHealth() == 1.0F,
+                            "real bucket release must preserve compatible bucket state on its replacement");
+                    helper.succeed();
+                } finally {
+                    BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
+                    BfsConfig.COMMON.disableVanillaAquaticSpawns.set(previousSuppression);
+                }
             });
-        } finally {
+        } catch (RuntimeException exception) {
             BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
             BfsConfig.COMMON.disableVanillaAquaticSpawns.set(previousSuppression);
+            throw exception;
         }
     }
 

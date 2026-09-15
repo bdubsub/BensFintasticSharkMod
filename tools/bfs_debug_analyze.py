@@ -46,6 +46,14 @@ SOURCE_KINDS = {
 UUID_PATTERN = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b")
 HASH_PATTERN = re.compile(r"(?i)\A[0-9a-f]{64}\Z")
 RENDER_LAYERS = {"base", "marking", "glow"}
+ALGAE_EVENTS = {
+    "algae_place",
+    "algae_support",
+    "algae_migrate",
+    "algae_grow",
+    "algae_remove",
+    "algae_generate",
+}
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -204,6 +212,9 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
     presentation_records = [row for row in records if row.get("event") == "presentation"]
     if presentation_records or "render" in manifest:
         metrics["render"] = validate_render(presentation_records, manifest.get("render", {}), errors)
+    algae_records = [row for row in records if row.get("event") in ALGAE_EVENTS]
+    if algae_records or "algae" in manifest:
+        metrics["algae"] = validate_algae(algae_records, manifest.get("algae", {}), errors)
     verdict = "invalid" if errors else "incomplete" if warnings else "complete"
     coverage = {
         "movementEntityCount": len(movement_history),
@@ -212,6 +223,80 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
         "hasTerminalRecord": len(end_records) == 1,
     }
     return result(verdict, errors, warnings, metrics, records, manifest, dict(events), checks, coverage)
+
+
+def validate_algae(records: list[dict[str, Any]], contract: Any,
+                   errors: list[str]) -> dict[str, Any]:
+    """Validate additive server fields for bounded algae diagnostics."""
+    if not isinstance(contract, dict):
+        errors.append("algae manifest must be an object")
+        contract = {}
+    counts: defaultdict[str, int] = defaultdict(int)
+    required_events = contract.get("requiredEvents", [])
+    if not isinstance(required_events, list) or any(not isinstance(event, str) for event in required_events):
+        errors.append("algae requiredEvents must be a list of strings")
+        required_events = []
+    for event in required_events:
+        if event not in ALGAE_EVENTS:
+            errors.append(f"algae manifest names unknown event {event}")
+    for index, row in enumerate(records, start=1):
+        event = row.get("event")
+        counts[event] += 1
+        prefix = f"algae record {index}"
+        for field in ("reason", "dimension", "tick", "sequence"):
+            if field not in row:
+                errors.append(f"{prefix} is missing {field}")
+        for field in ("x", "y", "z"):
+            if not isinstance(row.get(field), int):
+                errors.append(f"{prefix} has no integer {field}")
+        if event in {"algae_place", "algae_support", "algae_migrate", "algae_grow", "algae_remove"}:
+            if "beforeState" not in row and event != "algae_place":
+                errors.append(f"{prefix} is missing beforeState")
+            if event in {"algae_place", "algae_support", "algae_migrate", "algae_grow"} and "afterState" not in row:
+                errors.append(f"{prefix} is missing afterState")
+        if event == "algae_support":
+            if not isinstance(row.get("supportDirection"), str):
+                errors.append(f"{prefix} is missing supportDirection")
+            if not isinstance(row.get("waterAfter"), bool):
+                errors.append(f"{prefix} has invalid waterAfter")
+        if event == "algae_grow":
+            for field in ("heightBefore", "heightAfter"):
+                value = row.get(field)
+                if not isinstance(value, int) or not 0 <= value <= 8:
+                    errors.append(f"{prefix} has invalid {field}")
+            for field in ("ageBefore", "ageAfter"):
+                value = row.get(field)
+                if not isinstance(value, int) or not 0 <= value <= 25:
+                    errors.append(f"{prefix} has invalid {field}")
+            if isinstance(row.get("heightAfter"), int) and row["heightAfter"] > 8:
+                errors.append(f"{prefix} exceeds the eight cell height cap")
+            if row.get("sourceWater") is not True:
+                errors.append(f"{prefix} must record sourceWater true")
+        if event == "algae_remove":
+            if not isinstance(row.get("itemCount"), int) or row["itemCount"] < 0:
+                errors.append(f"{prefix} has invalid itemCount")
+            if row.get("waterAfter") is not True:
+                errors.append(f"{prefix} must record waterAfter true")
+        if event == "algae_generate":
+            for field in ("attempt", "candidateAttempts", "placedCells"):
+                value = row.get(field)
+                if not isinstance(value, int) or value < 0:
+                    errors.append(f"{prefix} has invalid {field}")
+            if isinstance(row.get("candidateAttempts"), int) and row["candidateAttempts"] > 16:
+                errors.append(f"{prefix} exceeds the sixteen candidate attempt cap")
+            if isinstance(row.get("placedCells"), int) and row["placedCells"] > 8:
+                errors.append(f"{prefix} exceeds the eight cell placement cap")
+            for field in ("sourceWater", "surfaceVisible"):
+                if not isinstance(row.get(field), bool):
+                    errors.append(f"{prefix} has invalid {field}")
+    for event in required_events:
+        if counts[event] == 0:
+            errors.append(f"algae capture is missing required event {event}")
+    minimum_records = contract.get("minimumRecords")
+    if minimum_records is not None and (not isinstance(minimum_records, int) or len(records) < minimum_records):
+        errors.append("algae capture has fewer records than required")
+    return {"eventCounts": dict(counts), "recordCount": len(records),
+            "requiredEvents": required_events}
 
 
 def validate_render(records: list[dict[str, Any]], contract: Any, errors: list[str]) -> dict[str, Any]:

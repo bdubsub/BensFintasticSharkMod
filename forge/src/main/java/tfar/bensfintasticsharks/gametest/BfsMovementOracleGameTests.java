@@ -101,6 +101,7 @@ public final class BfsMovementOracleGameTests {
             target.moveTo(targetPosition.x, targetPosition.y, targetPosition.z, 0.0F, 0.0F);
             target.setNoAi(true);
             target.setNoGravity(true);
+            target.setInvulnerable(true);
             target.noPhysics = true;
             target.setPersistenceRequired();
             helper.getLevel().addFreshEntity(target);

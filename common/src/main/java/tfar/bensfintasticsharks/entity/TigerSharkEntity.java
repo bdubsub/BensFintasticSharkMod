@@ -281,7 +281,7 @@ public class TigerSharkEntity extends AbstractSharkEntity<TigerSharkEntity> impl
         approachRefreshCooldown = 0;
         BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
         getNavigation().stop();
-        if (getTarget() == null && !isFleeing()) {
+        if (getTarget() == null) {
             setSharkState(SharkState.IDLE);
         }
     }
