@@ -679,6 +679,55 @@ public final class BfsFollowGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = "empty", batch = "follow_controller_families", timeoutTicks = 180)
+    public static void bossFollowAdaptersNavigateAndRestore(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-bosses", new BlockPos(2, 20, 2));
+        owner.setGameMode(GameType.CREATIVE);
+        EnderDragon dragon = helper.spawn(EntityType.ENDER_DRAGON, new BlockPos(20, 20, 2));
+        Mob wither = helper.spawn(EntityType.WITHER, new BlockPos(20, 20, 8));
+        dragon.setSilent(true);
+        dragon.setInvulnerable(true);
+        wither.setInvulnerable(true);
+        var previousDragonPhase = dragon.getPhaseManager().getCurrentPhase().getPhase();
+        double initialDragonDistance = owner.distanceTo(dragon);
+        double initialWitherDistance = owner.distanceTo(wither);
+
+        issueAndHold(owner);
+        interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, dragon.head));
+        helper.assertTrue(BfsFollowManager.selectedCount(owner) == 1,
+                "the ender dragon parent must receive one follow lease through its head part");
+        issueAndHold(owner);
+        interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, wither));
+        helper.assertTrue(BfsFollowManager.selectedCount(owner) == 2,
+                "the wither must remain independently selected beside the dragon");
+
+        helper.runAtTickTime(120, () -> {
+            helper.assertTrue(owner.distanceTo(dragon) < initialDragonDistance - 0.5D,
+                    "the ender dragon phase adapter must make progress, initial " + initialDragonDistance
+                            + ", final " + owner.distanceTo(dragon) + ", alive " + dragon.isAlive()
+                            + ", removed " + dragon.isRemoved() + ", phase "
+                            + dragon.getPhaseManager().getCurrentPhase().getPhase() + ", position " + dragon.position()
+                            + ", delta " + dragon.getDeltaMovement() + ", state " + BfsFollowManager.status(owner));
+            helper.assertTrue(owner.distanceTo(wither) < initialWitherDistance - 0.5D,
+                    "the wither navigation adapter must make progress, initial " + initialWitherDistance
+                            + ", final " + owner.distanceTo(wither) + ", state " + BfsFollowManager.status(owner));
+            owner.releaseUsingItem();
+            interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, dragon.head));
+            helper.assertTrue(BfsFollowManager.selectedCount(owner) == 1,
+                    "a fresh dragon click must release only the dragon lease");
+            owner.releaseUsingItem();
+            interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, wither));
+            helper.assertTrue(BfsFollowManager.selectedCount(owner) == 0,
+                    "a fresh wither click must release the remaining lease");
+            helper.assertTrue(dragon.getPhaseManager().getCurrentPhase().getPhase() == previousDragonPhase,
+                    "releasing the dragon must restore its ordinary phase");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            dragon.remove(Entity.RemovalReason.DISCARDED);
+            wither.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", batch = "follow_restoration", timeoutTicks = 80)
     public static void smartBrainLeaseRestoresWithinFortyTicks(GameTestHelper helper) {
         ServerPlayer owner = makeTestPlayer(helper, "follow-restore", new BlockPos(2, 8, 2));

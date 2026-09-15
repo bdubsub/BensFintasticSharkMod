@@ -15,6 +15,9 @@ import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.boss.EnderDragonPart;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.boss.enderdragon.phases.DragonChargePlayerPhase;
+import net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
@@ -243,8 +246,11 @@ public final class BfsFollowManager {
         }
         Group group = BY_OWNER.computeIfAbsent(owner.getUUID(), ignored -> new Group());
         long tick = owner.serverLevel().getGameTime();
-        String adapter = mob instanceof SmartBrainOwner<?> ? "smartbrain_walk_target" : "mob_navigation";
-        Lease lease = new Lease(owner.getUUID(), mob, adapter, tick, group.nextAlias++);
+        String adapter = mob instanceof EnderDragon ? "ender_dragon_charge"
+                : mob instanceof SmartBrainOwner<?> ? "smartbrain_walk_target" : "mob_navigation";
+        EnderDragonPhase<?> previousDragonPhase = mob instanceof EnderDragon dragon
+                ? dragon.getPhaseManager().getCurrentPhase().getPhase() : null;
+        Lease lease = new Lease(owner.getUUID(), mob, adapter, previousDragonPhase, tick, group.nextAlias++);
         group.members.put(mob.getUUID(), lease);
         group.revision++;
         BY_TARGET.put(mob.getUUID(), lease);
@@ -403,6 +409,10 @@ public final class BfsFollowManager {
 
     private static void route(Lease lease, ServerPlayer owner, Mob mob, long tick) {
         lease.lastRoute = tick;
+        if (lease.adapter.equals("ender_dragon_charge")) {
+            routeEnderDragon(lease, owner, mob);
+            return;
+        }
         if (lease.adapter.equals("smartbrain_walk_target")) {
             lease.ownedWalkTarget = new WalkTarget(owner, 1.0F, 1);
             mob.getBrain().setMemory(MemoryModuleType.WALK_TARGET, lease.ownedWalkTarget);
@@ -416,7 +426,29 @@ public final class BfsFollowManager {
         record(lease, owner, mob, "follow.progress", lease.reason);
     }
 
+    private static void routeEnderDragon(Lease lease, ServerPlayer owner, Mob mob) {
+        if (!(mob instanceof EnderDragon dragon)) {
+            transition(lease, owner, mob, "paused", "no_route");
+            record(lease, owner, mob, "follow.intent", "phase_adapter_rejected");
+            record(lease, owner, mob, "follow.progress", lease.reason);
+            return;
+        }
+        dragon.getPhaseManager().setPhase(EnderDragonPhase.CHARGING_PLAYER);
+        DragonChargePlayerPhase charge = dragon.getPhaseManager().getPhase(EnderDragonPhase.CHARGING_PLAYER);
+        charge.setTarget(owner.position().add(0.0D, 4.0D, 0.0D));
+        lease.dragonPhaseControlled = true;
+        if (lease.blocked < BLOCKED_TICKS) transition(lease, owner, mob, "following", "tracking");
+        record(lease, owner, mob, "follow.intent", "phase_target_accepted");
+        record(lease, owner, mob, "follow.progress", lease.reason);
+    }
+
     private static void pauseMovement(Lease lease, Mob mob) {
+        if (lease.dragonPhaseControlled && mob instanceof EnderDragon dragon) {
+            if (lease.previousDragonPhase != null) {
+                dragon.getPhaseManager().setPhase(lease.previousDragonPhase);
+            }
+            lease.dragonPhaseControlled = false;
+        }
         if (lease.ownsNavigation && mob.getNavigation().getPath() == lease.ownedPath) mob.getNavigation().stop();
         lease.ownsNavigation = false;
         if (lease.ownedWalkTarget != null && mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null) == lease.ownedWalkTarget) {
@@ -650,19 +682,22 @@ public final class BfsFollowManager {
         private final Component label;
         private final int alias;
         private final String adapter;
+        private final EnderDragonPhase<?> previousDragonPhase;
         private final long started;
         private final WalkTarget previousWalkTarget;
         private SmartBrainFollowControl<?> brainControl;
         private WalkTarget ownedWalkTarget;
         private Path ownedPath;
         private boolean ownsNavigation;
+        private boolean dragonPhaseControlled;
         private long lastRoute = -1;
         private double lastDistance = Double.MAX_VALUE;
         private int blocked;
         private String state = "following";
         private String reason = "tracking";
 
-        private Lease(UUID ownerId, Mob mob, String adapter, long started, int alias) {
+        private Lease(UUID ownerId, Mob mob, String adapter, EnderDragonPhase<?> previousDragonPhase,
+                      long started, int alias) {
             this.ownerId = ownerId;
             this.targetId = mob.getUUID();
             this.dimension = mob.level().dimension();
@@ -670,6 +705,7 @@ public final class BfsFollowManager {
             this.label = message("target", mob.getName().copy(), alias);
             this.alias = alias;
             this.adapter = adapter;
+            this.previousDragonPhase = previousDragonPhase;
             this.started = started;
             this.previousWalkTarget = adapter.equals("smartbrain_walk_target")
                     ? mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null) : null;

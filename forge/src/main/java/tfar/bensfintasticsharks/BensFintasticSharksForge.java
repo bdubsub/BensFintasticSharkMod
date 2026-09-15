@@ -134,8 +134,13 @@ public class BensFintasticSharksForge {
         Entity entity = event.getEntity();
         if (entity instanceof SharkGrabber grabber) {
             grabber.releaseGrabPassengers();
-        } else if (entity.isPassenger()) {
-            entity.stopRiding();
+        } else if (entity.isPassenger() && event.getLevel() instanceof net.minecraft.server.level.ServerLevel level) {
+            // EntityLeaveLevelEvent can fire while the chunk distance manager is iterating its
+            // tracking set. Dismount after that callback so the relationship is cleaned without
+            // mutating the set that is currently being traversed.
+            level.getServer().execute(() -> {
+                if (entity.isPassenger()) entity.stopRiding();
+            });
         }
     }
 
