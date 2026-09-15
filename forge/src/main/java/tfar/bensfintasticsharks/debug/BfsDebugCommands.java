@@ -261,6 +261,8 @@ public final class BfsDebugCommands {
                 .append(Component.literal("  clear session values").withStyle(ChatFormatting.GRAY)), false);
         source.sendSuccess(() -> Component.literal("  /bfs debug settings reload")
                 .append(Component.literal("  validate and replace the server baseline").withStyle(ChatFormatting.GRAY)), false);
+        source.sendSuccess(() -> Component.literal("  disturbance fields include global enable, reaction, radius, sensitivity, alert ticks, boat threshold and per-source enable, strength and interval ticks.")
+                .withStyle(ChatFormatting.GRAY), false);
         source.sendSuccess(() -> Component.literal("Specialized aliases include setspeed, setsprint, setspawnsize, setscale, sethealth, setdamage, setknockback and setbehavior.")
                 .withStyle(ChatFormatting.GRAY), false);
         return 1;

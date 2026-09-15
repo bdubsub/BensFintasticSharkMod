@@ -18,9 +18,14 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import tfar.bensfintasticsharks.disturbance.WaterDisturbanceEvent;
+import tfar.bensfintasticsharks.entity.AbstractSharkEntity;
+import tfar.bensfintasticsharks.entity.SpeciesSettingsService;
+import tfar.bensfintasticsharks.init.ModEntityTypes;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /** Real transition and moving occupied boat fixtures for BFS2 REQ 011. */
@@ -102,6 +107,65 @@ public final class BfsDisturbanceGameTests {
                 boat.remove(Entity.RemovalReason.DISCARDED);
             }
             helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "disturbance_settings", timeoutTicks = 140)
+    public static void realWaterEntryUsesEffectiveSessionPolicy(GameTestHelper helper) {
+        BlockPos water = new BlockPos(5, 2, 2);
+        helper.setBlock(water.below(), Blocks.WATER.defaultBlockState());
+        helper.setBlock(water, Blocks.WATER.defaultBlockState());
+        helper.setBlock(water.above(), Blocks.WATER.defaultBlockState());
+        helper.setBlock(water.above().above(), Blocks.WATER.defaultBlockState());
+        AbstractSharkEntity<?> shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(5, 2, 2));
+        shark.setNoAi(true);
+        shark.setPos(helper.absolutePos(water).getCenter());
+        Mob source = helper.spawn(EntityType.COW, new BlockPos(8, 5, 2));
+        source.setNoAi(true);
+        source.setNoGravity(true);
+        long baselineRevision = SpeciesSettingsService.revision();
+        SpeciesSettingsService.MutationResult disabled = SpeciesSettingsService.apply(baselineRevision,
+                "tiger_shark", Map.of(SpeciesSettingsService.Field.DISTURBANCE_ENABLED, 0.0D));
+        helper.assertTrue(disabled.applied(), "the disabled policy fixture must apply atomically");
+        Collector collector = new Collector();
+        MinecraftForge.EVENT_BUS.register(collector);
+        helper.runAfterDelay(5, () -> {
+            helper.assertTrue(shark.isInWaterOrBubble(), "the shark policy fixture must keep the shark in water");
+            source.setPos(helper.absolutePos(water).getCenter());
+            helper.runAfterDelay(8, () -> {
+                helper.assertTrue(collector.has(WaterDisturbanceEvent.SourceKind.WATER_ENTRY),
+                        "the real water entry must still emit its typed source while reaction is disabled");
+                helper.assertTrue(shark.getSharkState() == AbstractSharkEntity.SharkState.IDLE,
+                        "a disabled species policy must not react to the real source, state=" + shark.getSharkState());
+                long enabledRevision = SpeciesSettingsService.revision();
+                SpeciesSettingsService.MutationResult enabled = SpeciesSettingsService.apply(enabledRevision,
+                        "tiger_shark", Map.of(SpeciesSettingsService.Field.DISTURBANCE_ENABLED, 1.0D,
+                                SpeciesSettingsService.Field.DISTURBANCE_REACTION, 2.0D,
+                                SpeciesSettingsService.disturbanceField("water_entry", "strength"), 1.0D));
+                helper.assertTrue(enabled.applied(), "the enabled policy fixture must apply atomically");
+                shark.setSharkState(AbstractSharkEntity.SharkState.IDLE);
+                WaterDisturbanceEvent recorded = collector.events.stream()
+                        .filter(event -> event.getSourceKind() == WaterDisturbanceEvent.SourceKind.WATER_ENTRY)
+                        .findFirst().orElseThrow();
+                WaterDisturbanceEvent replay = new WaterDisturbanceEvent(recorded.getLevel(), recorded.getSource(),
+                        recorded.getSourceEntity(), recorded.getType(), recorded.getSourceKind(), recorded.getStrength(),
+                        recorded.getBoat(), recorded.getRider());
+                MinecraftForge.EVENT_BUS.post(replay);
+                try {
+                    helper.assertTrue(shark.getSharkState() == AbstractSharkEntity.SharkState.CURIOUS,
+                            "an investigate policy must make the same real water entry visible, state="
+                                    + shark.getSharkState());
+                } finally {
+                    MinecraftForge.EVENT_BUS.unregister(collector);
+                    source.remove(Entity.RemovalReason.DISCARDED);
+                    shark.remove(Entity.RemovalReason.DISCARDED);
+                    SpeciesSettingsService.reset(SpeciesSettingsService.revision(), "tiger_shark",
+                            EnumSet.of(SpeciesSettingsService.Field.DISTURBANCE_ENABLED,
+                                    SpeciesSettingsService.Field.DISTURBANCE_REACTION,
+                                    SpeciesSettingsService.disturbanceField("water_entry", "strength")));
+                }
+                helper.succeed();
+            });
         });
     }
 

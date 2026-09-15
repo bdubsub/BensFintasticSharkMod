@@ -106,6 +106,9 @@ public class WaterDisturbanceListeners {
         ResourceKey<Level> dimension = event.getLevel().dimension();
         WAS_IN_WATER.remove(new ActorKey(dimension, entity.getUUID()));
         if (entity instanceof Boat) BOATS.remove(entity.getUUID());
+        if (event.getLevel() instanceof ServerLevel level) {
+            WaterDisturbanceHandler.clearEntity(level, entity.getUUID());
+        }
         LAST_FIRED.keySet().removeIf(key -> key.dimension().equals(dimension) && key.source().equals(entity.getUUID()));
     }
 
@@ -116,6 +119,7 @@ public class WaterDisturbanceListeners {
         WAS_IN_WATER.keySet().removeIf(key -> key.dimension().equals(dimension));
         BOATS.entrySet().removeIf(entry -> entry.getValue().dimension().equals(dimension));
         LAST_FIRED.keySet().removeIf(key -> key.dimension().equals(dimension));
+        WaterDisturbanceHandler.clearLevel(level);
     }
 
     @net.minecraftforge.eventbus.api.SubscribeEvent
@@ -133,15 +137,36 @@ public class WaterDisturbanceListeners {
             net.minecraft.world.phys.Vec3 delta = boat.position().subtract(state.position());
             BoatState updated = new BoatState(state.dimension(), boat.position(), state.lastEventTick());
             BOATS.replace(entry.getKey(), state, updated);
-            if (boat.getPassengers().isEmpty()) continue;
+            long tick = level.getGameTime();
+            if (boat.getPassengers().isEmpty()) {
+                if (tick % 10 == 0) {
+                    WaterDisturbanceEvent empty = new WaterDisturbanceEvent(level, boat.blockPosition(), boat,
+                            WaterDisturbanceEvent.Type.LIGHT,
+                            WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT, 0.0D, boat, null);
+                    tfar.bensfintasticsharks.debug.BfsDebugManager.recordDisturbanceDecision(level, empty,
+                            "ignored", "empty_boat", 0, sourceKeyCount(level));
+                }
+                continue;
+            }
             Entity rider = boat.getPassengers().get(0);
             if (rider.isInWaterOrBubble()) continue;
             double horizontal = Math.hypot(delta.x, delta.z);
-            long tick = level.getGameTime();
-            if (horizontal < 0.02D || tick - state.lastEventTick() < 10) continue;
+            double movementThreshold = tfar.bensfintasticsharks.config.BfsConfig.COMMON
+                    .disturbanceBoatMovementThreshold.get();
+            if (horizontal < movementThreshold) {
+                if (tick % 10 == 0) {
+                    WaterDisturbanceEvent stationary = new WaterDisturbanceEvent(level, boat.blockPosition(), boat,
+                            WaterDisturbanceEvent.Type.LIGHT,
+                            WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT, 0.0D, boat, rider);
+                    tfar.bensfintasticsharks.debug.BfsDebugManager.recordDisturbanceDecision(level, stationary,
+                            "ignored", "stationary_boat", 0, sourceKeyCount(level));
+                }
+                continue;
+            }
+            if (tick - state.lastEventTick() < 10) continue;
             if (!canFire(level, boat.getUUID(), WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT, tick, 10,
                     boat.blockPosition(), boat, WaterDisturbanceEvent.Type.LIGHT, boat, rider)) continue;
-            double strength = Math.min(1.0D, horizontal / 0.25D);
+            double strength = Math.min(1.0D, horizontal / Math.max(0.25D, movementThreshold * 12.5D));
             post(level, boat.blockPosition(), boat, WaterDisturbanceEvent.Type.LIGHT,
                     WaterDisturbanceEvent.SourceKind.OCCUPIED_BOAT, strength, boat, rider);
             BOATS.replace(entry.getKey(), updated,
@@ -245,7 +270,7 @@ public class WaterDisturbanceListeners {
         if (last != null && now - last < minInterval) {
             tfar.bensfintasticsharks.debug.BfsDebugManager.recordDisturbanceThrottle(level,
                     new WaterDisturbanceEvent(level, source, sourceEntity, type, sourceKind, 0.0D, boat, rider),
-                    "throttle_duplicate", now - last, sourceKeyCount(level));
+                    "duplicate", now - last, sourceKeyCount(level));
             return false;
         }
         if (last == null && sourceKeyCount(level) >= MAX_THROTTLE_KEYS_PER_LEVEL) {

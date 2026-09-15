@@ -100,6 +100,13 @@ public class BfsConfig {
         public final ForgeConfigSpec.DoubleValue lightSensitivityMult;
         public final ForgeConfigSpec.DoubleValue heavySensitivityMult;
         public final ForgeConfigSpec.DoubleValue bloodSensitivityMult;
+        public final ForgeConfigSpec.BooleanValue disturbanceEnabled;
+        public final ForgeConfigSpec.IntValue disturbanceReaction;
+        public final ForgeConfigSpec.DoubleValue disturbanceRadius;
+        public final ForgeConfigSpec.DoubleValue disturbanceSensitivity;
+        public final ForgeConfigSpec.IntValue disturbanceIntervalTicks;
+        public final ForgeConfigSpec.IntValue disturbanceAlertTicks;
+        public final ForgeConfigSpec.DoubleValue disturbanceBoatMovementThreshold;
         public final ForgeConfigSpec.BooleanValue disturbanceParticlesEnabled;
         public final ForgeConfigSpec.BooleanValue disturbanceAudioEnabled;
 
@@ -265,6 +272,14 @@ public class BfsConfig {
             lightSensitivityMult = b.defineInRange("light_sensitivity_mult", 1.0, 0.0, 3.0);
             heavySensitivityMult = b.defineInRange("heavy_sensitivity_mult", 1.0, 0.0, 3.0);
             bloodSensitivityMult = b.defineInRange("blood_sensitivity_mult", 1.0, 0.0, 3.0);
+            disturbanceEnabled = b.define("enabled", true);
+            disturbanceReaction = b.comment("0 ignores a qualifying source, 1 alerts eligible sharks, 2 investigates the source.")
+                    .defineInRange("reaction", 1, 0, 2);
+            disturbanceRadius = b.defineInRange("radius", 24.0, 0.0, 256.0);
+            disturbanceSensitivity = b.defineInRange("sensitivity", 1.0, 0.0, 3.0);
+            disturbanceIntervalTicks = b.defineInRange("interval_ticks", 20, 1, 20_000);
+            disturbanceAlertTicks = b.defineInRange("alert_ticks", 100, 1, 20_000);
+            disturbanceBoatMovementThreshold = b.defineInRange("boat_movement_threshold", 0.02, 0.0, 1.0);
             disturbanceParticlesEnabled = b.define("particles_enabled", true);
             disturbanceAudioEnabled = b.define("audio_enabled", true);
             b.pop();

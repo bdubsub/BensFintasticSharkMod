@@ -313,6 +313,20 @@ public final class BfsDebugManager {
                                                  tfar.bensfintasticsharks.disturbance.WaterDisturbanceEvent event,
                                                  String outcome, String reason,
                                                  int candidateCount, int sourceKeyCount) {
+        recordDisturbanceDecision(level, event, outcome, reason, candidateCount, sourceKeyCount,
+                "unavailable", tfar.bensfintasticsharks.entity.SpeciesSettingsService.revision(),
+                0.0D, 0.0D, 0.0D, 0, 0,
+                "alert".equals(outcome) || "investigate".equals(outcome), event.getStrength());
+    }
+
+    public static void recordDisturbanceDecision(ServerLevel level,
+                                                 tfar.bensfintasticsharks.disturbance.WaterDisturbanceEvent event,
+                                                 String outcome, String reason,
+                                                 int candidateCount, int sourceKeyCount,
+                                                 String species, long settingsRevision,
+                                                 double radius, double sensitivity, double sourceStrength,
+                                                 int sourceIntervalTicks, int alertTicks,
+                                                 boolean acceptedThreshold, double effectiveStrength) {
         Session active = session;
         if (active == null || level == null || event == null || level.isClientSide
                 || !level.dimension().equals(active.dimension)) {
@@ -335,9 +349,17 @@ public final class BfsDebugManager {
         record.addProperty("riderId", event.getRider() == null
                 ? "unavailable" : entityPseudonym(active, "rider", event.getRider().getUUID()));
         record.addProperty("boatCorrelation", event.getBoat() != null && event.getRider() != null);
+        record.addProperty("species", species == null ? "unavailable" : species);
+        record.addProperty("settingsRevision", Math.max(0L, settingsRevision));
+        record.addProperty("radius", Math.max(0.0D, radius));
+        record.addProperty("sensitivity", Math.max(0.0D, sensitivity));
+        record.addProperty("sourceStrength", Math.max(0.0D, Math.min(1.0D, sourceStrength)));
+        record.addProperty("sourceIntervalTicks", Math.max(0, sourceIntervalTicks));
+        record.addProperty("alertTicks", Math.max(0, alertTicks));
         record.addProperty("candidateCount", Math.max(0, candidateCount));
         record.addProperty("sourceKeyCount", Math.max(0, sourceKeyCount));
-        record.addProperty("acceptedThreshold", "alert".equals(outcome) || "investigate".equals(outcome));
+        record.addProperty("effectiveStrength", Math.max(0.0D, Math.min(1.0D, effectiveStrength)));
+        record.addProperty("acceptedThreshold", acceptedThreshold);
         record.addProperty("outcome", outcome == null ? "unavailable" : outcome);
         record.addProperty("reason", reason == null ? "unavailable" : reason);
         enqueue(active, record);

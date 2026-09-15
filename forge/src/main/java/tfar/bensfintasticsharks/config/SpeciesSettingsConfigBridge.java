@@ -58,6 +58,21 @@ public final class SpeciesSettingsConfigBridge {
                         values.get(SpeciesSettingsService.Field.DISENGAGE_DISTANCE)
                                 * config.sharkDisengageDistanceMult.get());
             }
+            values.put(SpeciesSettingsService.Field.DISTURBANCE_ENABLED,
+                    config.disturbanceEnabled.get() ? 1.0D : 0.0D);
+            values.put(SpeciesSettingsService.Field.DISTURBANCE_REACTION,
+                    (double) config.disturbanceReaction.get());
+            values.put(SpeciesSettingsService.Field.DISTURBANCE_RADIUS,
+                    config.disturbanceRadius.get());
+            values.put(SpeciesSettingsService.Field.DISTURBANCE_SENSITIVITY,
+                    config.disturbanceSensitivity.get());
+            values.put(SpeciesSettingsService.Field.DISTURBANCE_INTERVAL_TICKS,
+                    (double) config.disturbanceIntervalTicks.get());
+            values.put(SpeciesSettingsService.Field.DISTURBANCE_ALERT_TICKS,
+                    (double) config.disturbanceAlertTicks.get());
+            values.put(SpeciesSettingsService.Field.DISTURBANCE_BOAT_MOVEMENT_THRESHOLD,
+                    config.disturbanceBoatMovementThreshold.get());
+            applyLegacyDisturbanceCompatibility(values, config);
             baseline.put(species, values);
         }
         return baseline;
@@ -69,5 +84,23 @@ public final class SpeciesSettingsConfigBridge {
 
     private static boolean isShark(String species) {
         return species.endsWith("_shark");
+    }
+
+    private static void applyLegacyDisturbanceCompatibility(
+            Map<SpeciesSettingsService.Field, Double> values, BfsConfig.Common config) {
+        applyLegacyMultiplier(values, "swim_sprint", config.lightSensitivityMult.get());
+        applyLegacyMultiplier(values, "attack", config.heavySensitivityMult.get());
+        applyLegacyMultiplier(values, "damage", config.bloodSensitivityMult.get());
+        applyLegacyMultiplier(values, "block_break", config.heavySensitivityMult.get());
+        applyLegacyMultiplier(values, "fall", config.heavySensitivityMult.get());
+        applyLegacyMultiplier(values, "projectile", config.lightSensitivityMult.get());
+    }
+
+    private static void applyLegacyMultiplier(
+            Map<SpeciesSettingsService.Field, Double> values, String kind, double multiplier) {
+        SpeciesSettingsService.Field enabled = SpeciesSettingsService.disturbanceField(kind, "enabled");
+        SpeciesSettingsService.Field strength = SpeciesSettingsService.disturbanceField(kind, "strength");
+        values.put(enabled, multiplier > 0.0D ? 1.0D : 0.0D);
+        values.put(strength, Math.max(0.0D, Math.min(1.0D, values.get(strength) * multiplier)));
     }
 }

@@ -330,6 +330,17 @@ def validate_decision_events(records: list[dict[str, Any]], errors: list[str], k
             if type(value) is not int or value < 0:
                 errors.append(f"{kind} decision {index} has invalid {field}")
         if row.get("event", "").endswith(".decision"):
+            for field in ("species",):
+                if not isinstance(row.get(field), str) or not row[field]:
+                    errors.append(f"{kind} decision {index} has no {field}")
+            for field in ("settingsRevision", "sourceIntervalTicks", "alertTicks"):
+                value = row.get(field)
+                if type(value) is not int or value < 0:
+                    errors.append(f"{kind} decision {index} has invalid {field}")
+            for field in ("radius", "sensitivity", "sourceStrength", "effectiveStrength"):
+                value = row.get(field)
+                if not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0.0:
+                    errors.append(f"{kind} decision {index} has invalid {field}")
             if type(row.get("boatCorrelation")) is not bool:
                 errors.append(f"{kind} decision {index} has no boolean boatCorrelation")
             if type(row.get("acceptedThreshold")) is not bool:

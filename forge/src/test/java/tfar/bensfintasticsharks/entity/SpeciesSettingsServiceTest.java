@@ -166,4 +166,45 @@ class SpeciesSettingsServiceTest {
         assertEquals("session", SpeciesSettingsService.resolve("great_white_shark")
                 .field(SpeciesSettingsService.Field.HORIZONTAL_SPEED).source());
     }
+
+    @Test
+    void disturbanceCatalogHasTypedDefaultsAndCapabilityReasons() {
+        SpeciesSettingsService.SpeciesSnapshot shark = SpeciesSettingsService.resolve("great_white_shark");
+        assertEquals(1.0D, shark.field(SpeciesSettingsService.Field.DISTURBANCE_ENABLED).value());
+        assertEquals(24.0D, shark.field(SpeciesSettingsService.Field.DISTURBANCE_RADIUS).value());
+        assertEquals(20.0D, shark.field(SpeciesSettingsService.Field.DISTURBANCE_INTERVAL_TICKS).value());
+        assertEquals(100.0D, shark.field(SpeciesSettingsService.Field.DISTURBANCE_ALERT_TICKS).value());
+        assertEquals(0.02D, shark.field(SpeciesSettingsService.Field.DISTURBANCE_BOAT_MOVEMENT_THRESHOLD).value());
+        assertEquals(0.5D, shark.field(SpeciesSettingsService.disturbanceField("water_entry", "strength")).value());
+        assertEquals(20.0D, shark.field(SpeciesSettingsService.disturbanceField("water_entry", "interval_ticks")).value());
+        assertEquals(SpeciesSettingsService.Capability.SUPPORTED,
+                shark.field(SpeciesSettingsService.Field.DISTURBANCE_ENABLED).capability().capability());
+        assertEquals(SpeciesSettingsService.Capability.NOT_APPLICABLE,
+                SpeciesSettingsService.resolve("atlantic_cod")
+                        .field(SpeciesSettingsService.Field.DISTURBANCE_ENABLED).capability().capability());
+    }
+
+    @Test
+    void disturbanceWildcardValidationIsAtomicAndResetPreservesBaseline() {
+        long revision = SpeciesSettingsService.revision();
+        SpeciesSettingsService.Field field = SpeciesSettingsService.disturbanceField("water_entry", "strength");
+        SpeciesSettingsService.MutationResult applied = SpeciesSettingsService.apply(revision,
+                "great_white_shark", Map.of(field, 0.25D));
+        assertTrue(applied.applied());
+        long changedRevision = applied.revision();
+        SpeciesSettingsService.MutationResult rejected = SpeciesSettingsService.apply(changedRevision,
+                "*", Map.of(SpeciesSettingsService.Field.DISTURBANCE_RADIUS, 257.0D));
+        assertFalse(rejected.applied());
+        assertEquals(changedRevision, SpeciesSettingsService.revision());
+        SpeciesSettingsService.MutationResult nonIntegralReaction = SpeciesSettingsService.apply(changedRevision,
+                "great_white_shark", Map.of(SpeciesSettingsService.Field.DISTURBANCE_REACTION, 1.5D));
+        assertFalse(nonIntegralReaction.applied());
+        assertEquals(changedRevision, SpeciesSettingsService.revision());
+        SpeciesSettingsService.MutationResult reset = SpeciesSettingsService.reset(changedRevision,
+                "great_white_shark", Set.of(field));
+        assertTrue(reset.applied());
+        assertEquals("server_config", SpeciesSettingsService.resolve("great_white_shark")
+                .field(field).source());
+        assertEquals(0.5D, SpeciesSettingsService.resolve("great_white_shark").field(field).value());
+    }
 }

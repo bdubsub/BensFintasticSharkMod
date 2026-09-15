@@ -322,6 +322,9 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
                    sourceKind="water_entry", strength=0.5, positionX=1.5, positionY=2.5,
                    positionZ=3.5, boatId="unavailable", riderId="unavailable",
                    boatCorrelation=False, candidateCount=2, sourceKeyCount=1,
+                   species="great_white_shark", settingsRevision=4, radius=24.0,
+                   sensitivity=1.0, sourceStrength=0.5, sourceIntervalTicks=20,
+                   alertTicks=100, effectiveStrength=0.25,
                    acceptedThreshold=True, outcome="alert", reason="eligible_sharks"),
             record("end", 5, incomplete=False, recordsDropped=0),
         ]
