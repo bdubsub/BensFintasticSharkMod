@@ -4,7 +4,7 @@ This task connects the typed disturbance producers to the session species settin
 
 The catalog exposes the global disturbance fields and typed source fields for swim sprint, attack, damage, block break, fall, projectile, water entry, water jump, and occupied boat events. A shark uses its body water predicate during candidate selection. Boat diagnostics distinguish empty, stationary, subthreshold, duplicate, wrong dimension, and invalid passenger routes. Decision records include species, settings revision, radius, sensitivity, source strength, interval, alert lifetime, threshold acceptance, and the named rejection reason.
 
-Verification used Java 17, Forge 47.2.0, Minecraft 1.20.1, and the checked in Gradle wrapper on the headless host. The exact source worktree was `/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix` on branch `envy/bfs2-phase-003`, based on commit `cc3535127d880204d64d83df70c9681ba7dfd310`. No client or renderer was started.
+Verification used Java 17, Forge 47.2.0, Minecraft 1.20.1, and the checked in Gradle wrapper on the headless host. The exact source worktree was `/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix` on branch `envy/bfs2-phase-003`, based on commit `cc3535127d880204d64d83df70c9681ba7dfd310`. The task implementation commit is `89186be`. No client or renderer was started.
 
 Passed checks.
 
