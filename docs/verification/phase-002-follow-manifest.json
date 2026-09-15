@@ -52,13 +52,15 @@
     "capabilityId": "registry_mob_controller",
     "ownershipHooks": {
       "ordinary": "Mob.getNavigation().moveTo",
-      "smartbrainlib": "Brain WALK_TARGET via SmartBrainOwner"
+      "smartbrainlib": "Brain WALK_TARGET via SmartBrainOwner",
+      "ender_dragon": "EnderDragonPhaseManager CHARGING_PLAYER target"
     },
     "safeMotionWriters": [
       "mob_navigation",
-      "smartbrain_walk_target"
+      "smartbrain_walk_target",
+      "ender_dragon_charge"
     ],
-    "result": "ordinary_and_smartbrain_claim_release_exercised"
+    "result": "ordinary_smartbrain_and_ender_dragon_claim_release_exercised"
   },
   "activeRegistryFamilies": [
     "bensfintasticsharks:great_white_shark",
