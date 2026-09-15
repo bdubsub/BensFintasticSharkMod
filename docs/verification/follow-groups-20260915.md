@@ -101,3 +101,11 @@ The exact disposable server, client, screenshots and launcher copy were test own
 A separate retry used the same source and artifact in disposable world `bfs-p002-restart-gate-d` at `100.76.164.109:25952`. The server ran Java 17.0.19, issued a marker, saved the player and world, stopped cleanly, and restarted the same world. The reconnecting client retained the marker in the selected slot, and the server confirmed the marker owner and issuance data were present after restart.
 
 The post restart right click was attempted through the focused Xwayland window, an explicit centered pointer, repeated XTest button events and a short evdev uinput button event. The follow status stayed at zero selected members and no claim or rejection callback was captured. Because the click callback itself was not observed, this retry does not prove the stale marker rejection outcome. The restart marker invalidation gate remains open. The exact server, client, screenshots and launcher copy were removed and verified absent after the retry.
+
+## Scheduler witness fixture stability rerun
+
+Source commit `b021dcb6833fe31661092f17cebe9fc0ea59269e` contains the focused fixture stabilization. Each of the 321 scheduler witness cows is invulnerable and silent so entity cramming cannot remove a member while the test measures queue retention. The production follow manager is unchanged by this fixture adjustment.
+
+The disposable runtime `/tmp/bfsm-p002-follow-reset-20260915i` ran the `bfsfollow` namespace with 34 required tests. All 34 passed, including the 321 member retention assertion, bounded route evaluations and boss adapter coverage. The exact runtime was removed and verified absent, and no owned Gradle or GameTest process remained after completion.
+
+The rebuilt Forge artifact is `forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar`, 2,166,482 bytes with 984 archive entries. Its SHA 256 is `60b5d2bf32158a05f0bb68fc6f78d021811a081066cc8ca7c0121ce97ba87a0d` and its SHA 512 is `03bc768cd8d2dd3b5ae97c431a189441727cf90fa01ee82478cf95ae77c7645fa39accec26ed555deeb3c59c50083e0d7ace21ab775cac4a25d4737d44d010b2`. `unzip -tqq` passed. The full compile, unit test, data generation and build command passed after this source commit.
