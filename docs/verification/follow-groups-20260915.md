@@ -32,7 +32,7 @@ The final combined run finished on September 15, 2026 UTC. It used the actual `f
 |---|---|
 | Java compilation and unit tests | 61 tests in 14 suites passed, with no failures, errors or skips |
 | Data generation | Passed, with zero resources rewritten on the final generation |
-| Focused follow GameTests | All 32 required tests passed |
+| Focused follow GameTests | All 33 required tests passed, including the 321-member scheduler witness |
 | Combined follow and ordinary regressions | All 123 required tests passed, including the population soak |
 | Parser unit tests | All 21 tests passed |
 | Actual follow capture | 12 records, complete verdict, no parser errors |
@@ -40,11 +40,11 @@ The final combined run finished on September 15, 2026 UTC. It used the actual `f
 | Diff and credential checks | Passed, including the tracked text scan |
 | Final server shutdown | All dimensions saved and the process exited cleanly |
 
-The follow fixtures cover a moving 20 member group, a second owner movement without reclaiming, individual release of every member, 33 simultaneous memberships, paging, ownership conflict, reissue, held input deduplication, two feedback channels, retention beyond 2,400 ticks, marker and permission loss, slime navigation, shark route ownership against prey, controller restoration, and native fire escape. These are server fixtures. They do not prove a real client press or visible network delivery.
+The follow fixtures cover a moving 20 member group, a second owner movement without reclaiming, individual release of every member, 33 simultaneous memberships, a 321-member scheduler witness, paging, ownership conflict, reissue, held input deduplication, two feedback channels, retention beyond 2,400 ticks, marker and permission loss, slime navigation, shark route ownership against prey, controller restoration, and native fire escape. The scheduler witness observed at least one route evaluation for every member and a peak of no more than 32 route evaluations in one server tick. These are server fixtures. They do not prove a real client press or visible network delivery.
 
 The real capture came from `followCaptureWritesPrivateGroupTransitions`. Its SHA 256 is `6cd10acda68157a6fbcd62b2ee0cfecbeb929bd8804b7f53e89660ad563750da`. The independent parser verified its closing record and monotonic tick order. Raw captures were removed after validation.
 
-The disposable runtime paths were `forge/run/follow-group-20260915-gametest` and `forge/run/follow-group-20260915-data` under `/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix`. The server properties SHA 256 was `be1674eb4e13ae49fdc2904b00261af3022876a7f11051e401ccca71a2c94912`. The exact runtime accepted `eula=true` before launch. Fixtures and relative coordinates are defined in `BfsFollowGameTests.java` and its 40 by 24 by 40 empty structure.
+The disposable runtime paths were `forge/run/follow-group-20260915-gametest`, `forge/run/follow-scheduler-20260915` and `forge/run/follow-group-20260915-data` under `/mnt/hermes/projects/BFSMOD/_qa/windows-startup-fix`. The server properties SHA 256 was `be1674eb4e13ae49fdc2904b00261af3022876a7f11051e401ccca71a2c94912` for the combined run. The exact runtimes accepted `eula=true` before launch. Fixtures and relative coordinates are defined in `BfsFollowGameTests.java` and its 40 by 24 by 40 empty structure.
 
 The verified combined command was:
 

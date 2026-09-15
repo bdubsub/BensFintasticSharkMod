@@ -418,6 +418,14 @@
     "status": "server_regressions_passed_phase_open",
     "combinedRequiredGameTests": 123,
     "focusedRequiredGameTests": 32,
-    "clientInput": "unverified"
+    "clientInput": "unverified",
+    "schedulerWitness": {
+      "test": "threeHundredTwentyOneFollowersUseFairBoundedScheduler",
+      "requiredGameTests": 33,
+      "selectedMembers": 321,
+      "maxRouteEvaluationsPerTick": 32,
+      "allMembersServiced": true,
+      "result": "passed"
+    }
   }
 }

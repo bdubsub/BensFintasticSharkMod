@@ -885,6 +885,40 @@ public final class BfsFollowGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "follow_scheduler", timeoutTicks = 180)
+    public static void threeHundredTwentyOneFollowersUseFairBoundedScheduler(GameTestHelper helper) {
+        for (int x = 0; x <= 34; x++) {
+            for (int z = 0; z <= 34; z++) helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE);
+        }
+        ServerPlayer owner = makeTestPlayer(helper, "follow-scheduler", new BlockPos(2, 1, 2));
+        owner.setGameMode(GameType.CREATIVE);
+        issueAndHold(owner);
+        java.util.List<Mob> members = new java.util.ArrayList<>(321);
+        for (int i = 0; i < 321; i++) {
+            int x = 5 + (i % 18);
+            int z = 5 + (i / 18);
+            Mob mob = helper.spawn(EntityType.COW, new BlockPos(x, 1, z));
+            members.add(mob);
+            owner.stopUsingItem();
+            interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, mob));
+        }
+        helper.assertTrue(BfsFollowManager.selectedCount(owner) == 321,
+                "the scheduler witness must retain all 321 selected members");
+        helper.runAfterDelay(130, () -> {
+            BfsFollowManager.SchedulerStats stats = BfsFollowManager.schedulerStats();
+            helper.assertTrue(stats.peakPerTick() <= BfsFollowManager.MAX_ROUTES_PER_TICK,
+                    "route evaluation must stay within the per tick bound, observed " + stats.peakPerTick());
+            helper.assertTrue(stats.evaluations() >= 321,
+                    "the fair queue must service every member, observed " + stats.evaluations());
+            helper.assertTrue(BfsFollowManager.selectedCount(owner) == 321,
+                    "deferring route work must never evict a member");
+            BfsFollowManager.stop(owner, "scheduler_fixture");
+            owner.remove(Entity.RemovalReason.DISCARDED);
+            members.forEach(mob -> mob.remove(Entity.RemovalReason.DISCARDED));
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", batch = "follow_capture", timeoutTicks = 120)
     public static void followCaptureWritesPrivateGroupTransitions(GameTestHelper helper) {
         for (int x = 0; x < 16; x++) {

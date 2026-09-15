@@ -69,6 +69,10 @@ public final class BfsFollowManager {
     private static final ArrayDeque<UUID> ROUTES = new ArrayDeque<>();
     private static final Map<UUID, Boolean> USE_RESULTS = new HashMap<>();
     private static final Map<UUID, Integer> OFFLINE_CLEANUP = new HashMap<>();
+    private static long schedulerTick = Long.MIN_VALUE;
+    private static int schedulerEvaluationsThisTick;
+    private static int schedulerPeakEvaluations;
+    private static long schedulerEvaluationsTotal;
 
     private BfsFollowManager() {
     }
@@ -356,6 +360,11 @@ public final class BfsFollowManager {
         }
         int remaining = ROUTES.size();
         int evaluated = 0;
+        long currentTick = server.overworld().getGameTime();
+        if (schedulerTick != currentTick) {
+            schedulerTick = currentTick;
+            schedulerEvaluationsThisTick = 0;
+        }
         while (remaining-- > 0 && evaluated < MAX_ROUTES_PER_TICK) {
             UUID targetId = ROUTES.removeFirst();
             Lease lease = BY_TARGET.get(targetId);
@@ -370,6 +379,9 @@ public final class BfsFollowManager {
             if (lease.lastRoute >= 0 && tick - lease.lastRoute < (lease.reason.equals("no_route") ? 20 : ROUTE_INTERVAL_TICKS)) continue;
             route(lease, owner, mob, tick);
             evaluated++;
+            schedulerEvaluationsThisTick++;
+            schedulerEvaluationsTotal++;
+            schedulerPeakEvaluations = Math.max(schedulerPeakEvaluations, schedulerEvaluationsThisTick);
         }
         USE_RESULTS.keySet().removeIf(id -> {
             ServerPlayer owner = findPlayer(server, id);
@@ -547,6 +559,10 @@ public final class BfsFollowManager {
         ISSUED.clear();
         USE_RESULTS.clear();
         OFFLINE_CLEANUP.clear();
+        schedulerTick = Long.MIN_VALUE;
+        schedulerEvaluationsThisTick = 0;
+        schedulerPeakEvaluations = 0;
+        schedulerEvaluationsTotal = 0;
     }
 
     public record IssueResult(UUID issueId, boolean replacedLease) {}
@@ -556,6 +572,12 @@ public final class BfsFollowManager {
                          long revision, int page, int pages, List<MemberStatus> entries) {}
 
     public record MemberStatus(UUID targetId, int alias, Component label, String state, String reason, long age) {}
+
+    public record SchedulerStats(long evaluations, int peakPerTick, int currentTickEvaluations) {}
+
+    public static SchedulerStats schedulerStats() {
+        return new SchedulerStats(schedulerEvaluationsTotal, schedulerPeakEvaluations, schedulerEvaluationsThisTick);
+    }
 
     private record Issuance(UUID issueId) {}
 
