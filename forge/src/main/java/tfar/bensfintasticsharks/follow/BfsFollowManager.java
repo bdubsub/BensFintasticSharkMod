@@ -70,7 +70,7 @@ public final class BfsFollowManager {
     private static final Map<UUID, Group> BY_OWNER = new HashMap<>();
     private static final Map<UUID, Lease> BY_TARGET = new LinkedHashMap<>();
     private static final ArrayDeque<UUID> ROUTES = new ArrayDeque<>();
-    private static final Map<UUID, Boolean> USE_RESULTS = new HashMap<>();
+    private static final Map<UUID, UseSession> USE_RESULTS = new HashMap<>();
     private static final Map<UUID, Integer> OFFLINE_CLEANUP = new HashMap<>();
     private static long schedulerTick = Long.MIN_VALUE;
     private static int schedulerEvaluationsThisTick;
@@ -212,8 +212,10 @@ public final class BfsFollowManager {
         }
         if (!(event.getEntity() instanceof ServerPlayer owner)) return;
         Entity target = resolveTarget(clicked);
+        UseSession useSession = USE_RESULTS.get(owner.getUUID());
+        UUID targetId = target == null ? null : target.getUUID();
         boolean heldRepeat = owner.isUsingItem() && owner.getUseItem().is(ModItems.FOLLOW_STICK)
-                && USE_RESULTS.containsKey(owner.getUUID());
+                && useSession != null && targetId != null && useSession.handledTargets.containsKey(targetId);
         String denied = !hasPermission(owner) ? "permission_denied"
                 : !validMarkerWithoutDiagnostics(owner, event.getItemStack()) ? "invalid_stick"
                 : !(target instanceof Mob mob) || !mob.isAlive() || mob.isRemoved() ? "unsupported_target"
@@ -225,9 +227,12 @@ public final class BfsFollowManager {
             } else {
                 reject(owner, target, denied);
             }
-            USE_RESULTS.put(owner.getUUID(), accepted);
+            useSession = USE_RESULTS.computeIfAbsent(owner.getUUID(), ignored -> new UseSession());
+            if (targetId != null) {
+                useSession.handledTargets.put(targetId, accepted);
+            }
         } else {
-            accepted = denied == null && USE_RESULTS.get(owner.getUUID());
+            accepted = useSession.handledTargets.getOrDefault(targetId, false);
         }
         owner.startUsingItem(event.getHand());
         event.setCancellationResult(accepted ? InteractionResult.SUCCESS : InteractionResult.FAIL);
@@ -612,6 +617,11 @@ public final class BfsFollowManager {
     }
 
     private record Issuance(UUID issueId) {}
+
+    /** Targets handled during one continuous use action, so duplicate callbacks do not retoggle. */
+    private static final class UseSession {
+        private final Map<UUID, Boolean> handledTargets = new HashMap<>();
+    }
 
     private static final class Group {
         private final Map<UUID, Lease> members = new LinkedHashMap<>();

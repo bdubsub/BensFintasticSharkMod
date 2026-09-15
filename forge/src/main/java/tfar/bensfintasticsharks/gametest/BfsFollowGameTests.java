@@ -228,6 +228,43 @@ public final class BfsFollowGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "follow_claim", timeoutTicks = 40)
+    public static void heldPressAddsDistinctMembersAndReportsEachAction(GameTestHelper helper) {
+        ServerPlayer owner = makeTestPlayer(helper, "follow-group-held", new BlockPos(2, 2, 2));
+        Mob first = helper.spawn(EntityType.COW, new BlockPos(4, 2, 2));
+        Mob second = helper.spawn(EntityType.SHEEP, new BlockPos(7, 2, 2));
+        issueAndHold(owner);
+        FeedbackPlayer feedback = (FeedbackPlayer) owner;
+        feedback.receipts.clear();
+
+        interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, first));
+        helper.assertTrue(BfsFollowManager.selectedCount(owner) == 1,
+                "the first held press must select its mob");
+        assertReceiptPair(helper, feedback, "bfs.follow.selected");
+
+        interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, second));
+        helper.assertTrue(BfsFollowManager.selectedCount(owner) == 2,
+                "a different mob must be selectable during the same held use action");
+        helper.assertTrue(feedback.receipts.size() == 4,
+                "each distinct selected mob must produce one chat and one action bar receipt");
+        assertLatestReceiptPair(helper, feedback, "bfs.follow.selected");
+
+        interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, second));
+        helper.assertTrue(BfsFollowManager.selectedCount(owner) == 2 && feedback.receipts.size() == 4,
+                "duplicate callbacks for one held target must not retoggle or duplicate feedback");
+
+        owner.releaseUsingItem();
+        interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, second));
+        helper.assertTrue(BfsFollowManager.selectedCount(owner) == 1,
+                "a fresh press must release only the clicked member");
+        assertLatestReceiptPair(helper, feedback, "bfs.follow.released");
+        BfsFollowManager.stopAll(owner, "held_group_fixture");
+        owner.remove(Entity.RemovalReason.DISCARDED);
+        first.remove(Entity.RemovalReason.DISCARDED);
+        second.remove(Entity.RemovalReason.DISCARDED);
+        helper.succeed();
+    }
+
     @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 100)
     public static void followCowNavigatesToOwner(GameTestHelper helper) {
         for (int x = 0; x <= 12; x++) {
@@ -1069,9 +1106,18 @@ public final class BfsFollowGameTests {
 
     private static void assertReceiptPair(GameTestHelper helper, FeedbackPlayer owner, String key) {
         helper.assertTrue(owner.receipts.size() == 2, "one explicit action must emit exactly two channel receipts");
-        helper.assertTrue(!owner.receipts.get(0).overlay() && owner.receipts.get(1).overlay(),
+        assertReceiptPairContents(helper, owner.receipts.subList(0, 2), key);
+    }
+
+    private static void assertLatestReceiptPair(GameTestHelper helper, FeedbackPlayer owner, String key) {
+        helper.assertTrue(owner.receipts.size() >= 2, "an explicit action must emit both channel receipts");
+        assertReceiptPairContents(helper, owner.receipts.subList(owner.receipts.size() - 2, owner.receipts.size()), key);
+    }
+
+    private static void assertReceiptPairContents(GameTestHelper helper, java.util.List<Receipt> receipts, String key) {
+        helper.assertTrue(!receipts.get(0).overlay() && receipts.get(1).overlay(),
                 "the result must reach chat and the action bar");
-        for (Receipt receipt : owner.receipts) {
+        for (Receipt receipt : receipts) {
             helper.assertTrue(receipt.text().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text
                             && text.getKey().equals(key), "feedback must describe the actual outcome using a localized component, expected " + key + ", actual " + receipt.text().getContents());
         }

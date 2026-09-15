@@ -75,7 +75,7 @@ The active status line and terminal record expose the p95 nanoseconds spent in t
 
 ## Follow debug leases
 
-The follow tool uses server authority and permission level two. Issue a reusable marker to the command sender or another online player. Click each living mob to add it to the group. Release the use button before clicking again; a fresh click on a selected mob releases only that member.
+The follow tool uses server authority and permission level two. Issue a reusable marker to the command sender or another online player. Click each living mob to add it to the group. A held press is deduplicated per target, so you can add another mob without releasing the button. Release the use button before clicking a selected mob again; a fresh click on that mob releases only it.
 
 ```text
 /bfs debug followme [recipient]
