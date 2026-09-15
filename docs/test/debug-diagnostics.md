@@ -75,7 +75,7 @@ The active status line and terminal record expose the p95 nanoseconds spent in t
 
 ## Dive capture
 
-The `dive` category requires explicit player targets in the command source dimension. It records pseudonymous player state once per server tick while the capture is active. A record contains the four piece and fluid predicate, movement and oxygen modes, remaining reserve, schema and revision, jump state, position, velocity, normal air supply, and tick count.
+The `dive` category requires explicit player targets in the command source dimension. It records pseudonymous player state once per server tick while the capture is active. A record contains the four piece and fluid predicate, movement and oxygen modes, remaining reserve, `oxygenSchema` and revision, jump state, position, velocity, normal air supply, and tick count.
 
 ```text
 /bfs debug on dive 600 <player>

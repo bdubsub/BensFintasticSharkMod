@@ -1030,6 +1030,8 @@ public final class BfsGameTests {
                         "dive diagnostics must record the selected oxygen mode");
                 helper.assertTrue(contents.contains("\"revision\":"),
                         "dive diagnostics must record the synchronization revision");
+                helper.assertTrue(contents.contains("\"oxygenSchema\":"),
+                        "dive diagnostics must record the oxygen schema separately from the capture schema");
                 helper.assertTrue(contents.contains("\"player\":\"player_"),
                         "dive diagnostics must pseudonymize the player");
                 helper.assertTrue(!contents.contains(rawUuid),

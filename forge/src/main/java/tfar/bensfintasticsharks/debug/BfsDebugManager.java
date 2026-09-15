@@ -461,7 +461,7 @@ public final class BfsDebugManager {
         record.addProperty("refilled", refilled);
         record.addProperty("transition", transition);
         record.addProperty("reason", reason);
-        record.addProperty("schema", DiveOxygenManager.schema(player));
+        record.addProperty("oxygenSchema", DiveOxygenManager.schema(player));
         record.addProperty("revision", DiveOxygenManager.revision(player));
         enqueue(active, record);
     }
@@ -493,7 +493,7 @@ public final class BfsDebugManager {
         record.addProperty("afterVelocityY", afterVelocity.y);
         record.addProperty("afterVelocityZ", afterVelocity.z);
         record.addProperty("movementMode", applied ? "seabed" : "vanilla");
-        record.addProperty("schema", DiveOxygenManager.schema(player));
+        record.addProperty("oxygenSchema", DiveOxygenManager.schema(player));
         record.addProperty("revision", DiveOxygenManager.revision(player));
         enqueue(active, record);
     }
@@ -517,7 +517,7 @@ public final class BfsDebugManager {
         record.addProperty("result", result);
         record.addProperty("reason", reason);
         record.addProperty("eligible", DiveSuitEligibility.evaluate(player).eligible());
-        record.addProperty("schema", DiveOxygenManager.schema(player));
+        record.addProperty("oxygenSchema", DiveOxygenManager.schema(player));
         record.addProperty("revision", DiveOxygenManager.revision(player));
         enqueue(active, record);
     }
@@ -1132,7 +1132,7 @@ public final class BfsDebugManager {
         record.addProperty("movementMode", eligibility.eligible() ? "seabed" : "vanilla");
         record.addProperty("oxygenMode", diveOxygenMode(player, eligibility));
         record.addProperty("remainingTicks", DiveOxygenManager.readReserve(player));
-        record.addProperty("schema", DiveOxygenManager.schema(player));
+        record.addProperty("oxygenSchema", DiveOxygenManager.schema(player));
         record.addProperty("revision", DiveOxygenManager.revision(player));
         record.addProperty("onGround", player.onGround());
         record.addProperty("jumping", ((LivingEntityJumpingAccessor) player).bfs$isJumping());
