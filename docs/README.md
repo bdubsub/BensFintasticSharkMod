@@ -2,6 +2,7 @@
 
 * [Project overview and setup](../README.md)
 * [Installed Forge compatibility fixture](test/packaged-compatibility.md)
+* [Final server regression and package verification](verification/phase-007/final-server-verification-20260916.md)
 * [Follow groups and feedback verification](verification/follow-groups-20260915.md)
 * [Held follow group verification](verification/follow-held-group-20260915.md)
 * [Phase 006 follow group regression](verification/phase-006/follow-group-regression-20260915.md)
