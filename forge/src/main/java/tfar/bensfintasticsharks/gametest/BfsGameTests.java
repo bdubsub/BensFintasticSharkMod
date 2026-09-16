@@ -2007,15 +2007,18 @@ public final class BfsGameTests {
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         // Water entry is a separate disturbance signal. Reset that fixture signal so this
         // test only observes whether the dropped item itself can start curiosity.
-        shark.setSharkState(TigerSharkEntity.SharkState.IDLE);
-        shark.setStateTimer(0);
-        helper.runAfterDelay(80, () -> {
-            helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
-                    "non edible item must not enter curiosity state");
-            helper.assertTrue(nonEdible.isAlive() && nonEdible.getItem().is(Items.STONE)
-                            && nonEdible.getItem().getCount() == 1,
-                    "non edible item must remain untouched");
-            helper.succeed();
+        helper.runAfterDelay(2, () -> {
+            // Let the shark's own water entry signal settle before isolating the item scan.
+            shark.setSharkState(TigerSharkEntity.SharkState.IDLE);
+            shark.setStateTimer(0);
+            helper.runAfterDelay(80, () -> {
+                helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
+                        "non edible item must not enter curiosity state");
+                helper.assertTrue(nonEdible.isAlive() && nonEdible.getItem().is(Items.STONE)
+                                && nonEdible.getItem().getCount() == 1,
+                        "non edible item must remain untouched");
+                helper.succeed();
+            });
         });
     }
 
