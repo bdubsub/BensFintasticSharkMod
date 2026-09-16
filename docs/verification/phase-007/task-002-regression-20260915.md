@@ -23,3 +23,5 @@ The installed Forge ordinary and doubled performance matrix, final laptop residu
 ## candidate repair amendment
 
 The original regression packet remains bound to its 20260915 candidate and is not reused after the phase branch changed. The repaired source passed the affected first party GameTest namespaces separately with all 145 required tests passing, including disturbance, dive, movement and follow coverage. The full phase regression and client residual gates remain open until the repaired candidate identity is replayed on the required hosts.
+
+The later isolated rechecks reproduced the result with 95 main species tests and 7 disturbance tests passing on the repaired source. The combined graph also confirms that the pinned third party test requires its separately packaged Alex's Mobs and Citadel runtime, which is intentionally absent from the Forge userdev classpath. Its production client and server evidence remains the authoritative third party fixture. A combined graph social route failure did not reproduce in the isolated main namespace and is retained as an ordering or host load observation rather than accepted as a pass.
