@@ -36,6 +36,10 @@ The final laptop run used the isolated Prism instance on `envision`, an NVIDIA G
 
 The analyzer now accepts non applicable render hashes as absent for explicitly unavailable non thresher observations while retaining strict checks for selected resources. Its focused suite passes 31 tests.
 
+## Lifecycle matrix follow up
+
+The latest source commit `a2213a7` added a focused seven test `bfsdive` matrix for Water Breathing pause, Respiration compatibility, real air refill, creative and spectator exclusion, partial equipment, bubble column behavior, and clone reserve and revision persistence. The matrix passed together with the uninterrupted 7,200 tick witness. It caught a real mode boundary defect where full suits in creative or spectator mode could still consume reserve ticks; the oxygen manager now leaves reserve transitions and oxygen mode vanilla for those modes. The rebuilt candidate artifact is recorded in [the current artifact evidence](artifact-20260915.md).
+
 ## Cleanup
 
 The disposable GameTest runtimes were removed after their final consumers and verified absent. Protected `forge/logs/` and `performance-matrix-20260912-interval50/` directories were left untouched. No laptop client evidence was created by this server-only run.
