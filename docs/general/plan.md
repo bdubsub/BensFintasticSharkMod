@@ -56,6 +56,7 @@ The subject is the complete repair and operator tuning experience in the Forge m
 | SRC-110 | repository_evidence | Pinned current diagnostic manager, parser and support guide | Pinned current diagnostic manager, parser and support guide | Evidence only, subordinate to owner requirements |
 | SRC-111 | owner_request | Follow group and feedback amendment | Owner request for independent selections and visible feedback | Scope authority |
 | SRC-112 | repository_evidence | Follow ownership, arrival and feedback paths | Follow manager and tests at faccaf58ffeb6c1d7b857c9c702a970d78062316 | Evidence only, subordinate to owner requirements |
+| SRC-113 | owner_request | Performance and laptop verification deferral | Owner request to defer performance and laptop work and continue | Scope authority |
 
 ## 3. Purpose and Intended Outcome
 
@@ -124,9 +125,9 @@ Inputs are authorized commands, actual game interactions, entity registrations, 
 - BFS2-REQ-017: Four dive armor items preserve supplied item PNGs and use the supplied JPEG worn atlas with verified geometry and UV mapping, with no crafting recipes.
 - BFS2-REQ-018: Complete suit underwater enables seabed walking and moonlike buoyant jumping, suppresses swim pose/ascent, and removes only water work penalties.
 - BFS2-REQ-019: Full suit supplies 6000 protected submerged ticks of oxygen, refills in real air, persists against swap/reconnect exploits, and retains movement while normal drowning begins when empty.
-- BFS2-REQ-020: Resolve measured performance regression by evidence guided work and complete ordinary/doubled installed Forge comparison at the retained threshold.
-- BFS2-REQ-021: Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final regression evidence.
-- BFS2-REQ-022: Extend existing diagnostics and support workflows for every new behavior, prove permissions, completeness, overhead and cleanup, and keep visual acceptance on the verified silent laptop.
+- BFS2-REQ-020: Deferred under DEC-012. Preserve performance history and existing repairs without further profiling or ordinary/doubled installed Forge comparison as an endpoint gate.
+- BFS2-REQ-021: Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final server regression evidence. Performance and laptop verification are deferred under DEC-012.
+- BFS2-REQ-022: Extend existing diagnostics and support workflows for every new behavior and prove permissions, completeness, work bounds, off/on gameplay parity and cleanup. Measured overhead and laptop verification are deferred under DEC-012.
 
 ## 7. Optional / Future Scope
 
@@ -134,6 +135,9 @@ Inputs are authorized commands, actual game interactions, entity registrations, 
 - FUT-002: Final subjective swim speed balance for each species. Disposition: excluded. The owner performs final tuning and records values manually.
 - FUT-003: Named tuning profile library and import/export. Disposition: excluded. Owner chooses manual tuning and handwritten transfer.
 - FUT-004: Public release publication. Disposition: excluded. Owner accepts merged testing JAR endpoint.
+
+- FUT-005: Performance investigation, benchmark comparison and measured diagnostic overhead acceptance. Disposition: excluded. DEC-012 defers this work and preserves historical results.
+- FUT-006: Laptop and graphical client verification. Disposition: excluded. DEC-012 defers physical input, presentation and client receipt checks.
 
 ## 8. Non-Goals
 
@@ -157,7 +161,7 @@ Inputs are authorized commands, actual game interactions, entity registrations, 
 ### DEC-002 — Which worn armor art is authoritative
 
 **Status:** RESOLVED  
-**Selected choice:** Use the four supplied item PNGs and supplied JPEG worn atlas. Preserve their source identities, create compatible geometry and UV mapping, and validate the rendered result without silently repainting the art.  
+**Selected choice:** Use the four supplied item PNGs and supplied JPEG worn atlas. Preserve their source identities, create compatible geometry and UV mapping, and validate static asset mapping without silently repainting the art. Rendered verification is deferred under DEC-012.  
 **Rationale:** Current owner scope and resolved operating boundaries govern this pass.  
 **Affected requirements:** BFS2-REQ-017  
 **Supersedes:** none
@@ -165,7 +169,7 @@ Inputs are authorized commands, actual game interactions, entity registrations, 
 ### DEC-003 — What is the completion endpoint
 
 **Status:** RESOLVED  
-**Selected choice:** All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded.  
+**Selected choice:** All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded. Performance and laptop verification are deferred under DEC-012 and are not completion prerequisites.  
 **Rationale:** Current owner scope and resolved operating boundaries govern this pass.  
 **Affected requirements:** BFS2-REQ-021  
 **Supersedes:** none
@@ -197,7 +201,7 @@ Inputs are authorized commands, actual game interactions, entity registrations, 
 ### DEC-007 — Where do verification workloads run
 
 **Status:** RESOLVED  
-**Selected choice:** Headless checks and disposable dedicated servers run on node-1. Minecraft clients run only on the verified Linux laptop with its discrete GPU and verified silent application stream. No graphical node-1 fallback.  
+**Selected choice:** Headless checks and disposable dedicated servers run on node-1. Client verification and laptop access are deferred under DEC-012. If later restored by the owner, clients run only on the verified Linux laptop with its discrete GPU and verified silent application stream. No graphical node-1 fallback.  
 **Rationale:** Current owner scope and resolved operating boundaries govern this pass.  
 **Affected requirements:** BFS2-REQ-008, BFS2-REQ-010, BFS2-REQ-012, BFS2-REQ-013, BFS2-REQ-017, BFS2-REQ-018, BFS2-REQ-019, BFS2-REQ-021, BFS2-REQ-022  
 **Supersedes:** none
@@ -236,28 +240,35 @@ Inputs are authorized commands, actual game interactions, entity registrations, 
 
 DEC-011 replaces the earlier engineering defaults for one follower per operator, the server selection cap, arrival release, automatic lifetime expiry, and release on recoverable route, range or held item changes. DEC-005 continues to govern mob coverage. Security and required lifecycle cleanup remain in force.
 
+### DEC-012 — Which verification work remains required for the testing JAR
+
+**Status:** RESOLVED  
+**Selected choice:** Defer performance investigation, profiling, ordinary and doubled benchmark comparisons, and measured diagnostic overhead acceptance. Defer all laptop and graphical client verification, including physical input, rendering, animation, HUD and multiplayer receipt checks. These checks are excluded from this testing JAR endpoint. Preserve their stable IDs, procedures and historical results without claiming a pass. Keep gameplay fixes, diagnostic work bounds and off/on behavior parity, real server and third party compatibility tests, resource and artifact checks, cleanup, checked merge commits, verified default, signed tags and delivery mandatory. Do not launch a client for this pass or require laptop access. The deferred procedures require a later owner request before execution.  
+**Rationale:** The owner explicitly removed performance and laptop work from this pass and requested continued execution.  
+**Affected requirements:** BFS2-REQ-006, BFS2-REQ-008, BFS2-REQ-009, BFS2-REQ-010, BFS2-REQ-011, BFS2-REQ-012, BFS2-REQ-013, BFS2-REQ-014, BFS2-REQ-015, BFS2-REQ-016, BFS2-REQ-017, BFS2-REQ-018, BFS2-REQ-019, BFS2-REQ-020, BFS2-REQ-021, BFS2-REQ-022  
+**Supersedes:** Performance and laptop verification portions of DEC-002, DEC-003 and DEC-007; all other product and operational choices remain unchanged.
+
 Routine engineering defaults in the shared contracts implement these choices. They do not promote optional work. They specify units, safety bounds, oxygen refill and death handling, kelp style growth, and item mechanics so execution does not require another product design pass.
 
 ## 10. External Prerequisites
 
 | ID | Prerequisite | Affected requirements | Availability | Authorization | Required external action |
 |---|---|---|---|---|---|
-| EXT-001 | Existing laptop and private desktop control capability | BFS2-REQ-008, BFS2-REQ-010, BFS2-REQ-012, BFS2-REQ-013, BFS2-REQ-017, BFS2-REQ-018, BFS2-REQ-019, BFS2-REQ-021, BFS2-REQ-022 | available | authorized | Revalidate the specific capability before its dependent gate; restore existing access if it fails. |
+| EXT-001 | Existing laptop and private desktop control capability | BFS2-REQ-008, BFS2-REQ-010, BFS2-REQ-012, BFS2-REQ-013, BFS2-REQ-017, BFS2-REQ-018, BFS2-REQ-019, BFS2-REQ-021, BFS2-REQ-022 | available | authorized | Deferred under DEC-012. No external action is required for this endpoint. |
 | EXT-002 | Existing repository write and registered signing capability | BFS2-REQ-001, BFS2-REQ-020, BFS2-REQ-021 | available | authorized | Revalidate the specific capability before its dependent gate; restore existing access if it fails. |
 
 ### EXT-001: Evidence contract
 
 **Kind:** environment  
-**Mandatory for endpoint:** true  
+**Mandatory for endpoint:** false  
 **Availability:** available  
 **Authorization:** authorized  
 **Blocked plan approved:** false
 
 **Required evidence**
 
-- Recheck laptop identity, active desktop and discrete candidate renderer before launch.
-- Bind exact owned window/PID and mute only its application stream; verify mute and recreation cleanup.
-- Discover its project anchor and verify matching candidate and private dedicated-server connection.
+- Deferred under DEC-012. No laptop access or client launch is required for this endpoint. Historical client evidence retains its original result.
+- If a later owner request restores client verification, apply the host, matching artifact, private connection, exact application mute and cleanup procedure in Section 14 before launch.
 
 ### EXT-002: Evidence contract
 
@@ -408,7 +419,7 @@ Arrival, acceleration, turn feasibility and safety may reduce powered velocity a
 
 Priority is collision/breathing/survival recovery, then explicit follow lease, then existing combat, then noncombat boat interest, then ordinary navigation. Do not globally erase combat memories; suspended owned intents expire or resume through their normal validity checks. Precompute conservative per species body and dorsal fin envelopes from supplied geometry, pivots and animation extrema. Include scale, belly, snout, tail and turning/pitch sweep; AABB center or static entity box alone cannot prove mesh clearance. Use full body volume against actual fluid shapes and solid shapes, including flowing water, waterlogged obstacles, steps, slopes, ceilings and uneven local surface. Partition the body and dorsal fin so only the fin may break the surface for boat intent. No hot path vertex traversal.
 
-Movement samples/substeps cover at most 0.25 block translation or five degrees of rotation between swept envelope checks, with at most 32 bounded steps per tick. If a proposed motion needs more work, shorten it safely and report `WORK_BUDGET`. A finite solver validates segment geometry and fluid occupancy conservatively between samples. Surface or route failure selects a safe wet waypoint or brakes within the last safe region; it never force teleports through a wall or leaves powered flight. Lack of progress for the configured stall window causes bounded replan attempts then yields ordinary safe recovery, with a terminal reason and no endless oscillation. Client interpolation and scaled render pose must remain within the accepted conservative envelope; corresponding laptop evidence is mandatory.
+Movement samples/substeps cover at most 0.25 block translation or five degrees of rotation between swept envelope checks, with at most 32 bounded steps per tick. If a proposed motion needs more work, shorten it safely and report `WORK_BUDGET`. A finite solver validates segment geometry and fluid occupancy conservatively between samples. Surface or route failure selects a safe wet waypoint or brakes within the last safe region; it never force teleports through a wall or leaves powered flight. Lack of progress for the configured stall window causes bounded replan attempts then yields ordinary safe recovery, with a terminal reason and no endless oscillation. Client interpolation and scaled render pose must remain within the accepted conservative envelope; corresponding laptop evidence is deferred under DEC-012.
 
 #### IFC-004: Temporary mob follow group
 
@@ -574,7 +585,7 @@ Choose two bounded patch attempts for each existing one attempt placement opport
 
 Preserve historical evidence as history. Baseline source `692962f25b5b5eda65cc41fe1073c316668fd4c0` and JAR SHA 256 `c0c1f50ade56a35ccc7590d8196605467634ae86483987163f2a08f613939ff4` remain separate from rejected source `89a8daf03976cc3005da65e90418a687ccf34b5d` and delivered JAR `ac509f173563582485bb041f08cf75c827200110e2a73fb6b5b214f80906872a`. Original artifact `94bfe2c8b45fc54505d42b63d026e203086959c34bb28325da3cf762c46578bd` retains its original identity. The failed 22400 tick prefix with 1833 exceedances cannot pass a 36000 tick nearest rank p95 gate allowing only 1800 exceedances. Never splice a new candidate into that capture.
 
-Performance acceptance uses the existing installed production Forge harness, seed 240024, all 22 species, ordinary target 63 and doubled target 126, actual predation and identical replenishment policy, no connected player, 2400 warmup and 36000 contiguous measured ticks per case. Run baseline and candidate at both populations with exact environment parity. Candidate p95 must be at most 110 percent of its paired baseline in both populations. The retained ordinary reference p95 is 6.944770 ms and unchanged limit 7.639247 ms; under the retained environment the new candidate must also meet that original limit. Report mean/p50/p95/p99, heap trend, population time series, death/replenishment and work counters. Lower actual workload, missing species, incomplete capture, duplicate/missing ticks, altered observer, warmup mismatch or hidden population churn invalidates comparison. Profiling is separate from acceptance. Preserve workload and behavior rather than disable predation, cap counts or delete expensive safety checks to meet the threshold.
+Deferred performance reference under DEC-012. If restored by a later owner request, performance acceptance uses the existing installed production Forge harness, seed 240024, all 22 species, ordinary target 63 and doubled target 126, actual predation and identical replenishment policy, no connected player, 2400 warmup and 36000 contiguous measured ticks per case. Run baseline and candidate at both populations with exact environment parity. Candidate p95 must be at most 110 percent of its paired baseline in both populations. The retained ordinary reference p95 is 6.944770 ms and unchanged limit 7.639247 ms; under the retained environment the new candidate must also meet that original limit. Report mean/p50/p95/p99, heap trend, population time series, death/replenishment and work counters. Lower actual workload, missing species, incomplete capture, duplicate/missing ticks, altered observer, warmup mismatch or hidden population churn invalidates comparison. Profiling is separate from acceptance. Preserve workload and behavior rather than disable predation, cap counts or delete expensive safety checks to meet the threshold.
 
 ### 11.4 Failures and trust boundaries
 
@@ -594,7 +605,7 @@ No arbitrary NBT, player names, chat, credentials or private network endpoints e
 
 ## 12. Requirements
 
-Each requirement is declared once here. Its canonical implementation phase is unique; other phases contribute regressions and final evidence without owning a duplicate requirement. All acceptance criteria are target criteria, not executed results.
+Each requirement is declared once here. DEC-012 defers every performance and laptop evidence portion below, while preserving functional and resource requirements. Its canonical implementation phase is unique; other phases contribute regressions and final evidence without owning a duplicate requirement. All acceptance criteria are target criteria, not executed results.
 
 ### BFS2-REQ-001 — Current source and truthful open work
 
@@ -614,7 +625,7 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 **Required evidence**
 
-- Read complete PR, issue and review state, source and artifact manifests, Git ancestry and exact diff. Retain the baseline reconciliation record and owned action mapping. The complete performance pass, PR29 merge, issue closure, resulting default verification and signed tag remain mandatory in BFS2-REQ-020 and P000-TASK-005 at the Phase 000 exit; completing this prerequisite does not waive any of those gates.
+- Read complete PR, issue and review state, source and artifact manifests, Git ancestry and exact diff. Retain the baseline reconciliation record and owned action mapping. Historical performance results remain bound to their original candidates. DEC-012 defers further performance work; PR29 reconciliation, resulting default verification and signed tag obligations remain under P000-TASK-005. Issue28 may retain a deferred performance concern without blocking this endpoint.
 
 ### BFS2-REQ-002 — Discoverable atomic session tuning
 
@@ -716,6 +727,8 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 - Capability manifest compared to existing config/species fields, actual policy/cooldown/prey tests, repeated save/load and join with fractional health, scale collision rejection and silent laptop visual dimensions proof.
 
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
+
 ### BFS2-REQ-007 — Disturbance tuning and explanations
 
 **Behavior:** Extend IFC-002 with every IFC-005 source, radius, sensitivity, rate, eligibility and reaction field.  
@@ -742,7 +755,7 @@ Each requirement is declared once here. Its canonical implementation phase is un
 **Owner:** Follow controller  
 **Canonical phase:** BFS2-PHASE-002  
 **Contributors:** Follow interactions and controller adapters and final regression verification as referenced in the task IDs.  
-**Dependencies:** BFS2-REQ-002, BFS2-REQ-003, BFS2-REQ-010, EXT-001  
+**Dependencies:** BFS2-REQ-002, BFS2-REQ-003, BFS2-REQ-010  
 **Lifecycle stage:** change  
 **Production verification:** none  
 **Release impact:** stable release  
@@ -755,6 +768,8 @@ Each requirement is declared once here. Its canonical implementation phase is un
 **Required evidence**
 
 - P002-TASK-001 compatibility experiment and manifest, real server interaction tests with independently controlled non BFS fixture and an actual pinned third party artifact, Ender Dragon/Wither cases, and laptop right click/input proof.
+
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
 
 ### BFS2-REQ-009 — Follow restoration and lifecycle
 
@@ -776,13 +791,15 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 - Real lifecycle and serialization tests for each adapter family, two operator groups, blocked pause and recovery, arrival/resume, deliberate toggles and held input deduplication, group size and fair scheduling witness, targeted/group stop, and same tick removal. Actual laptop evidence verifies both feedback channels, input and reconnect cleanup.
 
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
+
 ### BFS2-REQ-010 — Whole body shark movement safety
 
 **Behavior:** Use IFC-003 scaled body and fin envelopes for pursuit, turn, pitch, surface, seabed and recovery.  
 **Owner:** Aquatic movement  
 **Canonical phase:** BFS2-PHASE-001  
 **Contributors:** Aquatic movement and renderer contract and final regression verification as referenced in the task IDs.  
-**Dependencies:** BFS2-REQ-003, BFS2-REQ-004, BFS2-REQ-006, EXT-001  
+**Dependencies:** BFS2-REQ-003, BFS2-REQ-004, BFS2-REQ-006  
 **Lifecycle stage:** change  
 **Production verification:** none  
 **Release impact:** stable release  
@@ -795,6 +812,8 @@ Each requirement is declared once here. Its canonical implementation phase is un
 **Required evidence**
 
 - Server swept geometry/property tests plus live pursuit fixtures at open surface, shallow seabed, slope, wall, ceiling, flowing fluid and waterlogged obstruction. Silent laptop proof includes snout/tail/belly and interpolated pitch at minimum/default/maximum scales and high valid anisotropic speed.
+
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
 
 ### BFS2-REQ-011 — Actual jumping and boats alert sharks
 
@@ -816,13 +835,15 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 - Actual server transition and moving boat event fixtures, not only direct handler calls or forced disturbance commands; bounded source/removal/load tests and one actual laptop ride/jump sequence for input integration.
 
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
+
 ### BFS2-REQ-012 — Safe Great White boat interest
 
 **Behavior:** Track eligible boats from behind under IFC-005 while preserving body submersion and only safe fin exposure.  
 **Owner:** Shark intent arbitration  
 **Canonical phase:** BFS2-PHASE-003  
 **Contributors:** Shark intent arbitration and surface route and final regression verification as referenced in the task IDs.  
-**Dependencies:** BFS2-REQ-010, BFS2-REQ-011, BFS2-REQ-009, EXT-001  
+**Dependencies:** BFS2-REQ-010, BFS2-REQ-011, BFS2-REQ-009  
 **Lifecycle stage:** change  
 **Production verification:** none  
 **Release impact:** stable release  
@@ -836,13 +857,15 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 - Real event-to-intent server chain, trajectory/clearance/priority assertions and paired laptop fin/body/boat visuals under actual player boat control; recovery and no damage evidence.
 
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
+
 ### BFS2-REQ-013 — Original Zippy lightning and glow
 
 **Behavior:** Restore existing authored markings at normal light and intended glow in darkness without changing supplied pixels.  
 **Owner:** Common Thresher rendering  
 **Canonical phase:** BFS2-PHASE-004  
 **Contributors:** Common Thresher rendering and final regression verification as referenced in the task IDs.  
-**Dependencies:** BFS2-REQ-022, EXT-001  
+**Dependencies:** BFS2-REQ-022  
 **Lifecycle stage:** change  
 **Production verification:** none  
 **Release impact:** stable release  
@@ -855,6 +878,8 @@ Each requirement is declared once here. Its canonical implementation phase is un
 **Required evidence**
 
 - Exact texture hash and layer/resource tests, diagnostics proving actual variant/layer/brightness choice, and silent laptop targeted daylight/dark/reload screenshots with preserved original art comparison.
+
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
 
 ### BFS2-REQ-014 — Small underwater face algae
 
@@ -876,6 +901,8 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 - Real player placement/interaction paths, fluid/support neighbor updates, loot and old state load fixtures, generated blockstate/model consistency and laptop side/top visual check.
 
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
+
 ### BFS2-REQ-015 — Tall stackable algae columns
 
 **Behavior:** Implement both green and red column growth, manual stacking, harvest and support rules in IFC-007.  
@@ -895,6 +922,8 @@ Each requirement is declared once here. Its canonical implementation phase is un
 **Required evidence**
 
 - Actual use/random tick/bonemeal/neighbor and loot paths, singleton migration, maximum column and obstruction fixtures, generated output checks and laptop stacked rendering.
+
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
 
 ### BFS2-REQ-016 — Richer animated algae without red cave generation
 
@@ -916,13 +945,15 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 - Baseline/candidate worldgen counts on matched seeds and biomes, open surface and enclosed/roofed cave counterexamples, bounded work assertions, generated resource drift and silent laptop animation proof.
 
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
+
 ### BFS2-REQ-017 — Four dive items and faithful worn atlas
 
 **Behavior:** Create the four IFC-006 armor items using exact supplied item PNGs and the supplied JPEG worn art with validated compatible geometry/UVs.  
 **Owner:** Dive equipment  
 **Canonical phase:** BFS2-PHASE-006  
 **Contributors:** Item registration, models and armor renderer and final regression verification as referenced in the task IDs.  
-**Dependencies:** BFS2-REQ-022, EXT-001  
+**Dependencies:** BFS2-REQ-022  
 **Lifecycle stage:** change  
 **Production verification:** none  
 **Release impact:** stable release  
@@ -936,13 +967,15 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 - Source identity manifest, decoded pixel comparison and normalized UV table, model/resource/load tests, package recipe absence and silent laptop front/back/side plus movement/reload rendering proof.
 
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
+
 ### BFS2-REQ-018 — Seabed walking and work parity
 
 **Behavior:** Full suit water contact enables IFC-006 movement and removes only actual underwater work penalties.  
 **Owner:** Player movement  
 **Canonical phase:** BFS2-PHASE-006  
 **Contributors:** Player movement, mining and placement integration and final regression verification as referenced in the task IDs.  
-**Dependencies:** BFS2-REQ-017, EXT-001  
+**Dependencies:** BFS2-REQ-017  
 **Lifecycle stage:** change  
 **Production verification:** none  
 **Release impact:** stable release  
@@ -956,13 +989,15 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 - Early real hook experiment followed by actual server player travel/mining/placement tests, protected block negative cases and silent laptop inputs, pose, apex/landing, reconnect and no sustained correction proof.
 
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
+
 ### BFS2-REQ-019 — Exactly five minutes of protected submerged oxygen
 
 **Behavior:** Implement IFC-006 charge, depletion, empty drowning, real air refill, persistence and synchronized feedback.  
 **Owner:** Player reservoir  
 **Canonical phase:** BFS2-PHASE-006  
 **Contributors:** Player persistent reservoir and client feedback and final regression verification as referenced in the task IDs.  
-**Dependencies:** BFS2-REQ-017, BFS2-REQ-018, EXT-001  
+**Dependencies:** BFS2-REQ-017, BFS2-REQ-018  
 **Lifecycle stage:** change  
 **Production verification:** none  
 **Release impact:** stable release  
@@ -976,9 +1011,11 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 - Real tick and breathe event tests with exact counters, persisted restart/death/dimension fixtures, adversarial equipment cycles and actual laptop HUD/reconnect synchronization. Prove no charge changes from client input.
 
+The laptop portion is deferred under DEC-012. Required server and static checks above remain in force.
+
 ### BFS2-REQ-020 — Measured performance recovery
 
-**Behavior:** Repair evidenced performance causes and pass the complete installed Forge comparison in IFC-008.  
+**Behavior:** Preserve historical performance failures and existing repairs. Further investigation and measurement are deferred under DEC-012.  
 **Owner:** Performance verification  
 **Canonical phase:** BFS2-PHASE-000  
 **Contributors:** Performance analysis and affected behavior owners and final regression verification as referenced in the task IDs.  
@@ -990,11 +1027,11 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 **Acceptance criteria**
 
-- **BFS2-AC-020:** Profile navigation, collision/recovery, sensing, species policy, stingray contact, allocation and replenishment separately. Keep predation and actual target populations. Complete four captures with 2400 warmup and 36000 contiguous measured ticks each and unchanged p95 threshold; no partial prefix, altered workload or disabled safety counts as a pass. Issue28 closes only after evidence and approved merge.
+- **BFS2-AC-020:** Deferred under DEC-012. Preserve original candidate identities and result labels. No new profiling, four case comparison, threshold verdict or performance issue closure is required for this endpoint.
 
 **Required evidence**
 
-- Exact original failure identity plus new source/JAR/dependency/config/harness manifests, profiler attribution, ordinary/doubled baseline/candidate raw tick completeness summaries, percentiles, population/death/work data and installed server logs.
+- Historical failure identity and explicit DEC-012 disposition. Existing captures keep their original results and provenance. New performance evidence is excluded from completion.
 
 ### BFS2-REQ-021 — Integrated regression and verified testing artifact
 
@@ -1002,7 +1039,7 @@ Each requirement is declared once here. Its canonical implementation phase is un
 **Owner:** Repository integration  
 **Canonical phase:** BFS2-PHASE-007  
 **Contributors:** Repository release and verification and final regression verification as referenced in the task IDs.  
-**Dependencies:** BFS2-REQ-001, BFS2-REQ-002, BFS2-REQ-003, BFS2-REQ-004, BFS2-REQ-005, BFS2-REQ-006, BFS2-REQ-007, BFS2-REQ-008, BFS2-REQ-009, BFS2-REQ-010, BFS2-REQ-011, BFS2-REQ-012, BFS2-REQ-013, BFS2-REQ-014, BFS2-REQ-015, BFS2-REQ-016, BFS2-REQ-017, BFS2-REQ-018, BFS2-REQ-019, BFS2-REQ-020, BFS2-REQ-022, EXT-001, EXT-002  
+**Dependencies:** BFS2-REQ-001, BFS2-REQ-002, BFS2-REQ-003, BFS2-REQ-004, BFS2-REQ-005, BFS2-REQ-006, BFS2-REQ-007, BFS2-REQ-008, BFS2-REQ-009, BFS2-REQ-010, BFS2-REQ-011, BFS2-REQ-012, BFS2-REQ-013, BFS2-REQ-014, BFS2-REQ-015, BFS2-REQ-016, BFS2-REQ-017, BFS2-REQ-018, BFS2-REQ-019, BFS2-REQ-020, BFS2-REQ-022, EXT-002  
 **Lifecycle stage:** post_change  
 **Production verification:** none  
 **Release impact:** stable release  
@@ -1010,15 +1047,15 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 **Acceptance criteria**
 
-- **BFS2-AC-021:** Every mandatory phase is merged and tagged, every cross feature regression passes, performance is remeasured on the final artifact, and the delivered JAR matches the verified merged source and checksums. Fishing, Prismarine armor, advancement behavior, Cod/Salmon repairs, Oceanic fin mapping and authored assets remain intact. Documentation states actual behavior and limits. No public publication or optional scope is required.
+- **BFS2-AC-021:** Every mandatory phase is merged and tagged, every cross feature regression passes, the delivered JAR matches the verified merged source and checksums. Fishing, Prismarine armor, advancement behavior, Cod/Salmon repairs, Oceanic fin mapping and authored assets remain intact. Documentation states actual behavior and limits. No public publication or optional scope is required.
 
 **Required evidence**
 
-- Complete evidence index, full affected unit/GameTest/data/resource/package suites, installed server and silent laptop final candidate evidence, default branch verification, signed tags, sanitized support packet, exact delivered JAR SHA 256/SHA 512 and cleanup confirmation.
+- Complete evidence index, full affected unit/GameTest/data/resource/package suites, installed server final candidate evidence and the DEC-012 deferred client disposition, default branch verification, signed tags, sanitized support packet, exact delivered JAR SHA 256/SHA 512 and cleanup confirmation.
 
 ### BFS2-REQ-022 — Reusable diagnostics before dependent tests
 
-**Behavior:** Deliver IFC-001 core before performance or new feature tests, then extend it locally in each owning feature phase.  
+**Behavior:** Deliver IFC-001 core before dependent feature tests, then extend it locally in each owning feature phase.  
 **Owner:** Diagnostics  
 **Canonical phase:** BFS2-PHASE-000  
 **Contributors:** Diagnostic manager, parser and support guide and final regression verification as referenced in the task IDs.  
@@ -1030,7 +1067,7 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 **Acceptance criteria**
 
-- **BFS2-AC-022:** On/status/off works on the owned server console without a player; denial, timeout, removed target, reload, writer overflow, redaction and completeness checks are executable. Disabled capture adds no trace allocations, scans, file writes or packets. Enabled bounded captures preserve gameplay decisions and meet measured overhead. Each feature adds its typed signals before its local proof. Final all feature coverage is a BFS2-REQ-021 contribution, not a prerequisite for Phase 000.
+- **BFS2-AC-022:** On/status/off works on the owned server console without a player; denial, timeout, removed target, reload, writer overflow, redaction and completeness checks are executable. Disabled capture adds no trace allocations, scans, file writes or packets. Enabled bounded captures preserve gameplay decisions and enforce numerical work/output limits. Quantitative overhead acceptance is deferred under DEC-012. Each feature adds its typed signals before its local proof. Final all feature coverage is a BFS2-REQ-021 contribution, not a prerequisite for Phase 000.
 
 **Required evidence**
 
@@ -1038,42 +1075,46 @@ Each requirement is declared once here. Its canonical implementation phase is un
 
 ## 13. Phased Roadmap
 
-The complete global sequence is frozen below. Each linked file owns the sole full phase declaration and execution blueprint. Every phase has the repository maintainer as accountable owner and the named component scope. New phase branches start only after the preceding phase is fully merged on GitHub, resulting `origin/1.20.1` is fetched and verified, and its signed annotated phase tag is pushed. Phase 000 uses the existing PR29 branch; it does not create a competing branch or leave performance open for a new stacked branch.
+The complete global sequence is frozen below. Each linked file owns the sole full phase declaration and execution blueprint. Every phase has the repository maintainer as accountable owner and the named component scope. New phase branches start only after the preceding phase is fully merged on GitHub, resulting `origin/1.20.1` is fetched and verified, and its signed annotated phase tag is pushed. Phase 000 uses the existing PR29 branch; it does not create a competing branch. Deferred performance work under DEC-012 does not authorize a stacked branch.
 
 | Phase ID | Objective | Owner | Dependencies | Canonical requirements | Entry summary | Exit summary | Next transition | Execution blueprint |
 |---|---|---|---|---|---|---|---|---|
-| BFS2-PHASE-000 | Establish truthful current baseline, reusable diagnostics and measured performance recovery. | Repository maintainer, diagnostics and performance | EXT-002 | BFS2-REQ-001, BFS2-REQ-020, BFS2-REQ-022 | Retained PR29 source and failed evidence identified; no old plan restored. | Core diagnostics verified, full performance matrix passes, PR29 merged, issue28 reconciled, resulting default and signed tag verified. | BFS2-PHASE-001 at P001-TASK-001 | [Phase 000](phases/plan-phase-000.md) |
-| BFS2-PHASE-001 | Deliver complete session tuning and safe independent species movement. | Repository maintainer, settings and aquatic behavior | BFS2-PHASE-000, EXT-001, EXT-002 | BFS2-REQ-002, BFS2-REQ-003, BFS2-REQ-004, BFS2-REQ-005, BFS2-REQ-006, BFS2-REQ-010 | Phase 000 integrated and tagged; current source and diagnostics available. | All 22 species controls, effective equations, scale/spawn/attribute lifecycle and full body safety pass; phase integrated and tagged. | BFS2-PHASE-002 at P002-TASK-001 | [Phase 001](phases/plan-phase-001.md) |
-| BFS2-PHASE-002 | Deliver broad mob following with reliable restoration. | Repository maintainer, mob controller adapters | BFS2-PHASE-001, EXT-001, EXT-002 | BFS2-REQ-008, BFS2-REQ-009 | Safe movement and settings contracts integrated; no unresolved prerequisite phase defect. | All adapter families, special bosses and actual third party case pass acquisition, safety and release; phase integrated and tagged. | BFS2-PHASE-003 at P003-TASK-001 | [Phase 002](phases/plan-phase-002.md) |
-| BFS2-PHASE-003 | Deliver real disturbance controls and safe Great White boat interest. | Repository maintainer, disturbance and shark intent | BFS2-PHASE-002, EXT-001, EXT-002 | BFS2-REQ-007, BFS2-REQ-011, BFS2-REQ-012 | Follow and body safety integrated with no competing movement owner. | Natural source, tuning, throttles, boat trajectory, fin/body and recovery proofs pass; phase integrated and tagged. | BFS2-PHASE-004 at P004-TASK-001 | [Phase 003](phases/plan-phase-003.md) |
-| BFS2-PHASE-004 | Restore original Zippy markings through lighting and reload. | Repository maintainer, client rendering | BFS2-PHASE-003, EXT-001, EXT-002 | BFS2-REQ-013 | Current approved render path and exact original art bound. | Day/dark/reload and unaffected variant/glow regressions pass with unchanged authored pixels; phase integrated and tagged. | BFS2-PHASE-005 at P005-TASK-001 | [Phase 004](phases/plan-phase-004.md) |
-| BFS2-PHASE-005 | Deliver underwater face algae, tall columns and bounded richer generation. | Repository maintainer, blocks and world generation | BFS2-PHASE-004, EXT-001, EXT-002 | BFS2-REQ-014, BFS2-REQ-015, BFS2-REQ-016 | Existing state and data identities recorded; current approved source. | Placement/growth/loot/save compatibility, density, cave exclusion and animation pass; phase integrated and tagged. | BFS2-PHASE-006 at P006-TASK-001 | [Phase 005](phases/plan-phase-005.md) |
-| BFS2-PHASE-006 | Deliver faithful dive equipment, seabed movement and exact oxygen lifecycle. | Repository maintainer, equipment and player behavior | BFS2-PHASE-005, EXT-001, EXT-002 | BFS2-REQ-017, BFS2-REQ-018, BFS2-REQ-019 | Four item sources/JPEG atlas bound and current approved baseline ready. | Worn geometry/UV, one travel writer, work parity, 6000 tick reservoir and all lifecycle/client proofs pass; phase integrated and tagged. | BFS2-PHASE-007 at P007-TASK-001 | [Phase 006](phases/plan-phase-006.md) |
-| BFS2-PHASE-007 | Verify the complete merged product and deliver the exact testing JAR. | Repository maintainer, final verification and delivery | BFS2-PHASE-006, EXT-001, EXT-002 | BFS2-REQ-021 | All feature phases merged, tags and evidence traceable; no known required defect. | Plan wide Definition of Done, final installed artifact regression/performance, resulting default verification, signed tag, documentation and verified delivery complete. | Final completion at P007-TASK-006, no successor phase | [Phase 007](phases/plan-phase-007.md) |
+| BFS2-PHASE-000 | Establish truthful current baseline, reusable diagnostics and preserved performance history. | Repository maintainer, diagnostics and performance | EXT-002 | BFS2-REQ-001, BFS2-REQ-020, BFS2-REQ-022 | Retained PR29 source and failed evidence identified; no old plan restored. | Core diagnostics verified, performance disposition recorded under DEC-012, PR29 merged, issue28 reconciled, resulting default and signed tag verified. | BFS2-PHASE-001 at P001-TASK-001 | [Phase 000](phases/plan-phase-000.md) |
+| BFS2-PHASE-001 | Deliver complete session tuning and safe independent species movement. | Repository maintainer, settings and aquatic behavior | BFS2-PHASE-000, EXT-002 | BFS2-REQ-002, BFS2-REQ-003, BFS2-REQ-004, BFS2-REQ-005, BFS2-REQ-006, BFS2-REQ-010 | Phase 000 integrated and tagged; current source and diagnostics available. | All 22 species controls, effective equations, scale/spawn/attribute lifecycle and full body safety pass; phase integrated and tagged. | BFS2-PHASE-002 at P002-TASK-001 | [Phase 001](phases/plan-phase-001.md) |
+| BFS2-PHASE-002 | Deliver broad mob following with reliable restoration. | Repository maintainer, mob controller adapters | BFS2-PHASE-001, EXT-002 | BFS2-REQ-008, BFS2-REQ-009 | Safe movement and settings contracts integrated; no unresolved prerequisite phase defect. | All adapter families, special bosses and actual third party case pass acquisition, safety and release; phase integrated and tagged. | BFS2-PHASE-003 at P003-TASK-001 | [Phase 002](phases/plan-phase-002.md) |
+| BFS2-PHASE-003 | Deliver real disturbance controls and safe Great White boat interest. | Repository maintainer, disturbance and shark intent | BFS2-PHASE-002, EXT-002 | BFS2-REQ-007, BFS2-REQ-011, BFS2-REQ-012 | Follow and body safety integrated with no competing movement owner. | Natural source, tuning, throttles, boat trajectory, fin/body and recovery proofs pass; phase integrated and tagged. | BFS2-PHASE-004 at P004-TASK-001 | [Phase 003](phases/plan-phase-003.md) |
+| BFS2-PHASE-004 | Restore original Zippy markings through lighting and reload. | Repository maintainer, client rendering | BFS2-PHASE-003, EXT-002 | BFS2-REQ-013 | Current approved render path and exact original art bound. | Day/dark/reload and unaffected variant/glow regressions pass with unchanged authored pixels; phase integrated and tagged. | BFS2-PHASE-005 at P005-TASK-001 | [Phase 004](phases/plan-phase-004.md) |
+| BFS2-PHASE-005 | Deliver underwater face algae, tall columns and bounded richer generation. | Repository maintainer, blocks and world generation | BFS2-PHASE-004, EXT-002 | BFS2-REQ-014, BFS2-REQ-015, BFS2-REQ-016 | Existing state and data identities recorded; current approved source. | Placement/growth/loot/save compatibility, density, cave exclusion and animation pass; phase integrated and tagged. | BFS2-PHASE-006 at P006-TASK-001 | [Phase 005](phases/plan-phase-005.md) |
+| BFS2-PHASE-006 | Deliver faithful dive equipment, seabed movement and exact oxygen lifecycle. | Repository maintainer, equipment and player behavior | BFS2-PHASE-005, EXT-002 | BFS2-REQ-017, BFS2-REQ-018, BFS2-REQ-019 | Four item sources/JPEG atlas bound and current approved baseline ready. | Worn geometry/UV, one travel writer, work parity, 6000 tick reservoir and all required lifecycle proofs pass, with client verification deferred under DEC-012; phase integrated and tagged. | BFS2-PHASE-007 at P007-TASK-001 | [Phase 006](phases/plan-phase-006.md) |
+| BFS2-PHASE-007 | Verify the complete merged product and deliver the exact testing JAR. | Repository maintainer, final verification and delivery | BFS2-PHASE-006, EXT-002 | BFS2-REQ-021 | All feature phases merged, tags and evidence traceable; no known required defect. | Plan wide Definition of Done, final installed artifact server regression and DEC-012 disposition, resulting default verification, signed tag, documentation and verified delivery complete. | Final completion at P007-TASK-006, no successor phase | [Phase 007](phases/plan-phase-007.md) |
 
 The following IDs reserve concrete work packages for the linked blueprints. Their detailed steps, exact fixture construction and local diagnostic runbooks belong solely to those files. Phase authors must preserve these IDs and objectives; additional local tasks may refine work without changing phase ownership or dependency direction.
 
 | Phase | Reserved tasks in execution order |
 |---|---|
-| 000 | P000-TASK-001, reconcile source, protections, PR29/issue28, toolchain and owned runtime intake. P000-TASK-002, verify/extend existing diagnostic core and parser before profiling. P000-TASK-003, reproduce and profile actual performance failure, implement only evidenced repairs. P000-TASK-004, execute full matrix, regression, diagnostic bounds and cleanup proof. P000-TASK-005, update evidence/docs, merge PR29, verify default, reconcile issue28 and signed tag. |
+| 000 | P000-TASK-001, reconcile source, protections, PR29/issue28, toolchain and owned runtime intake. P000-TASK-002, verify/extend existing diagnostic core and parser before profiling. P000-TASK-003, preserve historical performance repair evidence; further profiling and repair are deferred under DEC-012. P000-TASK-004, execute required regressions, diagnostic bounds and cleanup proof; matrix and latency measurements are deferred under DEC-012. P000-TASK-005, update evidence/docs, merge PR29, verify default, reconcile issue28 and signed tag. |
 | 001 | P001-TASK-001, freeze current effective defaults and complete capability inventory, implement atomic command/settings core. P001-TASK-002, prove all movement paths and implement independent axis/sprint integration. P001-TASK-003, implement scale, spawn, attributes, hunting, sensing, cooldown and recovery consumers with safe lifecycle. P001-TASK-004, complete body envelope safety and local diagnostics before full mechanical/server/client proof. P001-TASK-005, document commands and behaviors, review/integrate/verify/tag. |
 | 002 | P002-TASK-001, perform registry/controller compatibility experiment including special bosses and pinned third party artifact. P002-TASK-002, implement issued stick, ownership and every required movement adapter. P002-TASK-003, implement bounded lifecycle restoration and interaction security. P002-TASK-004, deliver local diagnostics, broad real paths, client interaction and recovery proof. P002-TASK-005, document support/capabilities and review/integrate/verify/tag. |
 | 003 | P003-TASK-001, extend diagnostic payloads and actual water/boat source events with bounded lifetime. P003-TASK-002, implement complete disturbance catalog and effective reaction policy. P003-TASK-003, implement Great White behind boat intent and safe recovery. P003-TASK-004, prove source-to-reaction and real boat/fin/client behavior, permissions and work bounds. P003-TASK-005, document behavior and review/integrate/verify/tag. |
 | 004 | P004-TASK-001, reproduce lighting transition and inspect exact texture/layer mechanism with scoped signals. P004-TASK-002, implement nondestructive original marking/glow rendering. P004-TASK-003, verify day/dark/reload and unrelated variants on the silent laptop. P004-TASK-004, update asset ledger, diagnostic guide and render evidence. P004-TASK-005, review/integrate/verify/tag. |
 | 005 | P005-TASK-001, implement face algae state/placement/support and diagnostics. P005-TASK-002, implement both column block state/growth/stack/loot lifecycles. P005-TASK-003, implement bounded exposed floor generation and data providers. P005-TASK-004, verify migration, fluid, drops, density, cave negatives and animated client presentation. P005-TASK-005, document behavior and review/integrate/verify/tag. |
 | 006 | P006-TASK-001, validate atlas geometry/UV and real player movement hook experiment. P006-TASK-002, register pieces, faithful worn rendering and item resources. P006-TASK-003, implement shared eligibility and exactly one seabed movement path. P006-TASK-004, implement reservoir persistence/sync/feedback and water work parity. P006-TASK-005, complete local diagnostics, exact timing, lifecycle, compatibility and actual client proof. P006-TASK-006, document equipment and review/integrate/verify/tag. |
-| 007 | P007-TASK-001, freeze final candidate and audit all requirements/evidence/default ancestry. P007-TASK-002, run complete feature interactions, old gameplay, diagnostic support and actual client regressions. P007-TASK-003, rerun full installed Forge performance comparison on final product. P007-TASK-004, finish artifact/package/hash/source/license and documentation gates. P007-TASK-005, review/integrate, verify resulting default and final signed tag with exact candidate equivalence. P007-TASK-006, deliver the verified testing JAR/checksums, close satisfied tracking and verify final cleanup. |
+| 007 | P007-TASK-001, freeze final candidate and audit all requirements/evidence/default ancestry. P007-TASK-002, run complete feature interactions, old gameplay, diagnostic support and actual client regressions. P007-TASK-003, record DEC-012 performance deferral with unchanged historical results. P007-TASK-004, finish artifact/package/hash/source/license and documentation gates. P007-TASK-005, review/integrate, verify resulting default and final signed tag with exact candidate equivalence. P007-TASK-006, deliver the verified testing JAR/checksums, close satisfied tracking and verify final cleanup. |
 
-Phase 000 owns the reusable diagnostic core. Each feature implements its own new observations before its first dependent assertion. A phase exit evaluates all behavior introduced or changed by that phase at its exact revision, and remains closed for any known owned defect. Final cross feature diagnostic coverage and retained performance are Phase 007 regression gates under BFS2-REQ-021; they do not create a backward dependency or postpone early diagnostics. No future phase implementation begins before current integration and tag gates pass.
+Phase 000 owns the reusable diagnostic core. Each feature implements its own new observations before its first dependent assertion. A phase exit evaluates all behavior introduced or changed by that phase at its exact revision, and remains closed for any known owned defect. Final cross feature diagnostic coverage and explicit disposition of deferred performance are Phase 007 regression gates under BFS2-REQ-021; they do not create a backward dependency or postpone early diagnostics. No future phase implementation begins before current integration and tag gates pass.
 
 ## 14. Verification Strategy
 
+DEC-012 changes verification scope only. Performance investigation, profiling, benchmark comparisons and measured diagnostic overhead checks are deferred. Every laptop or graphical client portion of this plan, including physical input, presentation, animation, HUD and multiplayer receipt, is also deferred and is not a prerequisite for implementation, merge, tagging or completion. The client and performance procedures below are retained as conditional reference procedures for a later owner request; their imperative wording applies only if that work is restored. Mixed tasks retain all server, resource, gameplay, bounded-work, diagnostic parity, artifact, integration and cleanup obligations. A deferred result remains unverified or retains its historical passed or failed result; it is never reported as a new pass. No client is launched for this endpoint.
+
 ### Execution Hosts
+
+The laptop rows and launch procedures are deferred references under DEC-012. Only the headless rows are executed for this endpoint; performance benchmarks remain excluded.
 
 | Workload or gate | Execution host | Required capabilities and launch configuration | Candidate identity and runtime directory | Evidence |
 |---|---|---|---|---|
 | Compilation, unit checks, resource generation, archive checks and audit | `node-1` | Read checked wrapper and task graph first; no client, renderer or display dependency. | Reuse applicable checkout; exact test outputs and preexisting content recorded before run. | Commands, outcomes, revision, generated drift, owned output cleanup. |
-| Dedicated GameTests, real server logic and installed Forge performance | `node-1` | Verified dedicated server task graph or installed production Forge no GUI launch, console input, automatic `eula=true` and readback. | Unique owned runtime under verified `/mnt/hermes/projects/BFSMOD` anchor with parent exclusions and active use checked. | Readiness, true server entry paths, bounded tick observations, source/artifact/dependency/config binding and process exit. |
+| Dedicated GameTests and real installed server logic | `node-1` | Verified dedicated server task graph or installed production Forge no GUI launch, console input, automatic `eula=true` and readback. | Unique owned runtime under verified `/mnt/hermes/projects/BFSMOD` anchor with parent exclusions and active use checked. | Readiness, true server entry paths, bounded tick observations, source/artifact/dependency/config binding and process exit. |
 | Input, rendering, synchronization, animation and targeted visuals | Verified Linux laptop | Existing authorized connection, active Hyprland, actual discrete NVIDIA renderer, isolated silent client and exact owned stream mute. | Discover actual laptop anchor and nested isolated instance; match source/artifact/dependency/config hashes to server. | Window/process/renderer identity, muted stream proof, client logs and only necessary visual evidence. |
 | Multiplayer acceptance | Laptop client with `node-1` dedicated server | Readiness and existing private reachability, supported automatic connection, correct player joined on both sides and owned console fixture control. | Bind both directories and exact endpoint in private runtime record; redact public address details. | Server plus client correlation and actual named residual client claim. |
 
@@ -1098,9 +1139,9 @@ Use the checked wrapper with the actual task graph inspected first:
 
 The GameTest task must be verified to start only a dedicated server. Run affected real world suites after entity, block, registration, resource, data or harness changes. Unit helpers prove math, validation and serialization; actual dispatcher, tick, travel, spawn, interaction, neighbor, loot and breathe paths prove server behavior. Neither simulated players nor forced handler inputs prove real client input/rendering or natural disturbance producers. The installed production Forge final gate cannot be replaced by a development classpath server.
 
-| Requirement family | Isolated checks | Real server or artifact proof | Required residual client proof |
+| Requirement family | Isolated checks | Real server or artifact proof | Deferred residual client proof under DEC-012 |
 |---|---|---|---|
-| BFS2-REQ-001, BFS2-REQ-020 | Manifest/parser/comparison rejection boundaries | Four case installed Forge matrix, current source/PR/default/tag identity | None for server performance; no player joins the measurement. |
+| BFS2-REQ-001, BFS2-REQ-020 | Manifest/parser/comparison rejection boundaries | Current source/PR/default/tag identity; performance matrix deferred under DEC-012 | None for server performance; no player joins the measurement. |
 | BFS2-REQ-002 through BFS2-REQ-006 | Atomic validation, equation, capability and modifier tests | All species actual movement/spawn/policy/lifecycle paths | Readable control feedback and physical scale/render agreement. |
 | BFS2-REQ-007, BFS2-REQ-011, BFS2-REQ-012 | Throttle and source/intent validation | Actual water/boat producer to shark decision, bounded state and recovery | Actual jump/boat input and behind boat fin/body presentation. |
 | BFS2-REQ-008, BFS2-REQ-009 | Marker/lease validation, independent membership, deduplication, bounded scheduling and feedback | All controller families, groups of 20 and at least 33, arrival/pause/resume and lifecycle restoration | Actual deliberate and held right click input, moving group, chat and action bar outcomes, and reconnect cleanup. |
@@ -1128,9 +1169,9 @@ Required sanitized records go under existing `docs/verification/` conventions, u
 **Signals:** IFC-001 header/correlation plus typed subsystem table below distinguish desired, actual, authority and rejection. New feature schemas are emitted before local dependent tests.  
 **Collection procedure:** Follow the numbered bounded runbook below, using actual status output paths, real entry stimuli, parser queries, stop/completeness checks and exact teardown.  
 **Headless verification:** Real dispatcher, manager and world paths in `BfsGameTests`, existing parser tests and installed Forge `tools/performance` harness prove server decisions, permissions, timing, bounds and output integrity without requiring the owner to join. They do not prove rendering or physical input.  
-**Client verification:** Silent laptop logs and targeted visuals prove actual input, rendered body/fin/scale, Zippy, algae animation, armor UVs, movement pose and oxygen feedback. Real client receipt and rendering are distinct from server state.  
-**Client audio isolation:** Before startup set isolated client master audio to zero, bind exact owned Hyprland address/class/title/PID, correlate its process tree to the application stream, mute and verify with `wpctl`/`pactl`, reapply after every stream recreation, and remove the owned client/watcher/stream/temp state at teardown. No global or unrelated mute.  
-**Budgets and privacy:** IFC-001 numerical caps, default off, lazy snapshots, asynchronous bounded output and redacted pseudonyms apply. Measure disabled and enabled overhead separately; incomplete or dropped evidence cannot pass. No secrets, arbitrary NBT, chat, private addresses or automatic external upload.  
+**Client verification:** Deferred under DEC-012. The following describes conditional future verification, not an endpoint gate. Silent laptop logs and targeted visuals prove actual input, rendered body/fin/scale, Zippy, algae animation, armor UVs, movement pose and oxygen feedback. Real client receipt and rendering are distinct from server state.  
+**Client audio isolation:** Conditional safety procedure for any later authorized client run. No client launch is required under DEC-012. Before startup set isolated client master audio to zero, bind exact owned Hyprland address/class/title/PID, correlate its process tree to the application stream, mute and verify with `wpctl`/`pactl`, reapply after every stream recreation, and remove the owned client/watcher/stream/temp state at teardown. No global or unrelated mute.  
+**Budgets and privacy:** IFC-001 numerical caps, default off, lazy snapshots, asynchronous bounded output and redacted pseudonyms apply. Quantitative overhead measurements are deferred under DEC-012; incomplete or dropped evidence cannot pass. No secrets, arbitrary NBT, chat, private addresses or automatic external upload.  
 **Regression and support:** Maintain `docs/test/debug-diagnostics.md`, `tools/bfs_debug_analyze.py`, its tests and applicable GameTests. Verify the enable/reproduce/disable/collect/redact procedure against the final installed JAR and retain only the minimal sanitized support packet.
 
 | Signal | Source and unit | Expected observation |
@@ -1160,7 +1201,7 @@ An illustrative record, not an executed trace:
 {"format":"bfs-debug-v2","schemaMinor":1,"captureId":"sample01","sequence":42,"tick":120,"side":"server","dimension":"minecraft:overworld","entity":"mob03","entityType":"bensfintasticsharks:great_white_shark","event":"movement","settingsRevision":3,"intentId":"intent07","reason":"WATER_ENVELOPE","data":{"state":"pursuit","horizontalBps":4.0,"verticalBps":2.0,"bodyWet":true,"solidClear":true,"limitedAxes":["vertical"]}}
 ```
 
-Phase 000 verifies capture off adds no diagnostic formatting, traversal, allocation, packets or file writes in disabled branches. Paired seeded off/on runs must produce the same gameplay decisions and final state. Measured enabled scoped capture p95 tick cost may add no more than 5 percent or 0.25 ms, whichever allowance is larger, over the same candidate with capture off; final gameplay performance remains subject to IFC-008 with diagnostics off. Repeat bounds tests with maximum targets, timeout, queue saturation, target removal, redaction strings and writer failure. No overhead success can excuse changed behavior or incomplete evidence.
+Phase 000 verifies capture off adds no diagnostic formatting, traversal, allocation, packets or file writes in disabled branches. Paired seeded off/on runs must produce the same gameplay decisions and final state. Deferred performance reference under DEC-012. If restored by a later owner request, measured enabled scoped capture p95 tick cost may add no more than 5 percent or 0.25 ms, whichever allowance is larger, over the same candidate with capture off; final gameplay performance remains subject to IFC-008 with diagnostics off. Repeat bounds tests with maximum targets, timeout, queue saturation, target removal, redaction strings and writer failure. No overhead success can excuse changed behavior or incomplete evidence.
 
 ## 15. Compatibility, Migration, Rollout, and Recovery
 
@@ -1202,31 +1243,31 @@ These are observed defects or plausible causal risks, not a claim that all futur
 
 ## 18. Definition of Done
 
-All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded.
+All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded. Performance and laptop verification are deferred under DEC-012 and are not completion prerequisites.
 
-- BFS2-REQ-001 through BFS2-REQ-022 have their specified acceptance and evidence at the required fidelity. Every phase blueprint exit, local diagnostic contribution and final cross feature check passes, with no known mandatory owned defect remaining.
+- BFS2-REQ-001 through BFS2-REQ-022 have their specified acceptance and evidence at the required fidelity, with BFS2-AC-020 and all performance or laptop subgates deferred under DEC-012. Every phase blueprint exit, local diagnostic contribution and final cross feature check passes, with no known mandatory owned defect remaining.
 - Existing PR29 and issue28 are reconciled by actual evidence and merge, all sequential phase PRs are fully merged into `1.20.1`, resulting default checks pass, and signed annotated phase tags identify the exact merged commits.
-- The final installed Forge artifact passes ordinary and doubled complete performance comparison with the unchanged threshold. Historical failed evidence and all original artifact identities remain truthful and unchanged.
-- All 22 species controls reach actual paths. Whole body motion, broad mob following/restoration, real disturbances/boat behavior, original Zippy art, algae behavior and dive movement/6000 tick oxygen pass their server and named client proof.
+- Performance investigation, ordinary and doubled comparisons and diagnostic latency acceptance are deferred under DEC-012. Historical failed evidence and original artifact identities remain truthful and unchanged; no performance pass is claimed.
+- All 22 species controls reach actual paths. Whole body motion, broad mob following/restoration, real disturbances/boat behavior, original Zippy art, algae behavior and dive movement/6000 tick oxygen pass their server and static resource proof. Named laptop proofs remain deferred under DEC-012 and are not represented as verified presentation.
 - Old fishing, Prismarine, advancements and authored resources retain required behavior. No Fabric artifact, unrequested recipe, boat destruction, profile library, subjective speed balance lock or public release is introduced.
-- Diagnostics remain reusable and default off, permissions/budgets/redaction/overhead/completeness pass, and the delivered artifact's support collection procedure is verified.
+- Diagnostics remain reusable and default off, permissions/budgets/redaction/gameplay parity/completeness pass, and the delivered artifact's support collection procedure is verified.
 - Every launched Minecraft client remained inaudible with verified application stream mute. Every check/runtime has complete owned-resource teardown on every used host, preserving required evidence and requested deliverables.
 - User/technical documentation and affected wiki/tracking state describe only merged verified behavior. The exact testing JAR, source binding, dependency manifest and SHA 256/SHA 512 files are delivered and readable.
-- A missing external prerequisite leaves completion unverified, with its exact affected gate visible. Neither planned tests, a plausible explanation, partial progress nor an enabled auto merge constitutes completion.
+- A missing mandatory external prerequisite leaves completion unverified, with its exact affected gate visible. Neither planned tests, a plausible explanation, partial progress nor an enabled auto merge constitutes completion.
 
 ## 19. Goal Creator Handoff
 
 ```text
-Mandatory boundary: BFS2-REQ-001 through BFS2-REQ-022, all eight registered phases and all required evidence.
-Optional/future disposition: excluded. FUT-001, FUT-002, FUT-003, FUT-004 remain outside completion.
-Locked owner decisions: DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006, DEC-007, DEC-008, DEC-009, DEC-010, DEC-011.
+Mandatory boundary: BFS2-REQ-001 through BFS2-REQ-022, all eight registered phases and all required evidence, subject to DEC-012 performance and laptop deferrals.
+Optional/future disposition: excluded. FUT-001, FUT-002, FUT-003, FUT-004, FUT-005, FUT-006 remain outside completion.
+Locked owner decisions: DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006, DEC-007, DEC-008, DEC-009, DEC-010, DEC-011, DEC-012.
 Active phase: BFS2-PHASE-000
 Active phase plan: phases/plan-phase-000.md
 Next executable action: P000-TASK-001. Revalidate the retained PR29 source, current remote/default state, protected working changes, issue28 and exact historical evidence before any implementation or runtime allocation.
 Known failing checks: Historical ordinary performance rejection is final. Doubled cases were not run. New feature and final candidate evidence has not been executed.
 Known external blockers: none
-Completion endpoint: All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded.
-Required evidence gates: Real server paths, complete performance matrix, exact source/artifact/dependency/config identity, named silent laptop client proof, required PR checks and merge/default/tag verification, documentation/support closure, and complete owned-resource cleanup.
+Completion endpoint: All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded. Performance and laptop verification are deferred under DEC-012 and are not completion prerequisites.
+Required evidence gates: Real server paths, static resource checks, exact source/artifact/dependency/config identity, DEC-012 deferral disposition, required PR checks and merge/default/tag verification, documentation/support closure, and complete owned-resource cleanup.
 ```
 
 Revalidate EXT-001 and EXT-002 at their use gates; their intake availability is not a permanent capability guarantee.

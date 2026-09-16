@@ -152,6 +152,13 @@
         "subject": "Follow ownership, arrival and feedback paths",
         "source": "Follow manager and tests at faccaf58ffeb6c1d7b857c9c702a970d78062316",
         "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-113",
+        "role": "owner_request",
+        "subject": "Performance and laptop verification deferral",
+        "source": "Owner request to defer performance and laptop work and continue",
+        "use": "Scope authority"
       }
     ]
   },
@@ -227,7 +234,7 @@
       "rationale": "The requested Forge product requires explicit interfaces, lifecycle, safety, proof and recovery; these are specified as target contracts and not claimed implemented."
     }
   ],
-  "completion_endpoint": "All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded.",
+  "completion_endpoint": "All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded. Performance and laptop verification are deferred under DEC-012 and are not completion prerequisites.",
   "optional_future_disposition": "excluded",
   "project_identity": {
     "status": "matched",
@@ -372,21 +379,21 @@
     },
     {
       "id": "BFS2-REQ-020",
-      "summary": "Resolve measured performance regression by evidence guided work and complete ordinary/doubled installed Forge comparison at the retained threshold.",
+      "summary": "Deferred under DEC-012. Preserve performance history and existing repairs without further profiling or ordinary/doubled installed Forge comparison as an endpoint gate.",
       "source": "Current owner request and research finding catalogue",
       "lifecycle_stage": "change",
       "production_verification": "none"
     },
     {
       "id": "BFS2-REQ-021",
-      "summary": "Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final regression evidence.",
+      "summary": "Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final server regression evidence. Performance and laptop verification are deferred under DEC-012.",
       "source": "Current owner request and research finding catalogue",
       "lifecycle_stage": "post_change",
       "production_verification": "none"
     },
     {
       "id": "BFS2-REQ-022",
-      "summary": "Extend existing diagnostics and support workflows for every new behavior, prove permissions, completeness, overhead and cleanup, and keep visual acceptance on the verified silent laptop.",
+      "summary": "Extend existing diagnostics and support workflows for every new behavior and prove permissions, completeness, work bounds, off/on gameplay parity and cleanup. Measured overhead and laptop verification are deferred under DEC-012.",
       "source": "Current owner request and research finding catalogue",
       "lifecycle_stage": "change",
       "production_verification": "none"
@@ -415,6 +422,18 @@
       "id": "FUT-004",
       "summary": "Public release publication",
       "source": "Owner accepts merged testing JAR endpoint",
+      "disposition": "excluded"
+    },
+    {
+      "id": "FUT-005",
+      "summary": "Performance investigation, benchmark comparison and measured diagnostic overhead acceptance",
+      "source": "DEC-012 defers this work and preserves historical results",
+      "disposition": "excluded"
+    },
+    {
+      "id": "FUT-006",
+      "summary": "Laptop and graphical client verification",
+      "source": "DEC-012 defers physical input, presentation and client receipt checks",
       "disposition": "excluded"
     }
   ],
@@ -462,13 +481,13 @@
       "id": "DEC-002",
       "question": "Which worn armor art is authoritative",
       "status": "resolved",
-      "selected_choice": "Use the four supplied item PNGs and supplied JPEG worn atlas. Preserve their source identities, create compatible geometry and UV mapping, and validate the rendered result without silently repainting the art."
+      "selected_choice": "Use the four supplied item PNGs and supplied JPEG worn atlas. Preserve their source identities, create compatible geometry and UV mapping, and validate static asset mapping without silently repainting the art. Rendered verification is deferred under DEC-012."
     },
     {
       "id": "DEC-003",
       "question": "What is the completion endpoint",
       "status": "resolved",
-      "selected_choice": "All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded."
+      "selected_choice": "All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded. Performance and laptop verification are deferred under DEC-012 and are not completion prerequisites."
     },
     {
       "id": "DEC-004",
@@ -492,7 +511,7 @@
       "id": "DEC-007",
       "question": "Where do verification workloads run",
       "status": "resolved",
-      "selected_choice": "Headless checks and disposable dedicated servers run on node-1. Minecraft clients run only on the verified Linux laptop with its discrete GPU and verified silent application stream. No graphical node-1 fallback."
+      "selected_choice": "Headless checks and disposable dedicated servers run on node-1. Client verification and laptop access are deferred under DEC-012. If later restored by the owner, clients run only on the verified Linux laptop with its discrete GPU and verified silent application stream. No graphical node-1 fallback."
     },
     {
       "id": "DEC-008",
@@ -517,6 +536,12 @@
       "question": "How should follow groups and feedback work",
       "status": "resolved",
       "selected_choice": "An operator may select multiple mobs, including a group of twenty and larger groups, without replacing earlier selections or imposing an arbitrary follower count cap. A deliberate right click toggles only the clicked mob. Arrival keeps it selected and waiting, and walking away resumes following. Selection has no duration expiry; recoverable pauses preserve it. Every meaningful action, state transition, rejection, and cleanup has truthful chat and on screen feedback. Existing server authorization, per mob exclusive ownership, safety, and required lifecycle cleanup remain in force."
+    },
+    {
+      "id": "DEC-012",
+      "question": "Which verification work remains required for the testing JAR",
+      "status": "resolved",
+      "selected_choice": "Defer performance investigation, profiling, ordinary and doubled benchmark comparisons, and measured diagnostic overhead acceptance. Defer all laptop and graphical client verification, including physical input, rendering, animation, HUD and multiplayer receipt checks. These checks are excluded from this testing JAR endpoint. Preserve their stable IDs, procedures and historical results without claiming a pass. Keep gameplay fixes, diagnostic work bounds and off/on behavior parity, real server and third party compatibility tests, resource and artifact checks, cleanup, checked merge commits, verified default, signed tags and delivery mandatory. Do not launch a client for this pass or require laptop access. The deferred procedures require a later owner request before execution."
     }
   ],
   "prerequisites": [
@@ -534,15 +559,14 @@
         "BFS2-REQ-021",
         "BFS2-REQ-022"
       ],
-      "mandatory_for_endpoint": true,
+      "mandatory_for_endpoint": false,
       "kind": "environment",
       "availability": "available",
       "authorization": "authorized",
       "blocked_plan_approved": false,
       "required_evidence": [
-        "Recheck laptop identity, active desktop and discrete candidate renderer before launch.",
-        "Bind exact owned window/PID and mute only its application stream; verify mute and recreation cleanup.",
-        "Discover its project anchor and verify matching candidate and private dedicated-server connection."
+        "Deferred under DEC-012. No laptop access or client launch is required for this endpoint. Historical client evidence retains its original result.",
+        "If a later owner request restores client verification, apply the host, matching artifact, private connection, exact application mute and cleanup procedure in Section 14 before launch."
       ]
     },
     {
