@@ -198,12 +198,13 @@ public final class SpeciesSettingsService {
     }
 
     private record State(long revision, Map<String, Map<Field, Double>> baseline,
-                         Map<String, Map<Field, Double>> overrides) {
+                         Map<String, Map<Field, Double>> overrides,
+                         Map<String, Map<Field, Double>> effective) {
     }
 
     private static final ReentrantReadWriteLock LOCK = new ReentrantReadWriteLock();
     private static final List<String> SPECIES = createSpeciesList();
-    private static volatile State state = new State(0L, createDefaultBaseline(), Map.of());
+    private static volatile State state = createState(0L, createDefaultBaseline(), Map.of());
 
     private SpeciesSettingsService() {
     }
@@ -251,9 +252,9 @@ public final class SpeciesSettingsService {
         SpeciesBehaviorProfile.Profile profile = SpeciesBehaviorProfile.forEntity(entity);
         String species = profile == null ? null : profile.id();
         if (species == null) return fallback;
-        SpeciesSnapshot snapshot = resolve(species);
-        FieldValue value = snapshot == null ? null : snapshot.field(field);
-        return value == null ? fallback : value.value();
+        Map<Field, Double> values = state.effective().get(species);
+        Double value = values == null ? null : values.get(field);
+        return value == null ? fallback : value;
     }
 
     public static int intValue(Entity entity, Field field, int fallback) {
@@ -323,7 +324,7 @@ public final class SpeciesSettingsService {
                         ignored -> new EnumMap<>(Field.class));
                 values.putAll(patch);
             }
-            State next = new State(current.revision() + 1L, current.baseline(), immutableOverrides(nextOverrides));
+            State next = createState(current.revision() + 1L, current.baseline(), immutableOverrides(nextOverrides));
             state = next;
             return new MutationResult(true, current.revision(), next.revision(), "applied",
                     targets, sortedFields(patch.keySet()), snapshotOf(next));
@@ -355,7 +356,7 @@ public final class SpeciesSettingsService {
                     if (values.isEmpty()) nextOverrides.remove(species);
                 }
             }
-            State next = new State(current.revision() + 1L, current.baseline(), immutableOverrides(nextOverrides));
+            State next = createState(current.revision() + 1L, current.baseline(), immutableOverrides(nextOverrides));
             state = next;
             return new MutationResult(true, current.revision(), next.revision(), "reset",
                     targets, fields, snapshotOf(next));
@@ -382,7 +383,7 @@ public final class SpeciesSettingsService {
                         "baseline would invalidate a session override. previous snapshot retained",
                         snapshotOf(current));
             }
-            State next = new State(current.revision() + 1L, normalized, current.overrides());
+            State next = createState(current.revision() + 1L, normalized, current.overrides());
             state = next;
             return new ReloadResult(true, current.revision(), next.revision(), "baseline reloaded",
                     snapshotOf(next));
@@ -396,7 +397,7 @@ public final class SpeciesSettingsService {
         LOCK.writeLock().lock();
         try {
             State current = state;
-            state = new State(current.revision() + 1L, current.baseline(), Map.of());
+            state = createState(current.revision() + 1L, current.baseline(), Map.of());
         } finally {
             LOCK.writeLock().unlock();
         }
@@ -479,7 +480,7 @@ public final class SpeciesSettingsService {
     }
 
     private static SpeciesSnapshot speciesSnapshot(State source, String species) {
-        Map<Field, Double> values = effectiveValues(source, species);
+        Map<Field, Double> values = source.effective().get(species);
         Map<Field, FieldValue> fields = new EnumMap<>(Field.class);
         Map<Field, Double> overrides = source.overrides().getOrDefault(species, Map.of());
         for (Field field : Field.values()) {
@@ -504,6 +505,18 @@ public final class SpeciesSettingsService {
         values.putAll(source.baseline().get(species));
         values.putAll(source.overrides().getOrDefault(species, Map.of()));
         return values;
+    }
+
+    private static State createState(long revision, Map<String, Map<Field, Double>> baseline,
+                                     Map<String, Map<Field, Double>> overrides) {
+        Map<String, Map<Field, Double>> effective = new TreeMap<>();
+        for (String species : SPECIES) {
+            EnumMap<Field, Double> values = new EnumMap<>(Field.class);
+            values.putAll(baseline.get(species));
+            values.putAll(overrides.getOrDefault(species, Map.of()));
+            effective.put(species, Collections.unmodifiableMap(values));
+        }
+        return new State(revision, baseline, overrides, Collections.unmodifiableMap(effective));
     }
 
     private static Map<String, Map<Field, Double>> normalizeBaseline(Map<String, Map<Field, Double>> candidate) {
