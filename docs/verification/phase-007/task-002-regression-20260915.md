@@ -19,3 +19,7 @@ The GameTest run used the disposable runtime `forge/forge/run/bfs2-p007-final-re
 The runtime, generated world, captures and logs were removed after the result was recorded and the exact runtime path was verified absent. No server, client, watcher or test-owned process remains. This packet is bound to candidate SHA 256 `2537c76a09cda0ada4134677a871df2e0ee1024a4c1202da9a57b08598b631cf`, candidate SHA 512 `f4bf1dccaee263753cd45e3735bc6585188c2de8bfce241ee017c96ccdb81fe9154d6f53bc5a533d8d9fa3bc0709b50626d71efa205395102430d2a1af959e30`, source input digest `d7dadb7c707d4fb4b72a3026cf9d87560078fb397ace90b4e6e91d3f72fd8580`, dependency digest `0a411a5dfee926da97dba505c15441158280e9be71f0f879e8551236cc7b783f`, and configuration digest `beb66731db56f88b5a91bace419bfcfe777eb6e8d362fcdc8dd1f8c3fd880c9b`.
 
 The installed Forge ordinary and doubled performance matrix, final laptop residual checks, private review, integration, final tag, delivery packet and postmerge wiki synchronization remain open.
+
+## candidate repair amendment
+
+The original regression packet remains bound to its 20260915 candidate and is not reused after the phase branch changed. The repaired source passed the affected first party GameTest namespaces separately with all 145 required tests passing, including disturbance, dive, movement and follow coverage. The full phase regression and client residual gates remain open until the repaired candidate identity is replayed on the required hosts.
