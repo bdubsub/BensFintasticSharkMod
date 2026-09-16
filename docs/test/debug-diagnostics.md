@@ -1,6 +1,6 @@
 # BFS Debug Diagnostics
 
-The debug capture system produces bounded structured evidence before an interactive client session is requested. It is intended for server side movement, brain, combat, population, advancement, and algae investigations. It does not change entity movement, AI, spawning, or combat behavior.
+The debug capture system produces bounded structured evidence before an interactive client session is requested. It is intended for server side movement, brain, combat, population, advancement, algae, and dive investigations. It does not change entity movement, AI, spawning, combat, or oxygen behavior.
 
 Before the first capture, server and client status report inactive without an output path. No placeholder is converted to a filesystem path during startup. A completed capture retains its actual output path. This avoids the Windows `InvalidPathException` caused by the former `unavailable:no_completed_capture` placeholder, even when debugging was disabled.
 
@@ -12,7 +12,7 @@ The Gradle `:forge:Server` development task is a startup smoke test. It may not 
 
 ```text
 /bfs debug on
-/bfs debug on <all|movement|brain|combat|population|advancement|algae|follow|disturbance|boat> <20-36000> [targets]
+/bfs debug on <all|movement|brain|combat|population|advancement|algae|dive|follow|disturbance|boat> <20-36000> [targets]
 /bfs debug status
 /bfs debug off
 ```
@@ -72,6 +72,20 @@ and one named reason. A non shark species reports an explicit not applicable cap
 Each server owns at most one session. A second `on` command reports the existing session without resetting its limits. A session ends at its requested tick duration, its wall time deadline, an explicit `off`, a source dimension loss, or server shutdown. The wall deadline is twice the requested tick duration at 20 ticks per second plus 30 seconds. Queue overflow, oversized records, write failure, source loss, and server shutdown mark the capture incomplete.
 
 The active status line and terminal record expose the p95 nanoseconds spent in the bounded server capture path and the number of sampled server ticks. The sample is collected only while a session is enabled and never allocates or scans when capture is disabled. Compare this value with the same seeded fixture with capture off, and reject the diagnostic gate when the added p95 exceeds 5 percent or 0.25 milliseconds, whichever allowance is larger.
+
+## Dive capture
+
+The `dive` category requires explicit player targets in the command source dimension. It records pseudonymous player state once per server tick while the capture is active. A record contains the four piece and fluid predicate, movement and oxygen modes, remaining reserve, `oxygenSchema` and revision, jump state, position, velocity, normal air supply, and tick count.
+
+```text
+/bfs debug on dive 600 <player>
+/bfs debug status
+/bfs debug off
+```
+
+Additional `dive_oxygen` records identify one authoritative reserve transition, including before and after values, consumption or refill flags, and a bounded reason. `dive_travel` records identify whether the player travel writer applied, its input and velocity transition, and the grounded jump edge. `dive_work` records cover break speed adjustment and the resulting break or placement outcome. Server records use the same capture and terminal footer rules as other categories. Raw UUIDs and player names are never written.
+
+The reserve uses schema `1` and a maximum of `6000` ticks. A missing state initializes once, supported malformed state repairs to zero, and a newer schema remains opaque and unsupported. Oxygen lifecycle captures still require the normal server fixtures. Server captures do not replace the required laptop HUD, worn rendering, input, reconnect, or stream mute evidence.
 
 ## Algae capture
 

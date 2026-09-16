@@ -34,7 +34,7 @@ public final class BfsDebugCommands {
     private static final com.mojang.brigadier.suggestion.SuggestionProvider<CommandSourceStack> CATEGORY_SUGGESTIONS =
             (context, builder) -> SharedSuggestionProvider.suggest(
                     new String[]{"all", "movement", "brain", "combat", "population", "advancement", "algae",
-                            "follow", "disturbance", "boat"}, builder);
+                            "dive", "follow", "disturbance", "boat"}, builder);
     private static final com.mojang.brigadier.suggestion.SuggestionProvider<CommandSourceStack> SPECIES_SUGGESTIONS =
             (context, builder) -> SharedSuggestionProvider.suggest(
                     java.util.stream.Stream.concat(java.util.stream.Stream.of("*"), MobCapManager.getSpeciesPaths().stream()), builder);

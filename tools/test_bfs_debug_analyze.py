@@ -75,6 +75,24 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         self.assertTrue(any("zippy layer must be marking" in error for error in analysis["errors"]))
         self.assertTrue(any("selected without a texture hash" in error for error in analysis["errors"]))
 
+    def test_unavailable_render_can_omit_non_applicable_hashes(self) -> None:
+        row = {
+            "render.variantId": "unavailable:not_common_thresher",
+            "render.baseResource": "unavailable:not_common_thresher",
+            "render.maskResource": "unavailable:not_common_thresher",
+            "render.rawBrightness": 0,
+            "render.layer": "base",
+            "render.selected": False,
+            "render.reason": "unavailable:not_common_thresher",
+            "render.resourceReloadGeneration": 0,
+        }
+        analysis = bfs_debug_analyze.validate([
+            {**record("header", 1), "side": "client"},
+            {**record("presentation", 2, **row), "side": "client"},
+            {**record("end", 3, incomplete=False, recordsDropped=0), "side": "client"},
+        ], [], {})
+        self.assertEqual("complete", analysis["verdict"])
+
     def test_complete_capture_preserves_history(self) -> None:
         records = [
             record("header", 1),
@@ -440,6 +458,47 @@ class BfsDebugAnalyzerTest(unittest.TestCase):
         self.assertEqual("invalid", result["verdict"])
         self.assertTrue(any("invalid strength" in error for error in result["errors"]))
         self.assertTrue(any("raw boatId uuid" in error for error in result["errors"]))
+
+    def test_dive_records_validate_schema_and_transition_fields(self) -> None:
+        common = {
+            "player": "player_abc", "oxygenSchema": 1, "revision": 2,
+            "fullSuit": True, "submergedEyes": True, "waterContact": True, "eligible": True,
+        }
+        rows = [
+            record("header", 1),
+            record("dive_eligibility", 2, **common, entityType="minecraft:player",
+                   movementMode="seabed", oxygenMode="protected", remainingTicks=5999,
+                   onGround=False, jumping=False, velocityX=0.0, velocityY=-0.02, velocityZ=0.0,
+                   positionX=1.0, positionY=2.0, positionZ=3.0, airSupply=300, tickCount=20),
+            record("dive_oxygen", 3, **common, beforeTicks=5999, remainingTicks=5998,
+                   deltaTicks=-1, consumed=True, refilled=False, transition="consumed", reason="none"),
+            record("dive_travel", 4, **common, applied=True, reason="applied", jumpEdge=False,
+                   inputX=0.0, inputY=0.0, inputZ=1.0, beforeVelocityX=0.0,
+                   beforeVelocityY=-0.02, beforeVelocityZ=0.0, afterVelocityX=0.0,
+                   afterVelocityY=-0.04, afterVelocityZ=0.1, movementMode="seabed"),
+            record("dive_work", 5, **common, action="break_speed", block="minecraft:stone",
+                   positionX=1, positionY=2, positionZ=3, beforeSpeed=0.2, afterSpeed=1.0,
+                   result="observed", reason="removed_underwater_penalty"),
+            record("end", 6, incomplete=False, recordsDropped=0),
+        ]
+        analysis = bfs_debug_analyze.validate(rows, [], {
+            "dive": {"requiredEvents": sorted(bfs_debug_analyze.DIVE_EVENTS), "minimumRecords": 4},
+        })
+        self.assertEqual("complete", analysis["verdict"])
+        self.assertEqual(4, analysis["metrics"]["dive"]["recordCount"])
+
+    def test_dive_records_reject_raw_players_and_bad_reserve_delta(self) -> None:
+        invalid = record("dive_oxygen", 2, player="550e8400-e29b-41d4-a716-446655440000",
+                         oxygenSchema=1, revision=1, fullSuit=True, submergedEyes=True,
+                         waterContact=True, eligible=True, beforeTicks=4, remainingTicks=2,
+                         deltaTicks=0, consumed=True, refilled=False,
+                         transition="consumed", reason="none")
+        result = bfs_debug_analyze.validate([
+            record("header", 1), invalid, record("end", 3, incomplete=False, recordsDropped=0),
+        ], [], {"dive": {"minimumRecords": 1}})
+        self.assertEqual("invalid", result["verdict"])
+        self.assertTrue(any("pseudonymous player" in error for error in result["errors"]))
+        self.assertTrue(any("deltaTicks" in error for error in result["errors"]))
 
 
 if __name__ == "__main__":

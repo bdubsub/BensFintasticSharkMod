@@ -54,6 +54,7 @@ ALGAE_EVENTS = {
     "algae_remove",
     "algae_generate",
 }
+DIVE_EVENTS = {"dive_eligibility", "dive_oxygen", "dive_travel", "dive_work"}
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -78,6 +79,10 @@ def load_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError("candidate manifest must be a JSON object")
     return value
+
+
+def finite_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
 
 def load_capture(path: Path) -> tuple[list[dict[str, Any]], list[str]]:
@@ -215,6 +220,9 @@ def validate(records: list[dict[str, Any]], parse_errors: list[str], manifest: d
     algae_records = [row for row in records if row.get("event") in ALGAE_EVENTS]
     if algae_records or "algae" in manifest:
         metrics["algae"] = validate_algae(algae_records, manifest.get("algae", {}), errors)
+    dive_records = [row for row in records if row.get("event") in DIVE_EVENTS]
+    if dive_records or "dive" in manifest:
+        metrics["dive"] = validate_dive(dive_records, manifest.get("dive", {}), errors)
     verdict = "invalid" if errors else "incomplete" if warnings else "complete"
     coverage = {
         "movementEntityCount": len(movement_history),
@@ -299,6 +307,85 @@ def validate_algae(records: list[dict[str, Any]], contract: Any,
             "requiredEvents": required_events}
 
 
+def validate_dive(records: list[dict[str, Any]], contract: Any,
+                  errors: list[str]) -> dict[str, Any]:
+    """Validate bounded server fields for dive state, travel, oxygen, and work."""
+    if not isinstance(contract, dict):
+        errors.append("dive manifest must be an object")
+        contract = {}
+    counts: defaultdict[str, int] = defaultdict(int)
+    required_events = contract.get("requiredEvents", [])
+    if not isinstance(required_events, list) or any(not isinstance(event, str) for event in required_events):
+        errors.append("dive requiredEvents must be a list of strings")
+        required_events = []
+    for event in required_events:
+        if event not in DIVE_EVENTS:
+            errors.append(f"dive manifest names unknown event {event}")
+    revisions: dict[str, int] = {}
+    for index, row in enumerate(records, start=1):
+        event = row.get("event")
+        counts[event] += 1
+        prefix = f"dive record {index}"
+        player = row.get("player")
+        if not isinstance(player, str) or not player.startswith("player_") or UUID_PATTERN.search(player):
+            errors.append(f"{prefix} has an invalid pseudonymous player")
+        for field in ("oxygenSchema", "revision"):
+            value = row.get(field)
+            if not isinstance(value, int) or value < 0:
+                errors.append(f"{prefix} has invalid {field}")
+        if isinstance(player, str) and isinstance(row.get("revision"), int):
+            previous = revisions.get(player)
+            if previous is not None and row["revision"] < previous:
+                errors.append(f"{prefix} moves revision backward for {player}")
+            revisions[player] = row["revision"]
+        if event in {"dive_eligibility", "dive_oxygen"}:
+            for field in ("fullSuit", "submergedEyes", "waterContact", "eligible"):
+                if not isinstance(row.get(field), bool):
+                    errors.append(f"{prefix} has invalid {field}")
+        if event == "dive_eligibility":
+            for field in ("remainingTicks", "airSupply"):
+                value = row.get(field)
+                if not isinstance(value, int) or (field == "remainingTicks" and not 0 <= value <= 6000):
+                    errors.append(f"{prefix} has invalid {field}")
+            for field in ("velocityX", "velocityY", "velocityZ", "positionX", "positionY", "positionZ"):
+                if not finite_number(row.get(field)):
+                    errors.append(f"{prefix} has non finite {field}")
+        elif event == "dive_oxygen":
+            for field in ("beforeTicks", "remainingTicks"):
+                value = row.get(field)
+                if not isinstance(value, int) or not 0 <= value <= 6000:
+                    errors.append(f"{prefix} has invalid {field}")
+            before = row.get("beforeTicks")
+            after = row.get("remainingTicks")
+            if isinstance(before, int) and isinstance(after, int) and row.get("deltaTicks") != after - before:
+                errors.append(f"{prefix} deltaTicks does not match beforeTicks and remainingTicks")
+            for field in ("consumed", "refilled"):
+                if not isinstance(row.get(field), bool):
+                    errors.append(f"{prefix} has invalid {field}")
+        elif event == "dive_travel":
+            if not isinstance(row.get("applied"), bool) or not isinstance(row.get("jumpEdge"), bool):
+                errors.append(f"{prefix} has invalid travel decision fields")
+            for field in ("inputX", "inputY", "inputZ", "beforeVelocityX", "beforeVelocityY",
+                          "beforeVelocityZ", "afterVelocityX", "afterVelocityY", "afterVelocityZ"):
+                if not finite_number(row.get(field)):
+                    errors.append(f"{prefix} has non finite {field}")
+        elif event == "dive_work":
+            for field in ("action", "result", "reason", "block"):
+                if not isinstance(row.get(field), str) or not row[field]:
+                    errors.append(f"{prefix} is missing {field}")
+            for field in ("beforeSpeed", "afterSpeed"):
+                if not finite_number(row.get(field)) or row[field] < 0:
+                    errors.append(f"{prefix} has invalid {field}")
+    for event in required_events:
+        if counts[event] == 0:
+            errors.append(f"dive capture is missing required event {event}")
+    minimum_records = contract.get("minimumRecords")
+    if minimum_records is not None and (not isinstance(minimum_records, int) or len(records) < minimum_records):
+        errors.append("dive capture has fewer records than required")
+    return {"eventCounts": dict(counts), "recordCount": len(records),
+            "requiredEvents": required_events, "playerCount": len(revisions)}
+
+
 def validate_render(records: list[dict[str, Any]], contract: Any, errors: list[str]) -> dict[str, Any]:
     """Validate the bounded client render observations used by the Zippy gate."""
     if not isinstance(contract, dict):
@@ -314,7 +401,13 @@ def validate_render(records: list[dict[str, Any]], contract: Any, errors: list[s
             "render.resourceReloadGeneration", "render.textureHash", "render.maskHash",
             "render.alphaBackgroundCheck",
         }
-        missing = sorted(field for field in required if field not in row)
+        unavailable = row.get("render.reason")
+        optional_unavailable = {
+            "render.textureHash", "render.maskHash", "render.alphaBackgroundCheck",
+        } if isinstance(unavailable, str) and unavailable.startswith("unavailable:") \
+            and row.get("render.selected") is False else set()
+        missing = sorted(field for field in required
+                         if field not in row and field not in optional_unavailable)
         if missing:
             errors.append(f"{prefix} is missing render fields: {', '.join(missing)}")
             continue
@@ -334,13 +427,13 @@ def validate_render(records: list[dict[str, Any]], contract: Any, errors: list[s
             if generations and generation < generations[-1]:
                 errors.append(f"{prefix} moves resource reload generation backward")
             generations.append(generation)
-        texture_hash = row["render.textureHash"]
+        texture_hash = row.get("render.textureHash")
         if texture_hash is not None and (not isinstance(texture_hash, str) or not HASH_PATTERN.fullmatch(texture_hash)):
             errors.append(f"{prefix} has an invalid texture hash")
-        mask_hash = row["render.maskHash"]
+        mask_hash = row.get("render.maskHash")
         if mask_hash is not None and (not isinstance(mask_hash, str) or not HASH_PATTERN.fullmatch(mask_hash)):
             errors.append(f"{prefix} has an invalid mask hash")
-        alpha = row["render.alphaBackgroundCheck"]
+        alpha = row.get("render.alphaBackgroundCheck")
         if alpha is not None and not isinstance(alpha, bool):
             errors.append(f"{prefix} alpha background check must be boolean or null")
         if isinstance(variant, str) and variant == "zippy" and isinstance(brightness, int):

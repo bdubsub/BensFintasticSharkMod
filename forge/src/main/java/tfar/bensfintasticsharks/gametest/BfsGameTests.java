@@ -978,6 +978,81 @@ public final class BfsGameTests {
         }
     }
 
+    @GameTest(template = "empty", batch = "bfs_debug_dive", timeoutTicks = 100)
+    public static void serverDebugDiveCaptureRecordsPlayerState(GameTestHelper helper) {
+        prepareWaterVolume(helper);
+        ServerPlayer player = makeAlgaeTestPlayer(helper, new BlockPos(3, 3, 3), Items.AIR);
+        player.setPos(helper.absolutePos(new BlockPos(3, 3, 3)).getCenter());
+        player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ModItems.DIVE_HELMET));
+        player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.DIVE_CHESTPLATE));
+        player.setItemSlot(EquipmentSlot.LEGS, new ItemStack(ModItems.DIVE_LEGGINGS));
+        player.setItemSlot(EquipmentSlot.FEET, new ItemStack(ModItems.DIVE_BOOTS));
+        BfsDebugManager.stop("gametest_setup");
+        net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
+        net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(player.position())
+                .withPermission(4);
+        BfsDebugManager.StartResult started = BfsDebugManager.start(source, "dive", 30, List.of(player));
+        helper.assertTrue(started.started() && started.activeSession().targetCount() == 1,
+                "dive diagnostics must select one explicit player target");
+        helper.runAfterDelay(10, () -> {
+            BfsDebugManager.stop("dive_capture_fixture");
+            verifyDiveCapture(helper, BfsDebugManager.status().lastStop().outputPath(),
+                    player.getUUID().toString(), 20, player);
+        });
+    }
+
+    private static void verifyDiveCapture(GameTestHelper helper, Path output, String rawUuid,
+                                          int remainingChecks, ServerPlayer player) {
+        helper.runAfterDelay(1, () -> {
+            try {
+                if (!Files.exists(output)) {
+                    if (remainingChecks > 1) {
+                        verifyDiveCapture(helper, output, rawUuid, remainingChecks - 1, player);
+                    } else {
+                        helper.fail("BFS dive diagnostic output was not written: " + output);
+                    }
+                    return;
+                }
+                String contents = Files.readString(output);
+                if (!contents.contains("\"event\":\"dive_eligibility\"")) {
+                    if (remainingChecks > 1) {
+                        verifyDiveCapture(helper, output, rawUuid, remainingChecks - 1, player);
+                    } else {
+                        helper.fail("BFS dive diagnostic output has no eligibility event: " + output);
+                    }
+                    return;
+                }
+                helper.assertTrue(contents.contains("\"movementMode\":"),
+                        "dive diagnostics must record the selected movement mode");
+                helper.assertTrue(contents.contains("\"oxygenMode\":"),
+                        "dive diagnostics must record the selected oxygen mode");
+                helper.assertTrue(contents.contains("\"revision\":"),
+                        "dive diagnostics must record the synchronization revision");
+                helper.assertTrue(contents.contains("\"oxygenSchema\":"),
+                        "dive diagnostics must record the oxygen schema separately from the capture schema");
+                helper.assertTrue(contents.contains("\"player\":\"player_"),
+                        "dive diagnostics must pseudonymize the player");
+                helper.assertTrue(!contents.contains(rawUuid),
+                        "dive diagnostics must not expose the player UUID");
+                BfsDebugManager.StopSummary stop = BfsDebugManager.status().lastStop();
+                helper.assertTrue(stop.dropped() == 0 && !stop.incomplete(),
+                        "dive diagnostics must finish without dropped or incomplete records");
+                helper.succeed();
+            } catch (IOException exception) {
+                helper.fail("unable to read BFS dive diagnostic output: " + exception.getMessage());
+            } finally {
+                try {
+                    Files.deleteIfExists(output);
+                } catch (IOException ignored) {
+                    // Cleanup is best effort after the evidence assertions have run.
+                }
+                if (!player.isRemoved()) player.remove(Entity.RemovalReason.DISCARDED);
+            }
+        });
+    }
+
     private static void verifyBrainCapture(GameTestHelper helper, Path output, int remainingChecks) {
         helper.runAfterDelay(1, () -> {
             try {
@@ -1932,15 +2007,18 @@ public final class BfsGameTests {
         TigerSharkEntity shark = helper.spawn(ModEntityTypes.TIGER_SHARK, new BlockPos(3, 3, 3));
         // Water entry is a separate disturbance signal. Reset that fixture signal so this
         // test only observes whether the dropped item itself can start curiosity.
-        shark.setSharkState(TigerSharkEntity.SharkState.IDLE);
-        shark.setStateTimer(0);
-        helper.runAfterDelay(80, () -> {
-            helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
-                    "non edible item must not enter curiosity state");
-            helper.assertTrue(nonEdible.isAlive() && nonEdible.getItem().is(Items.STONE)
-                            && nonEdible.getItem().getCount() == 1,
-                    "non edible item must remain untouched");
-            helper.succeed();
+        helper.runAfterDelay(2, () -> {
+            // Let the shark's own water entry signal settle before isolating the item scan.
+            shark.setSharkState(TigerSharkEntity.SharkState.IDLE);
+            shark.setStateTimer(0);
+            helper.runAfterDelay(80, () -> {
+                helper.assertTrue(shark.getSharkState() != TigerSharkEntity.SharkState.CURIOUS,
+                        "non edible item must not enter curiosity state");
+                helper.assertTrue(nonEdible.isAlive() && nonEdible.getItem().is(Items.STONE)
+                                && nonEdible.getItem().getCount() == 1,
+                        "non edible item must remain untouched");
+                helper.succeed();
+            });
         });
     }
 

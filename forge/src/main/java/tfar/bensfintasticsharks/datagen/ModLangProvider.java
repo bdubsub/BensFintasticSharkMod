@@ -68,6 +68,7 @@ public class ModLangProvider extends LanguageProvider {
         add("bfs.follow.reason.owner_respawned", "The owner respawned");
         add("bfs.follow.reason.owner_logged_out", "The owner disconnected");
         add("bfs.follow.reason.server_stopping", "The server is stopping");
+        add("hud.bensfintasticsharks.dive_oxygen", "Dive oxygen: %s / %s");
     }
 
     protected final Set<Item> exclude_items = new HashSet<>();

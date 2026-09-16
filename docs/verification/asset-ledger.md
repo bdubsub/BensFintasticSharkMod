@@ -83,6 +83,22 @@ The loose frame files are evidence fingerprints and are not copied as separate p
 
 The complete per-file list, including `algea_block.png` and both strips, is in `phase-000-manifest.json`. Repeated frame hashes are intentional authored holds and do not indicate duplicate or missing frames.
 
+## Dive armor records
+
+The four supplied Dive Suit item icons remain unchanged 16 by 16 RGBA PNGs. The supplied 1280 by 1280 RGB JPEG atlas is retained as source evidence, and the derived PNG preserves its decoded RGB bytes for the GeckoLib worn model. No alpha channel was inferred and no recipe resource is generated.
+
+| Resource | Dimensions | SHA 256 |
+| --- | ---: | --- |
+| `common/src/main/resources/assets/bensfintasticsharks/textures/item/dive_helmet.png` | 16 by 16 | `058fa3e99357fbdcb3830daf100138672cbd1eef667b1aa3d006e04829fe4b14` |
+| `common/src/main/resources/assets/bensfintasticsharks/textures/item/dive_chestplate.png` | 16 by 16 | `c7e9694ac408a79139d30a58014a7e973c15ab046d3c474304c57cb8434048ae` |
+| `common/src/main/resources/assets/bensfintasticsharks/textures/item/dive_leggings.png` | 16 by 16 | `cebbb9f8f7eb2cc08c817624d26d709149622b67080857de8b8f8dd4553a4ff6` |
+| `common/src/main/resources/assets/bensfintasticsharks/textures/item/dive_boots.png` | 16 by 16 | `0b2f09b20373c952aa1c1c8b7ae09955f8b80ea0d1d7703b8648dd3870f1bffa` |
+| Supplied worn atlas source, `dive_atlas.jpg` | 1280 by 1280 | `dd398100067ce9f92b4c3f17c89d1f13c1d695729128abbdeb6c9b37f60d1cc3` |
+| `common/src/main/resources/assets/bensfintasticsharks/textures/item/armor/dive_armor.png` | 1280 by 1280 | `b67904e8a60329c748c4a83ed85712343d6a0b0d473c8e7d04786c966fc4991b` |
+| `common/src/main/resources/assets/bensfintasticsharks/geo/item/armor/dive_armor.geo.json` | compatible GeckoLib geometry | `fa11fb1417756fa884e9e7ab30eea30317adf5f4b33f1639e6904d5ce69f3872` |
+
+The normalized geometry binds the six humanoid pivots and separate boot bones to the authored atlas without changing the supplied pixels. The current server GameTest evidence covers item identity and movement. Worn seams, all four slots, and reload behavior remain a laptop visual gate.
+
 ## Rechecking the ledger
 
 Run the following commands from the repository root when replacing source material:

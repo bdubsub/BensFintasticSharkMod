@@ -3,6 +3,7 @@ package tfar.bensfintasticsharks.init;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
 import tfar.bensfintasticsharks.item.BfsSpawnEggItem;
+import tfar.bensfintasticsharks.item.DiveArmorMaterial;
 import tfar.bensfintasticsharks.item.FlavorItem;
 import tfar.bensfintasticsharks.item.HiddenItem;
 import tfar.bensfintasticsharks.item.PrismarineArmorMaterial;
@@ -72,6 +73,11 @@ public class ModItems {
     public static final Item PRISMARINE_CHESTPLATE = Services.PLATFORM.createPrismarineArmor(PrismarineArmorMaterial.PRISMARINE,ArmorItem.Type.CHESTPLATE,new Item.Properties());
     public static final Item PRISMARINE_LEGGINGS = Services.PLATFORM.createPrismarineArmor(PrismarineArmorMaterial.PRISMARINE,ArmorItem.Type.LEGGINGS,new Item.Properties());
     public static final Item PRISMARINE_BOOTS = Services.PLATFORM.createPrismarineArmor(PrismarineArmorMaterial.PRISMARINE,ArmorItem.Type.BOOTS,new Item.Properties());
+
+    public static final Item DIVE_HELMET = Services.PLATFORM.createDiveArmor(DiveArmorMaterial.DIVE, ArmorItem.Type.HELMET, new Item.Properties());
+    public static final Item DIVE_CHESTPLATE = Services.PLATFORM.createDiveArmor(DiveArmorMaterial.DIVE, ArmorItem.Type.CHESTPLATE, new Item.Properties());
+    public static final Item DIVE_LEGGINGS = Services.PLATFORM.createDiveArmor(DiveArmorMaterial.DIVE, ArmorItem.Type.LEGGINGS, new Item.Properties());
+    public static final Item DIVE_BOOTS = Services.PLATFORM.createDiveArmor(DiveArmorMaterial.DIVE, ArmorItem.Type.BOOTS, new Item.Properties());
 
     public static final Item SHARK_TRIDENT = new SharkTridentItem(new Item.Properties().durability(500));
 
