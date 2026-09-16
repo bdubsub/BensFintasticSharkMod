@@ -1,5 +1,7 @@
 # Packaged server performance verification
 
+Performance investigation, benchmark comparisons and measured diagnostic overhead are deferred from the current testing JAR endpoint by DEC-012. The procedure below is retained for a later requested pass. Existing failed results remain failed. See the [verification scope amendment](../verification/phase-007/verification-scope-20260916.md).
+
 This procedure measures the installed Forge server, not a development server or rendered client. It supports the mixed species performance gate and does not replace visual, multiplayer, natural spawning, or player interaction evidence.
 
 ## Fixed comparison
@@ -46,6 +48,8 @@ The runner creates `eula=true` only in its disposable runtime and reads it back 
 ## Evidence and limitations
 
 Retain source and dependency identities, fixture parameters, hardware and Java identity, per species counts, actual death causes, behavior counters, sensing and navigation counts, heap trend, per tick percentiles, and measurement file hashes. Validate the complete four case packet with `analyze_performance.py`. The p95 regression allowance is 10 percent at each matched population. A failure remains a failure; do not reduce duration, redefine the baseline after seeing results, omit slow ticks, or report an average as p95.
+
+If unrelated host workloads run during a capture, record `ENVIRONMENT_UNAVAILABLE` and keep the comparison unverified. The ordinary absolute ceiling cannot be waived for a contaminated host, and a complete capture from a different artifact cannot be reused for the rebuilt candidate.
 
 An early rejection is permitted only when the completed observations already prove that the planned full capture cannot satisfy the same threshold. Nearest rank p95 over 36000 ticks permits at most 1800 ticks strictly above the limit. Once a contiguous observed prefix contains at least 1801 such ticks, even every remaining tick being faster cannot produce a pass. `irreversible_p95_failure` performs that comparison with integer nanoseconds and the exact ratio `11/10`. Preserve the observed prefix and its hashes, label the case incomplete and failed, stop its runtime, and do not claim a completed 30 minute capture or run later cases merely to seek a passing result. A prefix below that rejection bound establishes neither pass nor failure. Parser and rejection boundary tests run in CI as well as locally.
 

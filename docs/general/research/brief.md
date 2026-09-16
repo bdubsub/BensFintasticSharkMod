@@ -2,6 +2,10 @@
 
 Observed on September 12, 2026, UTC. This report is planning evidence, not an implementation result. No game, build, test suite, server, or graphical runtime was launched. No repository or remote state was changed. Only planning evidence and private planning inputs were created. Source inspections and image previews created no retained test output. Current owner decisions in intake supersede recommendations here.
 
+## Current verification disposition
+
+DEC-012 and [the scoped source record](sources/verification-deferral.md) defer performance investigation, benchmark comparisons, measured diagnostic overhead and every laptop verification portion from this endpoint. The performance and laptop procedures below describe the original research recommendations and are now conditional references only. Historical observations and result labels remain unchanged. Required server behavior, third party compatibility, resource, integration, delivery and cleanup checks continue. No new runtime pass is implied.
+
 ## Baseline and integration findings
 
 **F001, OBSERVED.** The anchor checkout is historical `envy/0.24` at `a4d4e41511ab47a05f27d72387075e21a5ef3cb5`. The approved default is `1.20.1` at `33f849318b235ecded3012cdb625690096ad6795`. They differ in 220 files, including movement, diagnostics, fishing, species policy, tests, and evidence. A fresh graph of the anchor is not a map of the latest implementation. Do not implement against the old anchor or copy its older classes into the new work. Sources: SRC-101, SRC-102. Applies to every requirement.
@@ -65,9 +69,9 @@ These fresh requirement IDs are locked by the intake. Historical phase numbers a
 | BFS2-REQ-017 | Register four dive pieces using exact item icons, approved worn visuals and ordinary equipment presentation, with no crafting recipes. | F014 |
 | BFS2-REQ-018 | Complete suit underwater enables seabed walking and moonlike buoyant jumping, suppresses swim pose/ascent, and removes only water work penalties. | F014 |
 | BFS2-REQ-019 | Complete suit supplies five full minutes of oxygen with deterministic depletion, real air refill, owner selected empty behavior, persistent lifecycle and synchronized feedback. | F014 |
-| BFS2-REQ-020 | Resolve measured performance regression by evidence guided work and complete ordinary/doubled installed Forge comparison at the retained threshold. | F004, F015 |
-| BFS2-REQ-021 | Preserve fishing, Prismarine armor, advancements and authored assets; ignore the Respect the Wildlife stingray icon; produce exact source/artifact provenance at the owner selected endpoint. | F003, F004, F014 |
-| BFS2-REQ-022 | Extend existing diagnostics and support workflows for every new behavior, prove permissions, completeness, overhead and cleanup, and keep visual acceptance on the verified silent laptop. | F005 through F015 |
+| BFS2-REQ-020 | Deferred under DEC-012. Preserve performance history and existing repairs without further profiling or ordinary/doubled installed Forge comparison as an endpoint gate. | SRC-113, DEC-012 |
+| BFS2-REQ-021 | Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final server regression evidence. Performance and laptop verification are deferred under DEC-012. | SRC-113, DEC-012 |
+| BFS2-REQ-022 | Extend existing diagnostics and support workflows for every new behavior and prove permissions, completeness, work bounds, off/on gameplay parity and cleanup. Measured overhead and laptop verification are deferred under DEC-012. | SRC-113, DEC-012 |
 
 ## Architecture and alternatives
 

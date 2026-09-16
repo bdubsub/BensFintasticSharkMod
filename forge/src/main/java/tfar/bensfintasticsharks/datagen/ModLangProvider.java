@@ -32,7 +32,7 @@ public class ModLangProvider extends LanguageProvider {
         add("bfs.follow.count.one", "1 mob");
         add("bfs.follow.count.many", "%s mobs");
         add("bfs.follow.selected", "Selected: %s. %s selected.");
-        add("bfs.follow.waiting", "Still selected: %1$s. %3$s selected. Click this mob again to release only it.");
+        add("bfs.follow.waiting", "Arrived nearby: %1$s. %3$s still selected. Click this mob again to release only it. No need to move farther away.");
         add("bfs.follow.resumed", "Following again: %1$s. %3$s selected.");
         add("bfs.follow.paused", "Paused: %s. %s. %s still selected.");
         add("bfs.follow.released", "Released: %s. %s. %s selected.");

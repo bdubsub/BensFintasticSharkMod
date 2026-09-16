@@ -36,7 +36,7 @@ public class WaterDisturbanceListeners {
     private static final int MAX_THROTTLE_KEYS_PER_LEVEL = 4096;
     private static final long THROTTLE_RETENTION_TICKS = 200L;
     private static final ConcurrentMap<ThrottleKey, Long> LAST_FIRED = new ConcurrentHashMap<>();
-    private static final ConcurrentMap<ActorKey, Boolean> WAS_IN_WATER = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<LivingEntity, WaterState> WAS_IN_WATER = new ConcurrentHashMap<>();
     private static final ConcurrentMap<UUID, BoatState> BOATS = new ConcurrentHashMap<>();
 
     public static void register(IEventBus bus) {
@@ -68,18 +68,22 @@ public class WaterDisturbanceListeners {
     public void onLivingTick(LivingEvent.LivingTickEvent event) {
         LivingEntity entity = event.getEntity();
         if (entity.level().isClientSide) return;
-        ActorKey key = new ActorKey(entity.level().dimension(), entity.getUUID());
         boolean inWater = entity.isInWaterOrBubble();
-        Boolean previous = WAS_IN_WATER.put(key, inWater);
-        if (previous == null) return;
+        WaterState previous = WAS_IN_WATER.get(entity);
+        if (previous == null) {
+            WAS_IN_WATER.put(entity, new WaterState(entity.level().dimension(), inWater));
+            return;
+        }
+        if (previous.dimension().equals(entity.level().dimension()) && previous.inWater() == inWater) return;
+        WAS_IN_WATER.put(entity, new WaterState(entity.level().dimension(), inWater));
         ServerLevel level = (ServerLevel) entity.level();
         long tick = level.getGameTime();
-        if (!previous && inWater
+        if (!previous.inWater() && inWater
                 && canFire(level, entity.getUUID(), WaterDisturbanceEvent.SourceKind.WATER_ENTRY, tick, 20,
                 entity.blockPosition(), entity, WaterDisturbanceEvent.Type.LIGHT, null, null)) {
             post(entity.level(), entity.blockPosition(), entity, WaterDisturbanceEvent.Type.LIGHT,
                     WaterDisturbanceEvent.SourceKind.WATER_ENTRY, 0.5D, null, null);
-        } else if (previous && !inWater && entity.getDeltaMovement().y > 0.08D
+        } else if (previous.inWater() && !inWater && entity.getDeltaMovement().y > 0.08D
                 && canFire(level, entity.getUUID(), WaterDisturbanceEvent.SourceKind.WATER_JUMP, tick, 20,
                 entity.blockPosition(), entity, WaterDisturbanceEvent.Type.HEAVY, null, null)) {
             post(entity.level(), entity.blockPosition(), entity, WaterDisturbanceEvent.Type.HEAVY,
@@ -92,8 +96,7 @@ public class WaterDisturbanceListeners {
         if (event.getLevel().isClientSide) return;
         Entity entity = event.getEntity();
         if (entity instanceof LivingEntity) {
-            WAS_IN_WATER.put(new ActorKey(event.getLevel().dimension(), entity.getUUID()),
-                    false);
+            WAS_IN_WATER.put((LivingEntity) entity, new WaterState(event.getLevel().dimension(), false));
         }
         if (entity instanceof Boat boat) {
             ServerLevel level = (ServerLevel) event.getLevel();
@@ -105,7 +108,7 @@ public class WaterDisturbanceListeners {
     public void onEntityLeave(EntityLeaveLevelEvent event) {
         Entity entity = event.getEntity();
         ResourceKey<Level> dimension = event.getLevel().dimension();
-        WAS_IN_WATER.remove(new ActorKey(dimension, entity.getUUID()));
+        if (entity instanceof LivingEntity living) WAS_IN_WATER.remove(living);
         if (entity instanceof Boat) BOATS.remove(entity.getUUID());
         if (event.getLevel() instanceof ServerLevel level) {
             WaterDisturbanceHandler.clearEntity(level, entity.getUUID());
@@ -118,7 +121,7 @@ public class WaterDisturbanceListeners {
     public void onLevelUnload(LevelEvent.Unload event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         ResourceKey<Level> dimension = level.dimension();
-        WAS_IN_WATER.keySet().removeIf(key -> key.dimension().equals(dimension));
+        WAS_IN_WATER.entrySet().removeIf(entry -> entry.getValue().dimension().equals(dimension));
         BOATS.entrySet().removeIf(entry -> entry.getValue().dimension().equals(dimension));
         LAST_FIRED.keySet().removeIf(key -> key.dimension().equals(dimension));
         WaterDisturbanceHandler.clearLevel(level);
@@ -317,7 +320,7 @@ public class WaterDisturbanceListeners {
         MinecraftForge.EVENT_BUS.post(event);
     }
 
-    private record ActorKey(ResourceKey<Level> dimension, UUID entity) {}
+    private record WaterState(ResourceKey<Level> dimension, boolean inWater) {}
 
     private record ThrottleKey(ResourceKey<Level> dimension, UUID source,
                                 WaterDisturbanceEvent.SourceKind sourceKind) {}

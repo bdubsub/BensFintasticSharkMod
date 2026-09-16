@@ -35,3 +35,4 @@ AGENTS.md
 _qa/
 __pycache__/
 *.py[cod]
+/deliverables/bfs2-phase-007/

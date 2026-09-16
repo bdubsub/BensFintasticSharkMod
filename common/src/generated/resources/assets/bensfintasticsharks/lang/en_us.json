@@ -140,7 +140,7 @@
   "bfs.follow.target_released": "The selected mob was released.",
   "bfs.follow.tooltip": "Right click a mob to select it. Release the button, then click it again to stop following.",
   "bfs.follow.unsupported_target": "Select a living mob with the Follow Debug Stick.",
-  "bfs.follow.waiting": "Still selected: %1$s. %3$s selected. Click this mob again to release only it.",
+  "bfs.follow.waiting": "Arrived nearby: %1$s. %3$s still selected. Click this mob again to release only it. No need to move farther away.",
   "block.bensfintasticsharks.algae_block": "Algae Block",
   "block.bensfintasticsharks.large_green_algae": "Large Green Algae",
   "block.bensfintasticsharks.large_red_algae": "Large Red Algae",

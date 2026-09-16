@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "phaseId": "BFS2-PHASE-007",
+  "taskId": "P007-TASK-001",
+  "sourceCommit": "a861327b9a8e559095e31ec9cbc18894a4c0ea3b",
+  "defaultBase": "f5047be40ad772d796d6aeba039212a523063ec3",
+  "branch": "envy/bfs2-phase-007",
+  "artifact": "forge/build/libs/BensFintasticSharks-forge-1.20.1-1.0-rc.1.jar",
+  "artifactSha256": "4a8714033063853cc49f33fdb1b221293032416615ce286669025531cfc13606",
+  "artifactSha512": "59455d27022626eab9b3ab641aca7802181805a4aaf9b269c5df7d3f2fec2cf018f00c7143f6073b140a667f114f60ef20292f3eb4284fca54797761d4664296",
+  "sourceInputManifestSha256": "5b9ecc7299eb6b67a28f1580d64ebc354184b87e66d0aa5584a743a071522334",
+  "sourceInputCount": 790,
+  "dependencyDigest": "10aec22278da16f020e433644d828177f19c29445b28765629eddf0f435f65df",
+  "configurationDigest": "e7479be5180ce14bc09ba20f2921d3f99ea2ff242616ca620d829b451ccd42fc",
+  "forgeVersion": "47.2.0",
+  "minecraftVersion": "1.20.1",
+  "javaVersion": "17",
+  "geckolib": "4.4.7",
+  "smartBrainLib": "1.14.2",
+  "priorPhaseTag": "bfs2-phase-006",
+  "priorPhaseMerge": "f5047be40ad772d796d6aeba039212a523063ec3",
+  "archiveTest": "passed",
+  "cleanup": "Both owned server runtimes removed after evidence extraction. No client was launched. Preexisting unrelated files retained.",
+  "sourceInputNormalization": "Git blob hashes after repository clean filters, including declared text line ending normalization. Both working files and committed blobs were normalized with their exact repository paths.",
+  "dependencies": {
+    "SmartBrainLib-forge-1.20.1-1.14.2.jar": "3f0609e603181acf9006a5f7636dc2d75ab1b19f4a38ac6c6aa4ce548916146b",
+    "alexsmobs-1.22.9.jar": "16bc5bcc19db9029c24f951346ec71098e6f5b0afef96e61894a2e9407aad37c",
+    "citadel-2.6.0-1.20.1.jar": "549596de295d90a84ee70625076087a9724dabca1de0567ef6ef03435aab7d5d",
+    "geckolib-forge-1.20.1-4.4.7.jar": "6601d1911b80580dd2eb4b0ff754fc0ae2f0a62cfd4dfb6ecd8d145c87a81ec0"
+  },
+  "packagedRuntimeConfiguration": {
+    "config/alexsmobs.toml": "401efa9056289c8a375d11a4eed5bb4fdcea8bee7340304ef9971ab6493aeca6",
+    "config/bensfintasticsharks-common.toml": "9b2a0c3a7857d36554485ff3f238f43468b20f1365dc7eea1a9984595a91322e",
+    "config/citadel-common.toml": "0a41518641bbb4133fc61b934e8663ae5271ffd8190a281e5b35d1efd97fb3e3",
+    "config/fml.toml": "953c6cb21eb0898aa077589b474b0eec19db6ed1052e5d59fe2a25cba89b4ded",
+    "server.properties": "817e56283a385ef790549327f709c24fcaf02402f1e9ce43ef5c223cb0d3d228"
+  },
+  "probeSourceSha256": "4902d4b3ad4ffba921cac2d5ce6b1fb45860b8af6170ba215d4d2e35796cc7aa",
+  "probeJarSha256": "b346b8677b11803cf1247c8bfbaad826594c0795d3a925d5dc7d70e6e8a8c3b9",
+  "performanceVerification": "deferred by DEC-012",
+  "clientVerification": "deferred by DEC-012",
+  "declaredLicenses": {
+    "BensFintasticSharks": "C0-1.0 as declared in the existing mod metadata",
+    "GeckoLib": "MIT",
+    "SmartBrainLib": "MPL-2.0",
+    "AlexsMobs": "LGPL-3.0",
+    "Citadel": "LGPL-3.0"
+  },
+  "sourceNormalizationAttributesSha256": "7b8ce76c140a9ed0d343358942ddb7425431ab68676ff8122a64568885bd65cf"
+}

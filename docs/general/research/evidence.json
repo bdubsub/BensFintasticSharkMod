@@ -4,7 +4,7 @@
   "documents": {
     "brief": {
       "path": "brief.md",
-      "sha256": "289eac110cc4d87c775562f78f74a9a913dc78838c7b50c2465746eb169fd840"
+      "sha256": "9503ac839a4b7dd626ff9b7db6064550284065305af3e7690b680c5a881f45cd"
     },
     "repository_map": {
       "path": "repository-map.md",
@@ -12,7 +12,7 @@
     },
     "intake": {
       "path": "intake.json",
-      "sha256": "b39cc8384bb3e06bf74af5158e7f298f7f2cf7b3ca1f8a7dc1a01a1864a2f94c"
+      "sha256": "a8bcff161be631f1e578de06b5ff7ef31cc041d89b305b7893931072b9dc6469"
     }
   },
   "sources": [
@@ -761,6 +761,19 @@
           "sha256": "4e80b57815a112037d2ce88acb7be4fcaa69752a63fc4b93cc4276bb7c84dd91"
         }
       ]
+    },
+    {
+      "id": "SRC-113",
+      "role": "owner_request",
+      "locator": "Owner request to defer performance and laptop work and continue",
+      "revision": "DEC-012",
+      "observed_at": "2026-09-16T19:13:01.635931+00:00",
+      "freshness": "pinned",
+      "snapshot": {
+        "path": "sources/verification-deferral.md",
+        "sha256": "b40923a08a9c54ee6c2948bd134fb8cb1b54e3aa5ff6b69fab298e0e690d2481"
+      },
+      "repository_files": []
     }
   ],
   "findings": [
@@ -1039,11 +1052,12 @@
     },
     {
       "id": "FIND-120",
-      "summary": "Resolve measured performance regression by evidence guided work and complete ordinary/doubled installed Forge comparison at the retained threshold.",
+      "summary": "Deferred under DEC-012. Preserve performance history and existing repairs without further profiling or ordinary/doubled installed Forge comparison as an endpoint gate.",
       "classification": "PROPOSED",
       "source_ids": [
         "SRC-001",
-        "SRC-003"
+        "SRC-003",
+        "SRC-113"
       ],
       "requirement_ids": [
         "BFS2-REQ-020"
@@ -1053,11 +1067,12 @@
     },
     {
       "id": "FIND-121",
-      "summary": "Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final regression evidence.",
+      "summary": "Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final server regression evidence. Performance and laptop verification are deferred under DEC-012.",
       "classification": "PROPOSED",
       "source_ids": [
         "SRC-001",
-        "SRC-003"
+        "SRC-003",
+        "SRC-113"
       ],
       "requirement_ids": [
         "BFS2-REQ-021"
@@ -1067,11 +1082,12 @@
     },
     {
       "id": "FIND-122",
-      "summary": "Extend existing diagnostics and support workflows for every new behavior, prove permissions, completeness, overhead and cleanup, and keep visual acceptance on the verified silent laptop.",
+      "summary": "Extend existing diagnostics and support workflows for every new behavior and prove permissions, completeness, work bounds, off/on gameplay parity and cleanup. Measured overhead and laptop verification are deferred under DEC-012.",
       "classification": "PROPOSED",
       "source_ids": [
         "SRC-001",
-        "SRC-003"
+        "SRC-003",
+        "SRC-113"
       ],
       "requirement_ids": [
         "BFS2-REQ-022"
@@ -1104,6 +1120,34 @@
       "requirement_ids": [
         "BFS2-REQ-008",
         "BFS2-REQ-009"
+      ],
+      "depends_on": [],
+      "conflicts_with": []
+    },
+    {
+      "id": "FIND-124",
+      "summary": "DEC-012 excludes performance investigation, benchmarks, measured diagnostic overhead and all laptop verification from the testing JAR endpoint. Server gameplay, static resource, third party compatibility, integration and delivery obligations remain mandatory. This is an owner scope decision, not runtime acceptance.",
+      "classification": "OBSERVED",
+      "source_ids": [
+        "SRC-113"
+      ],
+      "requirement_ids": [
+        "BFS2-REQ-006",
+        "BFS2-REQ-008",
+        "BFS2-REQ-009",
+        "BFS2-REQ-010",
+        "BFS2-REQ-011",
+        "BFS2-REQ-012",
+        "BFS2-REQ-013",
+        "BFS2-REQ-014",
+        "BFS2-REQ-015",
+        "BFS2-REQ-016",
+        "BFS2-REQ-017",
+        "BFS2-REQ-018",
+        "BFS2-REQ-019",
+        "BFS2-REQ-020",
+        "BFS2-REQ-021",
+        "BFS2-REQ-022"
       ],
       "depends_on": [],
       "conflicts_with": []

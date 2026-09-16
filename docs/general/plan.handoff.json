@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "planId": "PLAN-MASTER",
-  "planSetSha256": "fc59302339994eb6c12b84408dd1ba07ae64e6cd4600a186b82f4ec3005af55c",
+  "planSetSha256": "47718105f71ce93f46c051bc00ee2253e6c5b9f1bda5c2b3e3696954e075786d",
   "planningSubject": {
     "name": "Ben's Fintastic Sharks debug and repair pass",
     "requestedArtifact": "authoritative_plan",
@@ -153,6 +153,13 @@
         "subject": "Follow ownership, arrival and feedback paths",
         "source": "Follow manager and tests at faccaf58ffeb6c1d7b857c9c702a970d78062316",
         "use": "Evidence only, subordinate to owner requirements"
+      },
+      {
+        "id": "SRC-113",
+        "role": "owner_request",
+        "subject": "Performance and laptop verification deferral",
+        "source": "Owner request to defer performance and laptop work and continue",
+        "use": "Scope authority"
       }
     ]
   },
@@ -340,8 +347,7 @@
       "dependencies": [
         "BFS2-REQ-002",
         "BFS2-REQ-003",
-        "BFS2-REQ-010",
-        "EXT-001"
+        "BFS2-REQ-010"
       ],
       "lifecycleStage": "change",
       "productionVerification": "none",
@@ -371,8 +377,7 @@
       "dependencies": [
         "BFS2-REQ-003",
         "BFS2-REQ-004",
-        "BFS2-REQ-006",
-        "EXT-001"
+        "BFS2-REQ-006"
       ],
       "lifecycleStage": "change",
       "productionVerification": "none",
@@ -402,8 +407,7 @@
       "dependencies": [
         "BFS2-REQ-009",
         "BFS2-REQ-010",
-        "BFS2-REQ-011",
-        "EXT-001"
+        "BFS2-REQ-011"
       ],
       "lifecycleStage": "change",
       "productionVerification": "none",
@@ -417,8 +421,7 @@
       "owner": "Common Thresher rendering",
       "contributors": "Common Thresher rendering and final regression verification as referenced in the task IDs.",
       "dependencies": [
-        "BFS2-REQ-022",
-        "EXT-001"
+        "BFS2-REQ-022"
       ],
       "lifecycleStage": "change",
       "productionVerification": "none",
@@ -475,8 +478,7 @@
       "owner": "Dive equipment",
       "contributors": "Item registration, models and armor renderer and final regression verification as referenced in the task IDs.",
       "dependencies": [
-        "BFS2-REQ-022",
-        "EXT-001"
+        "BFS2-REQ-022"
       ],
       "lifecycleStage": "change",
       "productionVerification": "none",
@@ -490,8 +492,7 @@
       "owner": "Player movement",
       "contributors": "Player movement, mining and placement integration and final regression verification as referenced in the task IDs.",
       "dependencies": [
-        "BFS2-REQ-017",
-        "EXT-001"
+        "BFS2-REQ-017"
       ],
       "lifecycleStage": "change",
       "productionVerification": "none",
@@ -506,8 +507,7 @@
       "contributors": "Player persistent reservoir and client feedback and final regression verification as referenced in the task IDs.",
       "dependencies": [
         "BFS2-REQ-017",
-        "BFS2-REQ-018",
-        "EXT-001"
+        "BFS2-REQ-018"
       ],
       "lifecycleStage": "change",
       "productionVerification": "none",
@@ -516,7 +516,7 @@
     },
     {
       "id": "BFS2-REQ-020",
-      "summary": "Resolve measured performance regression by evidence guided work and complete ordinary/doubled installed Forge comparison at the retained threshold.",
+      "summary": "Deferred under DEC-012. Preserve performance history and existing repairs without further profiling or ordinary/doubled installed Forge comparison as an endpoint gate.",
       "source": "Current owner request and research finding catalogue",
       "owner": "Performance verification",
       "contributors": "Performance analysis and affected behavior owners and final regression verification as referenced in the task IDs.",
@@ -531,7 +531,7 @@
     },
     {
       "id": "BFS2-REQ-021",
-      "summary": "Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final regression evidence.",
+      "summary": "Preserve existing gameplay and authored assets, integrate every mandatory change and deliver a verified testing JAR with exact provenance, documentation and final server regression evidence. Performance and laptop verification are deferred under DEC-012.",
       "source": "Current owner request and research finding catalogue",
       "owner": "Repository integration",
       "contributors": "Repository release and verification and final regression verification as referenced in the task IDs.",
@@ -557,7 +557,6 @@
         "BFS2-REQ-019",
         "BFS2-REQ-020",
         "BFS2-REQ-022",
-        "EXT-001",
         "EXT-002"
       ],
       "lifecycleStage": "post_change",
@@ -567,7 +566,7 @@
     },
     {
       "id": "BFS2-REQ-022",
-      "summary": "Extend existing diagnostics and support workflows for every new behavior, prove permissions, completeness, overhead and cleanup, and keep visual acceptance on the verified silent laptop.",
+      "summary": "Extend existing diagnostics and support workflows for every new behavior and prove permissions, completeness, work bounds, off/on gameplay parity and cleanup. Measured overhead and laptop verification are deferred under DEC-012.",
       "source": "Current owner request and research finding catalogue",
       "owner": "Diagnostics",
       "contributors": "Diagnostic manager, parser and support guide and final regression verification as referenced in the task IDs.",
@@ -603,6 +602,18 @@
       "id": "FUT-004",
       "summary": "Public release publication",
       "source": "Owner accepts merged testing JAR endpoint",
+      "disposition": "excluded"
+    },
+    {
+      "id": "FUT-005",
+      "summary": "Performance investigation, benchmark comparison and measured diagnostic overhead acceptance",
+      "source": "DEC-012 defers this work and preserves historical results",
+      "disposition": "excluded"
+    },
+    {
+      "id": "FUT-006",
+      "summary": "Laptop and graphical client verification",
+      "source": "DEC-012 defers physical input, presentation and client receipt checks",
       "disposition": "excluded"
     }
   ],
@@ -655,7 +666,7 @@
     {
       "id": "DEC-002",
       "question": "Which worn armor art is authoritative",
-      "selectedChoice": "Use the four supplied item PNGs and supplied JPEG worn atlas. Preserve their source identities, create compatible geometry and UV mapping, and validate the rendered result without silently repainting the art.",
+      "selectedChoice": "Use the four supplied item PNGs and supplied JPEG worn atlas. Preserve their source identities, create compatible geometry and UV mapping, and validate static asset mapping without silently repainting the art. Rendered verification is deferred under DEC-012.",
       "rationale": "Current owner scope and resolved operating boundaries govern this pass.",
       "affectedRequirements": [
         "BFS2-REQ-017"
@@ -665,7 +676,7 @@
     {
       "id": "DEC-003",
       "question": "What is the completion endpoint",
-      "selectedChoice": "All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded.",
+      "selectedChoice": "All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded. Performance and laptop verification are deferred under DEC-012 and are not completion prerequisites.",
       "rationale": "Current owner scope and resolved operating boundaries govern this pass.",
       "affectedRequirements": [
         "BFS2-REQ-021"
@@ -709,7 +720,7 @@
     {
       "id": "DEC-007",
       "question": "Where do verification workloads run",
-      "selectedChoice": "Headless checks and disposable dedicated servers run on node-1. Minecraft clients run only on the verified Linux laptop with its discrete GPU and verified silent application stream. No graphical node-1 fallback.",
+      "selectedChoice": "Headless checks and disposable dedicated servers run on node-1. Client verification and laptop access are deferred under DEC-012. If later restored by the owner, clients run only on the verified Linux laptop with its discrete GPU and verified silent application stream. No graphical node-1 fallback.",
       "rationale": "Current owner scope and resolved operating boundaries govern this pass.",
       "affectedRequirements": [
         "BFS2-REQ-008",
@@ -778,6 +789,35 @@
         "BFS2-REQ-022"
       ],
       "supersedes": []
+    },
+    {
+      "id": "DEC-012",
+      "question": "Which verification work remains required for the testing JAR",
+      "selectedChoice": "Defer performance investigation, profiling, ordinary and doubled benchmark comparisons, and measured diagnostic overhead acceptance. Defer all laptop and graphical client verification, including physical input, rendering, animation, HUD and multiplayer receipt checks. These checks are excluded from this testing JAR endpoint. Preserve their stable IDs, procedures and historical results without claiming a pass. Keep gameplay fixes, diagnostic work bounds and off/on behavior parity, real server and third party compatibility tests, resource and artifact checks, cleanup, checked merge commits, verified default, signed tags and delivery mandatory. Do not launch a client for this pass or require laptop access. The deferred procedures require a later owner request before execution.",
+      "rationale": "The owner explicitly removed performance and laptop work from this pass and requested continued execution.",
+      "affectedRequirements": [
+        "BFS2-REQ-006",
+        "BFS2-REQ-008",
+        "BFS2-REQ-009",
+        "BFS2-REQ-010",
+        "BFS2-REQ-011",
+        "BFS2-REQ-012",
+        "BFS2-REQ-013",
+        "BFS2-REQ-014",
+        "BFS2-REQ-015",
+        "BFS2-REQ-016",
+        "BFS2-REQ-017",
+        "BFS2-REQ-018",
+        "BFS2-REQ-019",
+        "BFS2-REQ-020",
+        "BFS2-REQ-021",
+        "BFS2-REQ-022"
+      ],
+      "supersedes": [
+        "DEC-002",
+        "DEC-003",
+        "DEC-007"
+      ]
     }
   ],
   "externalPrerequisites": [
@@ -795,15 +835,14 @@
         "BFS2-REQ-021",
         "BFS2-REQ-022"
       ],
-      "mandatory_for_endpoint": true,
+      "mandatory_for_endpoint": false,
       "kind": "environment",
       "availability": "available",
       "authorization": "authorized",
       "blocked_plan_approved": false,
       "required_evidence": [
-        "Recheck laptop identity, active desktop and discrete candidate renderer before launch.",
-        "Bind exact owned window/PID and mute only its application stream; verify mute and recreation cleanup.",
-        "Discover its project anchor and verify matching candidate and private dedicated-server connection."
+        "Deferred under DEC-012. No laptop access or client launch is required for this endpoint. Historical client evidence retains its original result.",
+        "If a later owner request restores client verification, apply the host, matching artifact, private connection, exact application mute and cleanup procedure in Section 14 before launch."
       ]
     },
     {
@@ -844,7 +883,6 @@
       "owner": "Repository maintainer",
       "dependencies": [
         "BFS2-PHASE-000",
-        "EXT-001",
         "EXT-002"
       ],
       "canonicalRequirements": [
@@ -861,7 +899,6 @@
       "owner": "Repository maintainer",
       "dependencies": [
         "BFS2-PHASE-001",
-        "EXT-001",
         "EXT-002"
       ],
       "canonicalRequirements": [
@@ -874,7 +911,6 @@
       "owner": "Repository maintainer",
       "dependencies": [
         "BFS2-PHASE-002",
-        "EXT-001",
         "EXT-002"
       ],
       "canonicalRequirements": [
@@ -890,7 +926,6 @@
         "BFS2-PHASE-003",
         "BFS2-REQ-013",
         "BFS2-REQ-022",
-        "EXT-001",
         "EXT-002"
       ],
       "canonicalRequirements": [
@@ -902,7 +937,6 @@
       "owner": "Repository maintainer",
       "dependencies": [
         "BFS2-PHASE-004",
-        "EXT-001",
         "EXT-002"
       ],
       "canonicalRequirements": [
@@ -921,7 +955,6 @@
         "DEC-007",
         "DEC-008",
         "DEC-009",
-        "EXT-001",
         "EXT-002"
       ],
       "canonicalRequirements": [
@@ -935,7 +968,6 @@
       "owner": "Repository maintainer",
       "dependencies": [
         "BFS2-PHASE-006",
-        "EXT-001",
         "EXT-002"
       ],
       "canonicalRequirements": [
@@ -943,15 +975,15 @@
       ]
     }
   ],
-  "completionEndpoint": "All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded.",
+  "completionEndpoint": "All mandatory repairs and debug controls are verified, integrated through sequential merge commits into 1.20.1, tagged, documented, and delivered as an exact verified testing JAR with checksums and source binding. Public release publication is excluded. Performance and laptop verification are deferred under DEC-012 and are not completion prerequisites.",
   "goalCreator": {
-    "mandatoryBoundary": "BFS2-REQ-001 through BFS2-REQ-022, all eight registered phases and all required evidence.",
-    "optionalFutureDisposition": "excluded. FUT-001, FUT-002, FUT-003, FUT-004 remain outside completion.",
-    "lockedOwnerDecisions": "DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006, DEC-007, DEC-008, DEC-009, DEC-010, DEC-011.",
+    "mandatoryBoundary": "BFS2-REQ-001 through BFS2-REQ-022, all eight registered phases and all required evidence, subject to DEC-012 performance and laptop deferrals.",
+    "optionalFutureDisposition": "excluded. FUT-001, FUT-002, FUT-003, FUT-004, FUT-005, FUT-006 remain outside completion.",
+    "lockedOwnerDecisions": "DEC-001, DEC-002, DEC-003, DEC-004, DEC-005, DEC-006, DEC-007, DEC-008, DEC-009, DEC-010, DEC-011, DEC-012.",
     "activePhase": "BFS2-PHASE-000",
     "nextExecutableAction": "P000-TASK-001. Revalidate the retained PR29 source, current remote/default state, protected working changes, issue28 and exact historical evidence before any implementation or runtime allocation.",
     "knownFailingChecks": "Historical ordinary performance rejection is final. Doubled cases were not run. New feature and final candidate evidence has not been executed.",
     "knownExternalBlockers": "none",
-    "requiredEvidenceGates": "Real server paths, complete performance matrix, exact source/artifact/dependency/config identity, named silent laptop client proof, required PR checks and merge/default/tag verification, documentation/support closure, and complete owned-resource cleanup."
+    "requiredEvidenceGates": "Real server paths, static resource checks, exact source/artifact/dependency/config identity, DEC-012 deferral disposition, required PR checks and merge/default/tag verification, documentation/support closure, and complete owned-resource cleanup."
   }
 }
