@@ -1,5 +1,7 @@
 # Packaged server performance verification
 
+Performance investigation, benchmark comparisons and measured diagnostic overhead are deferred from the current testing JAR endpoint by DEC-012. The procedure below is retained for a later requested pass. Existing failed results remain failed. See the [verification scope amendment](../verification/phase-007/verification-scope-20260916.md).
+
 This procedure measures the installed Forge server, not a development server or rendered client. It supports the mixed species performance gate and does not replace visual, multiplayer, natural spawning, or player interaction evidence.
 
 ## Fixed comparison

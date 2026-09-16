@@ -1,5 +1,7 @@
 # Phase 007 task 002 final regression
 
+The September 16 [verification scope amendment](verification-scope-20260916.md) defers the performance and laptop gates mentioned below. Earlier results and artifact identities remain historical. The current candidate is recorded in [candidate-manifest.json](candidate-manifest.json).
+
 The pinned Phase 007 candidate from [task 001](task-001-candidate-20260915.md) was exercised through the full server GameTest graph and the parser and unit suites.
 
 | Gate | Result | Evidence |

@@ -2,7 +2,7 @@
 
 Ben's Fintastic Sharks is a Minecraft 1.20.1 ocean wildlife mod for Forge 47.2.0. Release Candidate 1.0, version `1.0-rc.1`, includes twenty two marine species, shark hunting and disturbance behavior, natural variants, advancements, trades, equipment, the Shark Codex, and the Sunken Trove structure.
 
-The Release Candidate 1.0 is maintained on `envy/0.24`, based directly on the stable `1.20.1` branch. It retains the 0.23 content while integrating the supplied advancement artwork, repaired fish animation resources, a single Sharks Galore discovery node, and permanent algae blocks with bounded ocean generation. This is a prerelease candidate, not a stable 1.0 publication.
+The current testing pass extends Release Candidate 1.0 with session tuning, retained follow groups, boat disturbances, algae improvements and the Dive Suit. The canonical branch is `1.20.1`. The original `envy/0.24` release lineage and earlier artifact identities remain preserved. This is a testing candidate, not a stable 1.0 publication.
 
 This is a Forge only project. The `fabric` subproject is an unused template stub and does not produce a playable Fabric build.
 
@@ -42,7 +42,7 @@ Use the [current artifact checksums and source manifest](docs/verification/artif
 
 The documentation index is in [docs/README.md](docs/README.md). The retained 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md). Algae placement and generation behavior is in [docs/test/algae-worldgen.md](docs/test/algae-worldgen.md). Diagnostic command and parser instructions are in [docs/test/debug-diagnostics.md](docs/test/debug-diagnostics.md). Candidate installation and rollback guidance is in [docs/test/release-rollback.md](docs/test/release-rollback.md).
 
-The retained Phase 001 verification records document the current 0.23 compatibility baseline, including the real fishing advancement path and the packaged Forge server checks. The interactive advancement and rendering review remains a laptop-only acceptance step.
+The retained Phase 001 verification records document the 0.23 compatibility baseline, including the real fishing advancement path and packaged Forge server checks. The [current verification scope](docs/verification/phase-007/verification-scope-20260916.md) defers performance comparisons and laptop verification from this testing pass. Earlier client observations and failed measurements keep their original artifact bindings. Server gameplay, compatibility, source binding and packaging checks remain required.
 
 The [fishing regression record](docs/test/phase-001-fishing-transactions.md) separates current exclusive delivery checks from historical results. Live and item catches use one guarded delivery, preserve Tropical Fish and Pufferfish, and grant matching fishing rewards only after insertion succeeds.
 

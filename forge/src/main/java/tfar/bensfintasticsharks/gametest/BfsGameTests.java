@@ -685,6 +685,27 @@ public final class BfsGameTests {
     private static void runPopulationSoak(GameTestHelper helper, boolean replacementEnabled,
                                           boolean previousReplacement) {
         BfsConfig.COMMON.replaceVanillaMobs.set(replacementEnabled);
+        awaitPopulationSoakMode(helper, replacementEnabled, previousReplacement, 40);
+    }
+
+    private static void awaitPopulationSoakMode(GameTestHelper helper, boolean replacementEnabled,
+                                                boolean previousReplacement, int remainingChecks) {
+        // Forge reloads the autosaved common config on its file watcher thread.
+        // Start the capture only after the requested mode is visible on a subsequent server tick.
+        helper.runAfterDelay(1, () -> {
+            if (BfsConfig.COMMON.replaceVanillaMobs.get() == replacementEnabled) {
+                startPopulationSoak(helper, replacementEnabled, previousReplacement);
+            } else if (remainingChecks > 1) {
+                awaitPopulationSoakMode(helper, replacementEnabled, previousReplacement, remainingChecks - 1);
+            } else {
+                BfsConfig.COMMON.replaceVanillaMobs.set(previousReplacement);
+                helper.fail("population soak replacement mode did not become active before capture");
+            }
+        });
+    }
+
+    private static void startPopulationSoak(GameTestHelper helper, boolean replacementEnabled,
+                                            boolean previousReplacement) {
         BfsDebugManager.stop("population_soak_setup");
         net.minecraft.server.MinecraftServer server = helper.getLevel().getServer();
         net.minecraft.commands.CommandSourceStack source = server.createCommandSourceStack()

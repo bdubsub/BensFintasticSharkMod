@@ -1,5 +1,7 @@
 # phase 007 task 003 performance repair
 
+The September 16 [verification scope amendment](verification-scope-20260916.md) defers the performance and laptop gates mentioned below. Earlier results and artifact identities remain historical. The current candidate is recorded in [candidate-manifest.json](candidate-manifest.json).
+
 The follow feedback repair was already committed in `822cdbc046fcc87cc607680d2c3a212f2353f579`. The current phase branch then received two behavior preserving performance repairs in `62d1bda860800451c307928ad87d2542b1f726fe`, which removes unchanged living water state writes and precomputes effective species settings for the hot read path. The affected first party GameTests passed 145 of 145 required tests after those changes. Compile, unit tests and the Forge build also passed.
 
 The complete installed Forge candidate pair was run with seed `240024`, all 22 species, actual predation, ordinary replacement, 2,400 warmup ticks and 36,000 measured ticks at targets 63 and 126. The capture artifact was the source equivalent candidate jar with SHA 256 `7823d3b8ae00ad65e928efb2baaf7a14fc70b5ee8bccc129bbc58968880ed8ba`. The subsequent reproducible Forge build produced SHA 256 `bc193e5127544cf00580378b5591f8457e2a1286a32e873572814ed24e7747d7`; because the jar bytes differ, the capture pair is retained as diagnostic evidence and does not bind the rebuilt delivery artifact.

@@ -1,5 +1,7 @@
 # Phase 007 task 001 candidate audit
 
+The September 16 [verification scope amendment](verification-scope-20260916.md) defers the performance and laptop gates mentioned below. Earlier results and artifact identities remain historical. The current candidate is recorded in [candidate-manifest.json](candidate-manifest.json).
+
 This packet records the final phase entry candidate before feature replay and performance measurement.
 
 | Field | Verified value |

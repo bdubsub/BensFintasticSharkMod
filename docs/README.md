@@ -1,6 +1,7 @@
 # Documentation
 
 * [Project overview and setup](../README.md)
+* [Installed Forge compatibility fixture](test/packaged-compatibility.md)
 * [Follow groups and feedback verification](verification/follow-groups-20260915.md)
 * [Held follow group verification](verification/follow-held-group-20260915.md)
 * [Phase 006 follow group regression](verification/phase-006/follow-group-regression-20260915.md)

@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -46,14 +47,16 @@ public final class BfsFollowThirdPartyGameTests {
         target.moveTo(helper.absolutePos(new BlockPos(8, 2, 2)).getCenter());
         helper.getLevel().addFreshEntity(target);
 
-        ServerPlayer owner = makeTestPlayer(helper, "follow-alexs-mobs", new BlockPos(2, 2, 2));
-        double initialDistance = owner.distanceTo(target);
+        ServerPlayer owner = makeTestPlayer(helper, "follow-alexs-mobs", new BlockPos(5, 2, 2));
         issueAndHold(owner);
         PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(
                 owner, InteractionHand.MAIN_HAND, target);
         BfsFollowManager.onEntityInteract(event);
-        helper.assertTrue(event.isCanceled(), "the pinned external mob must accept the generic lease");
+        helper.assertTrue(event.isCanceled() && event.getCancellationResult() == InteractionResult.SUCCESS,
+                "the pinned external mob must accept a right click within the normal interaction reach");
         helper.assertTrue(BfsFollowManager.status(owner).following(), "the external lease must be active");
+        owner.setPos(helper.absolutePos(new BlockPos(2, 2, 2)).getCenter());
+        double initialDistance = owner.distanceTo(target);
         helper.runAfterDelay(60, () -> {
             helper.assertTrue(target.isAlive(), "the external follow target must remain alive");
             helper.assertTrue(owner.distanceTo(target) < initialDistance - 0.5D,
