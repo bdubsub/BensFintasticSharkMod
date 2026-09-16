@@ -341,7 +341,7 @@ public final class BfsFollowManager {
         for (Lease lease : new ArrayList<>(BY_TARGET.values())) {
             ServerPlayer owner = findPlayer(server, lease.ownerId);
             ServerLevel level = server.getLevel(lease.dimension);
-            Mob mob = level != null && level.getEntity(lease.targetId) instanceof Mob found ? found : null;
+            Mob mob = resolveLeaseMob(server, lease);
             if (owner == null || mob == null || !owner.isAlive() || !mob.isAlive()) {
                 release(lease, level, "lifecycle", mob, true);
                 continue;
@@ -389,7 +389,7 @@ public final class BfsFollowManager {
             if (!lease.state.equals("following") && !lease.reason.equals("no_route")) continue;
             ServerPlayer owner = findPlayer(server, lease.ownerId);
             ServerLevel level = server.getLevel(lease.dimension);
-            Mob mob = level != null && level.getEntity(lease.targetId) instanceof Mob found ? found : null;
+            Mob mob = resolveLeaseMob(server, lease);
             if (owner == null || mob == null) continue;
             long tick = level.getGameTime();
             if (lease.lastRoute >= 0 && tick - lease.lastRoute < (lease.reason.equals("no_route") ? 20 : ROUTE_INTERVAL_TICKS)) continue;
@@ -561,6 +561,16 @@ public final class BfsFollowManager {
             }
         }
         return null;
+    }
+
+    private static Mob resolveLeaseMob(MinecraftServer server, Lease lease) {
+        Mob retained = lease.target;
+        if (retained != null && !retained.isRemoved() && retained.isAlive()
+                && retained.level().getServer() == server
+                && retained.level().dimension().equals(lease.dimension)) {
+            return retained;
+        }
+        return findMob(server, lease.targetId);
     }
 
     private static ServerPlayer findPlayer(MinecraftServer server, UUID ownerId) {
@@ -766,6 +776,7 @@ public final class BfsFollowManager {
         private final UUID nonce = UUID.randomUUID();
         private final UUID ownerId;
         private final UUID targetId;
+        private final Mob target;
         private final ResourceKey<Level> dimension;
         private final String targetType;
         private final Component label;
@@ -791,6 +802,7 @@ public final class BfsFollowManager {
                       long started, int alias) {
             this.ownerId = ownerId;
             this.targetId = mob.getUUID();
+            this.target = mob;
             this.dimension = mob.level().dimension();
             this.targetType = mob.getType().builtInRegistryHolder().key().location().toString();
             this.label = message("target", mob.getName().copy(), alias);

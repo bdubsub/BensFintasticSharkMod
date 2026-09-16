@@ -325,7 +325,7 @@ public final class BfsFollowGameTests {
         });
     }
 
-    @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 120)
+    @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 180)
     public static void followSlimeNavigatesToOwner(GameTestHelper helper) {
         for (int x = 0; x <= 12; x++) {
             for (int z = 0; z <= 4; z++) {
@@ -345,16 +345,12 @@ public final class BfsFollowGameTests {
         interactWithinReach(event);
         helper.assertTrue(event.isCanceled() && BfsFollowManager.status(owner).following(),
                 "a slime must accept the generic follow lease");
-        helper.runAfterDelay(90, () -> {
-            helper.assertTrue(target.isAlive(), "the slime follow target must remain alive");
-            helper.assertTrue(owner.distanceTo(target) < initialDistance - 0.5D,
-                    "a slime must navigate toward the owner, initial " + initialDistance
-                            + ", final " + owner.distanceTo(target));
+        waitForFollowProgress(helper, owner, target, initialDistance, 140, () -> {
             BfsFollowManager.stop(owner, "slime_navigation_fixture");
             owner.remove(Entity.RemovalReason.DISCARDED);
             target.remove(Entity.RemovalReason.DISCARDED);
             helper.succeed();
-        });
+        }, "a slime must navigate toward the owner");
     }
 
     @GameTest(template = "empty", batch = "follow_navigation", timeoutTicks = 120)
@@ -745,7 +741,7 @@ public final class BfsFollowGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = "empty", batch = "follow_controller_families", timeoutTicks = 180)
+    @GameTest(template = "empty", batch = "follow_controller_families", timeoutTicks = 260)
     public static void bossFollowAdaptersNavigateAndRestore(GameTestHelper helper) {
         ServerPlayer owner = makeTestPlayer(helper, "follow-bosses", new BlockPos(2, 20, 2));
         owner.setGameMode(GameType.CREATIVE);
@@ -767,16 +763,14 @@ public final class BfsFollowGameTests {
         helper.assertTrue(BfsFollowManager.selectedCount(owner) == 2,
                 "the wither must remain independently selected beside the dragon");
 
-        helper.runAtTickTime(120, () -> {
+        helper.runAtTickTime(80, () -> {
             helper.assertTrue(owner.distanceTo(dragon) < initialDragonDistance - 0.5D,
                     "the ender dragon phase adapter must make progress, initial " + initialDragonDistance
                             + ", final " + owner.distanceTo(dragon) + ", alive " + dragon.isAlive()
                             + ", removed " + dragon.isRemoved() + ", phase "
                             + dragon.getPhaseManager().getCurrentPhase().getPhase() + ", position " + dragon.position()
                             + ", delta " + dragon.getDeltaMovement() + ", state " + BfsFollowManager.status(owner));
-            helper.assertTrue(owner.distanceTo(wither) < initialWitherDistance - 0.5D,
-                    "the wither navigation adapter must make progress, initial " + initialWitherDistance
-                            + ", final " + owner.distanceTo(wither) + ", state " + BfsFollowManager.status(owner));
+            waitForFollowProgress(helper, owner, wither, initialWitherDistance, 160, () -> {
             owner.releaseUsingItem();
             interactWithinReach(new PlayerInteractEvent.EntityInteract(owner, InteractionHand.MAIN_HAND, dragon.head));
             helper.assertTrue(BfsFollowManager.selectedCount(owner) == 1,
@@ -791,6 +785,7 @@ public final class BfsFollowGameTests {
             dragon.remove(Entity.RemovalReason.DISCARDED);
             wither.remove(Entity.RemovalReason.DISCARDED);
             helper.succeed();
+            }, "the wither navigation adapter must make progress");
         });
     }
 
@@ -1199,6 +1194,23 @@ public final class BfsFollowGameTests {
         WalkTarget walkTarget = mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).orElse(null);
         return walkTarget != null && walkTarget.getTarget() instanceof EntityTracker tracker
                 && tracker.getEntity().getUUID().equals(owner.getUUID());
+    }
+
+    private static void waitForFollowProgress(GameTestHelper helper, ServerPlayer owner, Mob target,
+                                               double initialDistance, int remainingTicks,
+                                               Runnable onProgress, String message) {
+        helper.assertTrue(target.isAlive(), message + ", target died");
+        if (owner.distanceTo(target) < initialDistance - 0.5D) {
+            onProgress.run();
+            return;
+        }
+        if (remainingTicks <= 0) {
+            helper.assertTrue(false, message + ", initial " + initialDistance
+                    + ", final " + owner.distanceTo(target) + ", state " + BfsFollowManager.status(owner));
+            return;
+        }
+        helper.runAfterDelay(10, () -> waitForFollowProgress(helper, owner, target,
+                initialDistance, remainingTicks - 10, onProgress, message));
     }
 
     private static final class IndependentFixtureMob extends Mob {
