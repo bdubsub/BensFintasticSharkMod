@@ -12,7 +12,10 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.gametest.GameTestHolder;
@@ -162,6 +165,96 @@ public final class BfsDiveGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_dive_matrix", timeoutTicks = 100)
+    public static void oxygenEffectsAndEligibilityModes(GameTestHelper helper) {
+        prepareWater(helper);
+        MutableTestPlayer player = makeMutablePlayer(helper, new BlockPos(3, 3, 3));
+        equipFullSuit(player);
+        helper.runAfterDelay(5, () -> {
+            DiveOxygenManager.readReserve(player);
+            setReserve(player, 120);
+            player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 200));
+            DiveOxygenManager.tick(player);
+            helper.assertTrue(DiveOxygenManager.readReserve(player) == 120,
+                    "water breathing must pause reserve consumption");
+
+            player.removeEffect(MobEffects.WATER_BREATHING);
+            player.getItemBySlot(EquipmentSlot.HEAD).enchant(Enchantments.RESPIRATION, 3);
+            DiveOxygenManager.tick(player);
+            helper.assertTrue(DiveOxygenManager.readReserve(player) == 119,
+                    "respiration must not extend the custom reserve");
+
+            player.setPos(helper.absolutePos(new BlockPos(3, 100, 3)).getCenter());
+            player.tick();
+            setReserve(player, 120);
+            DiveOxygenManager.tick(player);
+            helper.assertTrue(DiveOxygenManager.readReserve(player) == 140,
+                    "real air must refill the reserve by twenty ticks, reserve="
+                            + DiveOxygenManager.readReserve(player)
+                            + ", submerged=" + DiveSuitEligibility.evaluate(player).submergedEyes());
+
+            player.setPos(helper.absolutePos(new BlockPos(3, 3, 3)).getCenter());
+            player.tick();
+            player.creative = true;
+            setReserve(player, 120);
+            DiveOxygenManager.tick(player);
+            helper.assertTrue(!DiveSuitEligibility.evaluate(player).eligible()
+                            && DiveOxygenManager.readReserve(player) == 120,
+                    "creative mode must leave dive movement and oxygen inactive");
+
+            player.creative = false;
+            player.spectator = true;
+            DiveOxygenManager.tick(player);
+            helper.assertTrue(!DiveSuitEligibility.evaluate(player).eligible()
+                            && DiveOxygenManager.readReserve(player) == 120,
+                    "spectator mode must leave dive movement and oxygen inactive");
+
+            player.spectator = false;
+            player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+            DiveOxygenManager.tick(player);
+            helper.assertTrue(!DiveSuitEligibility.evaluate(player).fullSuit()
+                            && DiveOxygenManager.readReserve(player) == 120,
+                    "partial equipment must preserve the reserve without activating it");
+
+            player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.DIVE_CHESTPLATE));
+            player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ModItems.DIVE_HELMET));
+            helper.setBlock(new BlockPos(3, 5, 3), Blocks.BUBBLE_COLUMN.defaultBlockState());
+            player.tick();
+            setReserve(player, 120);
+            DiveOxygenManager.tick(player);
+            helper.assertTrue(DiveSuitEligibility.evaluate(player).submergedEyes()
+                            && DiveOxygenManager.readReserve(player) == 119,
+                    "a bubble column must remain a submerged oxygen state");
+            player.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_dive_matrix", timeoutTicks = 60)
+    public static void oxygenClonePreservesReserveAndRevision(GameTestHelper helper) {
+        prepareWater(helper);
+        MutableTestPlayer original = makeMutablePlayer(helper, new BlockPos(2, 3, 2));
+        MutableTestPlayer replacement = makeMutablePlayer(helper, new BlockPos(6, 3, 2));
+        equipFullSuit(original);
+        helper.runAfterDelay(5, () -> {
+            DiveOxygenManager.readReserve(original);
+            setReserve(original, 321);
+            DiveOxygenManager.tick(original);
+            long sourceRevision = DiveOxygenManager.revision(original);
+            int sourceReserve = DiveOxygenManager.readReserve(original);
+            DiveOxygenManager.copy(original, replacement);
+            helper.assertTrue(DiveOxygenManager.readReserve(replacement) == sourceReserve,
+                    "a cloned player must retain the supported oxygen reserve");
+            helper.assertTrue(DiveOxygenManager.schema(replacement) == DiveOxygenManager.SCHEMA,
+                    "a cloned player must retain the oxygen schema");
+            helper.assertTrue(DiveOxygenManager.revision(replacement) == sourceRevision,
+                    "a cloned player must retain the authoritative revision");
+            original.remove(Entity.RemovalReason.DISCARDED);
+            replacement.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "empty", batch = "bfs_dive_lifecycle", timeoutTicks = 7600)
     public static void continuousReserveIntervalUsesRealAirRefill(GameTestHelper helper) {
         prepareWater(helper);
@@ -231,6 +324,39 @@ public final class BfsDiveGameTests {
         player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.DIVE_CHESTPLATE));
         player.setItemSlot(EquipmentSlot.LEGS, new ItemStack(ModItems.DIVE_LEGGINGS));
         player.setItemSlot(EquipmentSlot.FEET, new ItemStack(ModItems.DIVE_BOOTS));
+    }
+
+    private static void setReserve(Player player, int reserve) {
+        player.getPersistentData().putInt("bfs_dive_oxygen_schema", DiveOxygenManager.SCHEMA);
+        player.getPersistentData().putBoolean("bfs_dive_oxygen_initialized", true);
+        player.getPersistentData().putInt("bfs_dive_oxygen_ticks", reserve);
+    }
+
+    private static MutableTestPlayer makeMutablePlayer(GameTestHelper helper, BlockPos localPosition) {
+        MutableTestPlayer player = new MutableTestPlayer(helper);
+        player.setPos(helper.absolutePos(localPosition).getCenter());
+        helper.getLevel().addFreshEntity(player);
+        return player;
+    }
+
+    private static final class MutableTestPlayer extends Player {
+        private boolean creative;
+        private boolean spectator;
+
+        private MutableTestPlayer(GameTestHelper helper) {
+            super(helper.getLevel(), BlockPos.ZERO, 0.0F,
+                    new GameProfile(UUID.randomUUID(), "dive-matrix"));
+        }
+
+        @Override
+        public boolean isCreative() {
+            return creative;
+        }
+
+        @Override
+        public boolean isSpectator() {
+            return spectator;
+        }
     }
 
     private static final class LifecycleWitness {

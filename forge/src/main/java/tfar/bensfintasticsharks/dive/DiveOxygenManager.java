@@ -33,7 +33,8 @@ public final class DiveOxygenManager {
         Initialization initialization = eligibility.fullSuit() ? ensureInitialized(data) : inspect(data);
         int before = data.contains(RESERVE_KEY) ? readReserve(data) : 0;
         int reserve = initialization.supported() ? before : 0;
-        if (eligibility.fullSuit() && initialization.supported() && !initialization.corrupt()) {
+        boolean modeAllowed = !player.isCreative() && !player.isSpectator();
+        if (eligibility.fullSuit() && modeAllowed && initialization.supported() && !initialization.corrupt()) {
             boolean submerged = eligibility.submergedEyes();
             boolean externalBreathing = player.hasEffect(MobEffects.WATER_BREATHING);
             String transition = "steady";
@@ -73,7 +74,8 @@ public final class DiveOxygenManager {
                         transition, consumed, refilled, externalBreathing ? "water_breathing" : "none");
             }
         } else if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer
-                && (eligibility.fullSuit() || initialization.unsupported() || initialization.corrupt())) {
+                && ((eligibility.fullSuit() && modeAllowed)
+                || initialization.unsupported() || initialization.corrupt())) {
             BfsDebugManager.recordDiveOxygen(serverPlayer, eligibility, before, reserve,
                     initialization.reason(), false, false, initialization.reason());
         }
@@ -175,9 +177,10 @@ public final class DiveOxygenManager {
                              Initialization initialization) {
         if (!(player instanceof ServerPlayer serverPlayer)) return;
         CompoundTag data = player.getPersistentData();
+        boolean modeAllowed = !player.isCreative() && !player.isSpectator();
         String movementMode = eligibility.eligible() && initialization.supported() ? "seabed" : "vanilla";
         boolean externalBreathing = player.hasEffect(MobEffects.WATER_BREATHING);
-        String oxygenMode = !eligibility.fullSuit() || !initialization.supported() ? "vanilla"
+        String oxygenMode = !eligibility.fullSuit() || !modeAllowed || !initialization.supported() ? "vanilla"
                 : externalBreathing ? "external_breathing"
                 : eligibility.submergedEyes() ? reserve > 0 ? "protected" : "empty" : "air";
         boolean initialized = data.getBoolean(SYNC_INITIALIZED_KEY);
