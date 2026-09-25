@@ -28,10 +28,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public final class SpeciesSettingsService {
 
     public enum Field {
-        HORIZONTAL_SPEED("horizontal_speed", "blocks_per_second", 0.0D, 20.0D),
-        VERTICAL_SPEED("vertical_speed", "blocks_per_second", 0.0D, 20.0D),
-        HORIZONTAL_SPRINT("horizontal_sprint", "multiplier", 0.0D, 4.0D),
-        VERTICAL_SPRINT("vertical_sprint", "multiplier", 0.0D, 4.0D),
+        HORIZONTAL_SPEED("horizontal_speed", "blocks_per_second", 0.0D, Double.MAX_VALUE),
+        VERTICAL_SPEED("vertical_speed", "blocks_per_second", 0.0D, Double.MAX_VALUE),
+        HORIZONTAL_SPRINT("horizontal_sprint", "multiplier", 0.0D, Double.MAX_VALUE),
+        VERTICAL_SPRINT("vertical_sprint", "multiplier", 0.0D, Double.MAX_VALUE),
         SPAWN_GROUP_MIN("spawn_group_min", "entities", 1.0D, 32.0D),
         SPAWN_GROUP_MAX("spawn_group_max", "entities", 1.0D, 32.0D),
         SCALE_MIN("scale_min", "multiplier", 0.25D, 2.0D),
@@ -105,6 +105,11 @@ public final class SpeciesSettingsService {
 
         public double maximum() {
             return maximum;
+        }
+
+        public String boundsDescription() {
+            return maximum == Double.MAX_VALUE ? "finite values of " + minimum + " or greater"
+                    : minimum + " to " + maximum;
         }
 
         public boolean accepts(double value) {
@@ -259,6 +264,15 @@ public final class SpeciesSettingsService {
 
     public static int intValue(Entity entity, Field field, int fallback) {
         return (int) Math.round(valueFor(entity, field, fallback));
+    }
+
+    public static boolean hasMovementOverrides(Entity entity) {
+        if (entity == null) return false;
+        var profile = SpeciesBehaviorProfile.forEntity(entity);
+        Map<Field, Double> overrides = profile == null ? null : state.overrides().get(profile.id());
+        return overrides != null && (overrides.containsKey(Field.HORIZONTAL_SPEED)
+                || overrides.containsKey(Field.VERTICAL_SPEED) || overrides.containsKey(Field.HORIZONTAL_SPRINT)
+                || overrides.containsKey(Field.VERTICAL_SPRINT));
     }
 
     /** Pursuit and escape are the only states that activate sprint multipliers. */
@@ -420,7 +434,7 @@ public final class SpeciesSettingsService {
         for (Field field : patch.keySet()) {
             if (field == null) return "unknown field";
             if (!field.accepts(patch.get(field))) {
-                return field.id() + " must be between " + field.minimum() + " and " + field.maximum()
+                return field.id() + " accepts " + field.boundsDescription()
                         + " " + field.unit();
             }
         }
@@ -452,6 +466,15 @@ public final class SpeciesSettingsService {
     }
 
     private static String validatePairs(Map<Field, Double> values) {
+        for (Field speed : List.of(Field.HORIZONTAL_SPEED, Field.VERTICAL_SPEED)) {
+            Field sprint = speed == Field.HORIZONTAL_SPEED ? Field.HORIZONTAL_SPRINT : Field.VERTICAL_SPRINT;
+            double base = values.get(speed);
+            double boosted = base * values.get(sprint);
+            if (!Double.isFinite(boosted) || !Float.isFinite((float) (base / 20.0D))
+                    || !Float.isFinite((float) (boosted / 20.0D))) {
+                return speed.id() + " and " + sprint.id() + " must produce a finite engine movement speed";
+            }
+        }
         if (values.get(Field.SCALE_MIN) > values.get(Field.SCALE_MAX)) {
             return "scale_min cannot exceed scale_max";
         }

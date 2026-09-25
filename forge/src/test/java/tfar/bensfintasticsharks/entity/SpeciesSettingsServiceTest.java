@@ -23,6 +23,38 @@ class SpeciesSettingsServiceTest {
     }
 
     @Test
+    void speedAndSprintAcceptValuesBeyondFormerCommandCaps() {
+        for (double value : new double[] {50.0D, 100.0D, 250.0D, 1000.0D}) {
+            var result = SpeciesSettingsService.apply(SpeciesSettingsService.revision(), "*", Map.of(
+                    SpeciesSettingsService.Field.HORIZONTAL_SPEED, value,
+                    SpeciesSettingsService.Field.VERTICAL_SPEED, value,
+                    SpeciesSettingsService.Field.HORIZONTAL_SPRINT, value,
+                    SpeciesSettingsService.Field.VERTICAL_SPRINT, value));
+            assertTrue(result.applied(), result.reason());
+            assertEquals(value, SpeciesSettingsService.resolve("oceanic_whitetip_shark")
+                    .field(SpeciesSettingsService.Field.VERTICAL_SPRINT).value());
+        }
+    }
+
+    @Test
+    void uncappedMovementFieldsStillRejectInvalidNumbersAtomically() {
+        for (var field : List.of(SpeciesSettingsService.Field.HORIZONTAL_SPEED,
+                SpeciesSettingsService.Field.VERTICAL_SPEED, SpeciesSettingsService.Field.HORIZONTAL_SPRINT,
+                SpeciesSettingsService.Field.VERTICAL_SPRINT)) {
+            for (double invalid : new double[] {-1.0D, Double.NaN, Double.POSITIVE_INFINITY}) {
+                long revision = SpeciesSettingsService.revision();
+                assertFalse(SpeciesSettingsService.apply(revision, "*", Map.of(field, invalid)).applied());
+                assertEquals(revision, SpeciesSettingsService.revision());
+            }
+        }
+        long revision = SpeciesSettingsService.revision();
+        assertFalse(SpeciesSettingsService.apply(revision, "*", Map.of(
+                SpeciesSettingsService.Field.VERTICAL_SPEED, Double.MAX_VALUE,
+                SpeciesSettingsService.Field.VERTICAL_SPRINT, Double.MAX_VALUE)).applied());
+        assertEquals(revision, SpeciesSettingsService.revision());
+    }
+
+    @Test
     void inventoryContainsEveryCurrentSpeciesAndEveryTypedField() {
         assertEquals(22, SpeciesSettingsService.speciesIds().size());
         assertEquals(SpeciesSettingsService.Field.values().length,
@@ -105,7 +137,7 @@ class SpeciesSettingsServiceTest {
     void invalidOrStalePatchLeavesTheWholeSnapshotUnchanged() {
         long revision = SpeciesSettingsService.revision();
         Map<SpeciesSettingsService.Field, Double> invalid = Map.of(
-                SpeciesSettingsService.Field.HORIZONTAL_SPEED, 21.0D);
+                SpeciesSettingsService.Field.HORIZONTAL_SPEED, -1.0D);
         SpeciesSettingsService.MutationResult invalidResult = SpeciesSettingsService.apply(revision, "*", invalid);
         assertFalse(invalidResult.applied());
         assertEquals(revision, SpeciesSettingsService.revision());

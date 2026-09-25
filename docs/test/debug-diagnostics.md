@@ -52,6 +52,21 @@ complete server baseline and preserves valid session overrides; an invalid basel
 as one transaction. The specialized aliases delegate to the same service and do not write TOML or
 create a persistent profile.
 
+`setspeed` uses blocks per second and `setsprint` uses multipliers. Both commands, and
+their equivalent `settings set` fields, accept nonnegative finite values without a gameplay
+maximum, including 100 and above. Invalid numbers and combinations that overflow the engine's
+numeric representation are rejected atomically. Other fields retain their declared bounds.
+
+For example, `/bfs debug setspeed oceanic_whitetip_shark 4 5` followed by
+`/bfs debug setsprint oceanic_whitetip_shark 0.8 1.6` requests horizontal chase speed 3.2
+and vertical chase speed 8 blocks per second. A multiplier below 1 slows that axis.
+The body direction distributes those values across the movement vector. Acceleration,
+turning, arrival braking, and water and obstacle clearance can reduce actual displacement.
+The vertical coefficient is independent of horizontal speed during ordinary pursuit while
+a speed or sprint override is active. Resetting all four movement fields restores default movement.
+Bare species names, the full `bensfintasticsharks:` namespace, the `bfs:` alias, and unquoted `*`
+are accepted by the species tuning commands.
+
 The disturbance catalog uses the same session snapshot and revision. The global fields are
 `disturbance_enabled`, `disturbance_reaction`, `disturbance_radius`,
 `disturbance_sensitivity`, `disturbance_interval_ticks`, `disturbance_alert_ticks`, and
@@ -248,15 +263,14 @@ The parser preserves the raw sample history and writes `verdict.json` and `summa
 
 The candidate manifest supplies the scenario and requirement identity plus the only acceptance thresholds applied by the parser. For example, a scenario can bind an expected artifact hash and entity-specific sample count, moving transitions, net vertical displacement, coordinate continuity, pitch transition limits, required implemented fields, and route-shape limits. A field with an `unavailable:` reason is valid telemetry only when no current claim requires it. The analyzer reports measured peaks and complete history instead of inventing limits.
 
-For the current fish and shark vertical profile, server movement captures must also be
-checked against the selected class ratio and the matching pre-ceiling scalar speed.
-Atlantic Cod and Atlantic Salmon fixtures are expected to remain within
-`abs(powered vertical velocity) <= Vreference * 0.20`. Shark fixtures are expected to
-remain within `abs(powered vertical velocity) <= Vreference * 0.25`. Each ratio applies
-once to the accepted same-species, same-state scalar speed. The controller eases the
-transition from its prior controlled value. Bottlenose Dolphin remains the qualitative
-smoothness reference and is not included in either class cap assertion. A first tick
-must not inherit the full unscaled vanilla vertical impulse.
+For the current fish and shark vertical profile, compare powered vertical movement with
+the effective vertical speed and active vertical sprint multiplier, divided by 20 for
+blocks per tick. The controller reports this value as `verticalSpeedCeiling` and reports
+the effective vertical to horizontal ratio as `verticalSpeedRatio` when horizontal
+speed is nonzero. Untuned movement retains its original class ratio diagnostics.
+The former fixed fish and shark class ratios do not cap session tuning.
+Turning and swept water clearance still apply. External impulses remain separate from
+the controller's powered movement.
 
 Movement records also expose `speciesProfile`, `locomotionMode`, `behaviorAction`,
 `scalarPropulsionSpeed`, `verticalTravelClass`, `verticalSpeedRatio`,

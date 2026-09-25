@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0-rc.2-hotfix.1
+
+This testing hotfix targets Minecraft 1.20.1 and Forge 47.2.0.
+
+* Removed the gameplay maximum from debug speed and sprint values. Values of 100 and above are accepted, with negative, nonfinite, and numerically overflowing combinations rejected.
+* Fixed ordinary shark and fish travel using different movement math from the tuning tests. Active horizontal and vertical overrides now reach the same movement calculation during pursuit. Resetting movement settings restores default behavior.
+* Fixed a tuned long vertical route retaining its slow turning throttle after the shark was already aligned upward or downward.
+* Fixed unquoted `*` targets and namespaced species IDs in species tuning commands.
+* Kept water and obstacle clearance, arrival braking, operator permissions, and session reset behavior.
+
+Replace the previous BFS JAR with this file. Keep only one BFS JAR installed, use the matching version on the client and server, and reapply session tuning after restarting. Dependencies are unchanged. Ben's `setspeed` values of `4 5` and `setsprint` values of `0.8 1.6` request chase coefficients of 3.2 horizontally and 8 vertically; a sprint multiplier below one reduces that axis.
+
 ## 1.0-rc.1, Release Candidate 1.0
 
 This prerelease candidate targets Minecraft 1.20.1 Forge and carries the

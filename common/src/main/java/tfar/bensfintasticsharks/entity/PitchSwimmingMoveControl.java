@@ -81,10 +81,14 @@ public class PitchSwimmingMoveControl extends MoveControl {
 
     public Snapshot snapshot() {
         double verticalReferenceSpeed = Math.abs(mob.getSpeed());
+        boolean tuning = SpeciesSettingsService.hasMovementOverrides(mob);
+        double verticalCeiling = tuning ? configuredVerticalSpeedPerTick() : verticalReferenceSpeed * verticalSpeedRatio;
+        double effectiveRatio = tuning && verticalReferenceSpeed > 1.0e-8
+                ? verticalCeiling / verticalReferenceSpeed : verticalSpeedRatio;
         return new Snapshot(routeAttempt, routeState, requestedGoal, selectedWaypoint, targetPitch,
                 requestedGoal == null ? 0 : mob.position().distanceTo(requestedGoal), stalledTicks,
-                poweredCarry, mob.getDeltaMovement().subtract(poweredCarry), verticalSpeedRatio,
-                verticalReferenceSpeed, verticalReferenceSpeed * verticalSpeedRatio, settling,
+                poweredCarry, mob.getDeltaMovement().subtract(poweredCarry), effectiveRatio,
+                verticalReferenceSpeed, verticalCeiling, settling,
                 pitchRate, routeSpeedCap, depthGuidance == null ? 0 : depthGuidance.curvature(),
                 longDirectVerticalRoute, waitingForHeading, mob.getYRot(), committedYaw);
     }
@@ -334,8 +338,13 @@ public class PitchSwimmingMoveControl extends MoveControl {
         if (distance < 1.5 && delta.horizontalDistance() > horizontalHeadingThreshold) {
             routeSpeedCap = Math.max(routeSpeedCap, Math.min(distance * 0.1, forwardTravelFloor));
         }
+        boolean tuning = SpeciesSettingsService.hasMovementOverrides(mob);
+        if (tuning) {
+            double requestedSpeed = configuredPoweredVelocity(routeForward, directVerticalTarget).length();
+            routeSpeedCap = Math.min(distance * 0.1, requestedSpeed) * Math.max(0.25, headingThrottle);
+        }
         if (holdForHeading) routeSpeedCap = 0;
-        if (longDirectVerticalRoute) {
+        if (longDirectVerticalRoute && (!tuning || Math.abs(routeForward.y) < 0.95D)) {
             // Turn toward a true vertical destination before translating. Allowing the
             // horizontal component of the level pose to run for the full pitch transition
             // carries small fish out of bounded test volumes and makes a vertical climb look
@@ -499,8 +508,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
     /** External velocity is the change since the last owned carry, not an orthogonal guess. */
     public void travel(double acceleration, double friction, double horizontalCap, double speedFloor,
                         Vec3 input) {
-        if (MovementIntentOverrides.active(mob)) {
-            travelFixture(acceleration, friction, horizontalCap, speedFloor, input);
+        if (SpeciesSettingsService.hasMovementOverrides(mob)) {
+            travelConfigured(acceleration, friction, horizontalCap, speedFloor, input);
             return;
         }
 
@@ -602,8 +611,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
         poweredCarry = powered.scale(friction);
     }
 
-    private void travelFixture(double acceleration, double friction, double horizontalCap, double speedFloor,
-                               Vec3 input) {
+    private void travelConfigured(double acceleration, double friction, double horizontalCap, double speedFloor,
+                                  Vec3 input) {
         Vec3 delta = mob.getDeltaMovement();
         Vec3 external = new Vec3(externalComponent(delta.x, poweredCarry.x),
                 externalComponent(delta.y, poweredCarry.y), externalComponent(delta.z, poweredCarry.z));
@@ -613,26 +622,24 @@ public class PitchSwimmingMoveControl extends MoveControl {
         // permanently bootstrap at rest while the nose continues pitching. Own the forward input
         // for that state so a wanted route always has a finite forward propulsion source.
         double propulsionInput = input.z;
-        boolean fixtureInput = input.lengthSqr() > 1.0e-8;
-        if (propulsionInput <= 0.0 && (fixtureInput || operation == Operation.MOVE_TO
+        if (propulsionInput <= 0.0 && (operation == Operation.MOVE_TO
                 || (settling && routeSpeedCap > 0))) {
             propulsionInput = 1.0;
         }
         Vec3 forward = AquaticMovement.forwardVector(mob.getYRot(), mob.getXRot());
         boolean meaningfulVerticalError = Math.abs(remainingVerticalDistance) > 0.05;
-        boolean opposingPitch = routeStartedWithOpposingPitch && isOpposingPitch(forward)
-                && (route == null || route.isApproaching() || !navigationOwned);
-        Vec3 requested = configuredPoweredVelocity(forward, directVerticalTarget, horizontalCap);
+        Vec3 requested = configuredPoweredVelocity(forward, directVerticalTarget);
         double requestedMagnitude = requested.length();
-        double speed = Math.max(0, poweredCarry.length() + acceleration * Math.max(0, propulsionInput));
+        double horizontalReference = configuredHorizontalSpeedPerTick();
+        double response = horizontalReference > 1.0e-8
+                ? acceleration / horizontalReference : 0.25D;
+        double speed = Math.max(0, poweredCarry.length()
+                + requestedMagnitude * response * Math.max(0, propulsionInput));
         if (propulsionInput > 0) {
             speed = Math.max(speed, speedFloor);
             speed = Math.min(speed, requestedMagnitude);
         } else {
             speed = 0;
-        }
-        if (propulsionInput > 0 && fixtureInput) {
-            speed = requestedMagnitude;
         }
         if (Double.isFinite(routeSpeedCap)) speed = Math.min(speed, routeSpeedCap);
         if ((propulsionInput > 0 || settling) && (depthGuidance != null || settling)) {
@@ -640,7 +647,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
                     && forward.y * remainingVerticalDistance < -1.0e-6;
             float desiredRate = settling
                     ? AquaticMovement.stepPitch(mob.getXRot(), pitchRate, 0).rate()
-                    : correctingVerticalDirection
+                    : correctingVerticalDirection || directVerticalTarget || requestedMagnitude <= 1.0e-8
                     ? AquaticMovement.stepPitch(mob.getXRot(), pitchRate, targetPitch).rate()
                     : (float) -Math.toDegrees(depthGuidance.curvature() * speed);
             desiredRate = Mth.clamp(desiredRate, -AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK,
@@ -666,7 +673,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
             nextRate = Mth.clamp(nextRate, pitchRate - accelerationMargin, pitchRate + accelerationMargin);
             float nextPitch = Mth.clamp(mob.getXRot() + nextRate, -activeUpwardLimit, activeDownwardLimit);
             Vec3 nextForward = AquaticMovement.forwardVector(mob.getYRot(), nextPitch);
-            Vec3 nextRequested = configuredPoweredVelocity(nextForward, directVerticalTarget, horizontalCap);
+            Vec3 nextRequested = configuredPoweredVelocity(nextForward, directVerticalTarget);
             if (meaningfulVerticalError && Math.abs(nextRequested.y) > 1.0e-8) {
                 speed = Math.min(speed, Math.abs(remainingVerticalDistance)
                         * nextRequested.length() / Math.abs(nextRequested.y));
@@ -688,9 +695,10 @@ public class PitchSwimmingMoveControl extends MoveControl {
                 speed = 0.0D;
             }
         }
-        requested = configuredPoweredVelocity(forward, directVerticalTarget, horizontalCap);
+        requested = configuredPoweredVelocity(forward, directVerticalTarget);
         speed = Math.min(speed, requested.length());
         Vec3 powered = scaleToMagnitude(requested, speed);
+        if (!clearSegment(mob.position(), mob.position().add(powered))) powered = Vec3.ZERO;
         mob.setDeltaMovement(external.add(powered));
         mob.move(MoverType.SELF, mob.getDeltaMovement());
         Vec3 afterCollision = mob.getDeltaMovement();
@@ -716,16 +724,11 @@ public class PitchSwimmingMoveControl extends MoveControl {
 
     /** Builds the IFC 003 powered vector from the body direction without collapsing both axes
      * into one scalar speed. */
-    private Vec3 configuredPoweredVelocity(Vec3 forward, boolean directVertical, double horizontalCap) {
+    private Vec3 configuredPoweredVelocity(Vec3 forward, boolean directVertical) {
         double horizontal = configuredHorizontalSpeedPerTick();
         double vertical = configuredVerticalSpeedPerTick();
         Vec3 requested = new Vec3(forward.x * horizontal, forward.y * vertical, forward.z * horizontal);
         if (directVertical) requested = verticalOnly(requested);
-        double horizontalLength = requested.horizontalDistance();
-        if (horizontalLength > horizontalCap && horizontalLength > 1.0e-8) {
-            double scale = horizontalCap / horizontalLength;
-            requested = new Vec3(requested.x * scale, requested.y, requested.z * scale);
-        }
         return requested;
     }
 

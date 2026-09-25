@@ -319,9 +319,9 @@ public final class BfsMovementOracleGameTests {
             reanchorForNextTick();
             if (sprintActiveFixture && target != null && target.isAlive()) mob.setTarget(target);
             if (mob.getMoveControl() instanceof SharkSwimmingMoveControl control && control.snapshot() != null) {
-                control.travel(0.0D, 0.82D, 1.0D, 0.0D, input);
+                control.travel(1.0D, 0.82D, 1.0D, 0.0D, input);
             } else if (mob.getMoveControl() instanceof PitchSwimmingMoveControl control) {
-                control.travel(0.0D, 0.9D, 1.0D, 0.0D, input);
+                control.travel(1.0D, 0.9D, 1.0D, 0.0D, input);
             } else {
                 mob.travel(input);
             }

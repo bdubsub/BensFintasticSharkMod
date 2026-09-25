@@ -19,7 +19,7 @@ def bfsGameTestRunDirectory = providers.gradleProperty('bfsGameTestRunDir')
         .map { file(it) }
         .getOrElse(file('run'))
 def bfsGameTestNamespaces = providers.gradleProperty('bfsGameTestNamespaces')
-        .getOrElse("${mod_id},bfsfollow")
+        .getOrElse("${mod_id},bfsfollow,bfstuning")
 def bfsClientRunDirectory = providers.gradleProperty('bfsClientRunDir')
         .map { file(it) }
         .getOrElse(file('run'))

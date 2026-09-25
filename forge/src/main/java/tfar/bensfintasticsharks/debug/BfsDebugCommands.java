@@ -6,11 +6,13 @@ import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerLevel;
@@ -59,7 +61,7 @@ public final class BfsDebugCommands {
                                                         StringArgumentType.getString(context, "category"),
                                                         IntegerArgumentType.getInteger(context, "ticks"),
                                                         EntityArgument.getEntities(context, "targets"))))));
-        return Commands.literal("debug")
+        LiteralArgumentBuilder<CommandSourceStack> debug = Commands.literal("debug")
                 .then(on)
                 .then(Commands.literal("off").executes(BfsDebugCommands::stop))
                 .then(Commands.literal("status").executes(BfsDebugCommands::status))
@@ -74,6 +76,28 @@ public final class BfsDebugCommands {
                 .then(attributeNode("setdamage", SpeciesSettingsService.Field.DAMAGE_MULTIPLIER))
                 .then(attributeNode("setknockback", SpeciesSettingsService.Field.KNOCKBACK_RESISTANCE))
                 .then(behaviorNode());
+        for (CommandNode<CommandSourceStack> child : debug.getArguments()) addWildcardTargets(child);
+        return debug;
+    }
+
+    private static void addWildcardTargets(CommandNode<CommandSourceStack> node) {
+        for (CommandNode<CommandSourceStack> child : List.copyOf(node.getChildren())) {
+            addWildcardTargets(child);
+            if (!"entity".equals(child.getName())) continue;
+            var wildcard = Commands.literal("*").requires(child.getRequirement());
+            if (child.getCommand() != null) wildcard.executes(child.getCommand());
+            for (CommandNode<CommandSourceStack> argument : child.getChildren()) wildcard.then(argument);
+            node.addChild(wildcard.build());
+        }
+    }
+
+    private static String speciesTarget(CommandContext<CommandSourceStack> context) {
+        for (var node : context.getNodes()) {
+            if ("*".equals(node.getNode().getName())) return "*";
+        }
+        var id = ResourceLocationArgument.getId(context, "entity");
+        return Set.of("minecraft", "bfs", "bensfintasticsharks").contains(id.getNamespace())
+                ? id.getPath() : id.toString();
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> algaeNode() {
@@ -169,11 +193,11 @@ public final class BfsDebugCommands {
                 .then(Commands.literal("help").executes(BfsDebugCommands::settingsHelp))
                 .then(Commands.literal("list").executes(BfsDebugCommands::settingsList))
                 .then(Commands.literal("get")
-                        .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
                                 .executes(context -> settingsGet(context,
-                                        StringArgumentType.getString(context, "entity")))))
+                                        speciesTarget(context)))))
                 .then(Commands.literal("set")
-                        .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
                                 .then(Commands.argument("field", StringArgumentType.word()).suggests(FIELD_SUGGESTIONS)
                                         .then(Commands.argument("value", DoubleArgumentType.doubleArg())
                                                 .executes(context -> settingsSet(context, currentRevision()))
@@ -182,16 +206,16 @@ public final class BfsDebugCommands {
                                                                 LongArgumentType.getLong(context, "revision"))))))))
                 .then(Commands.literal("reset")
                         .executes(context -> settingsReset(context, "*", Set.of(), currentRevision()))
-                        .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
                                 .executes(context -> settingsReset(context,
-                                        StringArgumentType.getString(context, "entity"), Set.of(), currentRevision()))
+                                        speciesTarget(context), Set.of(), currentRevision()))
                                 .then(Commands.argument("field", StringArgumentType.word()).suggests(FIELD_SUGGESTIONS)
                                         .executes(context -> settingsReset(context,
-                                                StringArgumentType.getString(context, "entity"),
+                                                speciesTarget(context),
                                                 parseFieldSet(StringArgumentType.getString(context, "field")), currentRevision()))
                                         .then(Commands.argument("revision", LongArgumentType.longArg())
                                                 .executes(context -> settingsReset(context,
-                                                        StringArgumentType.getString(context, "entity"),
+                                                        speciesTarget(context),
                                                         parseFieldSet(StringArgumentType.getString(context, "field")),
                                                         LongArgumentType.getLong(context, "revision"))))))
                         .then(Commands.argument("revision", LongArgumentType.longArg())
@@ -202,9 +226,9 @@ public final class BfsDebugCommands {
 
     private static LiteralArgumentBuilder<CommandSourceStack> speedNode() {
         return Commands.literal("setspeed")
-                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
-                        .then(Commands.argument("horizontal", DoubleArgumentType.doubleArg(0.0D, 20.0D))
-                                .then(Commands.argument("vertical", DoubleArgumentType.doubleArg(0.0D, 20.0D))
+                .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("horizontal", DoubleArgumentType.doubleArg(0.0D))
+                                .then(Commands.argument("vertical", DoubleArgumentType.doubleArg(0.0D))
                                         .executes(context -> setSpeed(context, currentRevision()))
                                         .then(Commands.argument("revision", LongArgumentType.longArg())
                                                 .executes(context -> setSpeed(context,
@@ -213,9 +237,9 @@ public final class BfsDebugCommands {
 
     private static LiteralArgumentBuilder<CommandSourceStack> sprintNode() {
         return Commands.literal("setsprint")
-                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
-                        .then(Commands.argument("horizontal", DoubleArgumentType.doubleArg(0.0D, 4.0D))
-                                .then(Commands.argument("vertical", DoubleArgumentType.doubleArg(0.0D, 4.0D))
+                .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
+                        .then(Commands.argument("horizontal", DoubleArgumentType.doubleArg(0.0D))
+                                .then(Commands.argument("vertical", DoubleArgumentType.doubleArg(0.0D))
                                         .executes(context -> setSprint(context, currentRevision()))
                                         .then(Commands.argument("revision", LongArgumentType.longArg())
                                                 .executes(context -> setSprint(context,
@@ -224,7 +248,7 @@ public final class BfsDebugCommands {
 
     private static LiteralArgumentBuilder<CommandSourceStack> spawnSizeNode() {
         return Commands.literal("setspawnsize")
-                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
                         .then(Commands.argument("minimum", IntegerArgumentType.integer(1, 32))
                                 .then(Commands.argument("maximum", IntegerArgumentType.integer(1, 32))
                                         .executes(context -> setSpawnSize(context, currentRevision()))
@@ -235,7 +259,7 @@ public final class BfsDebugCommands {
 
     private static LiteralArgumentBuilder<CommandSourceStack> scaleNode() {
         return Commands.literal("setscale")
-                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
                         .then(Commands.argument("minimum", DoubleArgumentType.doubleArg(0.25D, 2.0D))
                                 .then(Commands.argument("maximum", DoubleArgumentType.doubleArg(0.25D, 2.0D))
                                         .executes(context -> setScale(context, currentRevision()))
@@ -249,7 +273,7 @@ public final class BfsDebugCommands {
         double minimum = field.minimum();
         double maximum = field.maximum();
         return Commands.literal(name)
-                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
                         .then(Commands.argument("value", DoubleArgumentType.doubleArg(minimum, maximum))
                                 .executes(context -> setSingle(context, field, currentRevision()))
                                 .then(Commands.argument("revision", LongArgumentType.longArg())
@@ -259,7 +283,7 @@ public final class BfsDebugCommands {
 
     private static LiteralArgumentBuilder<CommandSourceStack> behaviorNode() {
         return Commands.literal("setbehavior")
-                .then(Commands.argument("entity", StringArgumentType.word()).suggests(SPECIES_SUGGESTIONS)
+                .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
                         .then(Commands.argument("detection", DoubleArgumentType.doubleArg(0.0D, 256.0D))
                                 .then(Commands.argument("disengage", DoubleArgumentType.doubleArg(0.0D, 512.0D))
                                         .then(Commands.argument("action_timeout", IntegerArgumentType.integer(1, 20_000))
@@ -302,8 +326,8 @@ public final class BfsDebugCommands {
         for (SpeciesSettingsService.Field field : SpeciesSettingsService.fields()) {
             source.sendSuccess(() -> Component.literal("  " + field.id() + ": ")
                     .withStyle(ChatFormatting.GREEN)
-                    .append(Component.literal(field.unit() + ", " + field.minimum() + " to "
-                            + field.maximum()).withStyle(ChatFormatting.WHITE)), false);
+                    .append(Component.literal(field.unit() + ", " + field.boundsDescription())
+                            .withStyle(ChatFormatting.WHITE)), false);
         }
         source.sendSuccess(() -> Component.literal("  Revision: " + SpeciesSettingsService.revision())
                 .withStyle(ChatFormatting.GRAY), false);
@@ -355,7 +379,7 @@ public final class BfsDebugCommands {
         Map<SpeciesSettingsService.Field, Double> patch = new EnumMap<>(SpeciesSettingsService.Field.class);
         patch.put(field, DoubleArgumentType.getDouble(context, "value"));
         return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
-                StringArgumentType.getString(context, "entity"), patch));
+                speciesTarget(context), patch));
     }
 
     private static int settingsReset(CommandContext<CommandSourceStack> context, String target,
@@ -386,7 +410,7 @@ public final class BfsDebugCommands {
         patch.put(SpeciesSettingsService.Field.VERTICAL_SPEED,
                 DoubleArgumentType.getDouble(context, "vertical"));
         return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
-                StringArgumentType.getString(context, "entity"), patch));
+                speciesTarget(context), patch));
     }
 
     private static int setSprint(CommandContext<CommandSourceStack> context, long expectedRevision) {
@@ -396,7 +420,7 @@ public final class BfsDebugCommands {
         patch.put(SpeciesSettingsService.Field.VERTICAL_SPRINT,
                 DoubleArgumentType.getDouble(context, "vertical"));
         return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
-                StringArgumentType.getString(context, "entity"), patch));
+                speciesTarget(context), patch));
     }
 
     private static int setSpawnSize(CommandContext<CommandSourceStack> context, long expectedRevision) {
@@ -406,7 +430,7 @@ public final class BfsDebugCommands {
         patch.put(SpeciesSettingsService.Field.SPAWN_GROUP_MAX,
                 (double) IntegerArgumentType.getInteger(context, "maximum"));
         return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
-                StringArgumentType.getString(context, "entity"), patch));
+                speciesTarget(context), patch));
     }
 
     private static int setScale(CommandContext<CommandSourceStack> context, long expectedRevision) {
@@ -416,7 +440,7 @@ public final class BfsDebugCommands {
         patch.put(SpeciesSettingsService.Field.SCALE_MAX,
                 DoubleArgumentType.getDouble(context, "maximum"));
         return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
-                StringArgumentType.getString(context, "entity"), patch));
+                speciesTarget(context), patch));
     }
 
     private static int setSingle(CommandContext<CommandSourceStack> context,
@@ -424,7 +448,7 @@ public final class BfsDebugCommands {
         Map<SpeciesSettingsService.Field, Double> patch = new EnumMap<>(SpeciesSettingsService.Field.class);
         patch.put(field, DoubleArgumentType.getDouble(context, "value"));
         return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
-                StringArgumentType.getString(context, "entity"), patch));
+                speciesTarget(context), patch));
     }
 
     private static int setBehavior(CommandContext<CommandSourceStack> context, long expectedRevision) {
@@ -438,7 +462,7 @@ public final class BfsDebugCommands {
         patch.put(SpeciesSettingsService.Field.MEMORY_TICKS,
                 (double) IntegerArgumentType.getInteger(context, "memory_ticks"));
         return report(context.getSource(), SpeciesSettingsService.apply(expectedRevision,
-                StringArgumentType.getString(context, "entity"), patch));
+                speciesTarget(context), patch));
     }
 
     private static int report(CommandSourceStack source, SpeciesSettingsService.MutationResult result) {
@@ -461,6 +485,7 @@ public final class BfsDebugCommands {
     }
 
     private static String formatValue(double value) {
+        if (value >= Long.MAX_VALUE || value <= Long.MIN_VALUE) return Double.toString(value);
         if (value == Math.rint(value)) return Long.toString((long) value);
         return String.format(java.util.Locale.ROOT, "%.3f", value);
     }
