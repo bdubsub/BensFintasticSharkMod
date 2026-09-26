@@ -1,6 +1,7 @@
 # Documentation
 
 * [Project overview and setup](../README.md)
+* [RC2 tilt command verification](verification/rc2-tilt-20260925.md)
 * [RC2 debug movement hotfix verification](verification/rc2-debug-hotfix-20260924.md)
 * [Installed Forge compatibility fixture](test/packaged-compatibility.md)
 * [Final server regression and package verification](verification/phase-007/final-server-verification-20260916.md)

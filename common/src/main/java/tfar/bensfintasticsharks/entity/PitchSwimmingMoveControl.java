@@ -47,6 +47,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
     private boolean routeStartedWithOpposingPitch;
     private boolean suppressSettlingTranslation;
     private boolean routeHandoff;
+    private long tiltRevision = -1;
+    private boolean tiltWasConfigured;
 
     @Override
     public boolean hasWanted() {
@@ -174,6 +176,14 @@ public class PitchSwimmingMoveControl extends MoveControl {
             mob.setSpeed((float) configuredHorizontalSpeedPerTick());
             return;
         }
+        boolean tiltConfigured = SpeciesSettingsService.hasTiltOverrides(mob);
+        long revision = SpeciesSettingsService.revision();
+        if (revision != tiltRevision && (tiltConfigured || tiltWasConfigured)) {
+            route = null;
+            requestedGoal = null;
+        }
+        tiltRevision = revision;
+        tiltWasConfigured = tiltConfigured;
         if (!mob.isInWater()) {
             poweredCarry = Vec3.ZERO;
             stopInputs("idle");
@@ -301,10 +311,10 @@ public class PitchSwimmingMoveControl extends MoveControl {
         mob.yBodyRot = mob.getYRot();
         mob.yHeadRot = mob.getYRot();
 
-        float desiredPitch = directVerticalTarget
-                ? delta.y > 0.0D ? -90.0F : 90.0F
-                : Mth.clamp((float) -Math.toDegrees(Math.atan2(delta.y, delta.horizontalDistance())),
-                -upwardLimit, downwardLimit);
+        float routePitch = directVerticalTarget ? delta.y > 0.0D ? -90.0F : 90.0F
+                : (float) -Math.toDegrees(Math.atan2(delta.y, delta.horizontalDistance()));
+        float desiredPitch = Mth.clamp(routePitch,
+                -activePitchLimit(true, directVerticalTarget), activePitchLimit(false, directVerticalTarget));
         targetPitch = desiredPitch;
         depthGuidance = AquaticDepthGuidance.approach(delta.horizontalDistance(), delta.y, mob.getXRot());
 
@@ -344,7 +354,10 @@ public class PitchSwimmingMoveControl extends MoveControl {
             routeSpeedCap = Math.min(distance * 0.1, requestedSpeed) * Math.max(0.25, headingThrottle);
         }
         if (holdForHeading) routeSpeedCap = 0;
-        if (longDirectVerticalRoute && (!tuning || Math.abs(routeForward.y) < 0.95D)) {
+        boolean verticalTurnPending = tiltConfigured
+                ? Math.abs(mob.getXRot() - targetPitch) > 5.0F
+                : !tuning || Math.abs(routeForward.y) < 0.95D;
+        if (longDirectVerticalRoute && verticalTurnPending) {
             // Turn toward a true vertical destination before translating. Allowing the
             // horizontal component of the level pose to run for the full pitch transition
             // carries small fish out of bounded test volumes and makes a vertical climb look
@@ -375,7 +388,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
 
     private AquaticRoute createRoute(Vec3 goal) {
         double radius = Math.max(0.35, Math.min(0.65, mob.getBbWidth() * 0.5));
-        float limit = goal.y > mob.getY() ? upwardLimit : downwardLimit;
+        float limit = activePitchLimit(goal.y > mob.getY(), false);
         Vec3 approach = AquaticRoute.clearancePoint(mob.position(), goal, mob.getYRot(), limit,
                 Math.max(1.0, mob.getBbWidth() * 2.0));
         if (approach != null) {
@@ -491,7 +504,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
         float pitch = mob.getXRot();
         float rate = pitchRate;
         for (int tick = 0; tick < 400; tick++) {
-            var step = AquaticMovement.stepPitch(pitch, rate, 0);
+            var step = SpeciesSettingsService.hasTiltOverrides(mob)
+                    ? tunedPitchStep(pitch, rate, 0) : AquaticMovement.stepPitch(pitch, rate, 0);
             pitch = step.pitch();
             rate = step.rate();
             position = position.add(AquaticMovement.forwardVector(mob.getYRot(), pitch).scale(speed));
@@ -565,8 +579,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
             float pitchAcceleration = AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK - 0.0001F;
             double upwardStoppingDistance = pitchRate < 0 ? pitchRate * pitchRate / (2 * pitchAcceleration) : 0;
             double downwardStoppingDistance = pitchRate > 0 ? pitchRate * pitchRate / (2 * pitchAcceleration) : 0;
-            float activeUpwardLimit = directVerticalTarget ? 90.0F : upwardLimit;
-            float activeDownwardLimit = directVerticalTarget ? 90.0F : downwardLimit;
+            float activeUpwardLimit = activePitchLimit(true, directVerticalTarget);
+            float activeDownwardLimit = activePitchLimit(false, directVerticalTarget);
             if (desiredRate < 0 && (mob.getXRot() <= -activeUpwardLimit + boundaryBuffer
                     || mob.getXRot() + activeUpwardLimit <= upwardStoppingDistance + 0.05)) desiredRate = 0;
             if (desiredRate > 0 && (mob.getXRot() >= activeDownwardLimit - boundaryBuffer
@@ -578,6 +592,10 @@ public class PitchSwimmingMoveControl extends MoveControl {
             float accelerationMargin = AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK - 0.0001F;
             nextRate = Mth.clamp(nextRate, pitchRate - accelerationMargin, pitchRate + accelerationMargin);
             float nextPitch = Mth.clamp(mob.getXRot() + nextRate, -activeUpwardLimit, activeDownwardLimit);
+            if (SpeciesSettingsService.hasTiltOverrides(mob)) {
+                nextPitch = Mth.clamp(tunedPitchStep(mob.getXRot(), pitchRate,
+                        settling ? 0.0F : targetPitch).pitch(), -activeUpwardLimit, activeDownwardLimit);
+            }
             Vec3 nextForward = AquaticMovement.forwardVector(mob.getYRot(), nextPitch);
             if (meaningfulVerticalError && Math.abs(nextForward.y) > 1.0e-8) {
                 speed = Math.min(speed, Math.abs(remainingVerticalDistance) / Math.abs(nextForward.y));
@@ -659,8 +677,8 @@ public class PitchSwimmingMoveControl extends MoveControl {
             float pitchAcceleration = AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK - 0.0001F;
             double upwardStoppingDistance = pitchRate < 0 ? pitchRate * pitchRate / (2 * pitchAcceleration) : 0;
             double downwardStoppingDistance = pitchRate > 0 ? pitchRate * pitchRate / (2 * pitchAcceleration) : 0;
-            float activeUpwardLimit = directVerticalTarget ? 90.0F : upwardLimit;
-            float activeDownwardLimit = directVerticalTarget ? 90.0F : downwardLimit;
+            float activeUpwardLimit = activePitchLimit(true, directVerticalTarget);
+            float activeDownwardLimit = activePitchLimit(false, directVerticalTarget);
             if (desiredRate < 0 && (mob.getXRot() <= -activeUpwardLimit + boundaryBuffer
                     || mob.getXRot() + activeUpwardLimit <= upwardStoppingDistance + 0.05)) desiredRate = 0;
             if (desiredRate > 0 && (mob.getXRot() >= activeDownwardLimit - boundaryBuffer
@@ -672,6 +690,10 @@ public class PitchSwimmingMoveControl extends MoveControl {
             float accelerationMargin = AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK - 0.0001F;
             nextRate = Mth.clamp(nextRate, pitchRate - accelerationMargin, pitchRate + accelerationMargin);
             float nextPitch = Mth.clamp(mob.getXRot() + nextRate, -activeUpwardLimit, activeDownwardLimit);
+            if (SpeciesSettingsService.hasTiltOverrides(mob)) {
+                nextPitch = Mth.clamp(tunedPitchStep(mob.getXRot(), pitchRate,
+                        settling ? 0.0F : targetPitch).pitch(), -activeUpwardLimit, activeDownwardLimit);
+            }
             Vec3 nextForward = AquaticMovement.forwardVector(mob.getYRot(), nextPitch);
             Vec3 nextRequested = configuredPoweredVelocity(nextForward, directVerticalTarget);
             if (meaningfulVerticalError && Math.abs(nextRequested.y) > 1.0e-8) {
@@ -706,6 +728,21 @@ public class PitchSwimmingMoveControl extends MoveControl {
                 afterCollision.y == 0 ? 0 : powered.y, afterCollision.z == 0 ? 0 : powered.z);
         mob.setDeltaMovement(afterCollision.scale(friction));
         poweredCarry = powered.scale(friction);
+    }
+
+    private float activePitchLimit(boolean upward, boolean vertical) {
+        if (!SpeciesSettingsService.hasTiltOverrides(mob)) {
+            return vertical ? 90.0F : upward ? upwardLimit : downwardLimit;
+        }
+        return (float) SpeciesSettingsService.valueFor(mob,
+                upward ? SpeciesSettingsService.Field.TILT_UP : SpeciesSettingsService.Field.TILT_DOWN,
+                upward ? upwardLimit : downwardLimit);
+    }
+
+    private AquaticMovement.PitchStep tunedPitchStep(float pitch, float rate, float target) {
+        float degreesPerSecond = (float) SpeciesSettingsService.valueFor(mob,
+                SpeciesSettingsService.Field.TILT_RATE, 6.0D);
+        return AquaticMovement.stepTunedPitch(pitch, rate, target, degreesPerSecond);
     }
 
     private static double externalComponent(double observed, double owned) {

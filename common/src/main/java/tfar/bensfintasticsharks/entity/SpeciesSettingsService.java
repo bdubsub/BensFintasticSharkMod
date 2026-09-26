@@ -32,6 +32,9 @@ public final class SpeciesSettingsService {
         VERTICAL_SPEED("vertical_speed", "blocks_per_second", 0.0D, Double.MAX_VALUE),
         HORIZONTAL_SPRINT("horizontal_sprint", "multiplier", 0.0D, Double.MAX_VALUE),
         VERTICAL_SPRINT("vertical_sprint", "multiplier", 0.0D, Double.MAX_VALUE),
+        TILT_UP("tilt_up", "degrees", 0.0D, 90.0D),
+        TILT_DOWN("tilt_down", "degrees", 0.0D, 90.0D),
+        TILT_RATE("tilt_rate", "degrees_per_second", 0.0D, 1800.0D),
         SPAWN_GROUP_MIN("spawn_group_min", "entities", 1.0D, 32.0D),
         SPAWN_GROUP_MAX("spawn_group_max", "entities", 1.0D, 32.0D),
         SCALE_MIN("scale_min", "multiplier", 0.25D, 2.0D),
@@ -275,6 +278,24 @@ public final class SpeciesSettingsService {
                 || overrides.containsKey(Field.VERTICAL_SPRINT));
     }
 
+    public static boolean hasTiltOverrides(Entity entity) {
+        if (entity == null) return false;
+        var profile = SpeciesBehaviorProfile.forEntity(entity);
+        Map<Field, Double> overrides = profile == null ? null : state.overrides().get(profile.id());
+        return overrides != null && (overrides.containsKey(Field.TILT_UP)
+                || overrides.containsKey(Field.TILT_DOWN) || overrides.containsKey(Field.TILT_RATE));
+    }
+
+    public static boolean supportsTilt(String species) {
+        var profile = SpeciesBehaviorProfile.forId(species);
+        return profile != null && (profile.family() == SpeciesBehaviorProfile.Family.SHARK
+                || "atlantic_cod".equals(species) || "atlantic_salmon".equals(species));
+    }
+
+    private static boolean isTiltField(Field field) {
+        return field == Field.TILT_UP || field == Field.TILT_DOWN || field == Field.TILT_RATE;
+    }
+
     /** Pursuit and escape are the only states that activate sprint multipliers. */
     public static boolean sprintActive(Entity entity) {
         if (!(entity instanceof Mob mob)) return false;
@@ -321,6 +342,9 @@ public final class SpeciesSettingsService {
         try {
             State current = state;
             List<String> targets = expandTargets(target);
+            if ("*".equals(target) && !patch.isEmpty() && patch.keySet().stream().allMatch(SpeciesSettingsService::isTiltField)) {
+                targets = targets.stream().filter(SpeciesSettingsService::supportsTilt).toList();
+            }
             if (targets.isEmpty()) {
                 return rejected(current, "unknown species target", targets, patch.keySet());
             }
@@ -515,6 +539,10 @@ public final class SpeciesSettingsService {
     }
 
     private static CapabilityResult capability(String species, Field field) {
+        if (isTiltField(field) && !supportsTilt(species)) {
+            return new CapabilityResult(Capability.NOT_APPLICABLE,
+                    "tilt tuning requires a BFS shark, Atlantic Cod, or Atlantic Salmon");
+        }
         if (field.id().startsWith("disturbance_")
                 && SpeciesBehaviorProfile.forId(species).family() != SpeciesBehaviorProfile.Family.SHARK) {
             return new CapabilityResult(Capability.NOT_APPLICABLE,
@@ -583,6 +611,11 @@ public final class SpeciesSettingsService {
             values.put(Field.VERTICAL_SPEED, vertical);
             values.put(Field.HORIZONTAL_SPRINT, 1.2D);
             values.put(Field.VERTICAL_SPRINT, 1.5D);
+            values.put(Field.TILT_UP, (double) AquaticMovement.SHARK_HARD_UPWARD_PITCH_LIMIT);
+            values.put(Field.TILT_DOWN, profile.family() == SpeciesBehaviorProfile.Family.SHARK
+                    ? (double) AquaticMovement.SHARK_HARD_DOWNWARD_PITCH_LIMIT
+                    : (double) AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT);
+            values.put(Field.TILT_RATE, AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK * 20.0D);
             values.put(Field.SPAWN_GROUP_MIN, profile.social() ? 2.0D : 1.0D);
             values.put(Field.SPAWN_GROUP_MAX, profile.social() ? 4.0D : 1.0D);
             double[] scaleRange = defaultScaleRange(species);

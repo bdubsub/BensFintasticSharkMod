@@ -70,6 +70,7 @@ public final class BfsDebugCommands {
                 .then(settingsNode())
                 .then(speedNode())
                 .then(sprintNode())
+                .then(tiltNode())
                 .then(spawnSizeNode())
                 .then(scaleNode())
                 .then(attributeNode("sethealth", SpeciesSettingsService.Field.HEALTH_MULTIPLIER))
@@ -224,6 +225,41 @@ public final class BfsDebugCommands {
                 .then(Commands.literal("reload").executes(BfsDebugCommands::settingsReload));
     }
 
+    private static LiteralArgumentBuilder<CommandSourceStack> tiltNode() {
+        return Commands.literal("settilt")
+                .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
+                        .executes(context -> settingsGet(context, speciesTarget(context)))
+                        .then(Commands.literal("reset").executes(context -> settingsReset(context,
+                                speciesTarget(context), EnumSet.of(SpeciesSettingsService.Field.TILT_UP,
+                                        SpeciesSettingsService.Field.TILT_DOWN, SpeciesSettingsService.Field.TILT_RATE),
+                                currentRevision())))
+                        .then(Commands.argument("upward_degrees", DoubleArgumentType.doubleArg(0.0D, 90.0D))
+                                .then(Commands.argument("downward_degrees", DoubleArgumentType.doubleArg(0.0D, 90.0D))
+                                        .then(Commands.argument("degrees_per_second", DoubleArgumentType.doubleArg(0.0D, 1800.0D))
+                                                .executes(BfsDebugCommands::setTilt)))));
+    }
+
+    private static int setTilt(CommandContext<CommandSourceStack> context) {
+        double up = DoubleArgumentType.getDouble(context, "upward_degrees");
+        double down = DoubleArgumentType.getDouble(context, "downward_degrees");
+        double rate = DoubleArgumentType.getDouble(context, "degrees_per_second");
+        var result = SpeciesSettingsService.apply(currentRevision(), speciesTarget(context), Map.of(
+                SpeciesSettingsService.Field.TILT_UP, up, SpeciesSettingsService.Field.TILT_DOWN, down,
+                SpeciesSettingsService.Field.TILT_RATE, rate));
+        int count = report(context.getSource(), result);
+        if (result.applied()) {
+            context.getSource().sendSuccess(() -> Component.literal("BFS tilt tuning")
+                    .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
+            context.getSource().sendSuccess(() -> Component.literal("  Upward limit: " + formatValue(up)
+                    + " degrees. Downward limit: " + formatValue(down) + " degrees."), false);
+            context.getSource().sendSuccess(() -> Component.literal("  Turn rate: " + formatValue(rate)
+                    + " degrees per second. Applies during normal swimming and pursuit."), false);
+            context.getSource().sendSuccess(() -> Component.literal("  Supported species: BFS sharks, Atlantic Cod, and Atlantic Salmon. Changes last until reset or server restart.")
+                    .withStyle(ChatFormatting.GRAY), false);
+        }
+        return count;
+    }
+
     private static LiteralArgumentBuilder<CommandSourceStack> speedNode() {
         return Commands.literal("setspeed")
                 .then(Commands.argument("entity", ResourceLocationArgument.id()).suggests(SPECIES_SUGGESTIONS)
@@ -314,7 +350,7 @@ public final class BfsDebugCommands {
                 .append(Component.literal("  validate and replace the server baseline").withStyle(ChatFormatting.GRAY)), false);
         source.sendSuccess(() -> Component.literal("  disturbance fields include global enable, reaction, radius, sensitivity, alert ticks, boat threshold and per-source enable, strength and interval ticks.")
                 .withStyle(ChatFormatting.GRAY), false);
-        source.sendSuccess(() -> Component.literal("Specialized aliases include setspeed, setsprint, setspawnsize, setscale, sethealth, setdamage, setknockback and setbehavior.")
+        source.sendSuccess(() -> Component.literal("Specialized aliases include setspeed, setsprint, settilt, setspawnsize, setscale, sethealth, setdamage, setknockback and setbehavior.")
                 .withStyle(ChatFormatting.GRAY), false);
         return 1;
     }

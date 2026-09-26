@@ -10,6 +10,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AquaticMovementTest {
 
     @Test
+    void tunedTiltReachesBothLimitsAtTheRequestedRateAndCanPause() {
+        float pitch = 0;
+        float rate = 0;
+        for (float target : new float[] {-45.0F, 30.0F}) {
+            for (int tick = 0; tick < 100; tick++) {
+                var step = AquaticMovement.stepTunedPitch(pitch, rate, target, 60.0F);
+                assertTrue(Math.abs(step.pitch() - pitch) <= 3.00001F);
+                assertTrue(step.pitch() >= -45.001F && step.pitch() <= 30.001F);
+                pitch = step.pitch();
+                rate = step.rate();
+            }
+            assertEquals(target, pitch, 0.001F);
+        }
+        assertEquals(pitch, AquaticMovement.stepTunedPitch(pitch, rate, -45.0F, 0.0F).pitch());
+    }
+
+    @Test
     void pitchBrakesBeforeItsEndpointAndReversesWithBoundedAcceleration() {
         float pitch = 0;
         float rate = 0;

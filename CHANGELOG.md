@@ -1,5 +1,13 @@
 # Changelog
 
+## RC2 Tilt Testing Update
+
+* Added `/bfs debug settilt` for separate upward and downward angle limits and a turn rate in degrees per second. It applies during normal swimming and pursuit.
+* Added wildcard support for all eight sharks, Atlantic Cod, and Atlantic Salmon, effective settings readback, clear command feedback, and a tilt only reset.
+* Active tilt tuning steers the real synchronized body angle independently of speed and sprint multipliers. Existing untuned behavior remains unchanged.
+
+This testing update keeps the `1.0-rc.2-hotfix.1` product version. The JAR filename includes `tilt` to distinguish it from the previous hotfix. Use matching files on the client and server and keep only one BFS JAR installed. Session settings must be reapplied after restart.
+
 ## 1.0-rc.2-hotfix.1
 
 This testing hotfix targets Minecraft 1.20.1 and Forge 47.2.0.

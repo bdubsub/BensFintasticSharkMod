@@ -196,6 +196,8 @@ Every `/bfs` command needs op permission (level 2). Species names and disturbanc
 | `/bfs debug settings reload` | Validates a complete server baseline and preserves valid session overrides |
 | `/bfs debug setspeed <entity|*> <horizontal> <vertical> [revision]` | Sets independent horizontal and vertical base movement values |
 | `/bfs debug setsprint <entity|*> <horizontal> <vertical> [revision]` | Sets independent horizontal and vertical sprint multipliers |
+| `/bfs debug settilt <entity|*> <upward_degrees> <downward_degrees> <degrees_per_second>` | Sets live shark and Atlantic fish tilt limits and angular speed during normal swimming and pursuit |
+| `/bfs debug settilt <entity|*> reset` | Clears only tilt overrides, preserving speed and sprint tuning |
 | `/bfs debug setspawnsize <entity|*> <minimum> <maximum> [revision]` | Sets natural group admission bounds without changing summon or spawn egg creation |
 | `/bfs debug setscale <entity|*> <minimum> <maximum> [revision]` | Sets the normalized scale envelope used by future natural spawns, dimensions, rendering, and route clearance |
 | `/bfs debug sethealth <entity|*> <multiplier> [revision]` | Sets the session health multiplier |

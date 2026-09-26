@@ -55,6 +55,20 @@ public final class AquaticMovement {
 
     public record PitchStep(float pitch, float rate) {}
 
+    public static PitchStep stepTunedPitch(float pitch, float rate, float target, float degreesPerSecond) {
+        float maximumStep = degreesPerSecond / 20.0F;
+        if (maximumStep <= 0.0F) return new PitchStep(pitch, 0.0F);
+        float error = target - pitch;
+        float acceleration = maximumStep / 10.0F;
+        float brakingRate = (float) Math.sqrt(2.0F * acceleration * Math.abs(error));
+        float desiredRate = Math.copySign(Math.min(maximumStep, brakingRate), error);
+        float nextRate = Mth.clamp(Mth.approach(rate, desiredRate, acceleration), -maximumStep, maximumStep);
+        if (nextRate * error >= 0.0F && Math.abs(nextRate) >= Math.abs(error)) {
+            return new PitchStep(target, 0.0F);
+        }
+        return new PitchStep(pitch + nextRate, nextRate);
+    }
+
     public static double verticalSpeedRatioFor(Mob mob) {
         if (mob instanceof AbstractSharkEntity<?>) {
             return SHARK_VERTICAL_SPEED_RATIO;

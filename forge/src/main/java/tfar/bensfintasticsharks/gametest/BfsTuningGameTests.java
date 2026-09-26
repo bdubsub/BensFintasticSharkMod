@@ -19,6 +19,88 @@ import java.util.Map;
 @GameTestHolder("bfstuning")
 @PrefixGameTestTemplate(false)
 public final class BfsTuningGameTests {
+    @GameTest(template = "bfsmovementoraclegametests.empty", batch = "tilt_commands", timeoutTicks = 60)
+    public static void tiltCommandSupportsWildcardNamespacedTargetsAndReset(GameTestHelper helper) {
+        var server = helper.getLevel().getServer();
+        var source = server.createCommandSourceStack().withPermission(2).withSuppressedOutput();
+        try {
+            helper.assertTrue(server.getCommands().getDispatcher().execute("bfs debug settilt * 45 35 60", source) == 10,
+                    "Tilt wildcard must apply to all ten supported swimmers.");
+            helper.assertTrue(server.getCommands().getDispatcher().execute(
+                    "bfs debug settilt bfs:oceanic_whitetip_shark 30 50 120", source) == 1,
+                    "Namespaced tilt command must accept the species.");
+            helper.assertTrue(SpeciesSettingsService.resolve("oceanic_whitetip_shark")
+                            .field(SpeciesSettingsService.Field.TILT_RATE).value() == 120.0D,
+                    "Effective tilt rate must match command input.");
+            helper.assertTrue(server.getCommands().getDispatcher().execute(
+                    "bfs debug settilt oceanic_whitetip_shark reset", source) == 1,
+                    "Tilt reset must restore the species defaults.");
+            helper.assertTrue("server_config".equals(SpeciesSettingsService.resolve("oceanic_whitetip_shark")
+                            .field(SpeciesSettingsService.Field.TILT_RATE).source()),
+                    "Reset must remove session tilt settings.");
+            helper.succeed();
+        } catch (Exception exception) {
+            helper.fail("Tilt command failed: " + exception.getMessage());
+        } finally {
+            SpeciesSettingsService.resetSession();
+        }
+    }
+
+    @GameTest(template = "bfsmovementoraclegametests.empty", batch = "tilt_travel", timeoutTicks = 60)
+    public static void tiltChangesRealUpwardAndDownwardSwimmingAndPursuit(GameTestHelper helper) {
+        prepareWater(helper);
+        Mob shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK, new BlockPos(10, 10, 10));
+        Mob prey = helper.spawn(EntityType.COD, new BlockPos(10, 16, 24));
+        shark.setNoAi(true);
+        prey.setNoAi(true);
+        helper.runAfterDelay(4, () -> {
+            try {
+                for (boolean sprint : new boolean[] {false, true}) {
+                    for (int direction : new int[] {-1, 1}) {
+                        float peak = tiltRoute(helper, shark, prey, sprint, direction, 60.0D);
+                        helper.assertTrue(peak > 12.0F && peak <= 35.001F,
+                                "Tilt must respond during upward and downward travel. Sprint " + sprint
+                                        + ", direction " + direction + ", peak " + peak);
+                    }
+                }
+                helper.assertTrue(tiltRoute(helper, shark, prey, true, -1, 0.0D) < 0.001F,
+                        "Zero tilt rate must hold the starting pitch.");
+                helper.succeed();
+            } finally {
+                shark.discard();
+                prey.discard();
+                SpeciesSettingsService.resetSession();
+            }
+        });
+    }
+
+    private static float tiltRoute(GameTestHelper helper, Mob shark, Mob prey, boolean sprint,
+                                   int direction, double rate) {
+        var result = SpeciesSettingsService.apply(SpeciesSettingsService.revision(), "oceanic_whitetip_shark", Map.of(
+                SpeciesSettingsService.Field.HORIZONTAL_SPEED, 2.0D,
+                SpeciesSettingsService.Field.VERTICAL_SPEED, 2.0D,
+                SpeciesSettingsService.Field.HORIZONTAL_SPRINT, 2.0D,
+                SpeciesSettingsService.Field.VERTICAL_SPRINT, 6.0D,
+                SpeciesSettingsService.Field.TILT_UP, 35.0D,
+                SpeciesSettingsService.Field.TILT_DOWN, 35.0D,
+                SpeciesSettingsService.Field.TILT_RATE, rate));
+        helper.assertTrue(result.applied(), "Tilt fixture settings must apply.");
+        var control = (SharkSwimmingMoveControl) shark.getMoveControl();
+        control.resetFixtureState();
+        Vec3 origin = Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 10, 10)));
+        shark.moveTo(origin.x, origin.y, origin.z, 0.0F, 0.0F);
+        shark.setDeltaMovement(Vec3.ZERO);
+        shark.setTarget(sprint ? prey : null);
+        control.setWantedPosition(origin.x, origin.y - direction * 6.0D, origin.z + 12.0D, 1.0D);
+        float peak = 0;
+        for (int tick = 0; tick < 20; tick++) {
+            control.tick();
+            control.travel(0.02D, 0.82D, 0.75D, 0.0D, new Vec3(0, 0, 1));
+            peak = Math.max(peak, shark.getXRot() * direction);
+        }
+        return peak;
+    }
+
     @GameTest(template = "bfsmovementoraclegametests.empty", timeoutTicks = 60)
     public static void commandsAcceptLargeSpeedAndSprintValues(GameTestHelper helper) {
         var server = helper.getLevel().getServer();

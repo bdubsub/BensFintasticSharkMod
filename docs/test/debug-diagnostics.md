@@ -35,6 +35,8 @@ so one unsupported or out of range value rejects the complete change.
 /bfs debug settings reload
 /bfs debug setspeed <entity|*> <horizontal> <vertical> [revision]
 /bfs debug setsprint <entity|*> <horizontal_multiplier> <vertical_multiplier> [revision]
+/bfs debug settilt <entity|*> <upward_degrees> <downward_degrees> <degrees_per_second>
+/bfs debug settilt <entity|*> [reset]
 /bfs debug setspawnsize <entity|*> <minimum> <maximum> [revision]
 /bfs debug setscale <entity|*> <minimum> <maximum> [revision]
 /bfs debug sethealth <entity|*> <multiplier> [revision]
@@ -66,6 +68,29 @@ The vertical coefficient is independent of horizontal speed during ordinary purs
 a speed or sprint override is active. Resetting all four movement fields restores default movement.
 Bare species names, the full `bensfintasticsharks:` namespace, the `bfs:` alias, and unquoted `*`
 are accepted by the species tuning commands.
+
+`settilt` sets maximum upward and downward nose angles from 0 to 90 degrees and a turn
+rate from 0 to 1,800 degrees per second. For example,
+`/bfs debug settilt bfs:oceanic_whitetip_shark 45 45 60` allows a 45 degree angle in either
+direction at up to 60 degrees per second. It affects normal swimming and pursuit, including
+existing `setsprint` values such as `2 6`. The limits also apply to destinations directly above
+or below the entity. The angle follows the current route, so a level route still produces a
+level body. A rate of zero holds the current pitch, subject to the angle limits. Smaller values
+produce slower turns. Speed and sprint multipliers do not multiply the tilt rate.
+
+Tilt tuning supports all eight BFS sharks, Atlantic Cod, and Atlantic Salmon. `*` applies
+atomically to these ten supported species. Other species reject individual tilt changes with
+an explanation instead of reporting a change that their controller cannot apply. The command
+reports the applied angles, rate, scope, and session lifetime in chat. Omit the values to read
+the species settings. Use `/bfs debug settilt <entity|*> reset` to clear only tilt overrides,
+keeping speed and sprint settings. Server restart clears session tuning as usual.
+
+The equivalent fields are `tilt_up`, `tilt_down`, and `tilt_rate`; they support the existing
+`settings get`, `settings set`, revision protection, and reset commands. An active tilt override
+steers the actual server body pitch with bounded angular acceleration and braking. The existing
+client renderers interpolate the synchronized angle. Untuned controllers retain their previous
+6 degree per second limit and curve based steering. Water and obstacle clearance checks remain
+in force; the command does not grant collision immunity or force an angle regardless of route.
 
 The disturbance catalog uses the same session snapshot and revision. The global fields are
 `disturbance_enabled`, `disturbance_reaction`, `disturbance_radius`,

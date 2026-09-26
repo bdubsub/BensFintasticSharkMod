@@ -16,6 +16,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SpeciesSettingsServiceTest {
 
+    @Test
+    void tiltWildcardOnlyChangesSupportedSwimmersAndResetRestoresTheirDefaults() {
+        var result = SpeciesSettingsService.apply(SpeciesSettingsService.revision(), "*", Map.of(
+                SpeciesSettingsService.Field.TILT_UP, 35.0D,
+                SpeciesSettingsService.Field.TILT_DOWN, 50.0D,
+                SpeciesSettingsService.Field.TILT_RATE, 120.0D));
+        assertTrue(result.applied(), result.reason());
+        assertEquals(10, result.targets().size());
+        assertFalse(result.targets().contains("orca"));
+        assertEquals(120.0D, SpeciesSettingsService.resolve("oceanic_whitetip_shark")
+                .field(SpeciesSettingsService.Field.TILT_RATE).value());
+        assertFalse(SpeciesSettingsService.apply(SpeciesSettingsService.revision(), "orca",
+                Map.of(SpeciesSettingsService.Field.TILT_UP, 20.0D)).applied());
+        assertFalse(SpeciesSettingsService.apply(SpeciesSettingsService.revision(), "oceanic_whitetip_shark",
+                Map.of(SpeciesSettingsService.Field.TILT_UP, 91.0D)).applied());
+        assertTrue(SpeciesSettingsService.reset(SpeciesSettingsService.revision(), "*", Set.of(
+                SpeciesSettingsService.Field.TILT_UP, SpeciesSettingsService.Field.TILT_DOWN,
+                SpeciesSettingsService.Field.TILT_RATE)).applied());
+        assertEquals("server_config", SpeciesSettingsService.resolve("oceanic_whitetip_shark")
+                .field(SpeciesSettingsService.Field.TILT_RATE).source());
+    }
+
     @BeforeEach
     void reset() {
         SpeciesSettingsService.resetSession();
