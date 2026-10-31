@@ -777,6 +777,12 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
      */
     protected float chaseSpeedFloor() { return 0.32f; }
 
+    boolean shouldBrakeForPrey(LivingEntity target) {
+        if (!getPassengers().isEmpty() || target == null || !target.isAlive()) return false;
+        double range = biteRangeAgainst(target);
+        return distanceToSqr(target) <= range * range;
+    }
+
     /**
      * Enforces {@link #chaseSpeedFloor()} on the current delta movement. Shared by the
      * base {@link #travel} and the four species with bespoke travel() overrides (Great
@@ -874,8 +880,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         // or burst, just cruise so the grab/thrash keeps the exact feel it had before 0.19.
         boolean hasPassenger = !this.getPassengers().isEmpty();
         double brakeRange = tgt != null ? biteRangeAgainst(tgt) : 0;
-        boolean braking = !hasPassenger && tgt != null && tgt.isAlive()
-                && this.distanceToSqr(tgt) <= brakeRange * brakeRange;
+        boolean braking = shouldBrakeForPrey(tgt);
         // 0.19 — the burst that was missing on the four bespoke overrides (Ben: "Great White
         // doesn't increase speed when chasing"). Chasing multiplies acceleration so the shark
         // visibly lunges instead of coasting at the flat floor speed.

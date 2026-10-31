@@ -351,13 +351,13 @@ public class PitchSwimmingMoveControl extends MoveControl {
         boolean tuning = SpeciesSettingsService.hasMovementOverrides(mob);
         if (tuning) {
             double requestedSpeed = configuredPoweredVelocity(routeForward, directVerticalTarget).length();
-            routeSpeedCap = Math.min(distance * 0.1, requestedSpeed) * Math.max(0.25, headingThrottle);
+            routeSpeedCap = Math.min(distance, requestedSpeed) * Math.max(0.25, headingThrottle);
         }
         if (holdForHeading) routeSpeedCap = 0;
         boolean verticalTurnPending = tiltConfigured
                 ? Math.abs(mob.getXRot() - targetPitch) > 5.0F
                 : !tuning || Math.abs(routeForward.y) < 0.95D;
-        if (longDirectVerticalRoute && verticalTurnPending) {
+        if (!tuning && longDirectVerticalRoute && verticalTurnPending) {
             // Turn toward a true vertical destination before translating. Allowing the
             // horizontal component of the level pose to run for the full pitch transition
             // carries small fish out of bounded test volumes and makes a vertical climb look
@@ -639,8 +639,9 @@ public class PitchSwimmingMoveControl extends MoveControl {
         // controller has a live destination, that zero would combine with an empty carry and
         // permanently bootstrap at rest while the nose continues pitching. Own the forward input
         // for that state so a wanted route always has a finite forward propulsion source.
-        double propulsionInput = input.z;
-        if (propulsionInput <= 0.0 && (operation == Operation.MOVE_TO
+        boolean braking = mob instanceof AbstractSharkEntity<?> shark && shark.shouldBrakeForPrey(mob.getTarget());
+        double propulsionInput = braking ? 0.0D : input.z;
+        if (!braking && propulsionInput <= 0.0 && (operation == Operation.MOVE_TO
                 || (settling && routeSpeedCap > 0))) {
             propulsionInput = 1.0;
         }
@@ -696,10 +697,6 @@ public class PitchSwimmingMoveControl extends MoveControl {
             }
             Vec3 nextForward = AquaticMovement.forwardVector(mob.getYRot(), nextPitch);
             Vec3 nextRequested = configuredPoweredVelocity(nextForward, directVerticalTarget);
-            if (meaningfulVerticalError && Math.abs(nextRequested.y) > 1.0e-8) {
-                speed = Math.min(speed, Math.abs(remainingVerticalDistance)
-                        * nextRequested.length() / Math.abs(nextRequested.y));
-            }
             speed = Math.min(speed, nextRequested.length());
             Vec3 nextPowered = scaleToMagnitude(nextRequested, speed);
             if (speed <= 1.0e-8 || clearSegment(mob.position(), mob.position().add(nextPowered))) {
@@ -766,6 +763,12 @@ public class PitchSwimmingMoveControl extends MoveControl {
         double vertical = configuredVerticalSpeedPerTick();
         Vec3 requested = new Vec3(forward.x * horizontal, forward.y * vertical, forward.z * horizontal);
         if (directVertical) requested = verticalOnly(requested);
+        if (depthGuidance != null && !settling
+                && requested.y * remainingVerticalDistance >= 0.0D
+                && Math.abs(requested.y) > Math.abs(remainingVerticalDistance)) {
+            // Reaching the target depth must not brake the horizontal pursuit.
+            requested = new Vec3(requested.x, remainingVerticalDistance, requested.z);
+        }
         return requested;
     }
 

@@ -20,7 +20,7 @@ Install Forge, place the mod and its required dependencies in the `mods` directo
 
 The corrected `1.0-rc.1` build removes a Windows startup crash in diagnostic initialization. If a launch report mentions `InvalidPathException` and `unavailable:no_completed_capture`, replace the older candidate JAR with the corrected build. No configuration or world reset is needed.
 
-Use the [current artifact checksums and source manifest](docs/verification/artifacts/README.md) to distinguish the corrected JAR from the original candidate, which used the same version number.
+Use the checksum supplied with a testing JAR to distinguish builds that share the same version number.
 
 ## Features
 
@@ -33,18 +33,17 @@ Use the [current artifact checksums and source manifest](docs/verification/artif
 * Bounded server and local client diagnostics for movement, behavior, combat, population, fishing, advancement, algae, follow, and Zippy render investigations. Local client presentation records include the selected variant, authored base and glow mask resources, SHA 256 identities, raw brightness, layer choice, resource reload generation, and explicit failure reasons without raw player or entity identifiers.
 * Water disturbance diagnostics include real water entry, water jump, and occupied moving boat producers. A moving occupied boat can attract an eligible Great White from a safe submerged position behind its travel direction, with higher priority behavior and unsafe routes taking precedence.
 * Permission level two session tuning commands under `/bfs debug` for independent horizontal and vertical movement, sprint multipliers, shark and Atlantic fish tilt limits and turn rate, natural group size, scale, attributes, sensing, and behavior timing. Speed and sprint values accept 100 and above without a gameplay maximum. Changes are revisioned, atomic, and cleared on server restart.
-* A reusable permission level two `/bfs debug followme` stick for independently selected groups of mobs. Arrival keeps a mob selected and waiting. Release the use button and click that mob again to release only it. Status pages, targeted stop and group stop expose membership, while chat and action bar messages report each meaningful outcome, including duplicate clicks, release results, arrival, pause, and recovery. Packaged client group selection and individual release are verified, while controller compatibility and phase integration remain tracked in the [follow evidence](docs/verification/follow-groups-20260915.md).
+* A reusable permission level two `/bfs debug followme` stick for independently selected groups of mobs. Arrival keeps a mob selected and waiting. Release the use button and click that mob again to release only it. Status pages, targeted stop and group stop expose membership, while chat and action bar messages report each meaningful outcome, including duplicate clicks, release results, arrival, pause, and recovery.
 * A four piece Dive Suit with the supplied item icons and worn atlas. A complete suit gives survival and adventure players landlike underwater movement, a grounded jump, ordinary collision, and a 6,000 tick oxygen reserve that refills only in breathable air. The suit has no crafting recipe and leaves creative, spectator, partial suit, and dry travel unchanged.
 * Pitched fish and sharks retain forward propulsion while smoothly reorienting, with vertical travel still limited by their species movement profile.
 * Shark tools, armor, a Prismarine armor set fitted to swimming poses, Captain Ben's Hat, collectible items, and advancements.
 * The Shark Codex and the Sunken Trove ocean structure.
 * Three permanent algae blocks. Small Algae uses waterlogged supported side and floor faces. Large Green Algae and Large Red Algae use waterlogged single, body, and top segments with bonemeal and manual stacking up to eight cells. Natural placement is bounded to exposed ocean floors, and red algae rejects roofed caves.
 
-The documentation index is in [docs/README.md](docs/README.md). The retained 0.24 asset ledger and verification records are under [docs/verification](docs/verification/asset-ledger.md). Algae placement and generation behavior is in [docs/test/algae-worldgen.md](docs/test/algae-worldgen.md). Diagnostic command and parser instructions are in [docs/test/debug-diagnostics.md](docs/test/debug-diagnostics.md). Candidate installation and rollback guidance is in [docs/test/release-rollback.md](docs/test/release-rollback.md).
+The documentation index is in [docs/README.md](docs/README.md).
 
-The retained Phase 001 verification records document the 0.23 compatibility baseline, including the real fishing advancement path and packaged Forge server checks. The [current verification scope](docs/verification/phase-007/verification-scope-20260916.md) defers performance comparisons and laptop verification from this testing pass. Earlier client observations and failed measurements keep their original artifact bindings. Server gameplay, compatibility, source binding and packaging checks remain required.
 
-The [fishing regression record](docs/test/phase-001-fishing-transactions.md) separates current exclusive delivery checks from historical results. Live and item catches use one guarded delivery, preserve Tropical Fish and Pufferfish, and grant matching fishing rewards only after insertion succeeds.
+Live and item catches use one guarded delivery, preserve Tropical Fish and Pufferfish, and grant matching fishing rewards only after insertion succeeds.
 
 ## Development
 
@@ -68,7 +67,7 @@ gradlew.bat :forge:Client
 gradlew.bat :forge:Server
 ```
 
-The distributable JAR is written to `forge/build/libs`. There is no maintained Fabric artifact. The Forge module includes focused JUnit regression and release contract tests. The repeatable runtime procedure is in [docs/test/phase-000-runbook.md](docs/test/phase-000-runbook.md).
+The distributable JAR is written to `forge/build/libs`. There is no maintained Fabric artifact. The Forge module includes focused JUnit regression and release contract tests.
 
 ## Repository layout
 
@@ -89,3 +88,5 @@ The mod targets Forge 47.2.0 on Minecraft 1.20.1 only. Eclipse and Fabric are no
 ## License
 
 See [LICENSE](LICENSE).
+
+For consistent speed comparisons during pursuit, see [swimming speed and tilt tuning](docs/debug-movement/documentation.md).

@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
+import tfar.bensfintasticsharks.entity.AquaticMovement;
 import tfar.bensfintasticsharks.entity.MovementIntentOverrides;
 import tfar.bensfintasticsharks.entity.SharkSwimmingMoveControl;
 import tfar.bensfintasticsharks.entity.SpeciesSettingsService;
@@ -19,6 +20,178 @@ import java.util.Map;
 @GameTestHolder("bfstuning")
 @PrefixGameTestTemplate(false)
 public final class BfsTuningGameTests {
+    @GameTest(template = "bfsmovementoraclegametests.empty", batch = "pursuit_speed", timeoutTicks = 60)
+    public static void tunedPursuitRetainsSpeedDuringLevelAscentAndDescent(GameTestHelper helper) {
+        prepareWater(helper);
+        Mob shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK, new BlockPos(10, 10, 10));
+        Mob prey = helper.spawn(EntityType.COD, new BlockPos(10, 10, 24));
+        shark.setNoAi(true);
+        prey.setNoAi(true);
+        helper.runAfterDelay(4, () -> {
+            try {
+                applyPursuitSettings(helper, 8.0D, 8.0D);
+                for (float pitch : new float[] {0, -45, 45}) {
+                    Vec3 direction = AquaticMovement.forwardVector(0, pitch);
+                    Vec3 moved = configuredRouteStep(helper, shark, prey, pitch, direction.scale(3.0D));
+                    helper.assertTrue(Math.abs(moved.length() - 0.4D) < 0.002D,
+                            "An unobstructed pursuit must retain eight blocks per second at pitch "
+                                    + pitch + ". Actual " + moved.length() * 20.0D);
+                }
+                helper.succeed();
+            } finally {
+                shark.discard();
+                prey.discard();
+                SpeciesSettingsService.resetSession();
+            }
+        });
+    }
+
+    @GameTest(template = "bfsmovementoraclegametests.empty", batch = "pursuit_vertical_turn", timeoutTicks = 60)
+    public static void tunedVerticalPursuitKeepsMovingWhileTilting(GameTestHelper helper) {
+        prepareWater(helper);
+        Mob shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK, new BlockPos(10, 10, 10));
+        Mob prey = helper.spawn(EntityType.COD, new BlockPos(10, 18, 10));
+        shark.setNoAi(true);
+        prey.setNoAi(true);
+        helper.runAfterDelay(4, () -> {
+            try {
+                applyPursuitSettings(helper, 4.0D, 8.0D);
+                for (int sign : new int[] {-1, 1}) {
+                    Vec3 moved = configuredRouteStep(helper, shark, prey, sign * 20.0F,
+                            new Vec3(0, -sign * 6.0D, 0));
+                    helper.assertTrue(moved.y * -sign > 0.1D,
+                            "Vertical pursuit must not creep while the pitch approaches its limit. Actual " + moved
+                                    + ", controller " + ((SharkSwimmingMoveControl) shark.getMoveControl()).snapshot());
+                    helper.assertTrue(moved.horizontalDistance() < 0.001D,
+                            "A directly vertical pursuit must not drift sideways.");
+                }
+                helper.succeed();
+            } finally {
+                shark.discard();
+                prey.discard();
+                SpeciesSettingsService.resetSession();
+            }
+        });
+    }
+
+    @GameTest(template = "bfsmovementoraclegametests.empty", batch = "pursuit_depth_exit", timeoutTicks = 60)
+    public static void reachingPreyDepthDoesNotBrakeHorizontalPursuit(GameTestHelper helper) {
+        prepareWater(helper);
+        Mob shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK, new BlockPos(10, 10, 10));
+        Mob prey = helper.spawn(EntityType.COD, new BlockPos(10, 10, 24));
+        shark.setNoAi(true);
+        prey.setNoAi(true);
+        helper.runAfterDelay(4, () -> {
+            try {
+                applyPursuitSettings(helper, 8.0D, 12.0D);
+                for (int sign : new int[] {-1, 1}) {
+                    Vec3 moved = configuredRouteStep(helper, shark, prey, sign * 45.0F,
+                            new Vec3(0, -sign * 0.1D, 8));
+                    helper.assertTrue(moved.horizontalDistance() > 0.27D,
+                            "Reaching the target depth must preserve horizontal pursuit. Actual " + moved);
+                    helper.assertTrue(moved.y * -sign > 0 && Math.abs(moved.y) <= 0.10001D,
+                            "Vertical motion must stop at the requested depth without overshooting.");
+                }
+                helper.succeed();
+            } finally {
+                shark.discard();
+                prey.discard();
+                SpeciesSettingsService.resetSession();
+            }
+        });
+    }
+
+    private static void applyPursuitSettings(GameTestHelper helper, double horizontal, double vertical) {
+        var result = SpeciesSettingsService.apply(SpeciesSettingsService.revision(), "oceanic_whitetip_shark",
+                Map.of(SpeciesSettingsService.Field.HORIZONTAL_SPEED, horizontal / 2.0D,
+                        SpeciesSettingsService.Field.VERTICAL_SPEED, vertical / 2.0D,
+                        SpeciesSettingsService.Field.HORIZONTAL_SPRINT, 2.0D,
+                        SpeciesSettingsService.Field.VERTICAL_SPRINT, 2.0D,
+                        SpeciesSettingsService.Field.TILT_UP, 45.0D,
+                        SpeciesSettingsService.Field.TILT_DOWN, 45.0D,
+                        SpeciesSettingsService.Field.TILT_RATE, 60.0D));
+        helper.assertTrue(result.applied(), "Pursuit fixture settings must apply.");
+    }
+
+    @GameTest(template = "bfsmovementoraclegametests.empty", batch = "pursuit_live_travel", timeoutTicks = 60)
+    public static void sharkTravelMaintainsPursuitAndStillBrakesForPreyAndWalls(GameTestHelper helper) {
+        prepareWater(helper);
+        Mob shark = helper.spawn(ModEntityTypes.OCEANIC_WHITETIP_SHARK, new BlockPos(10, 10, 6));
+        Mob prey = helper.spawn(EntityType.COD, new BlockPos(10, 10, 24));
+        shark.setNoAi(true);
+        prey.setNoAi(true);
+        helper.runAfterDelay(4, () -> {
+            try {
+                applyPursuitSettings(helper, 8.0D, 8.0D);
+                var control = (SharkSwimmingMoveControl) shark.getMoveControl();
+                Vec3 origin = Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 10, 6)));
+                for (float pitch : new float[] {0, -45, 45}) {
+                    shark.getNavigation().stop();
+                    control.resetFixtureState();
+                    shark.moveTo(origin.x, origin.y, origin.z, 0, pitch);
+                    shark.setDeltaMovement(Vec3.ZERO);
+                    shark.setTarget(prey);
+                    shark.setNoAi(false);
+                    Vec3 direction = AquaticMovement.forwardVector(0, pitch);
+                    for (int tick = 0; tick < 15; tick++) {
+                        Vec3 destination = shark.position().add(direction.scale(5.0D));
+                        prey.moveTo(destination.x, destination.y, destination.z);
+                        control.setWantedPosition(destination.x, destination.y, destination.z, 1.0D);
+                        control.tick();
+                        Vec3 before = shark.position();
+                        shark.travel(new Vec3(0, 0, 1));
+                        if (tick >= 5) {
+                            double speed = shark.position().distanceTo(before) * 20.0D;
+                            helper.assertTrue(Math.abs(speed - 8.0D) < 0.05D,
+                                    "Real shark travel must sustain configured pursuit at pitch " + pitch
+                                            + ". Actual speed " + speed);
+                        }
+                    }
+                }
+                shark.getNavigation().stop();
+                control.resetFixtureState();
+                shark.moveTo(origin.x, origin.y, origin.z, 0, 0);
+                shark.setDeltaMovement(Vec3.ZERO);
+                prey.moveTo(origin.x, origin.y, origin.z + 1);
+                control.setWantedPosition(prey.getX(), prey.getY(), prey.getZ(), 1.0D);
+                control.tick();
+                shark.travel(new Vec3(0, 0, 1));
+                helper.assertTrue(shark.position().distanceTo(origin) < 0.01D,
+                        "A fresh pursuit inside bite range must not accelerate into prey.");
+                prey.moveTo(origin.x, origin.y, origin.z + 8);
+                helper.setBlock(new BlockPos(10, 10, 7), Blocks.STONE.defaultBlockState());
+                shark.getNavigation().stop();
+                control.resetFixtureState();
+                control.setWantedPosition(prey.getX(), prey.getY(), prey.getZ(), 1.0D);
+                control.tick();
+                shark.travel(new Vec3(0, 0, 1));
+                helper.assertTrue(shark.position().distanceTo(origin) < 0.01D,
+                        "Configured pursuit must preserve the obstacle clearance check.");
+                helper.succeed();
+            } finally {
+                shark.discard();
+                prey.discard();
+                SpeciesSettingsService.resetSession();
+            }
+        });
+    }
+
+    private static Vec3 configuredRouteStep(GameTestHelper helper, Mob shark, Mob prey,
+                                             float pitch, Vec3 destinationOffset) {
+        var control = (SharkSwimmingMoveControl) shark.getMoveControl();
+        shark.getNavigation().stop();
+        control.resetFixtureState();
+        Vec3 origin = Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 10, 10)));
+        shark.moveTo(origin.x, origin.y, origin.z, 0, pitch);
+        shark.setDeltaMovement(Vec3.ZERO);
+        shark.setTarget(prey);
+        Vec3 destination = origin.add(destinationOffset);
+        control.setWantedPosition(destination.x, destination.y, destination.z, 1.0D);
+        control.tick();
+        control.travel(1.0D, 0.82D, 0.75D, 0.0D, new Vec3(0, 0, 1));
+        return shark.position().subtract(origin);
+    }
+
     @GameTest(template = "bfsmovementoraclegametests.empty", batch = "tilt_commands", timeoutTicks = 60)
     public static void tiltCommandSupportsWildcardNamespacedTargetsAndReset(GameTestHelper helper) {
         var server = helper.getLevel().getServer();
@@ -60,7 +233,8 @@ public final class BfsTuningGameTests {
                         float peak = tiltRoute(helper, shark, prey, sprint, direction, 60.0D);
                         helper.assertTrue(peak > 12.0F && peak <= 35.001F,
                                 "Tilt must respond during upward and downward travel. Sprint " + sprint
-                                        + ", direction " + direction + ", peak " + peak);
+                                        + ", direction " + direction + ", peak " + peak
+                                        + ", controller " + ((SharkSwimmingMoveControl) shark.getMoveControl()).snapshot());
                     }
                 }
                 helper.assertTrue(tiltRoute(helper, shark, prey, true, -1, 0.0D) < 0.001F,
@@ -86,6 +260,7 @@ public final class BfsTuningGameTests {
                 SpeciesSettingsService.Field.TILT_RATE, rate));
         helper.assertTrue(result.applied(), "Tilt fixture settings must apply.");
         var control = (SharkSwimmingMoveControl) shark.getMoveControl();
+        shark.getNavigation().stop();
         control.resetFixtureState();
         Vec3 origin = Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 10, 10)));
         shark.moveTo(origin.x, origin.y, origin.z, 0.0F, 0.0F);
@@ -190,6 +365,7 @@ public final class BfsTuningGameTests {
                 "A real settings override must select configured movement.");
         helper.assertTrue(!MovementIntentOverrides.active(shark), "Use ordinary production movement.");
         var control = (SharkSwimmingMoveControl) shark.getMoveControl();
+        shark.getNavigation().stop();
         control.resetFixtureState();
         Vec3 origin = Vec3.atCenterOf(helper.absolutePos(new BlockPos(10, 10, 10)));
         shark.moveTo(origin.x, origin.y, origin.z, 0.0F, pitch);
