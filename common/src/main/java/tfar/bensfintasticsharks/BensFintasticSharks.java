@@ -9,7 +9,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -22,7 +21,6 @@ import tfar.bensfintasticsharks.advancmenets.SpyglassSpotSharkTrigger;
 import tfar.bensfintasticsharks.init.*;
 import tfar.bensfintasticsharks.platform.Services;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 public class BensFintasticSharks {
@@ -54,15 +52,10 @@ public class BensFintasticSharks {
         return new ResourceLocation(MOD_ID,path);
     }
 
-    private static final int PLAYER_SCAN_INTERVAL = 20;
-
     public static void playerTick(Player player) {
 
-        if (player instanceof ServerPlayer serverPlayer && serverPlayer.tickCount % PLAYER_SCAN_INTERVAL == 0) {
-            List<LivingEntity> nearby = serverPlayer.serverLevel().getNearbyEntities(LivingEntity.class, TargetingConditions.DEFAULT, player, player.getBoundingBox().inflate(16));
-            for (LivingEntity living : nearby) {
-                PLAYER_FOUND_ENTITY.trigger(serverPlayer, living);
-            }
+        if (player instanceof ServerPlayer serverPlayer) {
+            PLAYER_FOUND_ENTITY.tickLook(serverPlayer);
         }
         if (player instanceof ServerPlayer serverPlayer
                 && serverPlayer.tickCount % 4 == 0

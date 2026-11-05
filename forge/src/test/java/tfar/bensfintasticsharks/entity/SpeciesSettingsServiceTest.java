@@ -89,6 +89,33 @@ class SpeciesSettingsServiceTest {
     }
 
     @Test
+    void rc3MovementDefaultsMatchEachTunedSpeciesAndTiltProfile() {
+        Map<String, List<Double>> expected = Map.ofEntries(
+                Map.entry("oceanic_whitetip_shark", List.of(4.0D, 5.0D, 1.2D, 1.6D)),
+                Map.entry("tiger_shark", List.of(5.0D, 6.0D, 1.3D, 1.8D)),
+                Map.entry("sandtiger_shark", List.of(3.0D, 4.0D, 1.2D, 1.6D)),
+                Map.entry("blacktip_reef_shark", List.of(4.0D, 5.0D, 1.2D, 1.6D)),
+                Map.entry("common_thresher_shark", List.of(4.0D, 5.0D, 1.3D, 1.7D)),
+                Map.entry("great_hammerhead_shark", List.of(5.0D, 6.0D, 1.3D, 1.8D)),
+                Map.entry("shortfin_mako_shark", List.of(5.0D, 5.0D, 1.6D, 2.0D)),
+                Map.entry("great_white_shark", List.of(3.0D, 3.0D, 1.8D, 2.0D)),
+                Map.entry("atlantic_cod", List.of(6.0D, 6.0D, 1.2D, 1.6D)),
+                Map.entry("atlantic_salmon", List.of(6.0D, 6.0D, 1.2D, 1.6D)));
+
+        expected.forEach((species, values) -> {
+            var snapshot = SpeciesSettingsService.resolve(species);
+            assertEquals(values.get(0), snapshot.field(SpeciesSettingsService.Field.HORIZONTAL_SPEED).value(), species);
+            assertEquals(values.get(1), snapshot.field(SpeciesSettingsService.Field.VERTICAL_SPEED).value(), species);
+            assertEquals(values.get(2), snapshot.field(SpeciesSettingsService.Field.HORIZONTAL_SPRINT).value(), species);
+            assertEquals(values.get(3), snapshot.field(SpeciesSettingsService.Field.VERTICAL_SPRINT).value(), species);
+            assertEquals(45.0D, snapshot.field(SpeciesSettingsService.Field.TILT_UP).value(), species);
+            assertEquals(45.0D, snapshot.field(SpeciesSettingsService.Field.TILT_DOWN).value(), species);
+            assertEquals(60.0D, snapshot.field(SpeciesSettingsService.Field.TILT_RATE).value(), species);
+            assertEquals("server_config", snapshot.field(SpeciesSettingsService.Field.HORIZONTAL_SPEED).source(), species);
+        });
+    }
+
+    @Test
     void wildcardPatchPublishesOneRevisionToAllSpecies() {
         long revision = SpeciesSettingsService.revision();
         Map<SpeciesSettingsService.Field, Double> patch = new EnumMap<>(SpeciesSettingsService.Field.class);

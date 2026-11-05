@@ -47,21 +47,111 @@ public final class BfsDiveGameTests {
             helper.assertTrue(result.eligible(),
                     "a full suit in water must activate dive eligibility");
 
+            player.setPos(helper.absolutePos(new BlockPos(3, 8, 3)).getCenter());
+            player.setOnGround(false);
             player.setDeltaMovement(Vec3.ZERO);
             ((LivingEntityJumpingAccessor) player).bfs$setJumping(false);
             helper.assertTrue(DiveTravelController.apply(player, Vec3.ZERO),
                     "eligible player travel must be owned by the dive controller");
+            helper.assertTrue(player.getDeltaMovement().y <= -0.07D
+                            && player.getDeltaMovement().y >= -0.09D,
+                    "dive travel must apply normal land gravity when no jump is pressed, y="
+                            + player.getDeltaMovement().y + ", pos=" + player.position()
+                            + ", onGround=" + player.onGround() + ", inWater=" + player.isInWater()
+                            + ", block=" + player.level().getBlockState(player.blockPosition()));
+
+            player.setOnGround(false);
+            ((LivingEntityJumpingAccessor) player).bfs$setJumping(true);
+            player.setDeltaMovement(Vec3.ZERO);
+            DiveTravelController.apply(player, Vec3.ZERO);
             helper.assertTrue(player.getDeltaMovement().y <= 0.0D,
-                    "landlike travel must apply downward gravity when no jump is pressed");
+                    "jumping while unsupported underwater must not swim the player upward, y="
+                            + player.getDeltaMovement().y + ", pos=" + player.position()
+                            + ", onGround=" + player.onGround() + ", jumping="
+                            + ((LivingEntityJumpingAccessor) player).bfs$isJumping());
+            ((LivingEntityJumpingAccessor) player).bfs$setJumping(false);
+            DiveTravelController.apply(player, Vec3.ZERO);
 
             player.setOnGround(true);
             ((LivingEntityJumpingAccessor) player).bfs$setJumping(true);
             player.setDeltaMovement(Vec3.ZERO);
             DiveTravelController.apply(player, Vec3.ZERO);
             helper.assertTrue(player.getDeltaMovement().y > 0.20D,
-                    "one grounded jump edge must use the moonlike impulse");
-            ((LivingEntityJumpingAccessor) player).bfs$setJumping(false);
+                    "a jump from solid footing must retain the normal land-like impulse, y="
+                            + player.getDeltaMovement().y);
             player.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_dive", timeoutTicks = 40)
+    public static void equippingSuitClearsWaterLiftAndSpaceCannotSwimUpward(GameTestHelper helper) {
+        prepareWater(helper);
+        Player player = makePlayer(helper, new BlockPos(3, 3, 3));
+        helper.runAfterDelay(5, () -> {
+            player.setPos(helper.absolutePos(new BlockPos(3, 8, 3)).getCenter());
+            player.setOnGround(false);
+            player.setDeltaMovement(0.0D, 0.8D, 0.0D);
+            ((LivingEntityJumpingAccessor) player).bfs$setJumping(true);
+            equipFullSuit(player);
+            DiveTravelController.apply(player, Vec3.ZERO);
+            helper.assertTrue(player.getDeltaMovement().y <= 0.0D,
+                    "entering dive mode while holding jump must cancel inherited water lift without launching");
+            ((LivingEntityJumpingAccessor) player).bfs$setJumping(false);
+            player.setOnGround(false);
+            DiveTravelController.apply(player, Vec3.ZERO);
+            ((LivingEntityJumpingAccessor) player).bfs$setJumping(true);
+            player.setOnGround(false);
+            DiveTravelController.apply(player, Vec3.ZERO);
+            helper.assertTrue(player.getDeltaMovement().y <= 0.0D,
+                    "a fresh jump press in open water must not propel the player upward, y="
+                            + player.getDeltaMovement().y + ", pos=" + player.position()
+                            + ", onGround=" + player.onGround() + ", jumping="
+                            + ((LivingEntityJumpingAccessor) player).bfs$isJumping()
+                            + ", state=" + player.getPersistentData());
+            double firstJumpVelocity = player.getDeltaMovement().y;
+            player.setOnGround(false);
+            DiveTravelController.apply(player, Vec3.ZERO);
+            helper.assertTrue(player.getDeltaMovement().y < firstJumpVelocity,
+                    "holding jump must not add another impulse on the next tick");
+            player.remove(Entity.RemovalReason.DISCARDED);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "empty", batch = "bfs_dive", timeoutTicks = 40)
+    public static void oxygenDrainOverrideUsesRateAndClampsBounds(GameTestHelper helper) {
+        prepareWater(helper);
+        MutableTestPlayer player = makeMutablePlayer(helper, new BlockPos(3, 3, 3));
+        equipFullSuit(player);
+        helper.runAfterDelay(5, () -> {
+            try {
+                DiveOxygenManager.readReserve(player);
+                setReserve(player, 100);
+                helper.assertTrue(DiveOxygenManager.setDrainTicksPerSecond(-1) == 0,
+                        "the drain override must clamp below zero to a paused drain");
+                for (int tick = 0; tick < 20; tick++) {
+                    player.tickCount = tick + 1;
+                    DiveOxygenManager.tick(player);
+                }
+                helper.assertTrue(DiveOxygenManager.readReserve(player) == 100,
+                        "zero drain must preserve the oxygen reserve");
+
+                DiveOxygenManager.setDrainTicksPerSecond(10);
+                for (int tick = 0; tick < 40; tick++) {
+                    player.tickCount = tick + 21;
+                    DiveOxygenManager.tick(player);
+                }
+                helper.assertTrue(DiveOxygenManager.readReserve(player) == 80,
+                        "ten reserve ticks per second must consume twenty over forty game ticks");
+                helper.assertTrue(DiveOxygenManager.setDrainTicksPerSecond(
+                                DiveOxygenManager.MAX_DRAIN_TICKS_PER_SECOND + 1)
+                                == DiveOxygenManager.MAX_DRAIN_TICKS_PER_SECOND,
+                        "the drain override must clamp to its documented maximum");
+            } finally {
+                DiveOxygenManager.resetDebugSettings();
+                player.remove(Entity.RemovalReason.DISCARDED);
+            }
             helper.succeed();
         });
     }
@@ -147,6 +237,21 @@ public final class BfsDiveGameTests {
         });
     }
 
+    @GameTest(template = "empty", batch = "bfs_dive", timeoutTicks = 20)
+    public static void oxygenReserveSurvivesDrainSettingAddition(GameTestHelper helper) {
+        Player legacy = makePlayer(helper, new BlockPos(3, 3, 3));
+        legacy.getPersistentData().putInt("bfs_dive_oxygen_schema", 1);
+        legacy.getPersistentData().putBoolean("bfs_dive_oxygen_initialized", true);
+        legacy.getPersistentData().putInt("bfs_dive_oxygen_ticks", 4321);
+
+        helper.assertTrue(DiveOxygenManager.readReserve(legacy) == 4321,
+                "the new session drain setting must preserve existing schema-1 oxygen");
+        helper.assertTrue(DiveOxygenManager.schema(legacy) == 1,
+                "adding a drain remainder must not bump the established reserve schema");
+        legacy.remove(Entity.RemovalReason.DISCARDED);
+        helper.succeed();
+    }
+
     @GameTest(template = "empty", batch = "bfs_dive", timeoutTicks = 40)
     public static void waterWorkKeepsMatchingBreakSpeed(GameTestHelper helper) {
         prepareWater(helper);
@@ -184,8 +289,12 @@ public final class BfsDiveGameTests {
             helper.assertTrue(DiveOxygenManager.readReserve(player) == 119,
                     "respiration must not extend the custom reserve");
 
-            player.setPos(helper.absolutePos(new BlockPos(3, 100, 3)).getCenter());
+            // Move clear of the explicitly prepared water pool. A high-altitude
+            // teleport can leave the test player's cached eye-fluid state stale.
+            player.setPos(player.getX() + 8.0D, player.getY(), player.getZ());
             player.tick();
+            helper.assertTrue(!DiveSuitEligibility.evaluate(player).submergedEyes(),
+                    "the refill check must run with the player's eyes in real air");
             setReserve(player, 120);
             DiveOxygenManager.tick(player);
             helper.assertTrue(DiveOxygenManager.readReserve(player) == 140,

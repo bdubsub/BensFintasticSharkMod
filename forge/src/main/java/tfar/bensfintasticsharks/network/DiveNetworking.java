@@ -9,7 +9,7 @@ import tfar.bensfintasticsharks.BensFintasticSharks;
 
 /** Small, versioned channel for authoritative dive snapshots. */
 public final class DiveNetworking {
-    private static final String PROTOCOL = "1";
+    private static final String PROTOCOL = "2";
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(BensFintasticSharks.MOD_ID, "dive"),
             () -> PROTOCOL, PROTOCOL::equals, PROTOCOL::equals);
@@ -26,8 +26,9 @@ public final class DiveNetworking {
     }
 
     public static void send(ServerPlayer player, int remainingTicks, long revision, boolean eligible,
-                            String movementMode, String oxygenMode) {
+                            String movementMode, String oxygenMode, int drainTicksPerSecond) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
-                new DiveOxygenPayload(1, revision, remainingTicks, eligible, movementMode, oxygenMode));
+                new DiveOxygenPayload(2, revision, remainingTicks, eligible, movementMode, oxygenMode,
+                        drainTicksPerSecond));
     }
 }

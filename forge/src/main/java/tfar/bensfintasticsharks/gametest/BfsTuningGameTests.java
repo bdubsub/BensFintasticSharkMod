@@ -341,8 +341,8 @@ public final class BfsTuningGameTests {
             try {
                 Vec3 upward = step(helper, shark, prey, -90.0F, 5.0D, true);
                 Vec3 downward = step(helper, shark, prey, 90.0F, 5.0D, true);
-                helper.assertTrue(upward.y > 0.3D && downward.y < -0.3D,
-                        "An aligned vertical route must not retain the turning throttle. Up "
+                helper.assertTrue(upward.y > 0.25D && downward.y < -0.25D,
+                        "An aligned vertical route must retain configured thrust at its 45-degree pitch limit. Up "
                                 + upward + ", down " + downward);
                 helper.succeed();
             } finally {

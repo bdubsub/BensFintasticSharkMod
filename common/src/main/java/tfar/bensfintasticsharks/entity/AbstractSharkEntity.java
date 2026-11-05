@@ -38,6 +38,8 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     private final SharkParams params;
     private int stateTimer; // ticks remaining in the current non-idle state
     private int ticksTargetOutOfWater;
+    private LivingEntity routeBlockedTarget;
+    private int ticksWithoutViableRoute;
     private int biteCooldown;
     /**
      * Hunt cooldown countdown. While > 0, the shark will not scan for prey,
@@ -214,6 +216,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         if (target == this || target.getType() == this.getType()) return false;
         if (!this.isInWater()) return false;
         if (!target.isAlive() || target.isDeadOrDying()) return false;
+        if (!this.hasLineOfSight(target)) return false;
         if (target.getVehicle() == this) return false;
         if (target instanceof Player player) {
             if (player.isCreative() || player.isSpectator()) return false;
@@ -441,10 +444,36 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
         // Skip walk-target refresh once we're already in bite range so the move
         // control doesn't keep pushing us forward over the target.
         LivingEntity tgt = this.getTarget();
-        if (tgt != null && tgt.isAlive()) {
+        boolean inBiteRange = false;
+        if (tgt == null) {
+            routeBlockedTarget = null;
+            ticksWithoutViableRoute = 0;
+        } else {
             double biteRange = biteRangeAgainst(tgt);
-            double biteRangeSqr = biteRange * biteRange;
-            boolean inBiteRange = this.distanceToSqr(tgt) <= biteRangeSqr;
+            inBiteRange = this.distanceToSqr(tgt) <= biteRange * biteRange;
+            boolean blockedRoute = !inBiteRange
+                    && this.getMoveControl() instanceof SharkSwimmingMoveControl moveControl
+                    && "blocked".equals(moveControl.routeState());
+            if (blockedRoute) {
+                if (routeBlockedTarget != tgt) {
+                    routeBlockedTarget = tgt;
+                    ticksWithoutViableRoute = 0;
+                }
+                if (++ticksWithoutViableRoute >= 60) {
+                    this.setTarget(null);
+                    BrainUtils.clearMemory(getBrain(), MemoryModuleType.WALK_TARGET);
+                    setSharkState(SharkState.IDLE);
+                    routeBlockedTarget = null;
+                    ticksWithoutViableRoute = 0;
+                    tgt = null;
+                    inBiteRange = false;
+                }
+            } else {
+                routeBlockedTarget = null;
+                ticksWithoutViableRoute = 0;
+            }
+        }
+        if (tgt != null && tgt.isAlive()) {
             if ((tickCount + getId()) % 4 == 0) {
                 if (!inBiteRange) {
                     Vec3 targetCenter = new Vec3(tgt.getX(), tgt.getY(0.5), tgt.getZ());

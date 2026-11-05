@@ -83,9 +83,10 @@ public class PitchSwimmingMoveControl extends MoveControl {
 
     public Snapshot snapshot() {
         double verticalReferenceSpeed = Math.abs(mob.getSpeed());
-        boolean tuning = SpeciesSettingsService.hasMovementOverrides(mob);
-        double verticalCeiling = tuning ? configuredVerticalSpeedPerTick() : verticalReferenceSpeed * verticalSpeedRatio;
-        double effectiveRatio = tuning && verticalReferenceSpeed > 1.0e-8
+        boolean profiledMovement = SpeciesSettingsService.hasMovementProfile(mob);
+        double verticalCeiling = profiledMovement ? configuredVerticalSpeedPerTick()
+                : verticalReferenceSpeed * verticalSpeedRatio;
+        double effectiveRatio = profiledMovement && verticalReferenceSpeed > 1.0e-8
                 ? verticalCeiling / verticalReferenceSpeed : verticalSpeedRatio;
         return new Snapshot(routeAttempt, routeState, requestedGoal, selectedWaypoint, targetPitch,
                 requestedGoal == null ? 0 : mob.position().distanceTo(requestedGoal), stalledTicks,
@@ -176,7 +177,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
             mob.setSpeed((float) configuredHorizontalSpeedPerTick());
             return;
         }
-        boolean tiltConfigured = SpeciesSettingsService.hasTiltOverrides(mob);
+        boolean tiltConfigured = SpeciesSettingsService.hasTiltProfile(mob);
         long revision = SpeciesSettingsService.revision();
         if (revision != tiltRevision && (tiltConfigured || tiltWasConfigured)) {
             route = null;
@@ -235,7 +236,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
             route = createRoute(goal);
             if (route == null && path == null && !clearSegment(mob.position(), goal)) {
                 blockedGoal = goal;
-                retryAfterTick = mob.tickCount + 400;
+                retryAfterTick = mob.tickCount + 20;
                 stopInputs("blocked");
                 return;
             }
@@ -348,16 +349,16 @@ public class PitchSwimmingMoveControl extends MoveControl {
         if (distance < 1.5 && delta.horizontalDistance() > horizontalHeadingThreshold) {
             routeSpeedCap = Math.max(routeSpeedCap, Math.min(distance * 0.1, forwardTravelFloor));
         }
-        boolean tuning = SpeciesSettingsService.hasMovementOverrides(mob);
-        if (tuning) {
+        boolean profiledMovement = SpeciesSettingsService.hasMovementProfile(mob);
+        if (profiledMovement) {
             double requestedSpeed = configuredPoweredVelocity(routeForward, directVerticalTarget).length();
             routeSpeedCap = Math.min(distance, requestedSpeed) * Math.max(0.25, headingThrottle);
         }
         if (holdForHeading) routeSpeedCap = 0;
         boolean verticalTurnPending = tiltConfigured
                 ? Math.abs(mob.getXRot() - targetPitch) > 5.0F
-                : !tuning || Math.abs(routeForward.y) < 0.95D;
-        if (!tuning && longDirectVerticalRoute && verticalTurnPending) {
+                : !profiledMovement || Math.abs(routeForward.y) < 0.95D;
+        if (!profiledMovement && longDirectVerticalRoute && verticalTurnPending) {
             // Turn toward a true vertical destination before translating. Allowing the
             // horizontal component of the level pose to run for the full pitch transition
             // carries small fish out of bounded test volumes and makes a vertical climb look
@@ -427,7 +428,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
         return true;
     }
 
-    /** Conservative scaled body and dorsal fin envelope used by both routing and recovery. */
+    /** Conservative scaled body envelope used by both routing and recovery. */
     private AABB bodyEnvelope(Vec3 position) {
         AABB local = mob.getBoundingBox().move(position.subtract(mob.position())).deflate(0.01D);
         double horizontalMargin = Math.max(0.04D, mob.getBbWidth() * 0.08D);
@@ -437,7 +438,10 @@ public class PitchSwimmingMoveControl extends MoveControl {
 
     private boolean isFullySubmerged(AABB envelope) {
         double[] xs = {envelope.minX, envelope.getCenter().x, envelope.maxX};
-        double[] ys = {envelope.minY, envelope.getCenter().y, envelope.maxY};
+        double dorsalClearance = mob instanceof AbstractSharkEntity<?>
+                ? Math.min(0.35D, Math.max(0.08D, mob.getBbHeight() * 0.18D)) : 0.0D;
+        double submergedTop = envelope.maxY - dorsalClearance;
+        double[] ys = {envelope.minY, (envelope.minY + submergedTop) * 0.5D, submergedTop};
         double[] zs = {envelope.minZ, envelope.getCenter().z, envelope.maxZ};
         for (double x : xs) {
             for (double y : ys) {
@@ -482,7 +486,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
         }
         // Leveling is powered swimming, not a stationary pose correction. Keep the existing
         // species vertical travel class as the conservative floor for the final pose exit.
-        double exitSpeed = Math.abs(mob.getSpeed()) * verticalSpeedRatio;
+        double exitSpeed = configuredVerticalSpeedPerTick();
         if (!reserved) {
             // A full-speed level exit can be valid in open water but exceed a bounded fixture or
             // a real reef corridor. Reduce only as far as the swept clearance requires. This
@@ -504,7 +508,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
         float pitch = mob.getXRot();
         float rate = pitchRate;
         for (int tick = 0; tick < 400; tick++) {
-            var step = SpeciesSettingsService.hasTiltOverrides(mob)
+            var step = SpeciesSettingsService.hasTiltProfile(mob)
                     ? tunedPitchStep(pitch, rate, 0) : AquaticMovement.stepPitch(pitch, rate, 0);
             pitch = step.pitch();
             rate = step.rate();
@@ -522,7 +526,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
     /** External velocity is the change since the last owned carry, not an orthogonal guess. */
     public void travel(double acceleration, double friction, double horizontalCap, double speedFloor,
                         Vec3 input) {
-        if (SpeciesSettingsService.hasMovementOverrides(mob)) {
+        if (SpeciesSettingsService.hasMovementProfile(mob)) {
             travelConfigured(acceleration, friction, horizontalCap, speedFloor, input);
             return;
         }
@@ -592,7 +596,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
             float accelerationMargin = AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK - 0.0001F;
             nextRate = Mth.clamp(nextRate, pitchRate - accelerationMargin, pitchRate + accelerationMargin);
             float nextPitch = Mth.clamp(mob.getXRot() + nextRate, -activeUpwardLimit, activeDownwardLimit);
-            if (SpeciesSettingsService.hasTiltOverrides(mob)) {
+            if (SpeciesSettingsService.hasTiltProfile(mob)) {
                 nextPitch = Mth.clamp(tunedPitchStep(mob.getXRot(), pitchRate,
                         settling ? 0.0F : targetPitch).pitch(), -activeUpwardLimit, activeDownwardLimit);
             }
@@ -691,7 +695,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
             float accelerationMargin = AquaticMovement.MAX_PITCH_ACCELERATION_PER_TICK - 0.0001F;
             nextRate = Mth.clamp(nextRate, pitchRate - accelerationMargin, pitchRate + accelerationMargin);
             float nextPitch = Mth.clamp(mob.getXRot() + nextRate, -activeUpwardLimit, activeDownwardLimit);
-            if (SpeciesSettingsService.hasTiltOverrides(mob)) {
+            if (SpeciesSettingsService.hasTiltProfile(mob)) {
                 nextPitch = Mth.clamp(tunedPitchStep(mob.getXRot(), pitchRate,
                         settling ? 0.0F : targetPitch).pitch(), -activeUpwardLimit, activeDownwardLimit);
             }
@@ -728,7 +732,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
     }
 
     private float activePitchLimit(boolean upward, boolean vertical) {
-        if (!SpeciesSettingsService.hasTiltOverrides(mob)) {
+        if (!SpeciesSettingsService.hasTiltProfile(mob)) {
             return vertical ? 90.0F : upward ? upwardLimit : downwardLimit;
         }
         return (float) SpeciesSettingsService.valueFor(mob,

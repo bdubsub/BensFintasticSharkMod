@@ -17,6 +17,7 @@ class AquaticMovementTest {
             for (int tick = 0; tick < 100; tick++) {
                 var step = AquaticMovement.stepTunedPitch(pitch, rate, target, 60.0F);
                 assertTrue(Math.abs(step.pitch() - pitch) <= 3.00001F);
+                assertTrue(Math.abs(step.rate()) <= 3.00001F);
                 assertTrue(step.pitch() >= -45.001F && step.pitch() <= 30.001F);
                 pitch = step.pitch();
                 rate = step.rate();

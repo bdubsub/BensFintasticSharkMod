@@ -8,6 +8,21 @@ Use these operator commands together when tuning Oceanic Whitetip movement. The 
 /bfs debug settilt oceanic_whitetip_shark 45 45 60
 ```
 
+These are the RC3 defaults for the ten species Ben tuned. They load automatically; the commands above are examples for session overrides.
+
+| Species | Horizontal / vertical speed | Horizontal / vertical sprint | Up / down tilt, turn rate |
+|---|---:|---:|---:|
+| Oceanic Whitetip | 4 / 5 | 1.2 / 1.6 | 45° / 45°, 60°/s |
+| Tiger Shark | 5 / 6 | 1.3 / 1.8 | 45° / 45°, 60°/s |
+| Sand Tiger Shark | 3 / 4 | 1.2 / 1.6 | 45° / 45°, 60°/s |
+| Blacktip Reef Shark | 4 / 5 | 1.2 / 1.6 | 45° / 45°, 60°/s |
+| Common Thresher Shark | 4 / 5 | 1.3 / 1.7 | 45° / 45°, 60°/s |
+| Great Hammerhead Shark | 5 / 6 | 1.3 / 1.8 | 45° / 45°, 60°/s |
+| Shortfin Mako | 5 / 5 | 1.6 / 2.0 | 45° / 45°, 60°/s |
+| Great White Shark | 3 / 3 | 1.8 / 2.0 | 45° / 45°, 60°/s |
+| Atlantic Cod | 6 / 6 | 1.2 / 1.6 | 45° / 45°, 60°/s |
+| Atlantic Salmon | 6 / 6 | 1.2 / 1.6 | 45° / 45°, 60°/s |
+
 `setspeed` supplies horizontal and vertical coefficients in blocks per second. `setsprint` multiplies each coefficient during pursuit or escape. A multiplier below 1 slows that axis. For example, horizontal speed 4 with sprint 0.8 requests 3.2, while sprint 1.2 requests 4.8.
 
 `settilt` supplies maximum upward angle, maximum downward angle, and angular speed in degrees per second. The final value already controls how quickly the body tilts. These are session overrides, so reapply them after a server restart. Use the same species identifier for all three commands. An asterisk applies settings to the supported species.

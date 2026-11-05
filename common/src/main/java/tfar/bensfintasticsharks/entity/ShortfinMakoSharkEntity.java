@@ -48,6 +48,7 @@ public class ShortfinMakoSharkEntity extends AbstractSharkEntity<ShortfinMakoSha
         implements BfsVariantHolder, SharkGrabber {
 
     @Override public int bfsVariantCount() { return Variant.values().length; }
+    @Override public boolean isCommonBfsVariant(int id) { return id >= 0 && id <= 2; }
     @Override public void setBfsVariantId(int id) {
         int n = bfsVariantCount();
         setVariant(Variant.byId(((id % n) + n) % n));

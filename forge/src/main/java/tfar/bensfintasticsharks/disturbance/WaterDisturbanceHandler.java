@@ -48,7 +48,6 @@ public class WaterDisturbanceHandler {
         }
 
         AABB area = new AABB(event.getSource()).inflate(MAX_QUERY_RADIUS);
-        int[] inspected = {0};
         List<LivingEntity> candidates = new ArrayList<>(level.getEntitiesOfClass(LivingEntity.class, area,
                 entity -> {
                     boolean inWater = entity instanceof AbstractSharkEntity shark
@@ -56,14 +55,15 @@ public class WaterDisturbanceHandler {
                     boolean eligible = entity instanceof AbstractSharkEntity
                             || entity instanceof WaterAnimal waterAnimal
                             && waterAnimal.getType().is(ModTags.EntityTypes.SHARKS);
-                    if (inspected[0] >= MAX_CANDIDATES || !entity.isAlive() || !inWater || !eligible) {
-                        return false;
-                    }
-                    inspected[0]++;
-                    return true;
+                    return entity.isAlive() && inWater && eligible;
                 }));
         candidates.sort(Comparator.<LivingEntity>comparingDouble(entity -> entity.distanceToSqr(Vec3.atCenterOf(event.getSource())))
                 .thenComparing(entity -> entity.getUUID().toString()));
+        // Entity sections enumerate in insertion order, not by proximity. Apply the cap after
+        // sorting so a busy level cannot hide the nearby shark behind 64 earlier, distant ones.
+        if (candidates.size() > MAX_CANDIDATES) {
+            candidates.subList(MAX_CANDIDATES, candidates.size()).clear();
+        }
         int candidateCount = candidates.size();
         int sourceKeyCount = WaterDisturbanceListeners.sourceKeyCount(level);
 

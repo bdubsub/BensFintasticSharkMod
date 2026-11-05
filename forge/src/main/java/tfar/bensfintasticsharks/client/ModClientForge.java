@@ -23,10 +23,14 @@ public class ModClientForge {
         bus.addListener(ModClientForge::renderers);
         bus.addListener(ModClientForge::setup);
         bus.addListener(ModClientForge::registerAdditionalModels);
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.addListener(BfsClientGoreCommands::registerCommands);
+        bus.addListener(GoreParticleClient::registerProviders);
         bus.addListener(BfsClientDebugManager::registerReloadListeners);
         // 0.18 — grab/thrash screen effects (camera lock + red tint) live on the
         // runtime Forge bus; init() is only reached on the client dist.
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new GrabClientHandler());
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new DiveOxygenHud());
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new BfsBloodOverlay());
         BfsClientDebugManager.register(net.minecraftforge.common.MinecraftForge.EVENT_BUS);
     }
 

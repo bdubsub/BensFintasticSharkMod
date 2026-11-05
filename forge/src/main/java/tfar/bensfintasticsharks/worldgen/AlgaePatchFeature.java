@@ -20,7 +20,7 @@ import tfar.bensfintasticsharks.init.ModBlocks;
 /** Places bounded, water preserving algae patches on exposed ocean floors. */
 public final class AlgaePatchFeature extends Feature<NoneFeatureConfiguration> {
 
-    private static final int PATCH_ATTEMPTS = 2;
+    private static final int PATCH_ATTEMPTS = 4;
     private static final int CANDIDATE_ATTEMPTS = 16;
     private static final int SEARCH_DOWN = 16;
     private static final int MAX_COLUMN_HEIGHT = 8;

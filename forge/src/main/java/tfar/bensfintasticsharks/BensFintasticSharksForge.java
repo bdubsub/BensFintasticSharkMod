@@ -18,6 +18,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -43,6 +44,9 @@ import tfar.bensfintasticsharks.init.ModMobEffects;
 import tfar.bensfintasticsharks.init.ModTags;
 import tfar.bensfintasticsharks.trade.BfsFishermanTrades;
 import tfar.bensfintasticsharks.network.DiveNetworking;
+import tfar.bensfintasticsharks.network.GoreNetworking;
+import tfar.bensfintasticsharks.gore.GoreDebugSettings;
+import tfar.bensfintasticsharks.gore.ModGoreParticles;
 import tfar.bensfintasticsharks.debug.BfsDebugManager;
 
 import java.util.ArrayList;
@@ -58,6 +62,7 @@ public class BensFintasticSharksForge {
 
         GeckoLib.initialize();
         DiveNetworking.register();
+        GoreNetworking.register();
     
         // This method is invoked by the Forge mod loader when it is ready
         // to load your mod. You can access Forge and Common code in this
@@ -65,6 +70,7 @@ public class BensFintasticSharksForge {
 
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addListener(this::register);
+        ModGoreParticles.register(bus);
         bus.addListener(this::attributes);
         bus.addListener(tfar.bensfintasticsharks.spawn.BfsSpawnPlacements::onSpawnPlacementRegister);
         bus.addListener(ModDatagen::start);
@@ -81,6 +87,9 @@ public class BensFintasticSharksForge {
         MinecraftForge.EVENT_BUS.addListener(this::onServerStopping);
         MinecraftForge.EVENT_BUS.addListener(this::trading);
         MinecraftForge.EVENT_BUS.addListener(this::onLivingDeath);
+        MinecraftForge.EVENT_BUS.addListener(this::onLivingDamage);
+        MinecraftForge.EVENT_BUS.addListener(this::onEntityMount);
+        MinecraftForge.EVENT_BUS.register(new tfar.bensfintasticsharks.entity.SharkPreyDropHandler());
         MinecraftForge.EVENT_BUS.addListener(this::onRegisterCommands);
         MinecraftForge.EVENT_BUS.addListener(this::onEntityJoin);
         MinecraftForge.EVENT_BUS.addListener(net.minecraftforge.eventbus.api.EventPriority.LOWEST, true,
@@ -96,6 +105,9 @@ public class BensFintasticSharksForge {
         tfar.bensfintasticsharks.worldgen.ModFeatures.register(bus);
 
         if (FMLEnvironment.dist.isClient()) {
+            net.minecraftforge.fml.ModLoadingContext.get().registerConfig(
+                    net.minecraftforge.fml.config.ModConfig.Type.CLIENT,
+                    tfar.bensfintasticsharks.gore.BfsClientGoreConfig.SPEC, "bfs-client.toml");
             ModClientForge.init(bus);
         }
 
@@ -138,16 +150,23 @@ public class BensFintasticSharksForge {
 
     private void onPlayerLoggedOut(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) {
         releaseGrabbedPlayer(event.getEntity());
+        if (event.getEntity() instanceof ServerPlayer player) BensFintasticSharks.PLAYER_FOUND_ENTITY.clearLook(player);
     }
 
     private void onPlayerChangedDimension(net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent event) {
         releaseGrabbedPlayer(event.getEntity());
-        if (event.getEntity() instanceof ServerPlayer player) DiveOxygenManager.syncNow(player);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            BensFintasticSharks.PLAYER_FOUND_ENTITY.clearLook(player);
+            DiveOxygenManager.syncNow(player);
+        }
     }
 
     private void onPlayerRespawn(net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent event) {
         releaseGrabbedPlayer(event.getEntity());
-        if (event.getEntity() instanceof ServerPlayer player) DiveOxygenManager.syncNow(player);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            BensFintasticSharks.PLAYER_FOUND_ENTITY.clearLook(player);
+            DiveOxygenManager.syncNow(player);
+        }
     }
 
     private void onPlayerLoggedIn(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
@@ -210,6 +229,9 @@ public class BensFintasticSharksForge {
     }
 
     private void onServerStopping(ServerStoppingEvent event) {
+        DiveOxygenManager.resetDebugSettings();
+        BensFintasticSharks.PLAYER_FOUND_ENTITY.clearAllLookProgress();
+        GoreDebugSettings.reset();
         for (net.minecraft.server.level.ServerLevel level : event.getServer().getAllLevels()) {
             for (Entity entity : level.getAllEntities()) {
                 if (entity instanceof SharkGrabber grabber) {
@@ -295,6 +317,28 @@ public class BensFintasticSharksForge {
                     false, // visible particles
                     true   // show icon
             ));
+        }
+    }
+
+    private void onLivingDamage(LivingDamageEvent event) {
+        if (!(event.getSource().getEntity() instanceof AbstractSharkEntity<?> shark)) return;
+        if (!(event.getEntity().level() instanceof net.minecraft.server.level.ServerLevel level)) return;
+        boolean fatal = event.getEntity().getHealth() <= event.getAmount();
+        boolean thrashing = shark instanceof tfar.bensfintasticsharks.entity.SharkGrabber grabber
+                && grabber.getGrabTimer() > 0 && event.getEntity().getVehicle() == shark;
+        GoreNetworking.sendImpact(level, event.getEntity(),
+                tfar.bensfintasticsharks.gore.GoreImpactKind.forDamage(fatal, thrashing));
+    }
+
+    private void onEntityMount(net.minecraftforge.event.entity.EntityMountEvent event) {
+        if (!event.isDismounting() || event.getLevel().isClientSide) return;
+        if (!(event.getEntityMounting() instanceof net.minecraft.world.entity.LivingEntity prey)
+                || !(event.getEntityBeingMounted() instanceof tfar.bensfintasticsharks.entity.SharkGrabber grabber)) return;
+        net.minecraft.world.entity.Entity shark = (net.minecraft.world.entity.Entity) grabber;
+        if (grabber.getGrabTimer() > 0 || !shark.isAlive() || !prey.isAlive()
+                || !shark.getPassengers().contains(prey)) return;
+        if (prey.level() instanceof net.minecraft.server.level.ServerLevel level) {
+            GoreNetworking.sendImpact(level, prey, tfar.bensfintasticsharks.gore.GoreImpactKind.THRASH_RELEASE);
         }
     }
 

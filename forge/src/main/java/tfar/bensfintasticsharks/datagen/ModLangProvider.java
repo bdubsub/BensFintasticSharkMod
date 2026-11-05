@@ -68,7 +68,7 @@ public class ModLangProvider extends LanguageProvider {
         add("bfs.follow.reason.owner_respawned", "The owner respawned");
         add("bfs.follow.reason.owner_logged_out", "The owner disconnected");
         add("bfs.follow.reason.server_stopping", "The server is stopping");
-        add("hud.bensfintasticsharks.dive_oxygen", "Dive oxygen: %s / %s");
+        add("hud.bensfintasticsharks.oxygen_label", "O₂");
     }
 
     protected final Set<Item> exclude_items = new HashSet<>();
@@ -139,7 +139,7 @@ public class ModLangProvider extends LanguageProvider {
         addTextComponent(TextComponents.ROOT,"Ben’s Fintastic Sharks!");
         addTextComponent(TextComponents.ROOT_DESC,"Achievement granted when logging in with the mod.");
 
-        addTextComponent(TextComponents.GREAT_WHITE_ENCOUNTER,"King of the Seas");
+        addTextComponent(TextComponents.GREAT_WHITE_ENCOUNTER,"King of the Seas.");
         addTextComponent(TextComponents.GREAT_WHITE_ENCOUNTER_DESC,"Encounter a Great White Shark.");
 
         addTextComponent(TextComponents.GREAT_HAMMERHEAD_ENCOUNTER,"Stop! Hammer Time!");
@@ -160,13 +160,13 @@ public class ModLangProvider extends LanguageProvider {
         addTextComponent(TextComponents.ALBINO_ENCOUNTER,"It's a shiny!");
         addTextComponent(TextComponents.ALBINO_ENCOUNTER_DESC,"Encounter an albino variant.");
 
-        addTextComponent(TextComponents.ILLEGAL_POACHING,"Conservation Violation");
+        addTextComponent(TextComponents.ILLEGAL_POACHING,"Conservation Violation.");
         addTextComponent(TextComponents.ILLEGAL_POACHING_DESC,"Kill a shark.");
 
         addTextComponent(TextComponents.JUSTICE_FOR_STEVE,"Crikey! Respect the wildlife!");
         addTextComponent(TextComponents.JUSTICE_FOR_STEVE_DESC,"Encounter and get stung by a Common Stingray.");
 
-        addTextComponent(TextComponents.PRISMARINE_ARMOR,"The Sea Dwelling Knight");
+        addTextComponent(TextComponents.PRISMARINE_ARMOR,"The Sea Dwelling Knight!");
         addTextComponent(TextComponents.PRISMARINE_ARMOR_DESC,"Obtain a full set of Prismarine Armor.");
 
         addTextComponent(TextComponents.ZIPPY_ENCOUNTER,"THUNDER BRINGER!");
@@ -181,8 +181,8 @@ public class ModLangProvider extends LanguageProvider {
         addTextComponent(TextComponents.SHARK_CODEX,"Knowledge is power…");
         addTextComponent(TextComponents.SHARK_CODEX_DESC,"Craft Capitán Ben's Codex.");
 
-        addTextComponent(TextComponents.LOST_MANUSCRIPT,"Lost beneath the waves");
-        addTextComponent(TextComponents.LOST_MANUSCRIPT_DESC,"Find a lost manuscript.");
+        addTextComponent(TextComponents.LOST_MANUSCRIPT,"Find a lost manuscript.");
+        addTextComponent(TextComponents.LOST_MANUSCRIPT_DESC,"Lost beneath the waves.");
 
         addTextComponent(TextComponents.LEVEL_SHARK_CODEX,"Level Up!");
         addTextComponent(TextComponents.LEVEL_SHARK_CODEX_DESC,"Combine 9 Codex Pages with Capitán Ben's Codex.");
@@ -198,7 +198,6 @@ public class ModLangProvider extends LanguageProvider {
         // 0.16 — the icon item still showed the advancement's pre-rename title on /give.
         add("item.bensfintasticsharks.illegal_poaching", "Conservation Violation");
 
-        // 0.16 — codex rebrand: "Capitán Ben's Codex: A Compendium of Marine Wildlife".
         add("item.bensfintasticsharks.shark_codex", "Capitán Ben's Codex");
         add("item.bensfintasticsharks.shark_codex.flavor", "A Compendium of Marine Wildlife");
 
@@ -220,70 +219,70 @@ public class ModLangProvider extends LanguageProvider {
         add("effect.bensfintasticsharks.respect_the_ocean.description", "The ocean is watching…");
 
         // Legacy 1.0 advancement strings (see BensFintasticSharksAdvancements)
-        add("advancements.bensfintasticsharks.marine_curious.title", "Marine Curious");
+        add("advancements.bensfintasticsharks.marine_curious.title", "Marine Curious.");
         add("advancements.bensfintasticsharks.marine_curious.description", "Encounter your first BFS creature.");
-        add("advancements.bensfintasticsharks.shark_spotter.title", "Shark Spotter");
+        add("advancements.bensfintasticsharks.shark_spotter.title", "Shark Spotter!");
         add("advancements.bensfintasticsharks.shark_spotter.description", "Spot a shark using a Spyglass.");
-        add("advancements.bensfintasticsharks.apex_awareness.title", "Apex Awareness");
+        add("advancements.bensfintasticsharks.apex_awareness.title", "Apex Awareness!");
         add("advancements.bensfintasticsharks.apex_awareness.description", "Survive a shark attack without killing the shark.");
-        add("advancements.bensfintasticsharks.conservationist.title", "Conservationist");
-        add("advancements.bensfintasticsharks.conservationist.description", "Earn the Respect the Ocean effect... actually wait, don't. Encounter sharks, let them live.");
-        add("advancements.bensfintasticsharks.marine_biologist.title", "Marine Biologist");
+        add("advancements.bensfintasticsharks.conservationist.title", "Conservationist.");
+        add("advancements.bensfintasticsharks.conservationist.description", "Learn, Love, Understand and Protect Our Oceans.");
+        add("advancements.bensfintasticsharks.marine_biologist.title", "Marine biologist in the making!");
         add("advancements.bensfintasticsharks.marine_biologist.description", "Encounter every BFS species.");
-        add("advancements.bensfintasticsharks.wrong_place_wrong_time.title", "Wrong Place, Wrong Time");
+        add("advancements.bensfintasticsharks.wrong_place_wrong_time.title", "Wrong Place, Wrong Time.");
         add("advancements.bensfintasticsharks.wrong_place_wrong_time.description", "Be attacked by a shark shortly after entering the water.");
         add("advancements.bensfintasticsharks.stung.title", "Stung!");
         add("advancements.bensfintasticsharks.stung.description", "Take damage from a jellyfish.");
         add("advancements.bensfintasticsharks.inked.title", "Aw, you made me ink! >:(");
-        add("advancements.bensfintasticsharks.inked.description", "Anger an octopus.");
-        add("advancements.bensfintasticsharks.dolphin_friend.title", "Dolphin Tale");
+        add("advancements.bensfintasticsharks.inked.description", "Disturb an octopus.");
+        add("advancements.bensfintasticsharks.dolphin_friend.title", "It's a Dolphin Tale!");
         add("advancements.bensfintasticsharks.dolphin_friend.description", "Encounter a Common Bottlenose Dolphin in the wild.");
-        add("advancements.bensfintasticsharks.apex_of_apex.title", "Ocean Sovereign");
+        add("advancements.bensfintasticsharks.apex_of_apex.title", "Ocean Sovereign.");
         add("advancements.bensfintasticsharks.apex_of_apex.description", "Encounter an Orca in the wild.");
-        add("advancements.bensfintasticsharks.fresh_catch.title", "Fresh Catch");
+        add("advancements.bensfintasticsharks.fresh_catch.title", "Fresh Catch!");
         add("advancements.bensfintasticsharks.fresh_catch.description", "Cook a lobster.");
-        add("advancements.bensfintasticsharks.hidden_trove.title", "Hidden Trove");
+        add("advancements.bensfintasticsharks.hidden_trove.title", "Hidden Trove.");
         add("advancements.bensfintasticsharks.hidden_trove.description", "Find a Sunken Trove.");
-        add("advancements.bensfintasticsharks.captains_heir.title", "El Capit\u00E1n's Legacy");
+        add("advancements.bensfintasticsharks.captains_heir.title", "El Capit\u00E1ns Legacy.");
         add("advancements.bensfintasticsharks.captains_heir.description", "Obtain Capitán Ben's Hat.");
-        add("advancements.bensfintasticsharks.fancy_fork.title", "Fancy Fork");
+        add("advancements.bensfintasticsharks.fancy_fork.title", "Fancy Fork!");
         add("advancements.bensfintasticsharks.fancy_fork.description", "Obtain a Shark Trident.");
         // 0.18 — Megalodon Tooth gag advancement.
-        add("advancements.bensfintasticsharks.source_trust_me_bro.title", "Source: trust me bro");
-        add("advancements.bensfintasticsharks.source_trust_me_bro.description", "Obtain a Megalodon Tooth.");
+        add("advancements.bensfintasticsharks.source_trust_me_bro.title", "Source: trust me bro...");
+        add("advancements.bensfintasticsharks.source_trust_me_bro.description", "Obtain a \"real\" Megalodon Tooth.");
 
         // Per-species encounter advancements (added alongside the Legacy 1.0 mobs).
         add("advancements.bensfintasticsharks.tiger_shark_encounter.title", "Striped Garbage Can!");
         add("advancements.bensfintasticsharks.tiger_shark_encounter.description", "Encounter a Tiger Shark.");
-        add("advancements.bensfintasticsharks.oceanic_whitetip_encounter.title", "Pelagic Nightmare");
+        add("advancements.bensfintasticsharks.oceanic_whitetip_encounter.title", "Pelagic Nightmare.");
         add("advancements.bensfintasticsharks.oceanic_whitetip_encounter.description", "Encounter an Oceanic Whitetip Shark.");
         add("advancements.bensfintasticsharks.sandtiger_encounter.title", "OOOOH HOOHOHOHOO!");
         add("advancements.bensfintasticsharks.sandtiger_encounter.description", "Encounter a Sandtiger Shark.");
-        add("advancements.bensfintasticsharks.blacktip_reef_encounter.title", "Reef Predator");
+        add("advancements.bensfintasticsharks.blacktip_reef_encounter.title", "Reef Predator.");
         add("advancements.bensfintasticsharks.blacktip_reef_encounter.description", "Encounter a Blacktip Reef Shark.");
-        add("advancements.bensfintasticsharks.common_octopus_encounter.title", "Octopus vulgaris");
+        add("advancements.bensfintasticsharks.common_octopus_encounter.title", "Octopus vulgaris.");
         add("advancements.bensfintasticsharks.common_octopus_encounter.description", "Encounter a Common Octopus.");
         add("advancements.bensfintasticsharks.caribbean_reef_octopus_encounter.title", "Coral Camouflaged");
         add("advancements.bensfintasticsharks.caribbean_reef_octopus_encounter.description", "Encounter a Caribbean Reef Octopus.");
-        add("advancements.bensfintasticsharks.nautilus_encounter.title", "Living Fossil");
+        add("advancements.bensfintasticsharks.nautilus_encounter.title", "Living Fossil.");
         add("advancements.bensfintasticsharks.nautilus_encounter.description", "Encounter a Nautilus.");
-        add("advancements.bensfintasticsharks.giant_moray_eel_encounter.title", "Crevice Lurker");
+        add("advancements.bensfintasticsharks.giant_moray_eel_encounter.title", "Crevice Lurker.");
         add("advancements.bensfintasticsharks.giant_moray_eel_encounter.description", "Encounter a Giant Moray Eel.");
         add("advancements.bensfintasticsharks.green_sea_turtle_encounter.title", "Duuuude.");
         add("advancements.bensfintasticsharks.green_sea_turtle_encounter.description", "Encounter a Green Sea Turtle.");
-        add("advancements.bensfintasticsharks.american_lobster_encounter.title", "Pincers Out");
+        add("advancements.bensfintasticsharks.american_lobster_encounter.title", "Pincers Out!");
         add("advancements.bensfintasticsharks.american_lobster_encounter.description", "Encounter an American Lobster.");
-        add("advancements.bensfintasticsharks.black_sea_nettle_encounter.title", "Drift Sting");
+        add("advancements.bensfintasticsharks.black_sea_nettle_encounter.title", "Drift Sting.");
         add("advancements.bensfintasticsharks.black_sea_nettle_encounter.description", "Encounter a Black Sea Nettle Jellyfish.");
-        add("advancements.bensfintasticsharks.cannonball_jellyfish_encounter.title", "Round Drifter");
+        add("advancements.bensfintasticsharks.cannonball_jellyfish_encounter.title", "Round Drifter.");
         add("advancements.bensfintasticsharks.cannonball_jellyfish_encounter.description", "Encounter a Cannonball Jellyfish.");
-        add("advancements.bensfintasticsharks.oh_my_cod.title", "Oh My Cod");
+        add("advancements.bensfintasticsharks.oh_my_cod.title", "Oh My Cod!");
         add("advancements.bensfintasticsharks.oh_my_cod.description", "Catch an Atlantic Cod.");
         add("advancements.bensfintasticsharks.why_arent_you_red.title", "Why aren't you red?");
         add("advancements.bensfintasticsharks.why_arent_you_red.description", "Catch an Atlantic Salmon.");
-        add("advancements.bensfintasticsharks.gadus_morhua.title", "Gadus morhua");
+        add("advancements.bensfintasticsharks.gadus_morhua.title", "Gadus morhua.");
         add("advancements.bensfintasticsharks.gadus_morhua.description", "Encounter an Atlantic Cod.");
-        add("advancements.bensfintasticsharks.salmo_salar.title", "Salmo salar");
+        add("advancements.bensfintasticsharks.salmo_salar.title", "Salmo salar.");
         add("advancements.bensfintasticsharks.salmo_salar.description", "Encounter an Atlantic Salmon.");
     }
 

@@ -1,7 +1,6 @@
 package tfar.bensfintasticsharks.dive;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -13,16 +12,21 @@ public final class DiveOxygenManager {
 
     public static final int MAX_RESERVE_TICKS = 6000;
     public static final int REAL_AIR_REFILL_TICKS = 20;
+    public static final int DEFAULT_DRAIN_TICKS_PER_SECOND = 20;
+    public static final int MAX_DRAIN_TICKS_PER_SECOND = 1200;
     public static final int SCHEMA = 1;
     private static final String SCHEMA_KEY = "bfs_dive_oxygen_schema";
     private static final String INITIALIZED_KEY = "bfs_dive_oxygen_initialized";
     private static final String RESERVE_KEY = "bfs_dive_oxygen_ticks";
+    private static final String DRAIN_REMAINDER_KEY = "bfs_dive_oxygen_drain_remainder";
     private static final String REVISION_KEY = "bfs_dive_oxygen_revision";
     private static final String SYNC_INITIALIZED_KEY = "bfs_dive_oxygen_sync_initialized";
     private static final String SYNC_FULL_KEY = "bfs_dive_oxygen_sync_full";
     private static final String SYNC_ELIGIBLE_KEY = "bfs_dive_oxygen_sync_eligible";
     private static final String SYNC_MOVEMENT_KEY = "bfs_dive_oxygen_sync_movement";
     private static final String SYNC_OXYGEN_KEY = "bfs_dive_oxygen_sync_oxygen";
+    private static final String SYNC_DRAIN_KEY = "bfs_dive_oxygen_sync_drain";
+    private static volatile int drainTicksPerSecond = DEFAULT_DRAIN_TICKS_PER_SECOND;
 
     private DiveOxygenManager() {
     }
@@ -41,15 +45,21 @@ public final class DiveOxygenManager {
             boolean consumed = false;
             boolean refilled = false;
             if (submerged && !externalBreathing) {
-                if (reserve > 0) {
-                    reserve--;
+                int accumulatedDrain = data.getInt(DRAIN_REMAINDER_KEY) + drainTicksPerSecond;
+                int drain = accumulatedDrain / 20;
+                data.putInt(DRAIN_REMAINDER_KEY, accumulatedDrain % 20);
+                if (reserve > 0 && drain > 0) {
+                    reserve = Math.max(0, reserve - drain);
                     writeReserve(data, reserve);
                     consumed = true;
                     transition = reserve == 0 ? "reserve_empty" : "consumed";
                     player.setAirSupply(reserve > 0 ? player.getMaxAirSupply() : 0);
-                } else {
+                } else if (reserve == 0) {
                     player.setAirSupply(0);
                     transition = "empty";
+                } else {
+                    player.setAirSupply(player.getMaxAirSupply());
+                    transition = "drain_paused";
                 }
             } else if (!submerged && reserve < MAX_RESERVE_TICKS) {
                 reserve = Math.min(MAX_RESERVE_TICKS, reserve + REAL_AIR_REFILL_TICKS);
@@ -64,11 +74,6 @@ public final class DiveOxygenManager {
                 transition = "external_breathing";
             }
 
-            if (player instanceof ServerPlayer serverPlayer
-                    && (serverPlayer.tickCount % 20 == 0 || reserve == 0)) {
-                serverPlayer.displayClientMessage(Component.translatable(
-                        "hud.bensfintasticsharks.dive_oxygen", reserve, MAX_RESERVE_TICKS), true);
-            }
             if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
                 BfsDebugManager.recordDiveOxygen(serverPlayer, eligibility, before, reserve,
                         transition, consumed, refilled, externalBreathing ? "water_breathing" : "none");
@@ -85,6 +90,42 @@ public final class DiveOxygenManager {
     public static void syncNow(ServerPlayer player) {
         player.getPersistentData().remove(SYNC_INITIALIZED_KEY);
         tick(player);
+    }
+
+    public static void setReserve(ServerPlayer player, int ticks) {
+        CompoundTag data = player.getPersistentData();
+        Initialization initialization = ensureInitialized(data);
+        if (!initialization.supported()) return;
+        writeReserve(data, Math.max(0, Math.min(MAX_RESERVE_TICKS, ticks)));
+        data.putInt(DRAIN_REMAINDER_KEY, 0);
+        refreshSync(player);
+    }
+
+    public static int storedReserve(Player player) {
+        CompoundTag data = player.getPersistentData();
+        return data.contains(RESERVE_KEY) ? readReserve(data) : 0;
+    }
+
+    public static int drainTicksPerSecond() {
+        return drainTicksPerSecond;
+    }
+
+    public static int setDrainTicksPerSecond(int ticksPerSecond) {
+        drainTicksPerSecond = Math.max(0, Math.min(MAX_DRAIN_TICKS_PER_SECOND, ticksPerSecond));
+        return drainTicksPerSecond;
+    }
+
+    public static void resetDebugSettings() {
+        drainTicksPerSecond = DEFAULT_DRAIN_TICKS_PER_SECOND;
+    }
+
+    public static void refreshSync(ServerPlayer player) {
+        CompoundTag data = player.getPersistentData();
+        data.remove(SYNC_INITIALIZED_KEY);
+        DiveSuitEligibility.Result eligibility = DiveSuitEligibility.evaluate(player);
+        Initialization initialization = eligibility.fullSuit() ? ensureInitialized(data) : inspect(data);
+        int reserve = initialization.supported() ? storedReserve(player) : 0;
+        sync(player, eligibility, reserve, initialization);
     }
 
     public static void copy(Player original, Player replacement) {
@@ -188,7 +229,8 @@ public final class DiveOxygenManager {
                 || data.getBoolean(SYNC_FULL_KEY) != eligibility.fullSuit()
                 || data.getBoolean(SYNC_ELIGIBLE_KEY) != eligibility.eligible()
                 || !movementMode.equals(data.getString(SYNC_MOVEMENT_KEY))
-                || !oxygenMode.equals(data.getString(SYNC_OXYGEN_KEY));
+                || !oxygenMode.equals(data.getString(SYNC_OXYGEN_KEY))
+                || data.getInt(SYNC_DRAIN_KEY) != drainTicksPerSecond;
         if (!modeChanged && serverPlayer.tickCount % 20 != 0) return;
         long revision = data.getLong(REVISION_KEY) + 1L;
         data.putLong(REVISION_KEY, revision);
@@ -197,8 +239,10 @@ public final class DiveOxygenManager {
         data.putBoolean(SYNC_ELIGIBLE_KEY, eligibility.eligible());
         data.putString(SYNC_MOVEMENT_KEY, movementMode);
         data.putString(SYNC_OXYGEN_KEY, oxygenMode);
+        data.putInt(SYNC_DRAIN_KEY, drainTicksPerSecond);
         DiveNetworking.send(serverPlayer, reserve, revision,
-                eligibility.eligible() && initialization.supported(), movementMode, oxygenMode);
+                eligibility.eligible() && initialization.supported(), movementMode, oxygenMode,
+                drainTicksPerSecond);
     }
 
     private record Initialization(boolean supported, boolean corrupt, boolean unsupported, String reason) {

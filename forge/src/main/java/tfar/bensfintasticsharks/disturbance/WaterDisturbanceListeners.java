@@ -42,7 +42,6 @@ public class WaterDisturbanceListeners {
     public static void register(IEventBus bus) {
         bus.register(new WaterDisturbanceListeners());
         bus.register(new WaterDisturbanceHandler());
-        bus.register(new GreatWhiteBoatInterest());
         bus.register(new SharkAlertHandler());
         bus.register(new PreyFleeHandler());
     }
@@ -112,7 +111,9 @@ public class WaterDisturbanceListeners {
         if (entity instanceof Boat) BOATS.remove(entity.getUUID());
         if (event.getLevel() instanceof ServerLevel level) {
             WaterDisturbanceHandler.clearEntity(level, entity.getUUID());
-            GreatWhiteBoatInterest.clearEntity(level, entity.getUUID());
+            if (!GreatWhiteBoatInterest.preserveAfterEntityUnload(entity.getRemovalReason())) {
+                GreatWhiteBoatInterest.clearEntity(level, entity.getUUID());
+            }
         }
         LAST_FIRED.keySet().removeIf(key -> key.dimension().equals(dimension) && key.source().equals(entity.getUUID()));
     }
@@ -132,6 +133,7 @@ public class WaterDisturbanceListeners {
     public void onLevelTick(TickEvent.LevelTickEvent event) {
         if (event.phase != TickEvent.Phase.END || event.level.isClientSide
                 || !(event.level instanceof ServerLevel level)) return;
+        GreatWhiteBoatInterest.tick(level);
         for (var entry : BOATS.entrySet()) {
             BoatState state = entry.getValue();
             if (!state.dimension().equals(level.dimension())) continue;

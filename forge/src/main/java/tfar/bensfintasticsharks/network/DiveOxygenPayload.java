@@ -10,7 +10,7 @@ import tfar.bensfintasticsharks.dive.DiveOxygenManager;
 
 /** Owning player snapshot for the dive suit state. The server remains authoritative. */
 public record DiveOxygenPayload(int schema, long revision, int remainingTicks, boolean eligible,
-                                String movementMode, String oxygenMode) {
+                                String movementMode, String oxygenMode, int drainTicksPerSecond) {
 
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeVarInt(schema);
@@ -19,11 +19,12 @@ public record DiveOxygenPayload(int schema, long revision, int remainingTicks, b
         buffer.writeBoolean(eligible);
         buffer.writeUtf(movementMode, 32);
         buffer.writeUtf(oxygenMode, 32);
+        buffer.writeVarInt(drainTicksPerSecond);
     }
 
     public static DiveOxygenPayload decode(FriendlyByteBuf buffer) {
         return new DiveOxygenPayload(buffer.readVarInt(), buffer.readVarLong(), buffer.readVarInt(),
-                buffer.readBoolean(), buffer.readUtf(32), buffer.readUtf(32));
+                buffer.readBoolean(), buffer.readUtf(32), buffer.readUtf(32), buffer.readVarInt());
     }
 
     public static void handle(DiveOxygenPayload payload, Supplier<NetworkEvent.Context> contextSupplier) {

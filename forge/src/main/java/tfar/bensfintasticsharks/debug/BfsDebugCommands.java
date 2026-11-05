@@ -18,8 +18,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import tfar.bensfintasticsharks.config.SpeciesSettingsConfigBridge;
+import tfar.bensfintasticsharks.dive.DiveOxygenManager;
 import tfar.bensfintasticsharks.entity.SpeciesSettingsService;
 import tfar.bensfintasticsharks.follow.BfsFollowManager;
+import tfar.bensfintasticsharks.gore.GoreDebugSettings;
 import tfar.bensfintasticsharks.spawn.MobCapManager;
 
 import java.util.EnumMap;
@@ -66,6 +68,8 @@ public final class BfsDebugCommands {
                 .then(Commands.literal("off").executes(BfsDebugCommands::stop))
                 .then(Commands.literal("status").executes(BfsDebugCommands::status))
                 .then(algaeNode())
+                .then(diveNode())
+                .then(goreNode())
                 .then(followNode())
                 .then(settingsNode())
                 .then(speedNode())
@@ -108,6 +112,93 @@ public final class BfsDebugCommands {
                                 .then(Commands.argument("minZ", IntegerArgumentType.integer())
                                         .then(Commands.argument("size", IntegerArgumentType.integer(1, 64))
                                                 .executes(BfsDebugCommands::scanAlgae)))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> diveNode() {
+        return Commands.literal("dive").requires(source -> source.hasPermission(2))
+                .then(Commands.literal("setoxygen")
+                        .then(Commands.argument("player", net.minecraft.commands.arguments.EntityArgument.player())
+                                .then(Commands.argument("ticks", IntegerArgumentType.integer(
+                                                0, DiveOxygenManager.MAX_RESERVE_TICKS))
+                                        .executes(context -> {
+                                            ServerPlayer target = net.minecraft.commands.arguments.EntityArgument
+                                                    .getPlayer(context, "player");
+                                            int ticks = IntegerArgumentType.getInteger(context, "ticks");
+                                            DiveOxygenManager.setReserve(target, ticks);
+                                            context.getSource().sendSuccess(() -> Component.literal(
+                                                    "Set " + target.getGameProfile().getName() + "'s dive oxygen to "
+                                                            + DiveOxygenManager.storedReserve(target) + "/"
+                                                            + DiveOxygenManager.MAX_RESERVE_TICKS + " ticks."), false);
+                                            return 1;
+                                        }))))
+                .then(Commands.literal("setdrain")
+                        .then(Commands.argument("ticks_per_second", IntegerArgumentType.integer(
+                                        0, DiveOxygenManager.MAX_DRAIN_TICKS_PER_SECOND))
+                                .executes(context -> {
+                                    int requested = IntegerArgumentType.getInteger(context, "ticks_per_second");
+                                    int rate = DiveOxygenManager.setDrainTicksPerSecond(requested);
+                                    for (ServerPlayer player : context.getSource().getServer().getPlayerList().getPlayers()) {
+                                        DiveOxygenManager.refreshSync(player);
+                                    }
+                                    context.getSource().sendSuccess(() -> Component.literal(
+                                            "Dive oxygen drain is now " + rate + " reserve ticks per second."), false);
+                                    return 1;
+                                })))
+                .then(Commands.literal("status").executes(context -> {
+                    String oxygen = context.getSource().getEntity() instanceof ServerPlayer player
+                            ? " Your reserve: " + DiveOxygenManager.storedReserve(player) + "/"
+                            + DiveOxygenManager.MAX_RESERVE_TICKS + " ticks."
+                            : "";
+                    context.getSource().sendSuccess(() -> Component.literal(
+                            "Dive oxygen drain: " + DiveOxygenManager.drainTicksPerSecond()
+                                    + " ticks per second (default "
+                                    + DiveOxygenManager.DEFAULT_DRAIN_TICKS_PER_SECOND + ")." + oxygen), false);
+                    return 1;
+                }))
+                .then(Commands.literal("reset").executes(context -> {
+                    DiveOxygenManager.resetDebugSettings();
+                    for (ServerPlayer player : context.getSource().getServer().getPlayerList().getPlayers()) {
+                        DiveOxygenManager.refreshSync(player);
+                    }
+                    context.getSource().sendSuccess(() -> Component.literal(
+                            "Dive debug settings reset. Oxygen drain: "
+                                    + DiveOxygenManager.DEFAULT_DRAIN_TICKS_PER_SECOND + " ticks per second."), false);
+                    return 1;
+                }));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> goreNode() {
+        return Commands.literal("gore").requires(source -> source.hasPermission(2))
+                .then(Commands.literal("get").executes(context -> {
+                    context.getSource().sendSuccess(() -> Component.literal(
+                            "Gore debug settings: " + GoreDebugSettings.current().describe()), false);
+                    return 1;
+                }))
+                .then(Commands.literal("reset").executes(context -> {
+                    GoreDebugSettings.reset();
+                    context.getSource().sendSuccess(() -> Component.literal(
+                            "Gore debug settings reset: " + GoreDebugSettings.current().describe()), false);
+                    return 1;
+                }))
+                .then(Commands.literal("set")
+                        .then(Commands.argument("field", StringArgumentType.word())
+                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(
+                                        new String[]{"particle_count", "particle_scale", "particle_lifetime",
+                                                "wound_scale", "wound_lifetime", "remains_count",
+                                                "remains_scale", "remains_lifetime"}, builder))
+                                .then(Commands.argument("value", DoubleArgumentType.doubleArg())
+                                        .executes(context -> {
+                                            String field = StringArgumentType.getString(context, "field");
+                                            double value = DoubleArgumentType.getDouble(context, "value");
+                                            if (!GoreDebugSettings.set(field, value)) {
+                                                context.getSource().sendFailure(Component.literal(
+                                                        "Invalid gore setting or value. Check the field bounds and use whole numbers for counts and lifetimes."));
+                                                return 0;
+                                            }
+                                            context.getSource().sendSuccess(() -> Component.literal(
+                                                    "Gore setting updated: " + GoreDebugSettings.current().describe()), false);
+                                            return 1;
+                                        }))));
     }
 
     private static int scanAlgae(CommandContext<CommandSourceStack> context) {

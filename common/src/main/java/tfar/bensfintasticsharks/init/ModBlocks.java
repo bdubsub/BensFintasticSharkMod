@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -44,7 +45,9 @@ public final class ModBlocks {
     /** Small algae uses the vanilla multiface and waterlogged implementation. */
     private static final class SmallAlgaeBlock extends GlowLichenBlock {
         private SmallAlgaeBlock() {
-            super(BlockBehaviour.Properties.copy(Blocks.GLOW_LICHEN).noOcclusion());
+            super(BlockBehaviour.Properties.copy(Blocks.GLOW_LICHEN)
+                    .lightLevel(state -> 5)
+                    .noOcclusion());
             registerDefaultState(defaultBlockState()
                     .setValue(BlockStateProperties.DOWN, true)
                     .setValue(BlockStateProperties.WATERLOGGED, true));
@@ -53,6 +56,47 @@ public final class ModBlocks {
         @Override
         protected boolean isFaceSupported(Direction direction) {
             return direction != Direction.UP;
+        }
+
+        @Override
+        public BlockState getStateForPlacement(BlockPlaceContext context) {
+            Level level = context.getLevel();
+            BlockPos pos = context.getClickedPos();
+            FluidState fluid = level.getFluidState(pos);
+            if (!fluid.is(FluidTags.WATER) || !fluid.isSource()) {
+                return null;
+            }
+
+            Direction supportDirection = context.getClickedFace().getOpposite();
+            if (!isFaceSupported(supportDirection)) {
+                return null;
+            }
+            BlockPos supportPos = pos.relative(supportDirection);
+            if (!level.getBlockState(supportPos).isFaceSturdy(level, supportPos,
+                    supportDirection.getOpposite())) {
+                return null;
+            }
+
+            BooleanProperty face = switch (supportDirection) {
+                case DOWN -> BlockStateProperties.DOWN;
+                case NORTH -> BlockStateProperties.NORTH;
+                case SOUTH -> BlockStateProperties.SOUTH;
+                case EAST -> BlockStateProperties.EAST;
+                case WEST -> BlockStateProperties.WEST;
+                case UP -> null;
+            };
+            if (face == null) {
+                return null;
+            }
+
+            BlockState existing = level.getBlockState(pos);
+            BlockState placement = existing.is(this)
+                    ? existing
+                    : defaultBlockState().setValue(BlockStateProperties.DOWN, false);
+            if (placement.getValue(face)) {
+                return null;
+            }
+            return placement.setValue(face, true).setValue(BlockStateProperties.WATERLOGGED, true);
         }
 
         @Override
@@ -200,6 +244,14 @@ public final class ModBlocks {
                                    BlockGetter level,
                                    BlockPos pos,
                                    CollisionContext context) {
+            return Shapes.block();
+        }
+
+        @Override
+        public VoxelShape getCollisionShape(BlockState state,
+                                            BlockGetter level,
+                                            BlockPos pos,
+                                            CollisionContext context) {
             return Shapes.empty();
         }
 

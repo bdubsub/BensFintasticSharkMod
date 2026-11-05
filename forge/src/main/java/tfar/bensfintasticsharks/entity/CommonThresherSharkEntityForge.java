@@ -16,10 +16,32 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import tfar.bensfintasticsharks.ModAnimations;
 
 public class CommonThresherSharkEntityForge extends CommonThresherSharkEntity implements GeoEntity{
+    private static final double SWIM_MOVEMENT_EPSILON = 1.0e-4;
+    private static final double VISUAL_MOVEMENT_EPSILON = 4.0e-4;
+    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("misc.idle");
+
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private int visuallyStillTicks;
 
     public CommonThresherSharkEntityForge(EntityType<CommonThresherSharkEntity> $$0, Level $$1) {
         super($$0, $$1);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (level().isClientSide) {
+            double dx = getX() - xo;
+            double dy = getY() - yo;
+            double dz = getZ() - zo;
+            visuallyStillTicks = dx * dx + dy * dy + dz * dz < VISUAL_MOVEMENT_EPSILON
+                    ? Math.min(visuallyStillTicks + 1, 40) : 0;
+        }
+    }
+
+    private boolean isVisuallyMoving() {
+        return getDeltaMovement().lengthSqr() > SWIM_MOVEMENT_EPSILON
+                || level().isClientSide && visuallyStillTicks == 0;
     }
 
     @Override
@@ -30,7 +52,10 @@ public class CommonThresherSharkEntityForge extends CommonThresherSharkEntity im
             }
             // getTarget() is server-only, so FAST_SWIM never played client-side; getSharkState()
             // is synced and flips HOSTILE when hunting (same pattern as the mako/tiger).
-            return event.setAndContinue(this.getSharkState() == SharkState.HOSTILE ? ModAnimations.FAST_SWIM : DefaultAnimations.SWIM);
+            if (this.getSharkState() == SharkState.HOSTILE) {
+                return event.setAndContinue(ModAnimations.FAST_SWIM);
+            }
+            return event.setAndContinue(isVisuallyMoving() ? DefaultAnimations.SWIM : IDLE);
         })
                 .setAnimationSpeedHandler(e -> ModAnimations.swimClipSpeed(this))
                 .triggerableAnim("bite", RawAnimation.begin().then("attack.bite", Animation.LoopType.PLAY_ONCE))

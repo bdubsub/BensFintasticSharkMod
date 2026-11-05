@@ -45,6 +45,7 @@ public class CommonThresherSharkEntity extends AbstractSharkEntity<CommonThreshe
         implements ConditionalGlowing, BfsVariantHolder {
 
     @Override public int bfsVariantCount() { return Variant.values().length; }
+    @Override public boolean isCommonBfsVariant(int id) { return id == 0; }
     @Override public void setBfsVariantId(int id) {
         int n = bfsVariantCount();
         setVariant(Variant.byId(((id % n) + n) % n));

@@ -214,6 +214,10 @@ public final class SpeciesSettingsService {
     private static final List<String> SPECIES = createSpeciesList();
     private static volatile State state = createState(0L, createDefaultBaseline(), Map.of());
 
+    private record MovementDefaults(double horizontalSpeed, double verticalSpeed,
+                                    double horizontalSprint, double verticalSprint) {
+    }
+
     private SpeciesSettingsService() {
     }
 
@@ -278,12 +282,31 @@ public final class SpeciesSettingsService {
                 || overrides.containsKey(Field.VERTICAL_SPRINT));
     }
 
+    /** Returns whether the species has an effective independent-axis movement profile. */
+    public static boolean hasMovementProfile(Entity entity) {
+        if (entity == null) return false;
+        var profile = SpeciesBehaviorProfile.forEntity(entity);
+        Map<Field, Double> values = profile == null ? null : state.effective().get(profile.id());
+        return values != null && values.containsKey(Field.HORIZONTAL_SPEED)
+                && values.containsKey(Field.VERTICAL_SPEED);
+    }
+
     public static boolean hasTiltOverrides(Entity entity) {
         if (entity == null) return false;
         var profile = SpeciesBehaviorProfile.forEntity(entity);
         Map<Field, Double> overrides = profile == null ? null : state.overrides().get(profile.id());
         return overrides != null && (overrides.containsKey(Field.TILT_UP)
                 || overrides.containsKey(Field.TILT_DOWN) || overrides.containsKey(Field.TILT_RATE));
+    }
+
+    /** Returns whether the species has effective pitch settings, including its spawn defaults. */
+    public static boolean hasTiltProfile(Entity entity) {
+        if (entity == null) return false;
+        var profile = SpeciesBehaviorProfile.forEntity(entity);
+        Map<Field, Double> values = profile == null ? null : state.effective().get(profile.id());
+        return profile != null && supportsTilt(profile.id()) && values != null
+                && values.containsKey(Field.TILT_UP) && values.containsKey(Field.TILT_DOWN)
+                && values.containsKey(Field.TILT_RATE);
     }
 
     public static boolean supportsTilt(String species) {
@@ -592,30 +615,22 @@ public final class SpeciesSettingsService {
         for (String species : SPECIES) {
             SpeciesBehaviorProfile.Profile profile = SpeciesBehaviorProfile.forId(species);
             EnumMap<Field, Double> values = new EnumMap<>(Field.class);
-            double horizontal = switch (profile.family()) {
-                case SHARK -> 5.0D;
-                case MAMMAL -> 4.0D;
-                case FISH -> 3.0D;
-                case TURTLE -> 2.0D;
-                case OCTOPUS, BENTHIC -> 1.8D;
-                case JELLYFISH -> 0.5D;
-            };
-            double vertical = switch (profile.family()) {
-                case SHARK -> 3.5D;
-                case FISH -> 2.0D;
-                case MAMMAL -> 2.5D;
-                case TURTLE, OCTOPUS, BENTHIC -> 1.5D;
-                case JELLYFISH -> 0.5D;
-            };
-            values.put(Field.HORIZONTAL_SPEED, horizontal);
-            values.put(Field.VERTICAL_SPEED, vertical);
-            values.put(Field.HORIZONTAL_SPRINT, 1.2D);
-            values.put(Field.VERTICAL_SPRINT, 1.5D);
-            values.put(Field.TILT_UP, (double) AquaticMovement.SHARK_HARD_UPWARD_PITCH_LIMIT);
-            values.put(Field.TILT_DOWN, profile.family() == SpeciesBehaviorProfile.Family.SHARK
-                    ? (double) AquaticMovement.SHARK_HARD_DOWNWARD_PITCH_LIMIT
-                    : (double) AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT);
-            values.put(Field.TILT_RATE, AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK * 20.0D);
+            MovementDefaults movement = defaultMovement(species, profile);
+            values.put(Field.HORIZONTAL_SPEED, movement.horizontalSpeed());
+            values.put(Field.VERTICAL_SPEED, movement.verticalSpeed());
+            values.put(Field.HORIZONTAL_SPRINT, movement.horizontalSprint());
+            values.put(Field.VERTICAL_SPRINT, movement.verticalSprint());
+            if (supportsTilt(species)) {
+                values.put(Field.TILT_UP, 45.0D);
+                values.put(Field.TILT_DOWN, 45.0D);
+                values.put(Field.TILT_RATE, 60.0D);
+            } else {
+                values.put(Field.TILT_UP, (double) AquaticMovement.SHARK_HARD_UPWARD_PITCH_LIMIT);
+                values.put(Field.TILT_DOWN, profile.family() == SpeciesBehaviorProfile.Family.SHARK
+                        ? (double) AquaticMovement.SHARK_HARD_DOWNWARD_PITCH_LIMIT
+                        : (double) AquaticMovement.FISH_HARD_DOWNWARD_PITCH_LIMIT);
+                values.put(Field.TILT_RATE, AquaticMovement.MAX_PITCH_STEP_DEGREES_PER_TICK * 20.0D);
+            }
             values.put(Field.SPAWN_GROUP_MIN, profile.social() ? 2.0D : 1.0D);
             values.put(Field.SPAWN_GROUP_MAX, profile.social() ? 4.0D : 1.0D);
             double[] scaleRange = defaultScaleRange(species);
@@ -640,6 +655,41 @@ public final class SpeciesSettingsService {
             baseline.put(species, values);
         }
         return baseline;
+    }
+
+    private static MovementDefaults defaultMovement(String species, SpeciesBehaviorProfile.Profile profile) {
+        return switch (species) {
+            case "oceanic_whitetip_shark", "blacktip_reef_shark" -> new MovementDefaults(4.0D, 5.0D, 1.2D, 1.6D);
+            case "tiger_shark", "great_hammerhead_shark" -> new MovementDefaults(5.0D, 6.0D, 1.3D, 1.8D);
+            case "sandtiger_shark" -> new MovementDefaults(3.0D, 4.0D, 1.2D, 1.6D);
+            case "common_thresher_shark" -> new MovementDefaults(4.0D, 5.0D, 1.3D, 1.7D);
+            case "shortfin_mako_shark" -> new MovementDefaults(5.0D, 5.0D, 1.6D, 2.0D);
+            case "great_white_shark" -> new MovementDefaults(3.0D, 3.0D, 1.8D, 2.0D);
+            case "atlantic_cod", "atlantic_salmon" -> new MovementDefaults(6.0D, 6.0D, 1.2D, 1.6D);
+            default -> new MovementDefaults(defaultHorizontalSpeed(profile.family()), defaultVerticalSpeed(profile.family()),
+                    1.2D, 1.5D);
+        };
+    }
+
+    private static double defaultHorizontalSpeed(SpeciesBehaviorProfile.Family family) {
+        return switch (family) {
+            case SHARK -> 5.0D;
+            case MAMMAL -> 4.0D;
+            case FISH -> 3.0D;
+            case TURTLE -> 2.0D;
+            case OCTOPUS, BENTHIC -> 1.8D;
+            case JELLYFISH -> 0.5D;
+        };
+    }
+
+    private static double defaultVerticalSpeed(SpeciesBehaviorProfile.Family family) {
+        return switch (family) {
+            case SHARK -> 3.5D;
+            case FISH -> 2.0D;
+            case MAMMAL -> 2.5D;
+            case TURTLE, OCTOPUS, BENTHIC -> 1.5D;
+            case JELLYFISH -> 0.5D;
+        };
     }
 
     private static void putDisturbanceDefaults(EnumMap<Field, Double> values) {
