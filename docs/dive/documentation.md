@@ -22,3 +22,5 @@ These server commands require permission level 2:
 ## Armor model
 
 The worn model uses the supplied Dive Armor 2.0 128×128 atlas and its matching 128×128 helmet, chest, leg, and boot layer textures. The geometry maps to GeckoLib’s head, body, arm, leg, and boot slot bones so each piece follows the wearer's current humanoid pose. The lower leg meshes are split into leggings and boot segments for their separate equipment slots.
+
+The helmet shell sits around the normal player head, and both boot segments rotate about the knee together with the leggings. The renderer uses the prepared equipment pose supplied by Forge, including armor-stand poses and player crouching.

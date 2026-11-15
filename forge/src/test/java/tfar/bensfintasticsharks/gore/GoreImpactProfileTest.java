@@ -3,6 +3,7 @@ package tfar.bensfintasticsharks.gore;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GoreImpactProfileTest {
     private static final GoreDebugSettings.Settings DEFAULTS =
@@ -32,6 +33,25 @@ class GoreImpactProfileTest {
         assertEquals(96, fatal.particleLifetime());
         assertEquals(DEFAULTS.remainsCount(), fatal.remainsCount());
         assertEquals(0, release.remainsCount());
+    }
+
+    @Test
+    void victimsScaleBloodSizeAndSpreadWithoutChangingHitIntensity() {
+        GoreImpactProfile base = GoreImpactProfile.forKind(GoreImpactKind.THRASH_RELEASE, DEFAULTS);
+        GoreImpactProfile salmon = base.forTarget(0.7F, 0.4F);
+        GoreImpactProfile player = base.forTarget(0.6F, 1.8F);
+        GoreImpactProfile largeMob = base.forTarget(2.0F, 2.0F);
+        assertTrue(salmon.particleScale() < player.particleScale());
+        assertTrue(player.particleScale() < largeMob.particleScale());
+        assertTrue(salmon.mistSpreadRadius() < player.mistSpreadRadius());
+        assertTrue(salmon.remainsScale() < player.remainsScale());
+        assertEquals(base.particleCount(), salmon.particleCount());
+        assertEquals(base.particleLifetime(), salmon.particleLifetime());
+        assertEquals(base.particleScale(), player.particleScale(), 0.00001F);
+        assertEquals(1.0D, GoreImpactProfile.targetScale(Float.NaN, 1));
+        assertEquals(1.0D, GoreImpactProfile.targetScale(0, 1));
+        assertEquals(0.15D, GoreImpactProfile.targetScale(0.001F, 0.001F));
+        assertEquals(3.0D, GoreImpactProfile.targetScale(Float.MAX_VALUE, Float.MAX_VALUE));
     }
 
     @Test

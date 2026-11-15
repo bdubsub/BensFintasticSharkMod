@@ -1,8 +1,12 @@
 package tfar.bensfintasticsharks.client;
 
 import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.tags.FluidTags;
+import net.minecraftforge.event.TickEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -15,11 +19,15 @@ import tfar.bensfintasticsharks.gore.GoreParticleLayout;
 import tfar.bensfintasticsharks.gore.ModGoreParticles;
 import tfar.bensfintasticsharks.network.GoreImpactPayload;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Applies a received visual cue only on this client and only while its local gore option is on. */
 public final class ClientGoreEffects {
     private static final double PARTICLE_GAP = 0.04D;
+    private static final Map<Integer, BloodTrail> TRAILS = new LinkedHashMap<>();
+    private static ClientLevel trailLevel;
 
     private ClientGoreEffects() {
     }
@@ -30,13 +38,15 @@ public final class ClientGoreEffects {
         if (!impact.isValid() || !BfsClientGoreConfig.enabled() || level == null || minecraft.player == null) return;
         if (minecraft.player.distanceToSqr(impact.x(), impact.y(), impact.z()) > 48.0D * 48.0D) return;
 
+        Entity target = level.getEntity(impact.targetEntityId());
         boolean waterImpact = BfsBloodOverlay.recordImpact(level, impact.targetEntityId(),
-                impact.x(), impact.y(), impact.z());
+                impact.x(), impact.y(), impact.z()) || target != null && target.isInWater();
         GoreImpactProfile profile = GoreImpactProfile.forKind(impact.kind(), impact.settings());
+        if (target != null) profile = profile.forTarget(target.getBbWidth(), target.getBbHeight());
         RandomSource random = level.random;
         GoreParticle.configure(new GoreParticle.Tuning(profile.particleScale(), profile.particleLifetime(),
                 profile.woundScale(), profile.woundLifetime(), profile.remainsScale(), profile.remainsLifetime(),
-                impact.targetEntityId()));
+                waterImpact));
         Camera camera = minecraft.gameRenderer.getMainCamera();
         Vec3 cameraRight = fromVector(camera.getLeftVector()).scale(-1.0D);
         Vec3 cameraUp = fromVector(camera.getUpVector());
@@ -69,10 +79,18 @@ public final class ClientGoreEffects {
                     impact.x() + offset.x, impact.y() + offset.y, impact.z() + offset.z,
                     velocity.x, velocity.y, velocity.z);
         }
-        Entity woundTarget = level.getEntity(impact.targetEntityId());
-        if (!impact.fatal() && profile.woundLifetime() > 0 && woundTarget != null) {
-            level.addParticle(ModGoreParticles.BLOOD_WOUND.get(), impact.x(), impact.y(), impact.z(),
-                    0.0D, 0.0D, 0.0D);
+        if (trailLevel != level) {
+            TRAILS.clear();
+            trailLevel = minecraft.level;
+        }
+        if (!impact.fatal() && target != null && profile.woundLifetime() > 0 && profile.particleCount() > 0) {
+            if (TRAILS.size() >= 128 && !TRAILS.containsKey(target.getId())) {
+                TRAILS.remove(TRAILS.keySet().iterator().next());
+            }
+            TRAILS.put(target.getId(), new BloodTrail(target, target.position(), profile,
+                    level.getGameTime() + Math.min(200, profile.woundLifetime())));
+        } else {
+            TRAILS.remove(impact.targetEntityId());
         }
         if (impact.fatal()) {
             List<GoreParticleLayout.Offset> remains = GoreParticleLayout.separatedOffsets(profile.remainsCount(),
@@ -82,6 +100,60 @@ public final class ClientGoreEffects {
                 level.addParticle(ModGoreParticles.BLOOD_REMAINS.get(), impact.x() + displacement.x,
                         impact.y() + displacement.y, impact.z() + displacement.z, 0.0D, 0.0D, 0.0D);
             }
+        }
+    }
+
+    public static void tick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null || level != trailLevel || !BfsClientGoreConfig.enabled()) {
+            TRAILS.clear();
+            trailLevel = level;
+            return;
+        }
+        var iterator = TRAILS.values().iterator();
+        while (iterator.hasNext()) {
+            BloodTrail trail = iterator.next();
+            Entity target = trail.target;
+            if (!target.isAlive() || target.isRemoved() || level.getGameTime() >= trail.endsAt) {
+                iterator.remove();
+                continue;
+            }
+            Vec3 current = target.position();
+            double distance = trail.previous.distanceTo(current);
+            if (distance > 8.0D) {
+                iterator.remove();
+                continue;
+            }
+            if (level.getGameTime() % 2 == 0) {
+                GoreImpactProfile profile = trail.profile;
+                int count = Math.min(8, Math.max(1, (int) Math.ceil(distance / 0.15D)));
+                for (int index = 1; index <= count; index++) {
+                    Vec3 point = trail.previous.lerp(current, index / (double) count)
+                            .add(0.0D, target.getBbHeight() * 0.4D, 0.0D);
+                    boolean water = target.isInWater() || level.getFluidState(BlockPos.containing(point)).is(FluidTags.WATER);
+                    GoreParticle.configure(new GoreParticle.Tuning(profile.woundScale() * 0.35F,
+                            Math.min(30, profile.particleLifetime()), profile.woundScale(), profile.woundLifetime(),
+                            profile.remainsScale(), profile.remainsLifetime(), water));
+                    level.addParticle(ModGoreParticles.BLOOD_MIST.get(), point.x, point.y, point.z,
+                            0.0D, water ? 0.0D : -0.015D, 0.0D);
+                }
+                trail.previous = current;
+            }
+        }
+    }
+
+    private static final class BloodTrail {
+        private final Entity target;
+        private Vec3 previous;
+        private final GoreImpactProfile profile;
+        private final long endsAt;
+
+        private BloodTrail(Entity target, Vec3 previous, GoreImpactProfile profile, long endsAt) {
+            this.target = target;
+            this.previous = previous;
+            this.profile = profile;
+            this.endsAt = endsAt;
         }
     }
 

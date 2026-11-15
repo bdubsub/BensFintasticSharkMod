@@ -21,6 +21,19 @@ public record GoreImpactProfile(int particleCount, float particleScale, int part
         };
     }
 
+    public GoreImpactProfile forTarget(float width, float height) {
+        double size = targetScale(width, height);
+        return new GoreImpactProfile(particleCount, (float) (particleScale * size), particleLifetime,
+                (float) (woundScale * size), woundLifetime, remainsCount,
+                (float) (remainsScale * size), remainsLifetime, mistCount,
+                mistSpreadRadius * size, mistSpeed * Math.sqrt(size));
+    }
+
+    public static double targetScale(float width, float height) {
+        if (!Float.isFinite(width) || !Float.isFinite(height) || width <= 0 || height <= 0) return 1.0D;
+        return Math.max(0.15D, Math.min(3.0D, Math.cbrt(width * (double) width * height / (0.6D * 0.6D * 1.8D))));
+    }
+
     private static GoreImpactProfile resolve(GoreDebugSettings.Settings tuning,
                                              double particleCountMultiplier, double scaleMultiplier,
                                              double lifetimeMultiplier, double mistCountMultiplier,
