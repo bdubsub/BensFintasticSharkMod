@@ -6,9 +6,7 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 
 public final class GoreParticle extends TextureSheetParticle {
@@ -37,11 +35,7 @@ public final class GoreParticle extends TextureSheetParticle {
         this.roll = level.random.nextFloat() * (float) (Math.PI * 2.0D);
         this.oRoll = roll;
         this.alpha = baseAlpha;
-        containUnderwater();
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
-        this.setSpriteFromAge(sprites);
+        setSpriteFromAge(sprites);
     }
 
     public static void configure(Tuning updated) {
@@ -59,34 +53,24 @@ public final class GoreParticle extends TextureSheetParticle {
             return;
         }
         super.tick();
-        containUnderwater();
-        this.setSpriteFromAge(sprites);
+        if (!isAlive()) return;
+        if (underwater) {
+            double center = GoreWaterBoundary.submergedCenter(level, x, y, z, quadSize);
+            if (Double.isNaN(center)) {
+                remove();
+                return;
+            }
+            if (center < y) {
+                setPos(x, center, z);
+                yd = Math.min(0.0D, yd);
+            }
+        }
+        setSpriteFromAge(sprites);
         float fadeStart = lifetime > 20 ? lifetime - 12.0F : lifetime * 0.55F;
         float fade = age > fadeStart
                 ? Mth.clamp((lifetime - age) / (lifetime - fadeStart), 0.0F, 1.0F)
                 : 1.0F;
         alpha = baseAlpha * fade;
-    }
-
-    private void containUnderwater() {
-        if (!underwater) return;
-        BlockPos.MutableBlockPos pos = BlockPos.containing(x, y, z).mutable();
-        int search = (int) Math.ceil(quadSize * Math.sqrt(2.0D)) + 2;
-        while (!level.getFluidState(pos).is(FluidTags.WATER) && search-- > 0) pos.move(0, -1, 0);
-        if (!level.getFluidState(pos).is(FluidTags.WATER)) {
-            remove();
-            return;
-        }
-        // Search only as far as the billboard can reach above its center.
-        int top = pos.getY() + (int) Math.ceil(quadSize * Math.sqrt(2.0D)) + 2;
-        while (pos.getY() < top && level.getFluidState(pos.above()).is(FluidTags.WATER)) pos.move(0, 1, 0);
-        double surface = pos.getY() + level.getFluidState(pos).getHeight(level, pos);
-        double boundedY = GoreWaterBoundary.centerBelowSurface(y, surface, quadSize);
-        if (boundedY < y) {
-            setPos(x, boundedY, z);
-            yd = Math.min(0.0D, yd);
-        }
-        if (!level.getFluidState(BlockPos.containing(x, this.y, z)).is(FluidTags.WATER)) remove();
     }
 
     @Override
@@ -122,6 +106,13 @@ public final class GoreParticle extends TextureSheetParticle {
                 case WOUND -> Math.min(30, current.woundLifetime);
                 case REMAINS -> current.remainsLifetime;
             };
+            if (current.underwater) {
+                double center = GoreWaterBoundary.submergedCenter(level, x, y, z, size);
+                // Minecraft queues every nonnull particle, even one removed during construction.
+                if (Double.isNaN(center)) return null;
+                if (center < y) velocityY = Math.min(0.0D, velocityY);
+                y = center;
+            }
             float opacity = role == Role.MIST ? 0.42F : 1.0F;
             return new GoreParticle(level, x, y, z, velocityX, velocityY, velocityZ,
                     sprites, size, life, gravity, opacity, current.underwater);

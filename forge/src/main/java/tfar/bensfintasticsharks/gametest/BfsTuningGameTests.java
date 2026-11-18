@@ -20,6 +20,46 @@ import java.util.Map;
 @GameTestHolder("bfstuning")
 @PrefixGameTestTemplate(false)
 public final class BfsTuningGameTests {
+    @GameTest(template = "bfsmovementoraclegametests.empty", batch = "shark_surface_recovery", timeoutTicks = 60)
+    public static void greatWhiteRecoversFromPartiallySubmergedSpawn(GameTestHelper helper) {
+        prepareWater(helper);
+        Vec3 origin = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(15, 22, 15))).add(0, 0.7D, 0);
+        var shark = ModEntityTypes.GREAT_WHITE_SHARK.create(helper.getLevel());
+        shark.moveTo(origin.x, origin.y, origin.z, 0.0F, -35.0F);
+        shark.setDeltaMovement(0, 0.04D, 0);
+        helper.getLevel().addFreshEntity(shark);
+
+        helper.runAfterDelay(20, () -> {
+            double recoveredY = shark.getY();
+            boolean inWater = shark.isInWater();
+            shark.discard();
+            helper.assertTrue(inWater && recoveredY < origin.y - 0.8D,
+                    "Great White must return below the surface without a push, y=" + recoveredY);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "bfsmovementoraclegametests.empty", batch = "shark_initial_cruise", timeoutTicks = 60)
+    public static void greatWhiteStartsSwimmingFromSeabed(GameTestHelper helper) {
+        prepareWater(helper);
+        for (int x = 10; x <= 20; x++) {
+            for (int z = 10; z <= 20; z++) {
+                helper.setBlock(new BlockPos(x, 8, z), Blocks.STONE);
+            }
+        }
+        Vec3 origin = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(15, 9, 15)));
+        var shark = ModEntityTypes.GREAT_WHITE_SHARK.create(helper.getLevel());
+        shark.moveTo(origin.x, origin.y, origin.z, 0.0F, 0.0F);
+        helper.getLevel().addFreshEntity(shark);
+
+        helper.runAfterDelay(20, () -> {
+            double distance = shark.position().subtract(origin).horizontalDistance();
+            shark.discard();
+            helper.assertTrue(distance > 0.75D, "Great White must start swimming without a push, distance=" + distance);
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = "bfsmovementoraclegametests.empty", batch = "pursuit_speed", timeoutTicks = 60)
     public static void tunedPursuitRetainsSpeedDuringLevelAscentAndDescent(GameTestHelper helper) {
         prepareWater(helper);

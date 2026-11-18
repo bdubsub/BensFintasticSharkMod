@@ -217,6 +217,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
         Vec3 goal = navigationDestination != null ? navigationDestination
                 : navigationTarget == null ? new Vec3(wantedX, wantedY, wantedZ)
                 : Vec3.atCenterOf(navigationTarget);
+        if (mob instanceof AbstractSharkEntity<?>) goal = lowerToSwimmableDepth(goal);
         if (blockedGoal != null && blockedGoal.distanceToSqr(goal) < 1.0e-6
                 && mob.tickCount < retryAfterTick) {
             stopInputs("blocked");
@@ -237,6 +238,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
             if (route == null && path == null && !clearSegment(mob.position(), goal)) {
                 blockedGoal = goal;
                 retryAfterTick = mob.tickCount + 20;
+                requestedGoal = null;
                 stopInputs("blocked");
                 return;
             }
@@ -433,26 +435,90 @@ public class PitchSwimmingMoveControl extends MoveControl {
         AABB local = mob.getBoundingBox().move(position.subtract(mob.position())).deflate(0.01D);
         double horizontalMargin = Math.max(0.04D, mob.getBbWidth() * 0.08D);
         double verticalMargin = Math.max(0.04D, mob.getBbHeight() * 0.08D);
-        return local.inflate(horizontalMargin, verticalMargin, horizontalMargin);
+        AABB envelope = local.inflate(horizontalMargin, verticalMargin, horizontalMargin);
+        // A shark can start from solid footing without its clearance margin reaching into the floor.
+        return mob instanceof AbstractSharkEntity<?> ? envelope.setMinY(local.minY) : envelope;
     }
 
     private boolean isFullySubmerged(AABB envelope) {
         double[] xs = {envelope.minX, envelope.getCenter().x, envelope.maxX};
-        double dorsalClearance = mob instanceof AbstractSharkEntity<?>
-                ? Math.min(0.35D, Math.max(0.08D, mob.getBbHeight() * 0.18D)) : 0.0D;
-        double submergedTop = envelope.maxY - dorsalClearance;
+        double submergedTop = submergedTop(envelope);
         double[] ys = {envelope.minY, (envelope.minY + submergedTop) * 0.5D, submergedTop};
         double[] zs = {envelope.minZ, envelope.getCenter().z, envelope.maxZ};
+        BlockPos.MutableBlockPos sample = new BlockPos.MutableBlockPos();
         for (double x : xs) {
             for (double y : ys) {
                 for (double z : zs) {
-                    if (!mob.level().getFluidState(BlockPos.containing(x, y, z)).is(FluidTags.WATER)) {
-                        return false;
-                    }
+                    if (!isBelowWater(sample.set(x, y, z), y)) return false;
                 }
             }
         }
         return true;
+    }
+
+    private double submergedTop(AABB envelope) {
+        double finAllowance = mob instanceof AbstractSharkEntity<?>
+                ? Math.min(0.35D, Math.max(0.08D, mob.getBbHeight() * 0.18D)) : 0.0D;
+        return envelope.maxY - finAllowance;
+    }
+
+    private boolean isBelowWater(BlockPos pos, double y) {
+        var fluid = mob.level().getFluidState(pos);
+        return fluid.is(FluidTags.WATER) && y < pos.getY() + fluid.getHeight(mob.level(), pos);
+    }
+
+    private Vec3 lowerToSwimmableDepth(Vec3 position) {
+        AABB envelope = bodyEnvelope(position);
+        double top = submergedTop(envelope);
+        if (isBelowWater(BlockPos.containing(position.x, top, position.z), top)) return position;
+
+        BlockPos feet = BlockPos.containing(position);
+        if (!mob.level().getFluidState(feet).is(FluidTags.WATER)
+                && (!mob.level().getBlockState(feet).isAir()
+                || !mob.level().getFluidState(feet.below()).is(FluidTags.WATER))) return position;
+
+        // Look only within the nearby water column. Every recovery step still checks the full body.
+        int steps = (int) Math.ceil((mob.getBbHeight() + 1.0D) * 4.0D);
+        for (int step = 1; step <= steps; step++) {
+            double drop = step * 0.25D;
+            AABB lowered = envelope.move(0, -drop, 0);
+            if (!mob.level().noCollision(mob, lowered)) break;
+            if (isFullySubmerged(lowered)) return position.add(0, -drop, 0);
+        }
+        return position;
+    }
+
+    private boolean recoverFromSurface() {
+        if (!(mob instanceof AbstractSharkEntity<?>) || !mob.isInWater()) return false;
+        Vec3 safe = lowerToSwimmableDepth(mob.position());
+        double drop = mob.getY() - safe.y;
+        if (drop <= 0.0D) return false;
+
+        double step = Math.min(drop, 0.12D);
+        if (!mob.level().noCollision(mob, mob.getBoundingBox().expandTowards(0, -step, 0))) return false;
+        float recoveryPitch = Math.min(25.0F, activePitchLimit(false, false));
+        float currentPitch = mob.getXRot();
+        var next = SpeciesSettingsService.hasTiltProfile(mob)
+                ? tunedPitchStep(currentPitch, pitchRate, recoveryPitch)
+                : AquaticMovement.stepPitch(currentPitch, pitchRate, recoveryPitch);
+        mob.setXRot(next.pitch());
+        pitchRate = mob.getXRot() - currentPitch;
+        mob.move(MoverType.SELF, new Vec3(0, -step, 0));
+        mob.setDeltaMovement(Vec3.ZERO);
+        poweredCarry = Vec3.ZERO;
+        routeState = "surface_recovery";
+        return true;
+    }
+
+    Vec3 initialCruiseDestination() {
+        Vec3 origin = mob.position();
+        if (!isFullySubmerged(bodyEnvelope(origin))) return null;
+        for (int turn = 0; turn < 8; turn++) {
+            Vec3 ahead = AquaticMovement.forwardVector(mob.getYRot() + turn * 45, 0);
+            Vec3 destination = origin.add(ahead.scale(4.0D));
+            if (clearSegment(origin, destination)) return destination;
+        }
+        return null;
     }
 
     private void stopInputs(String state) {
@@ -526,6 +592,7 @@ public class PitchSwimmingMoveControl extends MoveControl {
     /** External velocity is the change since the last owned carry, not an orthogonal guess. */
     public void travel(double acceleration, double friction, double horizontalCap, double speedFloor,
                         Vec3 input) {
+        if (!MovementIntentOverrides.active(mob) && recoverFromSurface()) return;
         if (SpeciesSettingsService.hasMovementProfile(mob)) {
             travelConfigured(acceleration, friction, horizontalCap, speedFloor, input);
             return;

@@ -38,6 +38,7 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
     private final SharkParams params;
     private int stateTimer; // ticks remaining in the current non-idle state
     private int ticksTargetOutOfWater;
+    private boolean startedInitialCruise;
     private LivingEntity routeBlockedTarget;
     private int ticksWithoutViableRoute;
     private int biteCooldown;
@@ -493,6 +494,16 @@ public abstract class AbstractSharkEntity<T extends AbstractSharkEntity<T>> exte
             // cross the whole bite disc between checks and never fire, which fed the
             // overshoot-orbit loop.
             if (inBiteRange) scheduleBiteIfInRange(tgt);
+        }
+
+        if (!startedInitialCruise && tickCount <= 40 && tickCount % 4 == 0 && tgt == null && isInWater()
+                && moveControl instanceof SharkSwimmingMoveControl control) {
+            Vec3 destination = control.initialCruiseDestination();
+            if (destination != null) {
+                startedInitialCruise = true;
+                BrainUtils.setMemory(getBrain(), MemoryModuleType.WALK_TARGET, new WalkTarget(destination, 1.0F, 1));
+                getNavigation().moveTo(destination.x, destination.y, destination.z, 1.0D);
+            }
         }
 
         // Beach avoidance: every 40 ticks, nudge sharks away from beach biomes
