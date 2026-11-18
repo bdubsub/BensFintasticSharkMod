@@ -53,6 +53,10 @@ public class SharkSwimmingMoveControl extends SmoothSwimmingMoveControl {
         if (pitchControl != null) pitchControl.clearNavigationRequest();
     }
 
+    Vec3 initialCruiseDestination() {
+        return pitchControl == null ? null : pitchControl.initialCruiseDestination();
+    }
+
     public void travel(double acceleration, double friction, double horizontalCap, double speedFloor,
                         Vec3 input) {
         pitchControl.travel(acceleration, friction, horizontalCap, speedFloor, input);

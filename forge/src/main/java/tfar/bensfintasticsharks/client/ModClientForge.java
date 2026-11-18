@@ -25,6 +25,7 @@ public class ModClientForge {
         bus.addListener(ModClientForge::registerAdditionalModels);
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.addListener(BfsClientGoreCommands::registerCommands);
         bus.addListener(GoreParticleClient::registerProviders);
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.addListener(ClientGoreEffects::tick);
         bus.addListener(BfsClientDebugManager::registerReloadListeners);
         // 0.18 — grab/thrash screen effects (camera lock + red tint) live on the
         // runtime Forge bus; init() is only reached on the client dist.

@@ -1,8 +1,6 @@
 package tfar.bensfintasticsharks.item;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
@@ -40,13 +38,7 @@ public final class DiveArmorItem extends ArmorItem implements GeoItem {
                 if (renderer == null) {
                     renderer = new DiveArmorRenderer();
                 }
-                HumanoidModel<?> poseSource = original;
-                var entityRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
-                if (entityRenderer instanceof LivingEntityRenderer<?, ?> livingRenderer
-                        && livingRenderer.getModel() instanceof HumanoidModel<?> humanoidModel) {
-                    poseSource = humanoidModel;
-                }
-                renderer.prepForRender(entity, stack, slot, poseSource);
+                renderer.prepForRender(entity, stack, slot, original);
                 return renderer;
             }
         });
